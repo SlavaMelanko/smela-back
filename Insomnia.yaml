@@ -1,0 +1,117 @@
+type: collection.insomnia.rest/5.0
+name: My first collection
+meta:
+  id: wrk_6c4c42aab3ed447093b7d6816ebaf11e
+  created: 1749913981799
+  modified: 1749913981799
+  description: ""
+collection:
+  - url: "{{ _.base_url }}/login"
+    name: Login
+    meta:
+      id: req_8f077da81a704a8cb3ada305f7570b87
+      created: 1749913981817
+      modified: 1750002210943
+      isPrivate: false
+      description: ""
+      sortKey: -1749913981817
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"email": "jason@example.com",
+        	"password": "P@ssw0rd!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/11.2.0
+    scripts:
+      preRequest: ""
+      afterResponse: ""
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.private_api }}/me"
+    name: Me
+    meta:
+      id: req_8adc129cf594471d9fa561957de2a41e
+      created: 1749915412664
+      modified: 1749991505316
+      isPrivate: false
+      description: ""
+      sortKey: -1749915412664
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.2.0
+        id: pair_b21c378085454f80919a4e4ebd376b30
+      - id: pair_01ad6617bd0d45bbb0cc93dd5b41d01f
+        name: Authorization
+        value: Bearer {% response 'body', 'req_8f077da81a704a8cb3ada305f7570b87',
+          'b64::JC50b2tlbg==::46b', 'never', 60 %}
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: "{{ _.base_url }}/signup"
+    name: Singup
+    meta:
+      id: req_8e87de43bfa842328cbd117f7e242028
+      created: 1750000374704
+      modified: 1750001499062
+      isPrivate: false
+      description: ""
+      sortKey: -1750000374704
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "firstName": "Jason",
+          "lastName": "Statham",
+          "email": "jason@example.com",
+          "password": "P@ssw0rd!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/11.2.0
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_b90f71da56c851778249a08b26dd475530ed1a95
+    created: 1749913981802
+    modified: 1749989886867
+environments:
+  name: Portal v2
+  meta:
+    id: env_b90f71da56c851778249a08b26dd475530ed1a95
+    created: 1749913981801
+    modified: 1749991470460
+    isPrivate: false
+  data:
+    base_url: http://localhost:3000
+    private_api: "{{ _.base_url }}/api/v1"
