@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
 
-import type { Variables } from '@/types/context'
+import type { AppContext } from '@/types/context'
 
 import { jwtMiddleware, loggerMiddleware, prettyJsonMiddleware } from '@/middleware'
 import { privateRoutes, publicRoutes } from '@/routes'
 
-const app = new Hono<{ Variables: Variables }>()
+const app = new Hono<AppContext>()
 
 app.use(loggerMiddleware)
 

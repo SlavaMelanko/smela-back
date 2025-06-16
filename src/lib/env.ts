@@ -1,24 +1,31 @@
-import { config } from 'dotenv'
+import 'dotenv/config'
+
+import type { ZodError } from 'zod'
+
 import { z } from 'zod'
 
-// Load environment variables from .env file
-config()
-
-// Define schema for required environment variables
 const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production']).default('development'),
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   DB_URL: z.string().url('DB_URL must be a valid URL'),
+  LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
 })
 
-// eslint-disable-next-line node/no-process-env
-const parsedEnv = envSchema.safeParse(process.env)
+export type Env = z.infer<typeof envSchema>
 
-if (!parsedEnv.success) {
-  console.error('❌ Invalid environment variables:', parsedEnv.error.format())
+let env: Env
 
+try {
+  // eslint-disable-next-line node/no-process-env
+  env = envSchema.parse(process.env)
+}
+catch (e) {
+  const error = e as ZodError
+  console.error('❌ Invalid env:', error.flatten().fieldErrors)
   process.exit(1)
 }
 
-const env = parsedEnv.data
+const isDevEnv = () => env.NODE_ENV === 'development'
+const isProdEnv = () => env.NODE_ENV === 'production'
 
-export default env
+export { env as default, isDevEnv, isProdEnv }

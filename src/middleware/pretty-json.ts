@@ -2,7 +2,9 @@ import type { MiddlewareHandler } from 'hono'
 
 import { prettyJSON } from 'hono/pretty-json'
 
+import { isDevEnv } from '@/lib/env'
+
 const prettyJsonMiddleware: MiddlewareHandler | null
-  = Bun.env.NODE_ENV === 'development' ? prettyJSON() : null
+  = isDevEnv() ? prettyJSON() : null
 
 export default prettyJsonMiddleware

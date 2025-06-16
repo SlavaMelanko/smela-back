@@ -1,3 +1,5 @@
+import type { PinoLogger } from 'hono-pino'
+
 interface UserPayload {
   email: string
   role: 'user' | 'admin'
@@ -6,6 +8,11 @@ interface UserPayload {
 
 interface Variables {
   user: UserPayload
+  logger: PinoLogger
 }
 
-export { UserPayload, Variables }
+interface AppContext {
+  Variables: Variables
+}
+
+export { AppContext, UserPayload, Variables }
