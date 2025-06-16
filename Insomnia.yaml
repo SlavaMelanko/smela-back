@@ -11,7 +11,7 @@ collection:
     meta:
       id: req_8f077da81a704a8cb3ada305f7570b87
       created: 1749913981817
-      modified: 1750002210943
+      modified: 1750073155577
       isPrivate: false
       description: ""
       sortKey: -1749913981817
@@ -20,7 +20,7 @@ collection:
       mimeType: application/json
       text: |-
         {
-        	"email": "jason@example.com",
+        	"email": "lilme@example.com",
         	"password": "P@ssw0rd!"
         }
     headers:
@@ -44,7 +44,7 @@ collection:
     meta:
       id: req_8adc129cf594471d9fa561957de2a41e
       created: 1749915412664
-      modified: 1749991505316
+      modified: 1750058777938
       isPrivate: false
       description: ""
       sortKey: -1749915412664
@@ -72,7 +72,7 @@ collection:
     meta:
       id: req_8e87de43bfa842328cbd117f7e242028
       created: 1750000374704
-      modified: 1750001499062
+      modified: 1750073110701
       isPrivate: false
       description: ""
       sortKey: -1750000374704
@@ -81,9 +81,9 @@ collection:
       mimeType: application/json
       text: |-
         {
-          "firstName": "Jason",
-          "lastName": "Statham",
-          "email": "jason@example.com",
+          "firstName": "Jone",
+          "lastName": "Travolta",
+          "email": "lilme@example.com",
           "password": "P@ssw0rd!"
         }
     headers:
