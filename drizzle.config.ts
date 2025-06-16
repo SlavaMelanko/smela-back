@@ -8,6 +8,7 @@ export default defineConfig({
   out: './src/db/migrations',
   dialect: 'postgresql',
   dbCredentials: {
+    // eslint-disable-next-line node/no-process-env
     url: process.env.DB_URL!,
   },
 })

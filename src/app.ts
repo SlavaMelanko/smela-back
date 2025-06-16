@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
 
 import type { Variables } from '@/types/context'
-import { publicRoutes, privateRoutes } from '@/routes'
+
 import { jwtMiddleware, loggerMiddleware, prettyJsonMiddleware } from '@/middleware'
+import { privateRoutes, publicRoutes } from '@/routes'
 
 const app = new Hono<{ Variables: Variables }>()
 

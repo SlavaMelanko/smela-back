@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
     "outDir": "dist"
   },
   "include": ["src"],

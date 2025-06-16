@@ -1,6 +1,7 @@
+import { hash } from 'bcrypt'
+
 import db from './db'
 import { usersTable } from './schema'
-import { hash } from 'bcrypt'
 
 async function seed() {
   await db.delete(usersTable)
@@ -14,6 +15,7 @@ async function seed() {
     },
   ])
 
+  // eslint-disable-next-line no-console
   console.log('✅ Admins seeded')
 }
 

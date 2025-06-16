@@ -1,10 +1,10 @@
-type UserPayload = {
+interface UserPayload {
   email: string
   role: 'user' | 'admin'
   exp: number
 }
 
-type Variables = {
+interface Variables {
   user: UserPayload
 }
 

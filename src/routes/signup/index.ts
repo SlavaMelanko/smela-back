@@ -1,6 +1,6 @@
-import { Hono } from 'hono'
 import { hash } from 'bcrypt'
 import { eq } from 'drizzle-orm'
+import { Hono } from 'hono'
 
 import db from '@/db'
 import { usersTable } from '@/db/schema'

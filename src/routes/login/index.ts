@@ -1,11 +1,12 @@
-import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
-import { sign } from 'hono/jwt'
 import { compare } from 'bcrypt'
+import { eq } from 'drizzle-orm'
+import { Hono } from 'hono'
+import { sign } from 'hono/jwt'
 
 import db from '@/db'
 import { usersTable } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import env from '@/lib/env'
 
 import { loginSchema } from './schema'
 
@@ -37,7 +38,7 @@ loginRoute.post('/login', zValidator('json', loginSchema), async (c) => {
     exp: Math.floor(Date.now() / 1000) + TOKEN_EXPIRATION_TIME,
   }
 
-  const token = await sign(payload, Bun.env.JWT_SECRET as string)
+  const token = await sign(payload, env.JWT_SECRET)
 
   return c.json({ token })
 })

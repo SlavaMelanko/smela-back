@@ -159,7 +159,8 @@ bun-debug.log*
 Thumbs.db
 
 # IDEs and editors
-.vscode/
+.vscode/*.code-workspace
+!.vscode/settings.json
 .idea/
 *.swp
 

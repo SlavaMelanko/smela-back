@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 
-import db from '@/db'
 import type { Variables } from '@/types/context'
+
+import db from '@/db'
 
 const meRoute = new Hono<{ Variables: Variables }>()
 
