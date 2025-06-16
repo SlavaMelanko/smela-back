@@ -21,7 +21,6 @@
         "drizzle-kit": "^0.31.1",
         "eslint": "^9.28.0",
         "eslint-plugin-format": "^1.0.1",
-        "prettier": "^3.5.3",
       },
     },
   },
