@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Jason\",\n    \"lastName\": \"Statham\",\n    \"email\": \"jason.statham@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"firstName\": \"Jason\",\n    \"lastName\": \"Statham\",\n    \"email\": \"jason.statham.1@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -74,6 +74,50 @@
 					],
 					"cookie": [],
 					"body": "{\n    \"success\": true,\n    \"user\": {\n        \"id\": 5,\n        \"firstName\": \"Jason\",\n        \"lastName\": \"Statham\",\n        \"email\": \"jason.statham@mail.com\",\n        \"createdAt\": \"2025-06-17T16:42:50.817Z\"\n    }\n}"
+				},
+				{
+					"name": "email already in use",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Jason\",\n    \"lastName\": \"Statham\",\n    \"email\": \"jason.statham@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 17 Jun 2025 18:24:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "32"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"error\": \"Email already in use\"\n}"
 				}
 			]
 		},
@@ -101,7 +145,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"jason.statham@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"email\": \"jason.statham.1@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
