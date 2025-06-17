@@ -8,7 +8,7 @@ import db from '@/db'
 import { usersTable } from '@/db/schema'
 import env from '@/lib/env'
 
-import { loginSchema } from './schema'
+import loginSchema from './schema'
 
 const loginRoute = new Hono()
 
