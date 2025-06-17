@@ -1,4 +1,4 @@
-import type { PasswordEncoder } from './password-encoder'
+import type PasswordEncoder from './password-encoder'
 
 import { BcryptEncoder } from './bcrypt-encoder'
 

@@ -1,10 +1,10 @@
 import { compare as bcryptCompare, hash as bcryptHash } from 'bcrypt'
 
-import { PasswordEncoder } from './password-encoder'
+import type PasswordEncoder from './password-encoder'
 
 const SALT_ROUNDS = 10
 
-export class BcryptEncoder extends PasswordEncoder {
+export class BcryptEncoder implements PasswordEncoder {
   async hash(plain: string): Promise<string> {
     return bcryptHash(plain, SALT_ROUNDS)
   }
