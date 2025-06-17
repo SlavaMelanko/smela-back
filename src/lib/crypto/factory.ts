@@ -1,8 +1,8 @@
 import type PasswordEncoder from './password-encoder'
 
-import { BcryptEncoder } from './bcrypt-encoder'
+import BcryptEncoder from './bcrypt-encoder'
 
-export function createPasswordEncoder(impl: 'bcrypt' = 'bcrypt'): PasswordEncoder {
+function createPasswordEncoder(impl: 'bcrypt' = 'bcrypt'): PasswordEncoder {
   switch (impl) {
     case 'bcrypt':
       return new BcryptEncoder()
@@ -10,3 +10,5 @@ export function createPasswordEncoder(impl: 'bcrypt' = 'bcrypt'): PasswordEncode
       throw new Error(`Unknown password encoder: ${impl}`)
   }
 }
+
+export { createPasswordEncoder }
