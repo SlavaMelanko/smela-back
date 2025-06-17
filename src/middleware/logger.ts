@@ -1,13 +1,9 @@
 import { pinoLogger } from 'hono-pino'
-import pino from 'pino'
-import pretty from 'pino-pretty'
 
-import env, { isDevEnv } from '@/lib/env'
+import logger from '@/lib/logger'
 
 const loggerMiddleware = pinoLogger({
-  pino: pino({
-    level: env.LOG_LEVEL,
-  }, isDevEnv() ? pretty() : undefined),
+  pino: logger,
   http: {
     reqId: () => crypto.randomUUID(),
   },
