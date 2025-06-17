@@ -1,16 +1,15 @@
 import type { MiddlewareHandler } from 'hono'
 
 import { bearerAuth } from 'hono/bearer-auth'
-import { verify } from 'hono/jwt'
 
 import type { Variables } from '@/types/context'
 
-import env from '@/lib/env'
+import jwt from '@/lib/jwt'
 
 const jwtMiddleware: MiddlewareHandler<{ Variables: Variables }> = bearerAuth({
   verifyToken: async (token, c) => {
     try {
-      const payload = await verify(token, env.JWT_SECRET)
+      const payload = await jwt.verify(token)
 
       c.set('user', payload)
 
