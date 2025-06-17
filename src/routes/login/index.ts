@@ -1,11 +1,11 @@
 import { zValidator } from '@hono/zod-validator'
-import { compare } from 'bcrypt'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { sign } from 'hono/jwt'
 
 import db from '@/db'
 import { usersTable } from '@/db/schema'
+import { createPasswordEncoder } from '@/lib/crypto'
 import env from '@/lib/env'
 
 import loginSchema from './schema'
@@ -25,7 +25,8 @@ loginRoute.post('/login', zValidator('json', loginSchema), async (c) => {
     return c.json({ error: 'Invalid credentials' }, 401)
   }
 
-  const isPasswordValid = await compare(password, user.password)
+  const encoder = createPasswordEncoder()
+  const isPasswordValid = await encoder.compare(password, user.password)
 
   if (!isPasswordValid) {
     return c.json({ error: 'Invalid email or password' }, 401)

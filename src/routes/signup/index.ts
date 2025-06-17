@@ -1,9 +1,9 @@
-import { hash } from 'bcrypt'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 
 import db from '@/db'
 import { usersTable } from '@/db/schema'
+import { createPasswordEncoder } from '@/lib/crypto'
 
 import signupSchema from './schema'
 
@@ -25,7 +25,8 @@ signupRoute.post('/signup', async (c) => {
     return c.json({ error: 'Email already in use' }, 409)
   }
 
-  const hashedPassword = await hash(password, 10)
+  const encoder = createPasswordEncoder()
+  const hashedPassword = await encoder.hash(password)
 
   const insertedUsers = await db
     .insert(usersTable)

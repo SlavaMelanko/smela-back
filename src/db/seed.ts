@@ -1,4 +1,4 @@
-import { hash } from 'bcrypt'
+import { createPasswordEncoder } from '@/lib/crypto'
 
 import db from './db'
 import { usersTable } from './schema'
@@ -6,12 +6,14 @@ import { usersTable } from './schema'
 async function seed() {
   await db.delete(usersTable)
 
+  const encoder = createPasswordEncoder()
+
   await db.insert(usersTable).values([
     {
       firstName: 'Admin',
       lastName: 'Admin',
       email: 'admin@example.com',
-      password: await hash('admin', 10),
+      password: await encoder.hash('admin'),
     },
   ])
 
