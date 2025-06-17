@@ -5,6 +5,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun run src/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",
     "lint": "bunx eslint ./src",
