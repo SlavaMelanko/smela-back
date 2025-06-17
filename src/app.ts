@@ -5,7 +5,7 @@ import type { AppContext } from '@/types/context'
 import { jwtMiddleware, loggerMiddleware, prettyJsonMiddleware } from '@/middleware'
 import { privateRoutes, publicRoutes } from '@/routes'
 
-const app = new Hono<AppContext>()
+const app = new Hono<AppContext>({ strict: false })
 
 app.use(loggerMiddleware)
 

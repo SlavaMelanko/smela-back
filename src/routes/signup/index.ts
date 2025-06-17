@@ -1,8 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 
-import db from '@/db'
-import { usersTable } from '@/db/schema'
+import db, { usersTable } from '@/db'
 import { createPasswordEncoder } from '@/lib/crypto'
 
 import signupSchema from './schema'

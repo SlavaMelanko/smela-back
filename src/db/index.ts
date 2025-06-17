@@ -1,3 +1,4 @@
 import db from './db'
+import { usersTable } from './schema'
 
-export default db
+export { db as default, usersTable }
