@@ -7,13 +7,14 @@ async function seed() {
   await db.delete(usersTable)
 
   const encoder = createPasswordEncoder()
+  const hashedPassword = await encoder.hash('admin')
 
   await db.insert(usersTable).values([
     {
       firstName: 'Admin',
       lastName: 'Admin',
       email: 'admin@example.com',
-      password: await encoder.hash('admin'),
+      password: hashedPassword,
     },
   ])
 
@@ -22,6 +23,6 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.error('❌ Failed to seed admin users:', err)
+  console.error('❌ Failed to seed database:', err)
   process.exit(1)
 })
