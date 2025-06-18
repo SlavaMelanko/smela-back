@@ -4,4 +4,4 @@ const buildSchema = <T extends z.ZodRawShape>(shape: T) => {
   return z.object(shape)
 }
 
-export default { buildSchema }
+export { buildSchema }
