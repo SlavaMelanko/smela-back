@@ -14,8 +14,7 @@ const jwtMiddleware: MiddlewareHandler<{ Variables: Variables }> = bearerAuth({
       c.set('user', payload)
 
       return true
-    }
-    catch {
+    } catch {
       return false
     }
   },

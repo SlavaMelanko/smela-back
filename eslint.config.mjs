@@ -25,5 +25,6 @@ export default antfu({
     'prefer-arrow-callback': ['error'],
     'antfu/top-level-function': ['off'],
     'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+    'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
   },
 })

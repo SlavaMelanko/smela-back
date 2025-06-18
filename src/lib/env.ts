@@ -15,8 +15,7 @@ const validate = () => {
 
     // eslint-disable-next-line node/no-process-env
     return envSchema.parse(process.env)
-  }
-  catch (e) {
+  } catch (e) {
     const error = e as ZodError
     console.error('❌ Invalid env:', error.flatten().fieldErrors)
     process.exit(1)
