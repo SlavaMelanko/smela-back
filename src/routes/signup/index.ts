@@ -1,49 +1,33 @@
-import { eq } from 'drizzle-orm'
+import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 
-import db, { usersTable } from '@/db'
 import { createPasswordEncoder } from '@/lib/crypto'
+import { userRepo } from '@/repositories'
 
 import signupSchema from './schema'
 
 const signupRoute = new Hono()
 
-signupRoute.post('/signup', async (c) => {
-  const body = await c.req.json()
+signupRoute.post('/signup', zValidator('json', signupSchema), async (c) => {
+  const { firstName, lastName, email, password } = await c.req.json()
 
-  const parsed = signupSchema.safeParse(body)
-  if (!parsed.success) {
-    return c.json({ error: 'Invalid input', details: parsed.error.flatten() }, 400)
-  }
+  const existingUser = await userRepo.findByEmail(email)
 
-  const { firstName, lastName, email, password } = parsed.data
-
-  const existing = await db.select().from(usersTable).where(eq(usersTable.email, email))
-
-  if (existing.length > 0) {
+  if (existingUser) {
     return c.json({ error: 'Email already in use' }, 409)
   }
 
   const encoder = createPasswordEncoder()
   const hashedPassword = await encoder.hash(password)
 
-  const insertedUsers = await db
-    .insert(usersTable)
-    .values({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-    })
-    .returning({
-      id: usersTable.id,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      createdAt: usersTable.createdAt,
-    })
+  const newUser = await userRepo.create({
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+  })
 
-  return c.json({ success: true, user: insertedUsers[0] }, 201)
+  return c.json({ success: true, user: newUser }, 201)
 })
 
 export default signupRoute

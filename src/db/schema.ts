@@ -9,7 +9,3 @@ export const usersTable = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
-
-export type User = typeof usersTable.$inferSelect
-export type InsertUser = typeof usersTable.$inferInsert
-export type UpdateUser = Partial<InsertUser>
