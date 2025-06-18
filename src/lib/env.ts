@@ -4,7 +4,7 @@ import type { ZodError } from 'zod'
 
 import { buildSchema, envRules } from './validation'
 
-function validate() {
+const validate = () => {
   try {
     const envSchema = buildSchema({
       NODE_ENV: envRules.nodeEnv,

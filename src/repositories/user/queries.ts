@@ -4,7 +4,7 @@ import db, { usersTable } from '@/db'
 
 import type { CreateUserInput, User, UserRecord } from './types'
 
-async function findUserByEmail(email: string): Promise<UserRecord | undefined> {
+const findUserByEmail = async (email: string): Promise<UserRecord | undefined> => {
   const [foundUser] = await db
     .select()
     .from(usersTable)
@@ -13,7 +13,7 @@ async function findUserByEmail(email: string): Promise<UserRecord | undefined> {
   return foundUser
 }
 
-async function createUser(user: CreateUserInput): Promise<User> {
+const createUser = async (user: CreateUserInput): Promise<User> => {
   const [createdUser] = await db
     .insert(usersTable)
     .values(user)

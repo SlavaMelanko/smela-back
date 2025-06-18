@@ -22,5 +22,8 @@ export default antfu({
       case: 'kebabCase',
       ignore: ['README.md'],
     }],
+    'prefer-arrow-callback': ['error'],
+    'antfu/top-level-function': ['off'],
+    'func-style': ['error', 'expression', { allowArrowFunctions: true }],
   },
 })

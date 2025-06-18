@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
-export function buildSchema<T extends z.ZodRawShape>(shape: T) {
+const buildSchema = <T extends z.ZodRawShape>(shape: T) => {
   return z.object(shape)
 }
+
+export default { buildSchema }

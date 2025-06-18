@@ -6,7 +6,7 @@ const TOKEN_EXPIRATION_TIME = 60 * 60 // 1 hour
 
 const getSecret = () => env.JWT_SECRET
 
-function signJwt(id: number, email: string, role: string): Promise<string> {
+const signJwt = (id: number, email: string, role: string): Promise<string> => {
   const payload = {
     id,
     email,
@@ -17,7 +17,7 @@ function signJwt(id: number, email: string, role: string): Promise<string> {
   return sign(payload, getSecret())
 }
 
-function verifyJwt(token: string) {
+const verifyJwt = (token: string) => {
   return verify(token, getSecret())
 }
 

@@ -2,7 +2,7 @@ import type PasswordEncoder from './password-encoder'
 
 import BcryptEncoder from './bcrypt-encoder'
 
-function createPasswordEncoder(impl: 'bcrypt' = 'bcrypt'): PasswordEncoder {
+const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncoder => {
   switch (impl) {
     case 'bcrypt':
       return new BcryptEncoder()

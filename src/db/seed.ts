@@ -3,7 +3,7 @@ import { createPasswordEncoder } from '@/lib/crypto'
 import db from './db'
 import { usersTable } from './schema'
 
-async function seed() {
+const seed = async () => {
   await db.delete(usersTable)
 
   const encoder = createPasswordEncoder()
