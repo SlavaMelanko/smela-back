@@ -1,10 +1,10 @@
 import { Hono } from 'hono'
 
-import type { Variables } from '@/types/context'
+import type { AppContext } from '@/types/context'
 
 import db from '@/db'
 
-const meRoute = new Hono<{ Variables: Variables }>()
+const meRoute = new Hono<AppContext>()
 
 meRoute.get('/me', async (c) => {
   const user = c.get('user')
