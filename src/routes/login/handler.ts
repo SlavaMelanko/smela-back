@@ -6,15 +6,15 @@ import { getReasonPhrase, StatusCodes } from 'http-status-codes'
 import HttpError from '@/lib/http-error'
 import logger from '@/lib/logger'
 
-import signUp from './signup'
+import logIn from './login'
 
-const signupHandler = async (c: Context) => {
+const loginHandler = async (c: Context) => {
   try {
-    const { firstName, lastName, email, password } = await c.req.json()
+    const { email, password } = await c.req.json()
 
-    const user = await signUp({ firstName, lastName, email, password })
+    const token = await logIn({ email, password })
 
-    return c.json({ user }, StatusCodes.CREATED)
+    return c.json({ token }, StatusCodes.OK)
   } catch (err) {
     logger.error(err)
 
@@ -24,9 +24,9 @@ const signupHandler = async (c: Context) => {
 
     return c.json(
       { error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) },
-      StatusCodes.INTERNAL_SERVER_ERROR,
+      { status: StatusCodes.INTERNAL_SERVER_ERROR },
     )
   }
 }
 
-export default signupHandler
+export default loginHandler

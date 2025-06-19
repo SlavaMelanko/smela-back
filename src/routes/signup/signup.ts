@@ -4,6 +4,13 @@ import { createPasswordEncoder } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
 import { userRepo } from '@/repositories'
 
+interface SignupParams {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}
+
 const hashPassword = async (password: string) => {
   const encoder = createPasswordEncoder()
 
@@ -11,10 +18,7 @@ const hashPassword = async (password: string) => {
 }
 
 const signUp = async (
-  firstName: string,
-  lastName: string,
-  email: string,
-  password: string,
+  { firstName, lastName, email, password }: SignupParams,
 ) => {
   const existingUser = await userRepo.findByEmail(email)
   if (existingUser) {
