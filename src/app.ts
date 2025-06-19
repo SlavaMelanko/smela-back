@@ -1,23 +1,25 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { jwtMiddleware, loggerMiddleware, prettyJsonMiddleware } from '@/middleware'
+import { jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
 import { privateRoutes, publicRoutes } from '@/routes'
 
 const app = new Hono<AppContext>({ strict: false })
 
-app.use(loggerMiddleware)
+app
+  .use(cors())
+  .use(requestId())
+  .use(loggerMiddleware)
+  .use('/api/v1/*', jwtMiddleware)
 
-if (prettyJsonMiddleware) {
-  app.use(prettyJsonMiddleware)
-}
+app.onError(onError)
 
 publicRoutes.forEach((route) => {
   app.route('/', route)
 })
-
-app.use('/api/v1/*', jwtMiddleware)
 
 privateRoutes.forEach((route) => {
   app.route('/api/v1', route)

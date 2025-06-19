@@ -1,5 +1,5 @@
 import jwtMiddleware from './auth'
 import loggerMiddleware from './logger'
-import prettyJsonMiddleware from './pretty-json'
+import onError from './on-error'
 
-export { jwtMiddleware, loggerMiddleware, prettyJsonMiddleware }
+export { jwtMiddleware, loggerMiddleware, onError }
