@@ -5,9 +5,9 @@ import { StatusCodes } from 'http-status-codes'
 import signUp from './signup'
 
 const signupHandler = async (c: Context) => {
-  const { firstName, lastName, email, password } = await c.req.json()
+  const { firstName, lastName, email, password, role } = await c.req.json()
 
-  const user = await signUp({ firstName, lastName, email, password })
+  const user = await signUp({ firstName, lastName, email, password, role })
 
   return c.json({ user }, StatusCodes.CREATED)
 }
