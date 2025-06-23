@@ -8,6 +8,9 @@ type CreateUserInput = typeof usersTable.$inferInsert
 type UpdateUserInput = Partial<CreateUserInput>
 
 // Public-facing / API-return type
-type User = Pick<UserRecord, 'id' | 'firstName' | 'lastName' | 'email' | 'createdAt'>
+type User = Pick<UserRecord, 'id' | 'firstName' | 'lastName' | 'email' | 'roleId' | 'createdAt'>
+type UserWithRole = Omit<User, 'roleId'> & {
+  role: string
+}
 
-export type { CreateUserInput, UpdateUserInput, User, UserRecord }
+export type { CreateUserInput, UpdateUserInput, User, UserRecord, UserWithRole }
