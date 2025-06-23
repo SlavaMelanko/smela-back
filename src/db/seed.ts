@@ -166,7 +166,7 @@ const seedDefaultAdminPermissions = async () => {
 
   await assignPermissionsToRole({
     role: { id: adminRole.id, name: Role.Admin },
-    resourceNames: [Resource.Users, Resource.Admins],
+    resourceNames: [Resource.Users],
   })
 }
 
