@@ -7,7 +7,9 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-export const actionTypeEnum = pgEnum('action_type', ['view', 'create', 'edit', 'delete'])
+import { Action } from '@/types'
+
+export const actionTypeEnum = pgEnum('action_type', Object.values(Action) as [string, ...string[]])
 
 export const rolesTable = pgTable('roles', {
   id: serial('id').primaryKey(),
