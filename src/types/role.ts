@@ -1,8 +1,8 @@
 enum Role {
   Owner = 'owner',
   Admin = 'admin',
-  Enterprise = 'enterprise_user',
-  SelfServe = 'selfserve_user',
+  Enterprise = 'enterprise',
+  SelfServe = 'self-serve',
 }
 
 export default Role
