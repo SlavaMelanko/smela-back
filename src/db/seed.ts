@@ -1,68 +1,64 @@
-import { eq, isNull } from 'drizzle-orm'
+import { eq, inArray, isNull } from 'drizzle-orm'
 
 import { createPasswordEncoder } from '@/lib/crypto'
+import { Action, Resource, Role } from '@/types'
 
 import db from './db'
-import { actionTypeEnum, permissionsTable, resourcesTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
+import { permissionsTable, resourcesTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
 
 const seedRoles = async () => {
-  const rolesToSeed = [
-    { name: 'owner' },
-    { name: 'admin' },
-    { name: 'enteprise_user' },
-    { name: 'selfserve_user' },
-  ]
+  const rolesToSeed = Object.values(Role).map(name => ({ name }))
 
   const existingRoles = await db.select().from(rolesTable)
   const rolesToInsert = rolesToSeed.filter(
     role => !existingRoles.some(existing => existing.name === role.name),
   )
 
-  if (rolesToInsert.length > 0) {
-    await db.insert(rolesTable).values(rolesToInsert)
-    // eslint-disable-next-line no-console
-    console.log(`✅ ${rolesToInsert.length} roles seeded`)
-  } else {
+  if (!rolesToInsert.length) {
     // eslint-disable-next-line no-console
     console.log('✅ Roles already seeded')
+
+    return
   }
+
+  await db.insert(rolesTable).values(rolesToInsert)
+
+  // eslint-disable-next-line no-console
+  console.log(`✅ ${rolesToInsert.length} roles seeded`)
 }
 
 const seedResources = async () => {
-  const resourcesToSeed = [{ name: 'users' }]
+  const resourcesToSeed = Object.values(Resource).map(name => ({ name }))
 
   const existingResources = await db.select().from(resourcesTable)
   const resourcesToInsert = resourcesToSeed.filter(
     resource => !existingResources.some(existing => existing.name === resource.name),
   )
 
-  if (resourcesToInsert.length > 0) {
-    await db.insert(resourcesTable).values(resourcesToInsert)
-    // eslint-disable-next-line no-console
-    console.log(`✅ ${resourcesToInsert.length} resources seeded`)
-  } else {
+  if (!resourcesToInsert.length) {
     // eslint-disable-next-line no-console
     console.log('✅ Resources already seeded')
-  }
-}
-
-const seedPermissions = async () => {
-  const allResources = await db.select().from(resourcesTable)
-  const allActions = actionTypeEnum.enumValues
-
-  if (allResources.length === 0) {
-    // eslint-disable-next-line no-console
-    console.log('⚠️ No resources found, skipping permissions seeding.')
 
     return
   }
 
+  await db.insert(resourcesTable).values(resourcesToInsert)
+
+  // eslint-disable-next-line no-console
+  console.log(`✅ ${resourcesToInsert.length} resources seeded`)
+}
+
+const seedPermissions = async () => {
+  const allResources = await db.select().from(resourcesTable)
+  const allActions = Object.values(Action)
+
   const existingPermissions = await db.select().from(permissionsTable)
   const permissionsToInsert: {
-    action: 'view' | 'create' | 'edit' | 'delete'
+    action: Action
     resourceId: number
   }[] = []
 
+  // Build missing (action, resource) pairs
   for (const resource of allResources) {
     for (const action of allActions) {
       const permissionExists = existingPermissions.some(
@@ -78,77 +74,106 @@ const seedPermissions = async () => {
     }
   }
 
-  if (permissionsToInsert.length > 0) {
-    await db.insert(permissionsTable).values(permissionsToInsert)
-    // eslint-disable-next-line no-console
-    console.log(`✅ ${permissionsToInsert.length} permissions seeded`)
-  } else {
+  if (!permissionsToInsert.length) {
     // eslint-disable-next-line no-console
     console.log('✅ Permissions already seeded')
-  }
-}
-
-const seedRolePermissions = async () => {
-  const [adminRole] = await db.select().from(rolesTable).where(eq(rolesTable.name, 'admin'))
-  const [ownerRole] = await db.select().from(rolesTable).where(eq(rolesTable.name, 'owner'))
-  const [usersResource] = await db
-    .select()
-    .from(resourcesTable)
-    .where(eq(resourcesTable.name, 'users'))
-
-  if (!adminRole || !ownerRole || !usersResource) {
-    // eslint-disable-next-line no-console
-    console.log('⚠️ Roles or resources not found, skipping role permission seeding.')
 
     return
   }
 
-  const usersPermissions = await db
-    .select()
-    .from(permissionsTable)
-    .where(eq(permissionsTable.resourceId, usersResource.id))
+  await db.insert(permissionsTable).values(permissionsToInsert)
 
-  const rolesToAssign = [adminRole, ownerRole]
-  const permissionsToInsert: { roleId: number, permissionId: number }[] = []
+  // eslint-disable-next-line no-console
+  console.log(`✅ ${permissionsToInsert.length} permissions seeded`)
+}
 
-  const existingRolePermissions = await db.select().from(rolePermissionsTable)
+const assignPermissionsToRole = ({
+  role,
+  resourceNames,
+}: {
+  role: { id: number, name: string }
+  resourceNames: string[]
+}) => {
+  return Promise.all([
+    db
+      .select()
+      .from(resourcesTable)
+      .where(inArray(resourcesTable.name, resourceNames)),
+    db.select().from(permissionsTable),
+    db.select().from(rolePermissionsTable),
+  ]).then(async ([resources, allPermissions, existingRolePermissions]) => {
+    const permissionsToInsert: { roleId: number, permissionId: number }[] = []
 
-  for (const role of rolesToAssign) {
-    for (const permission of usersPermissions) {
-      const mappingExists = existingRolePermissions.some(
-        rp => rp.roleId === role.id && rp.permissionId === permission.id,
-      )
-      if (!mappingExists) {
-        permissionsToInsert.push({ roleId: role.id, permissionId: permission.id })
+    for (const resource of resources) {
+      const resourcePermissions = allPermissions.filter(p => p.resourceId === resource.id)
+
+      for (const permission of resourcePermissions) {
+        const alreadyExists = existingRolePermissions.some(
+          rp => rp.roleId === role.id && rp.permissionId === permission.id,
+        )
+
+        if (!alreadyExists) {
+          permissionsToInsert.push({ roleId: role.id, permissionId: permission.id })
+        }
       }
     }
+
+    if (!permissionsToInsert.length) {
+      // eslint-disable-next-line no-console
+      console.log(`✅ Permissions already seeded for role ${role.name}`)
+
+      return
+    }
+
+    await db.insert(rolePermissionsTable).values(permissionsToInsert)
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `✅ Seeded ${permissionsToInsert.length} permissions for role ${role.name}`,
+    )
+  })
+}
+
+const seedOwnerPermissions = async () => {
+  const [ownerRole] = await db
+    .select()
+    .from(rolesTable)
+    .where(eq(rolesTable.name, Role.Owner))
+
+  if (!ownerRole) {
+    console.warn('⚠️ Owner role not found, skipping owner permissions seeding.')
+
+    return
   }
 
-  if (permissionsToInsert.length > 0) {
-    await db.insert(rolePermissionsTable).values(permissionsToInsert)
-    // eslint-disable-next-line no-console
-    console.log(`✅ Seeded ${permissionsToInsert.length} role permissions.`)
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('✅ Role permissions already seeded or no permissions to seed.')
+  await assignPermissionsToRole({
+    role: { id: ownerRole.id, name: Role.Owner },
+    resourceNames: [Resource.Users, Resource.Admins],
+  })
+}
+
+const seedDefaultAdminPermissions = async () => {
+  const [adminRole] = await db
+    .select()
+    .from(rolesTable)
+    .where(eq(rolesTable.name, Role.Admin))
+
+  if (!adminRole) {
+    console.warn('⚠️ Admin role not found, skipping admin permissions seeding.')
+
+    return
   }
+
+  await assignPermissionsToRole({
+    role: { id: adminRole.id, name: Role.Admin },
+    resourceNames: [Resource.Users, Resource.Admins],
+  })
 }
 
 const seedAdmins = async () => {
-  const adminRole = await db.select().from(rolesTable).where(eq(rolesTable.name, 'admin')).then(rows => rows[0])
-  const selfServeUserRole = await db.select().from(rolesTable).where(eq(rolesTable.name, 'selfserve_user')).then(rows => rows[0])
+  const [adminRole] = await db.select().from(rolesTable).where(eq(rolesTable.name, Role.Admin))
 
-  if (!adminRole || !selfServeUserRole) {
-    // eslint-disable-next-line no-console
-    console.log('⚠️ Required roles not found, skipping admin user seeding.')
-
-    return
-  }
-
-  // Set default role for existing users without one
-  await db.update(usersTable).set({ roleId: selfServeUserRole.id }).where(isNull(usersTable.roleId))
-
-  const adminUsers = [
+  const admins = [
     {
       firstName: 'Jason',
       lastName: 'Statham',
@@ -163,7 +188,7 @@ const seedAdmins = async () => {
     },
   ]
 
-  for (const admin of adminUsers) {
+  for (const admin of admins) {
     const [existingUser] = await db
       .select()
       .from(usersTable)
@@ -182,6 +207,7 @@ const seedAdmins = async () => {
           roleId: adminRole.id,
         },
       ])
+
       // eslint-disable-next-line no-console
       console.log(`✅ Admin ${admin.email} seeded`)
     } else {
@@ -195,7 +221,8 @@ const seed = async () => {
   await seedRoles()
   await seedResources()
   await seedPermissions()
-  await seedRolePermissions()
+  await seedOwnerPermissions()
+  await seedDefaultAdminPermissions()
   await seedAdmins()
 }
 
