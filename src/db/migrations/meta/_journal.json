@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1750449371419,
-      "tag": "0000_familiar_chat",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750771600468,
-      "tag": "0001_puzzling_shard",
+      "when": 1750782831865,
+      "tag": "0000_serious_redwing",
       "breakpoints": true
     }
   ]

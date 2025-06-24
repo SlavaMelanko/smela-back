@@ -1,10 +1,10 @@
-import { eq, inArray } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { createPasswordEncoder } from '@/lib/crypto'
-import { Action, AuthProvider, Resource, Role } from '@/types'
+import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import db from './db'
-import { authTable, permissionsTable, resourcesTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
+import { authTable, permissionsTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
 
 const seedRoles = async () => {
   const rolesToSeed = Object.values(Role).map(name => ({ name }))
@@ -27,49 +27,26 @@ const seedRoles = async () => {
   console.log(`✅ ${rolesToInsert.length} roles seeded`)
 }
 
-const seedResources = async () => {
-  const resourcesToSeed = Object.values(Resource).map(name => ({ name }))
-
-  const existingResources = await db.select().from(resourcesTable)
-  const resourcesToInsert = resourcesToSeed.filter(
-    resource => !existingResources.some(existing => existing.name === resource.name),
-  )
-
-  if (!resourcesToInsert.length) {
-    // eslint-disable-next-line no-console
-    console.log('✅ Resources already seeded')
-
-    return
-  }
-
-  await db.insert(resourcesTable).values(resourcesToInsert)
-
-  // eslint-disable-next-line no-console
-  console.log(`✅ ${resourcesToInsert.length} resources seeded`)
-}
-
 const seedPermissions = async () => {
-  const allResources = await db.select().from(resourcesTable)
+  const allResources = Object.values(Resource)
   const allActions = Object.values(Action)
 
   const existingPermissions = await db.select().from(permissionsTable)
+
   const permissionsToInsert: {
     action: Action
-    resourceId: number
+    resource: Resource
   }[] = []
 
   // Build missing (action, resource) pairs
   for (const resource of allResources) {
     for (const action of allActions) {
       const permissionExists = existingPermissions.some(
-        p => p.resourceId === resource.id && p.action === action,
+        p => p.resource === resource && p.action === action,
       )
 
       if (!permissionExists) {
-        permissionsToInsert.push({
-          resourceId: resource.id,
-          action,
-        })
+        permissionsToInsert.push({ resource, action })
       }
     }
   }
@@ -87,51 +64,47 @@ const seedPermissions = async () => {
   console.log(`✅ ${permissionsToInsert.length} permissions seeded`)
 }
 
-const assignPermissionsToRole = ({
+const assignPermissionsToRole = async ({
   role,
-  resourceNames,
+  resources,
 }: {
   role: { id: number, name: string }
-  resourceNames: string[]
+  resources: Resource[]
 }) => {
-  return Promise.all([
-    db
-      .select()
-      .from(resourcesTable)
-      .where(inArray(resourcesTable.name, resourceNames)),
+  const [allPermissions, existingRolePermissions] = await Promise.all([
     db.select().from(permissionsTable),
     db.select().from(rolePermissionsTable),
-  ]).then(async ([resources, allPermissions, existingRolePermissions]) => {
-    const permissionsToInsert: { roleId: number, permissionId: number }[] = []
+  ])
 
-    for (const resource of resources) {
-      const resourcePermissions = allPermissions.filter(p => p.resourceId === resource.id)
+  const permissionsToInsert: { roleId: number, permissionId: number }[] = []
 
-      for (const permission of resourcePermissions) {
-        const alreadyExists = existingRolePermissions.some(
-          rp => rp.roleId === role.id && rp.permissionId === permission.id,
-        )
+  for (const resource of resources) {
+    const resourcePermissions = allPermissions.filter(p => p.resource === resource)
 
-        if (!alreadyExists) {
-          permissionsToInsert.push({ roleId: role.id, permissionId: permission.id })
-        }
+    for (const permission of resourcePermissions) {
+      const alreadyExists = existingRolePermissions.some(
+        rp => rp.roleId === role.id && rp.permissionId === permission.id,
+      )
+
+      if (!alreadyExists) {
+        permissionsToInsert.push({ roleId: role.id, permissionId: permission.id })
       }
     }
+  }
 
-    if (!permissionsToInsert.length) {
-      // eslint-disable-next-line no-console
-      console.log(`✅ Permissions already seeded for role ${role.name}`)
-
-      return
-    }
-
-    await db.insert(rolePermissionsTable).values(permissionsToInsert)
-
+  if (!permissionsToInsert.length) {
     // eslint-disable-next-line no-console
-    console.log(
-      `✅ Seeded ${permissionsToInsert.length} permissions for role ${role.name}`,
-    )
-  })
+    console.log(`✅ Permissions already seeded for role ${role.name}`)
+
+    return
+  }
+
+  await db.insert(rolePermissionsTable).values(permissionsToInsert)
+
+  // eslint-disable-next-line no-console
+  console.log(
+    `✅ Seeded ${permissionsToInsert.length} permissions for role ${role.name}`,
+  )
 }
 
 const seedOwnerPermissions = async () => {
@@ -148,7 +121,7 @@ const seedOwnerPermissions = async () => {
 
   await assignPermissionsToRole({
     role: { id: ownerRole.id, name: Role.Owner },
-    resourceNames: [Resource.Users, Resource.Admins],
+    resources: [Resource.Users, Resource.Admins],
   })
 }
 
@@ -166,7 +139,7 @@ const seedDefaultAdminPermissions = async () => {
 
   await assignPermissionsToRole({
     role: { id: adminRole.id, name: Role.Admin },
-    resourceNames: [Resource.Users],
+    resources: [Resource.Users],
   })
 }
 
@@ -209,6 +182,7 @@ const seedAdmins = async () => {
           firstName: admin.firstName,
           email: admin.email,
           roleId: adminRole.id,
+          status: Status.Active,
         })
         .returning({ id: usersTable.id })
 
@@ -231,7 +205,6 @@ const seedAdmins = async () => {
 
 const seed = async () => {
   await seedRoles()
-  await seedResources()
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()

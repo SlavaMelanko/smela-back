@@ -7,11 +7,12 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-import { Action, AuthProvider } from '@/types'
+import { Action, AuthProvider, Resource, Status } from '@/types'
 
-export const actionTypeEnum = pgEnum('action_type', Object.values(Action) as [string, ...string[]])
-
+export const actionEnum = pgEnum('action', Object.values(Action) as [string, ...string[]])
 export const authProviderEnum = pgEnum('auth_provider', Object.values(AuthProvider) as [string, ...string[]])
+export const resourceEnum = pgEnum('resource', Object.values(Resource) as [string, ...string[]])
+export const statusEnum = pgEnum('status', Object.values(Status) as [string, ...string[]])
 
 export const rolesTable = pgTable('roles', {
   id: serial('id').primaryKey(),
@@ -24,6 +25,7 @@ export const usersTable = pgTable('users', {
   lastName: text('last_name'),
   email: text('email').notNull().unique(),
   roleId: integer('role_id').notNull().references(() => rolesTable.id),
+  status: statusEnum('status').notNull().default(Status.New),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
@@ -38,17 +40,10 @@ export const authTable = pgTable('auth', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const resourcesTable = pgTable('resources', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull().unique(),
-})
-
 export const permissionsTable = pgTable('permissions', {
   id: serial('id').primaryKey(),
-  action: actionTypeEnum('action_type').notNull(),
-  resourceId: integer('resource_id')
-    .notNull()
-    .references(() => resourcesTable.id),
+  action: actionEnum('action').notNull(),
+  resource: resourceEnum('resource').notNull(),
 })
 
 export const rolePermissionsTable = pgTable('role_permissions', {
