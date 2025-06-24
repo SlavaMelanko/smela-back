@@ -19,9 +19,8 @@ export const rolesTable = pgTable('roles', {
 export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),
   firstName: text('first_name').notNull(),
-  lastName: text('last_name').notNull(),
+  lastName: text('last_name'),
   email: text('email').notNull().unique(),
-  password: text('password').notNull(),
   roleId: integer('role_id').notNull().references(() => rolesTable.id),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
