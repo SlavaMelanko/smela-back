@@ -1,10 +1,10 @@
-import { eq, inArray, isNull } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 import { createPasswordEncoder } from '@/lib/crypto'
-import { Action, Resource, Role } from '@/types'
+import { Action, AuthProvider, Resource, Role } from '@/types'
 
 import db from './db'
-import { permissionsTable, resourcesTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
+import { authTable, permissionsTable, resourcesTable, rolePermissionsTable, rolesTable, usersTable } from './schema'
 
 const seedRoles = async () => {
   const rolesToSeed = Object.values(Role).map(name => ({ name }))
@@ -173,16 +173,20 @@ const seedDefaultAdminPermissions = async () => {
 const seedAdmins = async () => {
   const [adminRole] = await db.select().from(rolesTable).where(eq(rolesTable.name, Role.Admin))
 
+  if (!adminRole) {
+    console.warn('⚠️ Admin role not found, skipping admin seeding.')
+
+    return
+  }
+
   const admins = [
     {
       firstName: 'Jason',
-      lastName: 'Statham',
       email: 'jason.admin@example.com',
       password: 'Passw0rd!', // plain text for seeding; will be hashed
     },
     {
       firstName: 'Billy',
-      lastName: 'Herrington',
       email: 'billy.admin@example.com',
       password: 'Passw0rd!',
     },
@@ -198,15 +202,23 @@ const seedAdmins = async () => {
       const encoder = createPasswordEncoder()
       const hashedPassword = await encoder.hash(admin.password)
 
-      await db.insert(usersTable).values([
-        {
+      // 1. Create user
+      const [createdUser] = await db
+        .insert(usersTable)
+        .values({
           firstName: admin.firstName,
-          lastName: admin.lastName,
           email: admin.email,
-          password: hashedPassword,
           roleId: adminRole.id,
-        },
-      ])
+        })
+        .returning({ id: usersTable.id })
+
+      // 2. Create auth entry
+      await db.insert(authTable).values({
+        userId: createdUser.id,
+        provider: AuthProvider.Local,
+        identifier: admin.email,
+        passwordHash: hashedPassword,
+      })
 
       // eslint-disable-next-line no-console
       console.log(`✅ Admin ${admin.email} seeded`)
