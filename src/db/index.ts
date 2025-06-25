@@ -1,4 +1,4 @@
 import db from './db'
-import { rolesTable, usersTable } from './schema'
+import { authTable, rolesTable, usersTable } from './schema'
 
-export { db as default, rolesTable, usersTable }
+export { authTable, db as default, rolesTable, usersTable }

@@ -4,7 +4,8 @@ import type { Role } from '@/types'
 
 import { createPasswordEncoder } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
-import { roleRepo, userRepo } from '@/repositories'
+import { authRepo, roleRepo, userRepo } from '@/repositories'
+import { AuthProvider } from '@/types'
 
 interface SignupParams {
   firstName: string
@@ -20,26 +21,34 @@ const hashPassword = async (password: string) => {
   return await encoder.hash(password)
 }
 
-const signUp = async (
+const signUpWithEmail = async (
   { firstName, lastName, email, password, role }: SignupParams,
 ) => {
   const existingUser = await userRepo.findByEmail(email)
+
   if (existingUser) {
     throw new HttpError(StatusCodes.CONFLICT)
   }
 
   const roleId = await roleRepo.getIdByName(role)
 
-  const hashedPassword = await hashPassword(password)
   const newUser = await userRepo.create({
     firstName,
     lastName,
     email,
-    password: hashedPassword,
     roleId,
+  })
+
+  const hashedPassword = await hashPassword(password)
+
+  await authRepo.create({
+    userId: newUser.id,
+    provider: AuthProvider.Local,
+    identifier: email,
+    passwordHash: hashedPassword,
   })
 
   return newUser
 }
 
-export default signUp
+export default signUpWithEmail
