@@ -1,6 +1,8 @@
+import { eq } from 'drizzle-orm'
+
 import db, { authTable } from '@/db'
 
-import type { CreateAuthInput } from './types'
+import type { AuthRecord, CreateAuthInput } from './types'
 
 const createAuth = async (auth: CreateAuthInput): Promise<number> => {
   const [createdAuth] = await db
@@ -11,4 +13,13 @@ const createAuth = async (auth: CreateAuthInput): Promise<number> => {
   return createdAuth.id
 }
 
-export { createAuth }
+const findByUserId = async (userId: number): Promise<AuthRecord | undefined> => {
+  const [foundAuth] = await db
+    .select()
+    .from(authTable)
+    .where(eq(authTable.userId, userId))
+
+  return foundAuth
+}
+
+export { createAuth, findByUserId }

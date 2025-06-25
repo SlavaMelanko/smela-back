@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { createPasswordEncoder } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
 import jwt from '@/lib/jwt'
-import { roleRepo, userRepo } from '@/repositories'
+import { authRepo, roleRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
   email: string
@@ -16,14 +16,20 @@ const comparePasswords = async (password: string, hashedPassword: string) => {
   return await encoder.compare(password, hashedPassword)
 }
 
-const logIn = async ({ email, password }: LoginParams) => {
+const logInWithEmail = async ({ email, password }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
     throw new HttpError(StatusCodes.UNAUTHORIZED)
   }
 
-  const isPasswordValid = await comparePasswords(password, user.password)
+  const auth = await authRepo.findById(user.id)
+
+  if (!auth) {
+    throw new HttpError(StatusCodes.UNAUTHORIZED)
+  }
+
+  const isPasswordValid = await comparePasswords(password, auth.passwordHash!)
 
   if (!isPasswordValid) {
     throw new HttpError(StatusCodes.UNAUTHORIZED)
@@ -38,4 +44,4 @@ const logIn = async ({ email, password }: LoginParams) => {
   return jwt.sign(user.id, user.email, roleName)
 }
 
-export default logIn
+export default logInWithEmail
