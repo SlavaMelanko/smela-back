@@ -2,12 +2,12 @@ import type { Context } from 'hono'
 
 import { StatusCodes } from 'http-status-codes'
 
-import logIn from './login'
+import logInWithEmail from './login'
 
 const loginHandler = async (c: Context) => {
   const { email, password } = await c.req.json()
 
-  const token = await logIn({ email, password })
+  const token = await logInWithEmail({ email, password })
 
   return c.json({ token }, StatusCodes.OK)
 }

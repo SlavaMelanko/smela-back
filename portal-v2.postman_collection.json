@@ -82,7 +82,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"firstName\": \"Jason\",\n    \"lastName\": \"Statham\",\n    \"email\": \"jason.statham@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+							"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"self-serve\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -108,16 +108,24 @@
 							"value": "application/json"
 						},
 						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "x-request-id",
+							"value": "42f9466e-d09a-4852-949e-650d19f0747d"
+						},
+						{
 							"key": "Date",
-							"value": "Tue, 17 Jun 2025 18:24:11 GMT"
+							"value": "Wed, 25 Jun 2025 06:50:40 GMT"
 						},
 						{
 							"key": "Content-Length",
-							"value": "32"
+							"value": "391"
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"error\": \"Email already in use\"\n}"
+					"body": "{\n    \"message\": \"Conflict\",\n    \"stack\": \"Error\\n    at new HTTPException (/Users/slavamelanko/GitHub/portal-back-v2/node_modules/hono/dist/http-exception.js:6:5)\\n    at new HttpError (/Users/slavamelanko/GitHub/portal-back-v2/src/lib/http-error.ts:9:5)\\n    at <anonymous> (/Users/slavamelanko/GitHub/portal-back-v2/src/routes/signup/signup.ts:29:15)\\n    at processTicksAndRejections (native:7:39)\"\n}"
 				}
 			]
 		},
@@ -145,7 +153,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"jason.statham.1@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"email\": \"slava.melanko@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
