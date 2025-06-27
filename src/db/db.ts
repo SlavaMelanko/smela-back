@@ -3,8 +3,13 @@ import { drizzle } from 'drizzle-orm/neon-http'
 
 import env from '@/lib/env'
 
-const sql = neon(env.DB_URL)
+import * as schema from './schema'
 
-const db = drizzle({ client: sql })
+const client = neon(env.DB_URL)
+
+const db = drizzle(client, {
+  schema, // enables type safety and autocompletion
+  logger: true, // logs SQL queries to the console
+})
 
 export default db
