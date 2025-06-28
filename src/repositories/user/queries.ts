@@ -22,7 +22,7 @@ const createUser = async (user: CreateUserInput): Promise<User> => {
       firstName: usersTable.firstName,
       lastName: usersTable.lastName,
       email: usersTable.email,
-      roleId: usersTable.roleId,
+      role: usersTable.role,
       status: usersTable.status,
       createdAt: usersTable.createdAt,
     } as const)

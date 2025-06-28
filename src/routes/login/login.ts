@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { createPasswordEncoder } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
 import jwt from '@/lib/jwt'
-import { authRepo, roleRepo, userRepo } from '@/repositories'
+import { authRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
   email: string
@@ -35,13 +35,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new HttpError(StatusCodes.UNAUTHORIZED)
   }
 
-  const roleName = await roleRepo.getNameById(user.roleId)
-
-  if (!roleName) {
-    throw new HttpError(StatusCodes.INTERNAL_SERVER_ERROR)
-  }
-
-  return jwt.sign(user.id, user.email, roleName)
+  return jwt.sign(user.id, user.email, user.role, user.status)
 }
 
 export default logInWithEmail

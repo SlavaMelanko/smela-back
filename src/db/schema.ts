@@ -9,24 +9,26 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
-import { Action, AuthProvider, Resource, Status } from '@/types'
+import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
-export const actionEnum = pgEnum('action', Object.values(Action) as [string, ...string[]])
-export const authProviderEnum = pgEnum('auth_provider', Object.values(AuthProvider) as [string, ...string[]])
-export const resourceEnum = pgEnum('resource', Object.values(Resource) as [string, ...string[]])
-export const statusEnum = pgEnum('status', Object.values(Status) as [string, ...string[]])
+const createPgEnum = <T extends Record<string, string>>(name: string, enumObj: T) => {
+  const values = Object.values(enumObj)
 
-export const rolesTable = pgTable('roles', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }).notNull().unique(),
-})
+  return pgEnum(name, values as [string, ...string[]])
+}
+
+export const actionEnum = createPgEnum('action', Action)
+export const authProviderEnum = createPgEnum('auth_provider', AuthProvider)
+export const resourceEnum = createPgEnum('resource', Resource)
+export const statusEnum = createPgEnum('status', Status)
+export const roleEnum = createPgEnum('role', Role)
 
 export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),
   firstName: varchar('first_name', { length: 100 }).notNull(),
   lastName: varchar('last_name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  roleId: integer('role_id').notNull().references(() => rolesTable.id),
+  role: roleEnum('role').notNull().default(Role.SelfServe),
   status: statusEnum('status').notNull().default(Status.New),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -56,8 +58,8 @@ export const permissionsTable = pgTable('permissions', {
 
 export const rolePermissionsTable = pgTable('role_permissions', {
   id: serial('id').primaryKey(),
-  roleId: integer('role_id').notNull().references(() => rolesTable.id),
+  role: roleEnum('role').notNull(),
   permissionId: integer('permission_id').notNull().references(() => permissionsTable.id),
 }, table => ({
-  uniqueRolePermission: uniqueIndex('unique_role_permission').on(table.roleId, table.permissionId),
+  uniqueRolePermission: uniqueIndex('unique_role_permission').on(table.role, table.permissionId),
 }))

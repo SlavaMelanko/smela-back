@@ -4,7 +4,7 @@ import type { Role } from '@/types'
 
 import { createPasswordEncoder } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
-import { authRepo, roleRepo, userRepo } from '@/repositories'
+import { authRepo, userRepo } from '@/repositories'
 import { AuthProvider } from '@/types'
 
 interface SignupParams {
@@ -30,13 +30,11 @@ const signUpWithEmail = async (
     throw new HttpError(StatusCodes.CONFLICT)
   }
 
-  const roleId = await roleRepo.getIdByName(role)
-
   const newUser = await userRepo.create({
     firstName,
     lastName,
     email,
-    roleId,
+    role,
   })
 
   const hashedPassword = await hashPassword(password)
