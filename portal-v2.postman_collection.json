@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Jason\",\n    \"lastName\": \"Statham\",\n    \"email\": \"jason.statham.1@mail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"self-serve\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
