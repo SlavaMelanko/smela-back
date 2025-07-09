@@ -68,7 +68,9 @@ const signUpWithEmail = async (
     role,
   })
 
-  await createEmailVerificationToken(newUser.id)
+  const token = await createEmailVerificationToken(newUser.id)
+
+  console.log(`/verify-email?token=${token}`)
 
   return newUser
 }
