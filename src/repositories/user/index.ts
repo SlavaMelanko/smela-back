@@ -1,8 +1,10 @@
 export * from './types'
 
-import { createUser, findUserByEmail } from './queries'
+import { createUser, findUserByEmail, findUserById, updateUser } from './queries'
 
 export const userRepo = {
   create: createUser,
   findByEmail: findUserByEmail,
+  findById: findUserById,
+  update: updateUser,
 }
