@@ -2,10 +2,10 @@ import { StatusCodes } from 'http-status-codes'
 
 import type { Role } from '@/types'
 
-import { createPasswordEncoder } from '@/lib/crypto'
+import { createPasswordEncoder, createSecureTokenGenerator } from '@/lib/crypto'
 import HttpError from '@/lib/http-error'
-import { authRepo, userRepo } from '@/repositories'
-import { AuthProvider } from '@/types'
+import { authRepo, secureTokenRepo, userRepo } from '@/repositories'
+import { AuthProvider, SecureToken, Status } from '@/types'
 
 interface SignupParams {
   firstName: string
@@ -15,10 +15,40 @@ interface SignupParams {
   role: Role
 }
 
-const hashPassword = async (password: string) => {
-  const encoder = createPasswordEncoder()
+const createUser = async ({ firstName, lastName, email, password, role }: SignupParams) => {
+  const newUser = await userRepo.create({
+    firstName,
+    lastName,
+    email,
+    role,
+    status: Status.New,
+  })
 
-  return await encoder.hash(password)
+  const encoder = createPasswordEncoder()
+  const hashedPassword = await encoder.hash(password)
+
+  await authRepo.create({
+    userId: newUser.id,
+    provider: AuthProvider.Local,
+    identifier: email,
+    passwordHash: hashedPassword,
+  })
+
+  return newUser
+}
+
+const createEmailVerificationToken = async (userId: number) => {
+  const tokenGenerator = createSecureTokenGenerator()
+  const { token, expiresAt } = tokenGenerator.generateWithExpiry()
+
+  await secureTokenRepo.create({
+    userId,
+    type: SecureToken.EmailVerification,
+    token,
+    expiresAt,
+  })
+
+  return token
 }
 
 const signUpWithEmail = async (
@@ -30,21 +60,15 @@ const signUpWithEmail = async (
     throw new HttpError(StatusCodes.CONFLICT)
   }
 
-  const newUser = await userRepo.create({
+  const newUser = await createUser({
     firstName,
     lastName,
     email,
+    password,
     role,
   })
 
-  const hashedPassword = await hashPassword(password)
-
-  await authRepo.create({
-    userId: newUser.id,
-    provider: AuthProvider.Local,
-    identifier: email,
-    passwordHash: hashedPassword,
-  })
+  await createEmailVerificationToken(newUser.id)
 
   return newUser
 }
