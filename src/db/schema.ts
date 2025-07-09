@@ -28,7 +28,7 @@ export const usersTable = pgTable('users', {
   firstName: varchar('first_name', { length: 100 }).notNull(),
   lastName: varchar('last_name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  role: roleEnum('role').notNull().default(Role.SelfServe),
+  role: roleEnum('role').notNull().default(Role.User),
   status: statusEnum('status').notNull().default(Status.New),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

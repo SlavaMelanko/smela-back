@@ -104,12 +104,12 @@ const seedAdmins = async () => {
   const admins = [
     {
       firstName: 'Jason',
-      email: 'jason@joinmassive.com',
+      email: 'jason@example.com',
       password: 'Passw0rd!', // plain text for seeding; will be hashed
     },
     {
       firstName: 'Billy',
-      email: 'billy@joinmassive.com',
+      email: 'billy@example.com',
       password: 'Passw0rd!',
     },
   ]

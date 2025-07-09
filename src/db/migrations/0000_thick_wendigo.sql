@@ -1,7 +1,7 @@
 CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> statement-breakpoint
 CREATE TYPE "public"."auth_provider" AS ENUM('local', 'google', 'github');--> statement-breakpoint
 CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
-CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'enterprise', 'self-serve');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE "users" (
 	"first_name" varchar(100) NOT NULL,
 	"last_name" varchar(100),
 	"email" varchar(255) NOT NULL,
-	"role" "role" DEFAULT 'self-serve' NOT NULL,
+	"role" "role" DEFAULT 'user' NOT NULL,
 	"status" "status" DEFAULT 'new' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,

@@ -1,5 +1,5 @@
 {
-  "id": "0d5ca87b-d9c1-4013-9bec-629b1df2e077",
+  "id": "b75f7e9e-77f9-4bf3-8333-45be36e7cc42",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -255,7 +255,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'self-serve'"
+          "default": "'user'"
         },
         "status": {
           "name": "status",
@@ -347,8 +347,8 @@
       "values": [
         "owner",
         "admin",
-        "enterprise",
-        "self-serve"
+        "user",
+        "enterprise"
       ]
     },
     "public.status": {
