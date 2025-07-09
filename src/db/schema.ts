@@ -1,6 +1,7 @@
 import {
   index,
   integer,
+  json,
   pgEnum,
   pgTable,
   serial,
@@ -9,7 +10,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
-import { Action, AuthProvider, Resource, Role, Status } from '@/types'
+import { Action, AuthProvider, Resource, Role, SecureToken, Status } from '@/types'
 
 const createPgEnum = <T extends Record<string, string>>(name: string, enumObj: T) => {
   const values = Object.values(enumObj)
@@ -22,6 +23,7 @@ export const authProviderEnum = createPgEnum('auth_provider', AuthProvider)
 export const resourceEnum = createPgEnum('resource', Resource)
 export const statusEnum = createPgEnum('status', Status)
 export const roleEnum = createPgEnum('role', Role)
+export const secureTokenEnum = createPgEnum('secure_token', SecureToken)
 
 export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -62,4 +64,18 @@ export const rolePermissionsTable = pgTable('role_permissions', {
   permissionId: integer('permission_id').notNull().references(() => permissionsTable.id),
 }, table => ({
   uniqueRolePermission: uniqueIndex('unique_role_permission').on(table.role, table.permissionId),
+}))
+
+export const secureTokensTable = pgTable('secure_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => usersTable.id),
+  type: secureTokenEnum('type').notNull(),
+  token: varchar('token', { length: 255 }).notNull().unique(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  usedAt: timestamp('used_at', { withTimezone: true }),
+  metadata: json('metadata'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => ({
+  tokenIndex: uniqueIndex('token_index').on(table.token),
+  userTypeIndex: index('user_type_index').on(table.userId, table.type),
 }))

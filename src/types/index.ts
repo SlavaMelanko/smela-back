@@ -2,6 +2,7 @@ import Action from './action'
 import AuthProvider from './auth-providers'
 import Resource from './resource'
 import Role from './role'
+import SecureToken from './secure-token'
 import Status from './status'
 
-export { Action, AuthProvider, Resource, Role, Status }
+export { Action, AuthProvider, Resource, Role, SecureToken, Status }

@@ -2,6 +2,7 @@ CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> st
 CREATE TYPE "public"."auth_provider" AS ENUM('local', 'google', 'github');--> statement-breakpoint
 CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user', 'enterprise');--> statement-breakpoint
+CREATE TYPE "public"."secure_token" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -25,6 +26,18 @@ CREATE TABLE "role_permissions" (
 	"permission_id" integer NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "secure_tokens" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
+	"type" "secure_token" NOT NULL,
+	"token" varchar(255) NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"used_at" timestamp with time zone,
+	"metadata" json,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "secure_tokens_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"first_name" varchar(100) NOT NULL,
@@ -39,7 +52,10 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "auth" ADD CONSTRAINT "auth_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "secure_tokens" ADD CONSTRAINT "secure_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_auth" ON "auth" USING btree ("provider","identifier");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_permission" ON "permissions" USING btree ("action","resource");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_role_permission" ON "role_permissions" USING btree ("role","permission_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "token_index" ON "secure_tokens" USING btree ("token");--> statement-breakpoint
+CREATE INDEX "user_type_index" ON "secure_tokens" USING btree ("user_id","type");--> statement-breakpoint
 CREATE INDEX "email_index" ON "users" USING btree ("email");
