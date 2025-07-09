@@ -1,3 +1,3 @@
-import { createPasswordEncoder } from './factory'
+import { createPasswordEncoder, createSecureTokenGenerator } from './factory'
 
-export { createPasswordEncoder }
+export { createPasswordEncoder, createSecureTokenGenerator }

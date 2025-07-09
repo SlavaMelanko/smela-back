@@ -4,7 +4,7 @@ import type PasswordEncoder from './password-encoder'
 
 const SALT_ROUNDS = 10
 
-class BcryptEncoder implements PasswordEncoder {
+class BcryptPasswordEncoder implements PasswordEncoder {
   async hash(plain: string): Promise<string> {
     return bcryptHash(plain, SALT_ROUNDS)
   }
@@ -14,4 +14,4 @@ class BcryptEncoder implements PasswordEncoder {
   }
 }
 
-export default BcryptEncoder
+export default BcryptPasswordEncoder
