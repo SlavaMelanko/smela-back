@@ -1,4 +1,4 @@
-import HttpError from '@/lib/http-error'
+import TokenValidator from '@/lib/token-validator'
 import { secureTokenRepo, userRepo } from '@/repositories'
 import { SecureToken, Status } from '@/types'
 
@@ -20,25 +20,11 @@ const setVerifiedStatus = async (userId: number): Promise<Status> => {
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   const tokenRecord = await secureTokenRepo.findByToken(token)
 
-  if (!tokenRecord) {
-    throw new HttpError(400, 'Token not found')
-  }
+  const validatedToken = TokenValidator.validate(tokenRecord, SecureToken.EmailVerification)
 
-  if (tokenRecord.usedAt) {
-    throw new HttpError(400, 'Token has already been used')
-  }
+  await markTokenAsUsed(validatedToken.id)
 
-  if (tokenRecord.type !== SecureToken.EmailVerification) {
-    throw new HttpError(400, 'Token is not a valid email verification token')
-  }
-
-  if (tokenRecord.expiresAt < new Date()) {
-    throw new HttpError(400, 'Token has expired')
-  }
-
-  await markTokenAsUsed(tokenRecord.id)
-
-  const status = await setVerifiedStatus(tokenRecord.userId)
+  const status = await setVerifiedStatus(validatedToken.userId)
 
   return { status }
 }

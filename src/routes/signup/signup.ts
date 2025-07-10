@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import type { Role } from '@/types'
 
 import { createPasswordEncoder, createSecureTokenGenerator } from '@/lib/crypto'
+import { sendWelcomeEmail } from '@/lib/emails'
 import HttpError from '@/lib/http-error'
 import { authRepo, secureTokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, SecureToken, Status } from '@/types'
@@ -70,7 +71,11 @@ const signUpWithEmail = async (
 
   const token = await createEmailVerificationToken(newUser.id)
 
-  console.log(`/verify-email?token=${token}`)
+  sendWelcomeEmail({
+    firstName: newUser.firstName,
+    email: newUser.email,
+    token,
+  })
 
   return newUser
 }
