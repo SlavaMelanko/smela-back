@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+import { secureTokenRules } from '@/lib/validation'
+
 const verifyEmailSchema = z.object({
-  token: z.string().min(1, 'Verification token is required'),
+  token: secureTokenRules.token,
 })
 
 export { verifyEmailSchema }
