@@ -19,7 +19,7 @@ const onError: ErrorHandler = (err, c) => {
 
   return c.json(
     {
-      message,
+      error: message,
       stack,
     },
     <ContentfulStatusCode>status,
