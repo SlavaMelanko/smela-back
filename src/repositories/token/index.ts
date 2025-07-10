@@ -6,7 +6,7 @@ import {
   updateToken,
 } from './queries'
 
-export const secureTokenRepo = {
+export const tokenRepo = {
   create: createToken,
   findByToken,
   update: updateToken,

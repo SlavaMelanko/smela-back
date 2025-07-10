@@ -1,4 +1,4 @@
 import { buildSchema } from './builder'
-import { envRules, secureTokenRules, userRules } from './rules'
+import { envRules, tokenRules, userRules } from './rules'
 
-export { buildSchema, envRules, secureTokenRules, userRules }
+export { buildSchema, envRules, tokenRules, userRules }

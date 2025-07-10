@@ -120,7 +120,7 @@ LOG_LEVEL=info
 - **Users**: Core user data with roles (User/Admin) and status (Active/Inactive/Suspended)
 - **Auth**: Supports multiple auth providers (Local, Google, GitHub, etc.)
 - **Permissions**: RBAC with actions, resources, and role mappings
-- **Secure Tokens**: Email verification and password reset tokens
+- **Tokens**: Email verification and password reset tokens
 
 ### Important Notes
 

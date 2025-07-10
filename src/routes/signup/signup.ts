@@ -2,11 +2,11 @@ import { StatusCodes } from 'http-status-codes'
 
 import type { Role } from '@/types'
 
-import { createPasswordEncoder, createSecureTokenGenerator } from '@/lib/crypto'
+import { createPasswordEncoder, createTokenGenerator } from '@/lib/crypto'
 import { sendWelcomeEmail } from '@/lib/emails'
 import HttpError from '@/lib/http-error'
-import { authRepo, secureTokenRepo, userRepo } from '@/repositories'
-import { AuthProvider, SecureToken, Status } from '@/types'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
+import { AuthProvider, Status, Token } from '@/types'
 
 interface SignupParams {
   firstName: string
@@ -39,12 +39,12 @@ const createUser = async ({ firstName, lastName, email, password, role }: Signup
 }
 
 const createEmailVerificationToken = async (userId: number) => {
-  const tokenGenerator = createSecureTokenGenerator()
+  const tokenGenerator = createTokenGenerator()
   const { token, expiresAt } = tokenGenerator.generateWithExpiry()
 
-  await secureTokenRepo.create({
+  await tokenRepo.create({
     userId,
-    type: SecureToken.EmailVerification,
+    type: Token.EmailVerification,
     token,
     expiresAt,
   })

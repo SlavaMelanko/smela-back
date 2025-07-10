@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-import { SECURE_TOKEN_LENGTH } from '../../token-consts'
+import { TOKEN_LENGTH } from '../../token-consts'
 
 const rules = {
   token: z.string().length(
-    SECURE_TOKEN_LENGTH,
-    `Secure token must be exactly ${SECURE_TOKEN_LENGTH} characters long`,
+    TOKEN_LENGTH,
+    `Token must be exactly ${TOKEN_LENGTH} characters long`,
   ),
 }
 

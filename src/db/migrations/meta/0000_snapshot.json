@@ -1,5 +1,5 @@
 {
-  "id": "03f17c1a-4007-4c29-814b-b514a302756d",
+  "id": "e6011d0b-5a61-4601-a504-de4fb021e3b1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -221,8 +221,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.secure_tokens": {
-      "name": "secure_tokens",
+    "public.tokens": {
+      "name": "tokens",
       "schema": "",
       "columns": {
         "id": {
@@ -239,10 +239,18 @@
         },
         "type": {
           "name": "type",
-          "type": "secure_token",
+          "type": "token",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "token_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
         },
         "token": {
           "name": "token",
@@ -315,9 +323,9 @@
         }
       },
       "foreignKeys": {
-        "secure_tokens_user_id_users_id_fk": {
-          "name": "secure_tokens_user_id_users_id_fk",
-          "tableFrom": "secure_tokens",
+        "tokens_user_id_users_id_fk": {
+          "name": "tokens_user_id_users_id_fk",
+          "tableFrom": "tokens",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -331,8 +339,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "secure_tokens_token_unique": {
-          "name": "secure_tokens_token_unique",
+        "tokens_token_unique": {
+          "name": "tokens_token_unique",
           "nullsNotDistinct": false,
           "columns": [
             "token"
@@ -473,14 +481,6 @@
         "enterprise"
       ]
     },
-    "public.secure_token": {
-      "name": "secure_token",
-      "schema": "public",
-      "values": [
-        "email_verification",
-        "password_reset"
-      ]
-    },
     "public.status": {
       "name": "status",
       "schema": "public",
@@ -492,6 +492,23 @@
         "suspended",
         "archived",
         "pending"
+      ]
+    },
+    "public.token": {
+      "name": "token",
+      "schema": "public",
+      "values": [
+        "email_verification",
+        "password_reset"
+      ]
+    },
+    "public.token_status": {
+      "name": "token_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "used",
+        "deprecated"
       ]
     }
   },

@@ -1,7 +1,7 @@
 import type PasswordEncoder from './password-encoder'
 
 import BcryptPasswordEncoder from './password-encoder-bcrypt'
-import SecureTokenGenerator from './token-generator-crypto'
+import CryptoTokenGenerator from './token-generator-crypto'
 
 const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncoder => {
   switch (impl) {
@@ -12,13 +12,13 @@ const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncoder => {
   }
 }
 
-const createSecureTokenGenerator = (impl: 'crypto' = 'crypto') => {
+const createTokenGenerator = (impl: 'crypto' = 'crypto') => {
   switch (impl) {
     case 'crypto':
-      return new SecureTokenGenerator()
+      return new CryptoTokenGenerator()
     default:
-      throw new Error(`Unknown secure token generator: ${impl}`)
+      throw new Error(`Unknown token generator: ${impl}`)
   }
 }
 
-export { createPasswordEncoder, createSecureTokenGenerator }
+export { createPasswordEncoder, createTokenGenerator }

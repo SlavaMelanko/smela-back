@@ -1,13 +1,16 @@
 import TokenValidator from '@/lib/token-validator'
-import { secureTokenRepo, userRepo } from '@/repositories'
-import { SecureToken, Status } from '@/types'
+import { tokenRepo, userRepo } from '@/repositories'
+import { Status, Token, TokenStatus } from '@/types'
 
 interface VerifyEmailResult {
   status: Status
 }
 
 const markTokenAsUsed = async (tokenId: number): Promise<void> => {
-  await secureTokenRepo.update(tokenId, { usedAt: new Date() })
+  await tokenRepo.update(tokenId, {
+    status: TokenStatus.Used,
+    usedAt: new Date(),
+  })
 }
 
 const setVerifiedStatus = async (userId: number): Promise<Status> => {
@@ -18,9 +21,9 @@ const setVerifiedStatus = async (userId: number): Promise<Status> => {
 }
 
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
-  const tokenRecord = await secureTokenRepo.findByToken(token)
+  const tokenRecord = await tokenRepo.findByToken(token)
 
-  const validatedToken = TokenValidator.validate(tokenRecord, SecureToken.EmailVerification)
+  const validatedToken = TokenValidator.validate(tokenRecord, Token.EmailVerification)
 
   await markTokenAsUsed(validatedToken.id)
 

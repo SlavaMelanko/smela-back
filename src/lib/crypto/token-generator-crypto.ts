@@ -2,13 +2,13 @@ import crypto from 'node:crypto'
 
 import type TokenGenerator from './token-generator'
 
-import { SECURE_TOKEN_EXPIRY_HOURS, SECURE_TOKEN_LENGTH } from '../token-consts'
+import { TOKEN_EXPIRY_HOURS, TOKEN_LENGTH } from '../token-consts'
 
-class SecureTokenGenerator implements TokenGenerator {
+class CryptoTokenGenerator implements TokenGenerator {
   private readonly tokenLength: number
   private readonly expiryHours: number
 
-  constructor(tokenLength = SECURE_TOKEN_LENGTH, expiryHours = SECURE_TOKEN_EXPIRY_HOURS) {
+  constructor(tokenLength = TOKEN_LENGTH, expiryHours = TOKEN_EXPIRY_HOURS) {
     this.tokenLength = tokenLength
     this.expiryHours = expiryHours
   }
@@ -28,4 +28,4 @@ class SecureTokenGenerator implements TokenGenerator {
   }
 }
 
-export default SecureTokenGenerator
+export default CryptoTokenGenerator
