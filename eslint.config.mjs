@@ -20,7 +20,7 @@ export default antfu({
     }],
     'unicorn/filename-case': ['error', {
       case: 'kebabCase',
-      ignore: ['README.md'],
+      ignore: ['README.md', 'CLAUDE.md'],
     }],
     'prefer-arrow-callback': ['error'],
     'antfu/top-level-function': ['off'],

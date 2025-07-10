@@ -1,7 +1,7 @@
 import type PasswordEncoder from './password-encoder'
 
-import BcryptPasswordEncoder from './bcrypt-password-encoder'
-import SecureTokenGenerator from './secure-token-generator'
+import BcryptPasswordEncoder from './password-encoder-bcrypt'
+import SecureTokenGenerator from './token-generator-crypto'
 
 const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncoder => {
   switch (impl) {
