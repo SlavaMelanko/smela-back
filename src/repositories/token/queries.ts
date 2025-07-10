@@ -1,6 +1,4 @@
-import { and, desc, eq, gt, isNull } from 'drizzle-orm'
-
-import type { SecureToken } from '@/types'
+import { eq } from 'drizzle-orm'
 
 import db, { secureTokensTable } from '@/db'
 
@@ -20,44 +18,10 @@ const findByToken = async (token: string): Promise<TokenRecord | undefined> => {
     .select()
     .from(secureTokensTable)
     .where(
-      and(
-        eq(secureTokensTable.token, token),
-        isNull(secureTokensTable.usedAt),
-        gt(secureTokensTable.expiresAt, new Date()),
-      ),
+      eq(secureTokensTable.token, token),
     )
 
   return foundToken
-}
-
-const findByUserAndType = async (
-  userId: number,
-  type: SecureToken,
-  includeUsed = false,
-): Promise<TokenRecord[]> => {
-  const conditions = [
-    eq(secureTokensTable.userId, userId),
-    eq(secureTokensTable.type, type),
-  ]
-
-  if (!includeUsed) {
-    conditions.push(isNull(secureTokensTable.usedAt))
-  }
-
-  const tokens = await db
-    .select()
-    .from(secureTokensTable)
-    .where(and(...conditions))
-    .orderBy(desc(secureTokensTable.createdAt))
-
-  return tokens
-}
-
-const markAsUsed = async (tokenId: number): Promise<void> => {
-  await db
-    .update(secureTokensTable)
-    .set({ usedAt: new Date() })
-    .where(eq(secureTokensTable.id, tokenId))
 }
 
 const updateToken = async (
@@ -73,7 +37,5 @@ const updateToken = async (
 export {
   createToken,
   findByToken,
-  findByUserAndType,
-  markAsUsed,
   updateToken,
 }

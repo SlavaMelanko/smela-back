@@ -6,6 +6,17 @@ interface VerifyEmailResult {
   status: Status
 }
 
+const markTokenAsUsed = async (tokenId: number): Promise<void> => {
+  await secureTokenRepo.update(tokenId, { usedAt: new Date() })
+}
+
+const setVerifiedStatus = async (userId: number): Promise<Status> => {
+  const status = Status.Verified
+  await userRepo.update(userId, { status })
+
+  return status
+}
+
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   const tokenRecord = await secureTokenRepo.findByToken(token)
 
@@ -25,16 +36,11 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
     throw new HttpError(400, 'Token has expired')
   }
 
-  // Mark token as used
-  await secureTokenRepo.markAsUsed(tokenRecord.id)
+  await markTokenAsUsed(tokenRecord.id)
 
-  const status = Status.Verified
-
-  // Update user status to verified
-  await userRepo.update(tokenRecord.userId, { status })
+  const status = await setVerifiedStatus(tokenRecord.userId)
 
   return { status }
 }
 
-export { verifyEmail }
-export type { VerifyEmailResult }
+export { verifyEmail as default, type VerifyEmailResult }
