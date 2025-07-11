@@ -41,13 +41,10 @@ const createUser = async ({ firstName, lastName, email, password, role }: Signup
 const createEmailVerificationToken = async (userId: number) => {
   const tokenGenerator = createTokenGenerator()
   const { token, expiresAt } = tokenGenerator.generateWithExpiry()
+  const type = Token.EmailVerification
 
-  await tokenRepo.create({
-    userId,
-    type: Token.EmailVerification,
-    token,
-    expiresAt,
-  })
+  await tokenRepo.deprecateOld(userId, type)
+  await tokenRepo.create({ userId, type, token, expiresAt })
 
   return token
 }

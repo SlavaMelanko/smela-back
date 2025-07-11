@@ -7,7 +7,7 @@ import { isProdEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
 const onError: ErrorHandler = (err, c) => {
-  logger.error(err)
+  logger.error('>>', err)
 
   const status = 'status' in err && typeof err.status === 'number'
     ? err.status
