@@ -15,7 +15,7 @@ const onError: ErrorHandler = (err, c) => {
 
   const message = err.message || getReasonPhrase(status)
 
-  const name = 'BackendError'
+  const name = err.name || 'BackendError'
 
   const stack = isProdEnv() ? undefined : err.stack
 
