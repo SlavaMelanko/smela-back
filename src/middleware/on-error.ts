@@ -15,11 +15,14 @@ const onError: ErrorHandler = (err, c) => {
 
   const message = err.message || getReasonPhrase(status)
 
+  const name = 'BackendError'
+
   const stack = isProdEnv() ? undefined : err.stack
 
   return c.json(
     {
       error: message,
+      name,
       stack,
     },
     <ContentfulStatusCode>status,
