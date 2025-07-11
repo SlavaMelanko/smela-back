@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import verifyEmail from './verify-email'
 
-const handler = async (c: Context) => {
+const verifyEmailHandler = async (c: Context) => {
   const { token } = c.req.query()
 
   const { status } = await verifyEmail(token)
@@ -12,4 +12,4 @@ const handler = async (c: Context) => {
   return c.json({ status }, StatusCodes.OK)
 }
 
-export { handler }
+export default verifyEmailHandler
