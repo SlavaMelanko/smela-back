@@ -2,6 +2,7 @@ enum ErrorCode {
   Unauthorized = 'auth:unauthorized',
   BadCredentials = 'auth:bad-credentials',
   EmailAlreadyInUse = 'auth:email-already-in-use',
+  Forbidden = 'auth:unverified-account',
 
   TokenExpired = 'token:expired',
   TokenNotFound = 'token:not-found',

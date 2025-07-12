@@ -20,6 +20,10 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.CONFLICT,
     error: 'Email is already in use',
   },
+  [ErrorCode.Forbidden]: {
+    status: StatusCodes.FORBIDDEN,
+    error: 'Unverified account',
+  },
   [ErrorCode.TokenExpired]: {
     status: StatusCodes.UNAUTHORIZED,
     error: 'Token has expired',
