@@ -8,4 +8,8 @@ enum Status {
   Pending = 'pending',
 }
 
-export default Status
+const isActive = (status: Status) => status === Status.Verified
+  || status === Status.Trial
+  || status === Status.Active
+
+export { Status as default, isActive }
