@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-import ErrorCode from './error-codes'
+import ErrorCode from './codes'
 
 interface ErrorDetails {
   status: StatusCodes

@@ -1,5 +1,5 @@
 import AppError from './app-error'
-import ErrorCode from './error-codes'
-import ErrorRegistry from './error-registry'
+import ErrorCode from './codes'
+import ErrorRegistry from './registry'
 
 export { AppError, ErrorCode, ErrorRegistry }
