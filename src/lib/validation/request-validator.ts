@@ -13,7 +13,7 @@ const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTa
     if (!result.success) {
       const firstIssue = result.error.issues[0]
 
-      const message = firstIssue?.message || 'Validation failed'
+      const message = firstIssue?.message
 
       throw new AppError(ErrorCode.ValidationError, message)
     }
