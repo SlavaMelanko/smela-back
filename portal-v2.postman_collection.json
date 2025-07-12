@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+2@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+5@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -45,7 +45,7 @@
 					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}"
 				},
 				"url": {
-					"raw": "{{base_url}}/verify-email?token=4a061e54a61b201add1333fddc12243b",
+					"raw": "{{base_url}}/verify-email?token=3c32aa6dd644f280993a54edf8d570ac",
 					"host": [
 						"{{base_url}}"
 					],
@@ -55,7 +55,7 @@
 					"query": [
 						{
 							"key": "token",
-							"value": "4a061e54a61b201add1333fddc12243b"
+							"value": "3c32aa6dd644f280993a54edf8d570ac"
 						}
 					]
 				}
@@ -86,7 +86,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"email\": \"slava.melanko+5@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
