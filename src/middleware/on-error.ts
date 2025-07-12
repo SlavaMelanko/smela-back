@@ -1,22 +1,26 @@
 import type { ErrorHandler } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
-import { getReasonPhrase, StatusCodes } from 'http-status-codes'
+import { getReasonPhrase } from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 
 import { isProdEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
+const getHttpStatus = (err: unknown): number => {
+  if (err && typeof err === 'object' && 'status' in err && typeof err.status === 'number') {
+    return err.status
+  }
+
+  return StatusCodes.INTERNAL_SERVER_ERROR
+}
+
 const onError: ErrorHandler = (err, c) => {
   logger.error(err)
 
-  const status = 'status' in err && typeof err.status === 'number'
-    ? err.status
-    : StatusCodes.INTERNAL_SERVER_ERROR
-
+  const status = getHttpStatus(err)
   const message = err.message || getReasonPhrase(status)
-
   const name = err.name || 'BackendError'
-
   const stack = isProdEnv() ? undefined : err.stack
 
   return c.json(
