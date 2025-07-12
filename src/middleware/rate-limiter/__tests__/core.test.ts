@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
-import rateLimiterMiddleware from '@/middleware/rate-limiter'
+import { createRateLimiter } from '../core'
 
-describe('Rate Limiter Middleware', () => {
+describe('Rate Limiter Core', () => {
   let app: Hono
 
   beforeEach(() => {
@@ -12,7 +12,7 @@ describe('Rate Limiter Middleware', () => {
 
   describe('Basic Rate Limiting', () => {
     it('should allow requests under the limit', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000, // 1 minute
         limit: 3, // 3 requests per minute
         keyGenerator: () => 'test-key',
@@ -30,7 +30,7 @@ describe('Rate Limiter Middleware', () => {
     })
 
     it('should block requests over the limit', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000, // 1 minute
         limit: 2, // 2 requests per minute - explicitly set low limit
         keyGenerator: () => 'test-key',
@@ -51,7 +51,7 @@ describe('Rate Limiter Middleware', () => {
     })
 
     it('should include rate limit headers', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 5,
         keyGenerator: () => 'test-key',
@@ -71,7 +71,7 @@ describe('Rate Limiter Middleware', () => {
     it('should allow different keys to have separate limits', async () => {
       let keyCounter = 0
 
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 1, // 1 request per minute per key
         keyGenerator: () => `key-${keyCounter++}`,
@@ -90,7 +90,7 @@ describe('Rate Limiter Middleware', () => {
     })
 
     it('should use IP address as default key when available', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 2,
         // No keyGenerator - should use IP
@@ -114,7 +114,7 @@ describe('Rate Limiter Middleware', () => {
     it('should allow custom error message', async () => {
       const customMessage = 'Rate limit exceeded! Please try again later.'
 
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 1,
         message: customMessage,
@@ -132,7 +132,7 @@ describe('Rate Limiter Middleware', () => {
     })
 
     it('should work with custom status code', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 1,
         statusCode: 503, // Service Unavailable
@@ -146,12 +146,10 @@ describe('Rate Limiter Middleware', () => {
 
       expect(res.status).toBe(503)
     })
-  })
 
-  describe('Test Environment Considerations', () => {
     it('should have high limits in test environment', async () => {
       // This test simulates what we need for Playwright tests
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 1000, // High limit for tests
         keyGenerator: () => 'test-key',
@@ -174,7 +172,7 @@ describe('Rate Limiter Middleware', () => {
 
   describe('Skip Function', () => {
     it('should skip rate limiting when skip function returns true', async () => {
-      app.use(rateLimiterMiddleware({
+      app.use(createRateLimiter({
         windowMs: 60000,
         limit: 1,
         keyGenerator: () => 'test-key',
@@ -196,6 +194,32 @@ describe('Rate Limiter Middleware', () => {
         headers: { 'X-Skip-Rate-Limit': 'true' },
       })
       expect(res2.status).toBe(200)
+    })
+  })
+
+  describe('Default Configuration', () => {
+    it('should work with no configuration provided', async () => {
+      app.use(createRateLimiter())
+
+      app.get('/test', c => c.text('OK'))
+
+      const res = await app.request('/test', { method: 'GET' })
+
+      expect(res.status).toBe(200)
+      expect(res.headers.has('RateLimit-Limit')).toBe(true)
+    })
+
+    it('should use environment-appropriate default limits', async () => {
+      app.use(createRateLimiter({
+        keyGenerator: () => 'test-key',
+      }))
+
+      app.get('/test', c => c.text('OK'))
+
+      const res = await app.request('/test', { method: 'GET' })
+
+      // In test environment, should have high default limit (1000)
+      expect(res.headers.get('RateLimit-Limit')).toBe('1000')
     })
   })
 })
