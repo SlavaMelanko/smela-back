@@ -1,7 +1,9 @@
+import type { Role } from '@/types'
+
 interface UserPayload {
   id: number
   email: string
-  role: 'user' | 'admin'
+  role: Role
   exp: number
 }
 
