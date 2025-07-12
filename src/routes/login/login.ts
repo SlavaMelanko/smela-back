@@ -9,6 +9,10 @@ interface LoginParams {
 }
 
 const comparePasswords = async (password: string, hashedPassword: string) => {
+  if (!password || !hashedPassword) {
+    return false
+  }
+
   const encoder = createPasswordEncoder()
 
   return await encoder.compare(password, hashedPassword)
@@ -23,11 +27,11 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
 
   const auth = await authRepo.findById(user.id)
 
-  if (!auth) {
+  if (!auth || !auth.passwordHash) {
     throw new AppError(ErrorCode.Unauthorized)
   }
 
-  const isPasswordValid = await comparePasswords(password, auth.passwordHash!)
+  const isPasswordValid = await comparePasswords(password, auth.passwordHash)
 
   if (!isPasswordValid) {
     throw new AppError(ErrorCode.BadCredentials)
