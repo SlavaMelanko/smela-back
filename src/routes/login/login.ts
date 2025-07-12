@@ -1,7 +1,5 @@
-import { StatusCodes } from 'http-status-codes'
-
 import { createPasswordEncoder } from '@/lib/crypto'
-import HttpError from '@/lib/http-error'
+import { AppError, ErrorCode } from '@/lib/errors'
 import jwt from '@/lib/jwt'
 import { authRepo, userRepo } from '@/repositories'
 
@@ -20,19 +18,19 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
-    throw new HttpError(StatusCodes.UNAUTHORIZED)
+    throw new AppError(ErrorCode.Unauthorized)
   }
 
   const auth = await authRepo.findById(user.id)
 
   if (!auth) {
-    throw new HttpError(StatusCodes.UNAUTHORIZED)
+    throw new AppError(ErrorCode.Unauthorized)
   }
 
   const isPasswordValid = await comparePasswords(password, auth.passwordHash!)
 
   if (!isPasswordValid) {
-    throw new HttpError(StatusCodes.UNAUTHORIZED)
+    throw new AppError(ErrorCode.BadCredentials)
   }
 
   return jwt.sign(user.id, user.email, user.role, user.status)

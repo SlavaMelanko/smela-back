@@ -1,10 +1,8 @@
-import { StatusCodes } from 'http-status-codes'
-
 import type { Role } from '@/types'
 
 import { createPasswordEncoder, createTokenGenerator } from '@/lib/crypto'
 import { sendWelcomeEmail } from '@/lib/emails'
-import HttpError from '@/lib/http-error'
+import { AppError, ErrorCode } from '@/lib/errors'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
 
@@ -55,7 +53,7 @@ const signUpWithEmail = async (
   const existingUser = await userRepo.findByEmail(email)
 
   if (existingUser) {
-    throw new HttpError(StatusCodes.CONFLICT)
+    throw new AppError(ErrorCode.EmailAlreadyInUse)
   }
 
   const newUser = await createUser({

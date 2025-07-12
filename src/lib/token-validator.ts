@@ -1,7 +1,7 @@
 import type { TokenRecord } from '@/repositories/token'
 import type { Token } from '@/types'
 
-import HttpError from '@/lib/http-error'
+import { AppError, ErrorCode } from '@/lib/errors'
 import { TokenStatus } from '@/types'
 
 class TokenValidator {
@@ -17,31 +17,31 @@ class TokenValidator {
 
   static shouldExist(tokenRecord: TokenRecord | undefined): asserts tokenRecord is TokenRecord {
     if (!tokenRecord) {
-      throw new HttpError(400, 'Token not found')
+      throw new AppError(ErrorCode.TokenNotFound)
     }
   }
 
   static shouldNotBeUsed(tokenRecord: TokenRecord): void {
     if (tokenRecord.status === TokenStatus.Used || tokenRecord.usedAt) {
-      throw new HttpError(400, 'Token has already been used')
+      throw new AppError(ErrorCode.TokenAlreadyUsed)
     }
   }
 
   static shouldNotBeDeprecated(tokenRecord: TokenRecord): void {
     if (tokenRecord.status === TokenStatus.Deprecated) {
-      throw new HttpError(400, 'Token has been deprecated')
+      throw new AppError(ErrorCode.TokenDeprecated)
     }
   }
 
   static shouldNotBeExpired(tokenRecord: TokenRecord): void {
     if (tokenRecord.expiresAt < new Date()) {
-      throw new HttpError(400, 'Token has expired')
+      throw new AppError(ErrorCode.TokenExpired)
     }
   }
 
   static hasExpectedType(tokenRecord: TokenRecord, expectedType: Token): void {
     if (tokenRecord.type !== expectedType) {
-      throw new HttpError(400, `Token type mismatch: expected ${expectedType}, got ${tokenRecord.type}`)
+      throw new AppError(ErrorCode.TokenTypeMismatch, `Token type mismatch: expected ${expectedType}, got ${tokenRecord.type}`)
     }
   }
 }

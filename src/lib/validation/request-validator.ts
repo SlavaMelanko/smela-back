@@ -3,7 +3,7 @@ import type { ZodSchema } from 'zod'
 
 import { zValidator } from '@hono/zod-validator'
 
-import HttpError from '../http-error'
+import { AppError, ErrorCode } from '../errors'
 
 const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTargets>(
   target: Target,
@@ -15,7 +15,7 @@ const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTa
 
       const message = firstIssue?.message || 'Validation failed'
 
-      throw new HttpError(400, message)
+      throw new AppError(ErrorCode.ValidationError, message)
     }
   })
 
