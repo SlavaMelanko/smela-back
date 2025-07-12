@@ -1,5 +1,14 @@
 import jwtMiddleware from './auth'
 import loggerMiddleware from './logger'
 import onError from './on-error'
+import rateLimiterMiddleware, { authRateLimiter, generalRateLimiter, strictRateLimiter } from './rate-limiter'
 
-export { jwtMiddleware, loggerMiddleware, onError }
+export {
+  authRateLimiter,
+  generalRateLimiter,
+  jwtMiddleware,
+  loggerMiddleware,
+  onError,
+  rateLimiterMiddleware,
+  strictRateLimiter,
+}

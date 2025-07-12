@@ -26,5 +26,6 @@ const env = validate()
 
 const isDevEnv = () => env.NODE_ENV === 'development'
 const isProdEnv = () => env.NODE_ENV === 'production'
+const isTestEnv = () => env.NODE_ENV === 'test'
 
-export { env as default, isDevEnv, isProdEnv }
+export { env as default, isDevEnv, isProdEnv, isTestEnv }

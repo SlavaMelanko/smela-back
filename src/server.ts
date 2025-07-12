@@ -4,7 +4,7 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
+import { authRateLimiter, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
 import { privateRoutes, publicRoutes } from '@/routes'
 
 class Server {
@@ -22,6 +22,10 @@ class Server {
       .use(cors())
       .use(requestId())
       .use(loggerMiddleware)
+      .use(generalRateLimiter) // Apply general rate limiting to all routes
+      .use('/login', authRateLimiter) // Apply strict rate limiting to login endpoint
+      .use('/signup', authRateLimiter) // Apply strict rate limiting to signup endpoint
+      .use('/verify-email', authRateLimiter) // Apply strict rate limiting to verify-email endpoint
       .use('/api/v1/*', jwtMiddleware)
   }
 
