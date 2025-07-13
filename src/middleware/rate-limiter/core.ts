@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { rateLimiter } from 'hono-rate-limiter'
 
-import { isDevEnv, isTestEnv } from '@/lib/env'
+import { isDevOrTestEnv } from '@/lib/env'
 
 import type { RateLimiterConfig } from './config'
 
@@ -17,7 +17,7 @@ import { getClientIp } from './utils'
 export const createRateLimiter = (config: RateLimiterConfig = {}): MiddlewareHandler => {
   const {
     windowMs = 15 * 60 * 1000, // 15 minutes default
-    limit = config.limit !== undefined ? config.limit : ((isDevEnv() || isTestEnv()) ? 1000 : 100),
+    limit = config.limit !== undefined ? config.limit : (isDevOrTestEnv() ? 1_000 : 100),
     message = 'Too many requests, please try again later.',
     statusCode = 429,
     keyGenerator = getClientIp,

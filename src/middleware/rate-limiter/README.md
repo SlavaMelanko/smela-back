@@ -62,21 +62,6 @@ import { generalRateLimiter } from '@/middleware/rate-limiter'
 app.use('/api/*', generalRateLimiter)
 ```
 
-### `strictRateLimiter`
-
-For sensitive or resource-intensive endpoints.
-
-- **Production**: 10 requests per 5 minutes
-- **Development/Test**: 1000 requests per 5 minutes
-- **Use cases**: File uploads, AI processing, expensive computations
-
-```typescript
-import { strictRateLimiter } from '@/middleware/rate-limiter'
-
-app.use('/api/upload', strictRateLimiter)
-app.use('/api/process', strictRateLimiter)
-```
-
 ## Custom Rate Limiters
 
 ### Basic Configuration

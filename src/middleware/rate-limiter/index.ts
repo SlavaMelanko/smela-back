@@ -8,7 +8,7 @@ export { createRateLimiter } from './core'
 export { createRateLimiter as default } from './core'
 
 // Predefined rate limiters
-export { authRateLimiter, generalRateLimiter, strictRateLimiter } from './presets'
+export { authRateLimiter, generalRateLimiter } from './presets'
 
 // Utilities (for advanced use cases)
 export { getClientIp } from './utils'
