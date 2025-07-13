@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
-import { authRateLimiter, generalRateLimiter } from '../presets'
+import { authRateLimiter, generalRateLimiter } from '..'
 
 describe('Rate Limiter Presets', () => {
   let app: Hono

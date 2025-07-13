@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { createRateLimiter } from '../core'
+import { createRateLimiter } from '..'
 
 describe('Rate Limiter Core', () => {
   let app: Hono

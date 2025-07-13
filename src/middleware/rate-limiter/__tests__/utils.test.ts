@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
-import { getClientIp } from '../utils'
+import { getClientIp } from '..'
 
 describe('Rate Limiter Utils', () => {
   let app: Hono
