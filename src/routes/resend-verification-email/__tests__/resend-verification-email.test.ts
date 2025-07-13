@@ -1,0 +1,229 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+
+import { sendWelcomeEmail } from '@/lib/emails'
+import { AppError, ErrorCode } from '@/lib/errors'
+import { tokenRepo, userRepo } from '@/repositories'
+import { Status, Token } from '@/types'
+
+import resendVerificationEmail from '../resend-verification-email'
+
+describe('resendVerificationEmail', () => {
+  const mockUser = {
+    id: 1,
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    status: Status.New,
+    role: 'user' as const,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const mockToken = 'verification-token-123'
+  const mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+  beforeEach(() => {
+    // Mock repository methods
+    mock.module('@/repositories', () => ({
+      userRepo: {
+        findByEmail: mock(() => Promise.resolve(mockUser)),
+      },
+      tokenRepo: {
+        deprecateOld: mock(() => Promise.resolve()),
+        create: mock(() => Promise.resolve()),
+      },
+      authRepo: {},
+    }))
+
+    // Mock crypto module
+    mock.module('@/lib/crypto', () => ({
+      createTokenGenerator: mock(() => ({
+        generateWithExpiry: () => ({
+          token: mockToken,
+          expiresAt: mockExpiresAt,
+        }),
+      })),
+      createPasswordEncoder: mock(() => ({})),
+    }))
+
+    // Mock emails module
+    mock.module('@/lib/emails', () => ({
+      sendWelcomeEmail: mock(() => {}),
+    }))
+  })
+
+  describe('when user exists and is not verified', () => {
+    it('should deprecate old tokens and create a new verification token', async () => {
+      const result = await resendVerificationEmail(mockUser.email)
+
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledWith(mockUser.id, Token.EmailVerification)
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
+
+      expect(tokenRepo.create).toHaveBeenCalledWith({
+        userId: mockUser.id,
+        type: Token.EmailVerification,
+        token: mockToken,
+        expiresAt: mockExpiresAt,
+      })
+      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
+
+      expect(result).toEqual({ success: true })
+    })
+
+    it('should send a welcome email with the new token', async () => {
+      await resendVerificationEmail(mockUser.email)
+
+      expect(sendWelcomeEmail).toHaveBeenCalledWith({
+        firstName: mockUser.firstName,
+        email: mockUser.email,
+        token: mockToken,
+      })
+      expect(sendWelcomeEmail).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('when user does not exist', () => {
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+    })
+
+    it('should throw UserNotFound error', async () => {
+      try {
+        await resendVerificationEmail('nonexistent@example.com')
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.NotFound)
+      }
+
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('when user is already verified', () => {
+    const verifiedUser = {
+      ...mockUser,
+      status: Status.Verified,
+    }
+
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(verifiedUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+    })
+
+    it('should throw UserAlreadyVerified error', async () => {
+      try {
+        await resendVerificationEmail(verifiedUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('when user is suspended', () => {
+    const suspendedUser = {
+      ...mockUser,
+      status: Status.Suspended,
+    }
+
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(suspendedUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+    })
+  })
+
+  describe('when token creation fails', () => {
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.reject(new Error('Database error'))),
+        },
+        authRepo: {},
+      }))
+    })
+
+    it('should throw the error and not send email', async () => {
+      try {
+        await resendVerificationEmail(mockUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Database error')
+      }
+
+      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
+      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should handle email with different cases', async () => {
+      const upperCaseEmail = 'JOHN@EXAMPLE.COM'
+      const result = await resendVerificationEmail(upperCaseEmail)
+
+      expect(userRepo.findByEmail).toHaveBeenCalledWith(upperCaseEmail)
+      expect(result.success).toBe(true)
+    })
+
+    it('should reject users in other statuses (Trial, Active, etc)', async () => {
+      const trialUser = { ...mockUser, status: Status.Trial }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(trialUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+
+      // Should reject resending for Trial status (not Status.New)
+      try {
+        await resendVerificationEmail(trialUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+    })
+  })
+})

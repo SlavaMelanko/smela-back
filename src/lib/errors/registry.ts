@@ -8,9 +8,10 @@ interface ErrorDetails {
 }
 
 const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
-  [ErrorCode.Unauthorized]: {
-    status: StatusCodes.UNAUTHORIZED,
-    error: 'Unauthorized access',
+  // Auth errors
+  [ErrorCode.AlreadyVerified]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'User is already verified',
   },
   [ErrorCode.BadCredentials]: {
     status: StatusCodes.UNAUTHORIZED,
@@ -24,14 +25,16 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.FORBIDDEN,
     error: 'Unverified account',
   },
-  [ErrorCode.TokenExpired]: {
+  [ErrorCode.Unauthorized]: {
     status: StatusCodes.UNAUTHORIZED,
-    error: 'Token has expired',
+    error: 'Unauthorized access',
   },
-  [ErrorCode.TokenNotFound]: {
+  [ErrorCode.UserNotFound]: {
     status: StatusCodes.NOT_FOUND,
-    error: 'Token not found',
+    error: 'User not found',
   },
+
+  // Token errors
   [ErrorCode.TokenAlreadyUsed]: {
     status: StatusCodes.BAD_REQUEST,
     error: 'Token has already been used',
@@ -40,9 +43,23 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.GONE,
     error: 'Token has been deprecated',
   },
+  [ErrorCode.TokenExpired]: {
+    status: StatusCodes.UNAUTHORIZED,
+    error: 'Token has expired',
+  },
+  [ErrorCode.TokenNotFound]: {
+    status: StatusCodes.NOT_FOUND,
+    error: 'Token not found',
+  },
   [ErrorCode.TokenTypeMismatch]: {
     status: StatusCodes.BAD_REQUEST,
     error: 'Token type mismatch',
+  },
+
+  // System errors
+  [ErrorCode.InternalError]: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    error: 'Internal server error',
   },
   [ErrorCode.NotFound]: {
     status: StatusCodes.NOT_FOUND,
@@ -51,10 +68,6 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.ValidationError]: {
     status: StatusCodes.BAD_REQUEST,
     error: 'Validation error',
-  },
-  [ErrorCode.InternalError]: {
-    status: StatusCodes.INTERNAL_SERVER_ERROR,
-    error: 'Internal server error',
   },
 }
 

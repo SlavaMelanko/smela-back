@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+5@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+7@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -21,12 +21,38 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/signup",
+					"raw": "{{auth_url}}/signup",
 					"host": [
-						"{{base_url}}"
+						"{{auth_url}}"
 					],
 					"path": [
 						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "resend-verification-email",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"slava.melanko+6@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{auth_url}}/resend-verification-email",
+					"host": [
+						"{{auth_url}}"
+					],
+					"path": [
+						"resend-verification-email"
 					]
 				}
 			},
@@ -45,9 +71,9 @@
 					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}"
 				},
 				"url": {
-					"raw": "{{base_url}}/verify-email?token=3c32aa6dd644f280993a54edf8d570ac",
+					"raw": "{{auth_url}}/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b",
 					"host": [
-						"{{base_url}}"
+						"{{auth_url}}"
 					],
 					"path": [
 						"verify-email"
@@ -55,7 +81,7 @@
 					"query": [
 						{
 							"key": "token",
-							"value": "3c32aa6dd644f280993a54edf8d570ac"
+							"value": "eb6a0c90a8e75d4c9d5a93def2911d7b"
 						}
 					]
 				}
@@ -86,7 +112,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+5@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"email\": \"slava.melanko+6@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -94,9 +120,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/login",
+					"raw": "{{auth_url}}/login",
 					"host": [
-						"{{base_url}}"
+						"{{auth_url}}"
 					],
 					"path": [
 						"login"
