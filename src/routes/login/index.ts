@@ -2,11 +2,11 @@ import { Hono } from 'hono'
 
 import { requestValidator } from '@/lib/validation'
 
-import loginHandler from './handler'
-import loginSchema from './schema'
+import handler from './handler'
+import schema from './schema'
 
 const loginRoute = new Hono()
 
-loginRoute.post('/login', requestValidator('json', loginSchema), loginHandler)
+loginRoute.post('/login', requestValidator('json', schema), handler)
 
 export default loginRoute
