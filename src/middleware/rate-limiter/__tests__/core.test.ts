@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
+import { StatusCodes } from 'http-status-codes'
 
 import { createRateLimiter } from '../core'
 
@@ -13,7 +14,7 @@ describe('Rate Limiter Core', () => {
   describe('Basic Rate Limiting', () => {
     it('should allow requests under the limit', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000, // 1 minute
+        windowMs: 60 * 1_000, // 1 minute
         limit: 3, // 3 requests per minute
         keyGenerator: () => 'test-key',
       }))
@@ -24,15 +25,15 @@ describe('Rate Limiter Core', () => {
       const res2 = await app.request('/test', { method: 'GET' })
       const res3 = await app.request('/test', { method: 'GET' })
 
-      expect(res1.status).toBe(200)
-      expect(res2.status).toBe(200)
-      expect(res3.status).toBe(200)
+      expect(res1.status).toBe(StatusCodes.OK)
+      expect(res2.status).toBe(StatusCodes.OK)
+      expect(res3.status).toBe(StatusCodes.OK)
     })
 
     it('should block requests over the limit', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000, // 1 minute
-        limit: 2, // 2 requests per minute - explicitly set low limit
+        windowMs: 60 * 1_000, // 1 minute
+        limit: 2,
         keyGenerator: () => 'test-key',
       }))
 
@@ -45,14 +46,14 @@ describe('Rate Limiter Core', () => {
       // Third request should be rate limited
       const res3 = await app.request('/test', { method: 'GET' })
 
-      expect(res1.status).toBe(200)
-      expect(res2.status).toBe(200)
-      expect(res3.status).toBe(429) // Too Many Requests
+      expect(res1.status).toBe(StatusCodes.OK)
+      expect(res2.status).toBe(StatusCodes.OK)
+      expect(res3.status).toBe(StatusCodes.TOO_MANY_REQUESTS)
     })
 
     it('should include rate limit headers', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 5,
         keyGenerator: () => 'test-key',
       }))
@@ -72,7 +73,7 @@ describe('Rate Limiter Core', () => {
       let keyCounter = 0
 
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 1, // 1 request per minute per key
         keyGenerator: () => `key-${keyCounter++}`,
       }))
@@ -84,14 +85,14 @@ describe('Rate Limiter Core', () => {
       const res2 = await app.request('/test', { method: 'GET' })
       const res3 = await app.request('/test', { method: 'GET' })
 
-      expect(res1.status).toBe(200)
-      expect(res2.status).toBe(200)
-      expect(res3.status).toBe(200)
+      expect(res1.status).toBe(StatusCodes.OK)
+      expect(res2.status).toBe(StatusCodes.OK)
+      expect(res3.status).toBe(StatusCodes.OK)
     })
 
     it('should use IP address as default key when available', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 2,
         // No keyGenerator - should use IP
       }))
@@ -104,9 +105,9 @@ describe('Rate Limiter Core', () => {
       const res2 = await app.request('/test', { method: 'GET', headers })
       const res3 = await app.request('/test', { method: 'GET', headers })
 
-      expect(res1.status).toBe(200)
-      expect(res2.status).toBe(200)
-      expect(res3.status).toBe(429)
+      expect(res1.status).toBe(StatusCodes.OK)
+      expect(res2.status).toBe(StatusCodes.OK)
+      expect(res3.status).toBe(StatusCodes.TOO_MANY_REQUESTS)
     })
   })
 
@@ -115,7 +116,7 @@ describe('Rate Limiter Core', () => {
       const customMessage = 'Rate limit exceeded! Please try again later.'
 
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 1,
         message: customMessage,
         keyGenerator: () => 'test-key',
@@ -126,16 +127,16 @@ describe('Rate Limiter Core', () => {
       await app.request('/test', { method: 'GET' }) // First request
       const res = await app.request('/test', { method: 'GET' }) // Second request (blocked)
 
-      expect(res.status).toBe(429)
+      expect(res.status).toBe(StatusCodes.TOO_MANY_REQUESTS)
       const body = await res.text()
       expect(body).toContain(customMessage)
     })
 
     it('should work with custom status code', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 1,
-        statusCode: 503, // Service Unavailable
+        statusCode: StatusCodes.SERVICE_UNAVAILABLE,
         keyGenerator: () => 'test-key',
       }))
 
@@ -144,13 +145,13 @@ describe('Rate Limiter Core', () => {
       await app.request('/test', { method: 'GET' }) // First request
       const res = await app.request('/test', { method: 'GET' }) // Second request (blocked)
 
-      expect(res.status).toBe(503)
+      expect(res.status).toBe(StatusCodes.SERVICE_UNAVAILABLE)
     })
 
     it('should have high limits in test environment', async () => {
       // This test simulates what we need for Playwright tests
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 1000, // High limit for tests
         keyGenerator: () => 'test-key',
       }))
@@ -165,7 +166,7 @@ describe('Rate Limiter Core', () => {
 
       // All should pass with high limits
       responses.forEach((res) => {
-        expect(res.status).toBe(200)
+        expect(res.status).toBe(StatusCodes.OK)
       })
     })
   })
@@ -173,7 +174,7 @@ describe('Rate Limiter Core', () => {
   describe('Skip Function', () => {
     it('should skip rate limiting when skip function returns true', async () => {
       app.use(createRateLimiter({
-        windowMs: 60000,
+        windowMs: 60 * 1_000,
         limit: 1,
         keyGenerator: () => 'test-key',
         skip: c => c.req.header('X-Skip-Rate-Limit') === 'true',
@@ -186,14 +187,14 @@ describe('Rate Limiter Core', () => {
 
       // Second request without skip header - should be blocked
       const res1 = await app.request('/test', { method: 'GET' })
-      expect(res1.status).toBe(429)
+      expect(res1.status).toBe(StatusCodes.TOO_MANY_REQUESTS)
 
       // Request with skip header - should pass
       const res2 = await app.request('/test', {
         method: 'GET',
         headers: { 'X-Skip-Rate-Limit': 'true' },
       })
-      expect(res2.status).toBe(200)
+      expect(res2.status).toBe(StatusCodes.OK)
     })
   })
 
@@ -205,7 +206,7 @@ describe('Rate Limiter Core', () => {
 
       const res = await app.request('/test', { method: 'GET' })
 
-      expect(res.status).toBe(200)
+      expect(res.status).toBe(StatusCodes.OK)
       expect(res.headers.has('RateLimit-Limit')).toBe(true)
     })
 

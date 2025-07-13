@@ -1,4 +1,4 @@
-import { isDevEnv, isTestEnv } from '@/lib/env'
+import { isDevOrTestEnv } from '@/lib/env'
 
 import { createRateLimiter } from './core'
 
@@ -8,15 +8,15 @@ import { createRateLimiter } from './core'
  * - Production: 5 attempts per 15 minutes
  * - Development/Test: 1000 attempts per 15 minutes
  *
- * Use for login, registration, password reset endpoints.
+ * Use for authentication endpoints like login, signup, etc.
  */
 export const authRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: (isDevEnv() || isTestEnv()) ? 1000 : 5, // 5 attempts per 15 minutes in production
+  limit: (isDevOrTestEnv()) ? 1_000 : 5,
   message: 'Too many authentication attempts, please try again later.',
   skip: (c) => {
     // Skip rate limiting for test environment if special header is present
-    return (isDevEnv() || isTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
+    return (isDevOrTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
   },
 })
 
@@ -30,10 +30,10 @@ export const authRateLimiter = createRateLimiter({
  */
 export const generalRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: (isDevEnv() || isTestEnv()) ? 1000 : 100, // 100 requests per 15 minutes in production
+  limit: (isDevOrTestEnv()) ? 1_000 : 100,
   skip: (c) => {
     // Skip rate limiting for test environment if special header is present
-    return (isDevEnv() || isTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
+    return (isDevOrTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
   },
 })
 
@@ -47,10 +47,10 @@ export const generalRateLimiter = createRateLimiter({
  */
 export const strictRateLimiter = createRateLimiter({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  limit: (isDevEnv() || isTestEnv()) ? 1000 : 10, // 10 requests per 5 minutes in production
+  limit: (isDevOrTestEnv()) ? 1_000 : 10,
   message: 'Rate limit exceeded. This endpoint has strict limits.',
   skip: (c) => {
     // Skip rate limiting for test environment if special header is present
-    return (isDevEnv() || isTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
+    return (isDevOrTestEnv()) && c.req.header('X-Skip-Rate-Limit') === 'true'
   },
 })
