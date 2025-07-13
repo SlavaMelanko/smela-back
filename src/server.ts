@@ -4,8 +4,8 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
-import { privateRoutes, publicRoutes } from '@/routes'
+import { authRateLimiter, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
+import { authRoutes, privateRoutes, publicRoutes } from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>
@@ -22,12 +22,18 @@ class Server {
       .use(cors())
       .use(requestId())
       .use(loggerMiddleware)
+      .use(generalRateLimiter)
+      .use('/auth/*', authRateLimiter)
       .use('/api/v1/*', jwtMiddleware)
   }
 
   private setupRoutes() {
     publicRoutes.forEach((route) => {
       this.app.route('/', route)
+    })
+
+    authRoutes.forEach((route) => {
+      this.app.route('/auth', route)
     })
 
     privateRoutes.forEach((route) => {
