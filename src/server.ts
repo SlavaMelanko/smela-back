@@ -1,11 +1,12 @@
 import { Hono } from 'hono'
+import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
 import { authRateLimiter, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
-import { authRoutes, privateRoutes, publicRoutes } from '@/routes'
+import { authRoutes, protectedRoutes, publicRoutes } from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>
@@ -25,6 +26,7 @@ class Server {
       .use(generalRateLimiter)
       .use('/auth/*', authRateLimiter)
       .use('/api/v1/*', jwtMiddleware)
+      .use('/static/*', serveStatic({ root: './' }))
   }
 
   private setupRoutes() {
@@ -36,7 +38,7 @@ class Server {
       this.app.route('/auth', route)
     })
 
-    privateRoutes.forEach((route) => {
+    protectedRoutes.forEach((route) => {
       this.app.route('/api/v1', route)
     })
   }

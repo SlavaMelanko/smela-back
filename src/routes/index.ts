@@ -6,4 +6,4 @@ import verifyEmailRoute from './verify-email'
 
 export const publicRoutes = []
 export const authRoutes = [loginRoute, signupRoute, verifyEmailRoute, resendVerificationEmailRoute]
-export const privateRoutes = [meRoute]
+export const protectedRoutes = [meRoute]
