@@ -9,7 +9,7 @@
     "db:studio": "drizzle-kit studio",
     "lint": "bunx eslint ./src",
     "lint:fix": "bunx eslint --fix ./src",
-    "email": "email dev --dir src/emails"
+    "email": "email dev --dir src/emails --port 3001"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",

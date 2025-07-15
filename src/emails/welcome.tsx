@@ -16,41 +16,43 @@ import {
 
 interface WelcomeEmailProps {
   firstName?: string
+  verificationUrl?: string
 }
 
-// eslint-disable-next-line node/no-process-env
-const baseUrl = `https://${process.env.BASE_URL}`
+const baseUrl = `http://localhost:3000`
 
 const fontFamily = 'HelveticaNeue,Helvetica,Arial,sans-serif'
 
 const main = {
-  backgroundColor: '#efeef1',
+  backgroundColor: '#ffffff',
   fontFamily,
 }
 
 const paragraph = {
   lineHeight: 1.5,
   fontSize: 14,
+  color: '#1f2937',
 }
 
 const container = {
   maxWidth: '580px',
-  margin: '30px auto',
-  backgroundColor: '#ffffff',
+  margin: '2rem auto',
+  backgroundColor: '#f9fafb',
   borderRadius: '0.5rem',
 }
 
 const footer = {
   maxWidth: '580px',
   margin: '0 auto',
+  color: '#6b7280',
 }
 
 const content = {
-  padding: '5px 20px 10px 20px',
+  padding: '0.5rem 1.5rem 0.5rem 1.5rem',
 }
 
 const logo = {
-  padding: 30,
+  padding: '1rem',
 }
 
 const logoImg = {
@@ -62,12 +64,12 @@ const sectionsBorders = {
 }
 
 const sectionBorder = {
-  borderBottom: '1px solid rgb(238,238,238)',
+  borderBottom: '1px solid #e5e7eb',
   width: '249px',
 }
 
 const sectionCenter = {
-  borderBottom: '1px solid rgb(145,71,255)',
+  borderBottom: '1px solid #e66e5a',
   width: '102px',
 }
 
@@ -77,12 +79,13 @@ const link = {
 
 export const WelcomeEmail = ({
   firstName,
+  verificationUrl,
 }: WelcomeEmailProps) => {
   return (
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>Verify your email to continue</Preview>
+        <Preview>Welcome to The Company – Please verify your email</Preview>
         <Container style={container}>
           <Section style={logo}>
             <Img
@@ -104,23 +107,28 @@ export const WelcomeEmail = ({
               {`Hi ${firstName},`}
             </Text>
             <Text style={paragraph}>
-              <Link href="https://www.twitch.tv" style={link}>
-                Click here to verify your email address to continue.
+              Welcome aboard! Click below to confirm your email address:
+            </Text>
+            <Text style={paragraph}>
+              👉
+              {' '}
+              <Link href={verificationUrl} style={link}>
+                Verify My Email
               </Link>
             </Text>
             <Text style={paragraph}>
-              Or copy and paste this link into your browser if the link doesn't work:
+              If the button doesn’t work, copy and paste this link into your browser:
             </Text>
             <Text style={paragraph}>
-              https://www.twitch.tv.
+              {verificationUrl}
             </Text>
             <Text style={paragraph}>
-              If you didn’t ask to verify this address, you can ignore this email.
+              If you didn’t create an account, you can ignore this email.
             </Text>
             <Text style={paragraph}>
               Thanks,
               <br />
-              The Company Support Team
+              The Company Team
             </Text>
           </Section>
         </Container>
@@ -129,19 +137,19 @@ export const WelcomeEmail = ({
           <Row>
             <Column align="right" style={{ width: '50%', paddingRight: '8px' }}>
               <Img
-                src={`${baseUrl}/static/twitch-icon-twitter.png`}
+                src={`${baseUrl}/static/icon-twitter.png`}
                 alt="Twitter"
               />
             </Column>
             <Column align="left" style={{ width: '50%', paddingLeft: '8px' }}>
               <Img
-                src={`${baseUrl}/static/twitch-icon-facebook.png`}
+                src={`${baseUrl}/static/icon-facebook.png`}
                 alt="Facebook"
               />
             </Column>
           </Row>
           <Row>
-            <Text style={{ textAlign: 'center', color: '#706a7b' }}>
+            <Text style={{ textAlign: 'center', color: '#6b7280' }}>
               © 2025 The Company, All Rights Reserved
               {' '}
               <br />
@@ -156,6 +164,7 @@ export const WelcomeEmail = ({
 
 WelcomeEmail.PreviewProps = {
   firstName: 'Jason',
+  verificationUrl: 'http://localhost:3000/verify-email?token=123',
 } as WelcomeEmailProps
 
 export default WelcomeEmail
