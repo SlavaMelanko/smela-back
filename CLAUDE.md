@@ -93,3 +93,10 @@ Required environment variables:
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for JWT signing
 - `LOG_LEVEL` - Logging level (default: info)
+
+### Static File Serving
+
+- Static files served from `/static/*` using built-in Hono/Bun `serveStatic`
+- Files located in `./static/` directory
+- Includes proper MIME type detection and caching headers
+- CORS configured per environment with appropriate origins
