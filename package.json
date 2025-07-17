@@ -8,11 +8,13 @@
     "db:setup": "bun run db:generate && bun run db:migrate && bun run db:seed",
     "db:studio": "drizzle-kit studio",
     "lint": "bunx eslint ./src",
-    "lint:fix": "bunx eslint --fix ./src"
+    "lint:fix": "bunx eslint --fix ./src",
+    "email": "email dev --dir src/emails --port 3001"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",
     "@neondatabase/serverless": "^1.0.1",
+    "@react-email/components": "0.3.1",
     "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
@@ -20,7 +22,9 @@
     "hono-pino": "^0.8.0",
     "hono-rate-limiter": "^0.4.2",
     "http-status-codes": "^2.3.0",
-    "pino": "^9.7.0"
+    "pino": "^9.7.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.14.1",
@@ -29,6 +33,7 @@
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.28.0",
     "eslint-plugin-format": "^1.0.1",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.0.0",
+    "react-email": "4.1.3"
   }
 }
