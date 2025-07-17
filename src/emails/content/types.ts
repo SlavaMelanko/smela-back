@@ -7,7 +7,21 @@ export interface WelcomeEmailContent {
   disclaimer: string
   signature: {
     thanks: string
-    teamName: string
+    who: string
+  }
+}
+
+export interface PasswordResetEmailContent {
+  subject: string
+  previewText: string
+  greeting: (firstName?: string) => string
+  body: string
+  ctaText: string
+  disclaimer: string
+  expiryNotice: string
+  signature: {
+    thanks: string
+    who: string
   }
 }
 
@@ -19,4 +33,5 @@ export interface ContentOptions {
 
 export interface EmailContent {
   welcome: WelcomeEmailContent
+  passwordReset: PasswordResetEmailContent
 }

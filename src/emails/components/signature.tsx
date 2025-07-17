@@ -5,16 +5,20 @@ import { Text } from '@react-email/components'
 import styles from '../styles'
 
 interface SignatureProps {
-  thanks: string
-  teamName: string
+  signature: {
+    thanks: string
+    who: string
+  }
 }
 
-export const Signature = ({ thanks, teamName }: SignatureProps) => {
+export const Signature = ({ signature }: SignatureProps) => {
+  const { thanks, who } = signature
+
   return (
     <Text style={styles.component.text.body}>
       {thanks}
       <br />
-      {teamName}
+      {who}
     </Text>
   )
 }

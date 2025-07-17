@@ -10,19 +10,19 @@ import getContent, { type SupportedLocale } from '../content'
 import styles from '../styles'
 import BaseEmail from './base-email'
 
-interface WelcomeEmailProps {
+interface PasswordResetEmailProps {
   firstName?: string
-  verificationUrl?: string
+  resetUrl?: string
   locale?: SupportedLocale
 }
 
-export const WelcomeEmail = ({
+export const PasswordResetEmail = ({
   firstName,
-  verificationUrl,
+  resetUrl,
   locale,
-}: WelcomeEmailProps) => {
+}: PasswordResetEmailProps) => {
   const { component: { text, link } } = styles
-  const { welcome: c } = getContent({ locale })
+  const { passwordReset: c } = getContent({ locale })
 
   return (
     <BaseEmail
@@ -38,9 +38,13 @@ export const WelcomeEmail = ({
       </Text>
 
       <Text style={text.body}>
-        <Link href={verificationUrl} style={link.primary}>
+        <Link href={resetUrl} style={link.primary}>
           {c.ctaText}
         </Link>
+      </Text>
+
+      <Text style={text.muted}>
+        {c.expiryNotice}
       </Text>
 
       <Text style={text.muted}>
@@ -52,10 +56,10 @@ export const WelcomeEmail = ({
   )
 }
 
-WelcomeEmail.PreviewProps = {
+PasswordResetEmail.PreviewProps = {
   firstName: 'Jason',
-  verificationUrl: 'http://localhost:3000/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b',
+  resetUrl: 'http://localhost:3000/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b',
   locale: 'en',
-} as WelcomeEmailProps
+} as PasswordResetEmailProps
 
-export default WelcomeEmail
+export default PasswordResetEmail

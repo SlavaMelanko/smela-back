@@ -1,14 +1,18 @@
 import type { ContentOptions, EmailContent, SupportedLocale } from './types'
 
+import enPasswordReset from './en/password-reset'
 import enWelcome from './en/welcome'
+import ukPasswordReset from './uk/password-reset'
 import ukWelcome from './uk/welcome'
 
 const content: Record<SupportedLocale, EmailContent> = {
   en: {
     welcome: enWelcome,
+    passwordReset: enPasswordReset,
   },
   uk: {
     welcome: ukWelcome,
+    passwordReset: ukPasswordReset,
   },
 }
 

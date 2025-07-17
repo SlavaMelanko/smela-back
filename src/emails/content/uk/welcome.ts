@@ -9,7 +9,7 @@ export const content: WelcomeEmailContent = {
   disclaimer: 'Якщо ви не створювали обліковий запис, ви можете безпечно ігнорувати цей лист.',
   signature: {
     thanks: 'Дякуємо,',
-    teamName: 'The Company Команда',
+    who: 'The Company Команда ❤️',
   },
 }
 
