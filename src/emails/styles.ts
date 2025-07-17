@@ -1,5 +1,3 @@
-// Email styles constants for consistent theming across all email templates
-
 export const color = {
   primary: '#e66e5a',
   secondary: '#6b7280',
@@ -8,7 +6,6 @@ export const color = {
   warning: '#eab308',
   info: '#3b82f6',
 
-  // Text colors
   text: {
     primary: '#1f2937',
     secondary: '#6b7280',
@@ -17,7 +14,6 @@ export const color = {
     highlight: '#be185d',
   },
 
-  // Background colors
   background: {
     primary: '#fff',
     secondary: '#f9fafb',
@@ -28,7 +24,6 @@ export const color = {
     dark: '#1f2937',
   },
 
-  // Border colors
   border: {
     light: '#e5e7eb',
     medium: '#d1d5db',
@@ -94,7 +89,6 @@ export const shadow = {
   lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
 } as const
 
-// Common component styles
 export const component = {
   button: {
     primary: {
@@ -189,7 +183,6 @@ export const component = {
   },
 } as const
 
-// Main styles object - this is what you'll import
 const styles = {
   color,
   font,

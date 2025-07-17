@@ -17,7 +17,6 @@ export interface BaseEmailProps {
   children: React.ReactNode
 }
 
-// Email-specific styles using the centralized styles
 const emailStyles = {
   main: {
     backgroundColor: styles.color.background.primary,

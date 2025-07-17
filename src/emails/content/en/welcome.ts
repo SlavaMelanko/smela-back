@@ -1,15 +1,4 @@
-export interface WelcomeEmailContent {
-  subject: string
-  previewText: string
-  greeting: (firstName?: string) => string
-  body: string
-  ctaText: string
-  disclaimer: string
-  signature: {
-    thanks: string
-    teamName: string
-  }
-}
+import type { WelcomeEmailContent } from '../types'
 
 export const content: WelcomeEmailContent = {
   subject: 'Welcome to The Company',
