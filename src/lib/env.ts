@@ -11,6 +11,13 @@ const validate = () => {
       JWT_SECRET: envRules.jwtSecret,
       DB_URL: envRules.dbUrl,
       LOG_LEVEL: envRules.logLevel,
+
+      // Email configuration
+      BASE_URL: envRules.baseUrl,
+      COMPANY_NAME: envRules.companyName,
+      COMPANY_TWITTER_URL: envRules.companyTwitterUrl,
+      COMPANY_FACEBOOK_URL: envRules.companyFacebookUrl,
+      COMPANY_LINKEDIN_URL: envRules.companyLinkedinUrl,
     })
 
     // eslint-disable-next-line node/no-process-env

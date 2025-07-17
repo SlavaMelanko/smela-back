@@ -6,6 +6,7 @@ import {
 } from '@react-email/components'
 
 import { Signature } from '../components'
+import { config } from '../config'
 import getContent, { type SupportedLocale } from '../content'
 import styles from '../styles'
 import BaseEmail from './base-email'
@@ -58,7 +59,7 @@ export const PasswordResetEmail = ({
 
 PasswordResetEmail.PreviewProps = {
   firstName: 'Jason',
-  resetUrl: 'http://localhost:3000/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b',
+  resetUrl: `${config.baseUrl}/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   locale: 'en',
 } as PasswordResetEmailProps
 

@@ -7,15 +7,15 @@ import {
   Section,
 } from '@react-email/components'
 
+import { config } from '../config'
 import styles from '../styles'
 
 interface HeaderProps {
   logoSrc?: string
   logoAlt?: string
   logoWidth?: string
+  fallbackLogoSrc?: string
 }
-
-const baseUrl = 'http://localhost:3000'
 
 const headerStyles = {
   logo: {
@@ -35,16 +35,15 @@ const headerStyles = {
 }
 
 const Header = ({
-  logoSrc = `${baseUrl}/static/logo.png`,
-  logoAlt = 'The Company',
-  logoWidth = '100',
+  logoSrc = `${config.baseUrl}/static/logo.png`,
+  logoAlt = config.company.name,
 }: HeaderProps) => {
   return (
     <>
       <Section>
         <Img
           src={logoSrc}
-          width={logoWidth}
+          width={100}
           alt={logoAlt}
           style={headerStyles.logo}
         />
