@@ -5,8 +5,9 @@ import {
   Text,
 } from '@react-email/components'
 
+import content from '../content/en/welcome'
+import styles from '../styles'
 import BaseEmail from './base-email'
-import styles from './styles'
 
 interface WelcomeEmailProps {
   firstName?: string
@@ -19,31 +20,31 @@ export const WelcomeEmail = ({
 }: WelcomeEmailProps) => {
   return (
     <BaseEmail
-      subject="Welcome to The Company"
-      previewText="Welcome to The Company — please verify your email"
+      subject={content.subject}
+      previewText={content.previewText}
     >
       <Text style={styles.component.text.body}>
-        {`Hi ${firstName || 'there'} 👋`}
+        {content.greeting(firstName)}
       </Text>
 
       <Text style={styles.component.text.body}>
-        Welcome aboard! Please verify your email to get started:
+        {content.body}
       </Text>
 
       <Text style={styles.component.text.body}>
         <Link href={verificationUrl} style={styles.component.link.primary}>
-          Verify Email Address
+          {content.ctaText}
         </Link>
       </Text>
 
       <Text style={styles.component.text.muted}>
-        If you didn't create an account, you can safely ignore this email.
+        {content.disclaimer}
       </Text>
 
       <Text style={styles.component.text.body}>
-        Thanks,
+        {content.signature.thanks}
         <br />
-        The Company Team
+        {content.signature.teamName}
       </Text>
     </BaseEmail>
   )
