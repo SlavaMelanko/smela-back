@@ -19,7 +19,6 @@ interface FooterProps {
   socialLinks?: SocialLink[]
 }
 
-// Footer-specific styles using centralized styles
 const footerStyles = {
   footer: {
     textAlign: 'center' as const,
@@ -42,7 +41,6 @@ const footerStyles = {
   },
 }
 
-// Default social links
 const defaultSocialLinks: SocialLink[] = [
   {
     href: 'https://twitter.com/yourcompany',

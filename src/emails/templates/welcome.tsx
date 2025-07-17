@@ -5,7 +5,8 @@ import {
   Text,
 } from '@react-email/components'
 
-import content from '../content/en/welcome'
+import { Signature } from '../components'
+import { content as c } from '../content/en/welcome'
 import styles from '../styles'
 import BaseEmail from './base-email'
 
@@ -18,34 +19,32 @@ export const WelcomeEmail = ({
   firstName,
   verificationUrl,
 }: WelcomeEmailProps) => {
+  const { component: { text, link } } = styles
+
   return (
     <BaseEmail
-      subject={content.subject}
-      previewText={content.previewText}
+      subject={c.subject}
+      previewText={c.previewText}
     >
-      <Text style={styles.component.text.body}>
-        {content.greeting(firstName)}
+      <Text style={text.body}>
+        {c.greeting(firstName)}
       </Text>
 
-      <Text style={styles.component.text.body}>
-        {content.body}
+      <Text style={text.body}>
+        {c.body}
       </Text>
 
-      <Text style={styles.component.text.body}>
-        <Link href={verificationUrl} style={styles.component.link.primary}>
-          {content.ctaText}
+      <Text style={text.body}>
+        <Link href={verificationUrl} style={link.primary}>
+          {c.ctaText}
         </Link>
       </Text>
 
-      <Text style={styles.component.text.muted}>
-        {content.disclaimer}
+      <Text style={text.muted}>
+        {c.disclaimer}
       </Text>
 
-      <Text style={styles.component.text.body}>
-        {content.signature.thanks}
-        <br />
-        {content.signature.teamName}
-      </Text>
+      <Signature {...c.signature} />
     </BaseEmail>
   )
 }
