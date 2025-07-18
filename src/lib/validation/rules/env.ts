@@ -9,9 +9,18 @@ const rules = {
   // Email configuration
   baseUrl: z.string().url().default('http://localhost:3000'),
   companyName: z.string().default('The Company'),
-  companyTwitterUrl: z.string().url().optional(),
-  companyFacebookUrl: z.string().url().optional(),
-  companyLinkedinUrl: z.string().url().optional(),
+  companySocialLinks: z.string().optional().transform((str) => {
+    if (!str)
+      return {}
+
+    try {
+      const parsed = JSON.parse(str)
+
+      return z.record(z.string(), z.string().url()).parse(parsed)
+    } catch {
+      return {}
+    }
+  }),
 }
 
 export default rules

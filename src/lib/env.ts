@@ -15,9 +15,7 @@ const validate = () => {
       // Email configuration
       BASE_URL: envRules.baseUrl,
       COMPANY_NAME: envRules.companyName,
-      COMPANY_TWITTER_URL: envRules.companyTwitterUrl,
-      COMPANY_FACEBOOK_URL: envRules.companyFacebookUrl,
-      COMPANY_LINKEDIN_URL: envRules.companyLinkedinUrl,
+      COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
     })
 
     // eslint-disable-next-line node/no-process-env

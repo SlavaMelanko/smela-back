@@ -4,11 +4,7 @@ interface EmailConfig {
   baseUrl: string
   company: {
     name: string
-    social: {
-      twitter?: string
-      facebook?: string
-      linkedin?: string
-    }
+    social: Record<string, string>
   }
 }
 
@@ -20,11 +16,7 @@ const getEmailConfig = (): EmailConfig => {
     baseUrl,
     company: {
       name: companyName,
-      social: {
-        twitter: env.COMPANY_TWITTER_URL,
-        facebook: env.COMPANY_FACEBOOK_URL,
-        linkedin: env.COMPANY_LINKEDIN_URL,
-      },
+      social: env.COMPANY_SOCIAL_LINKS,
     },
   }
 }
