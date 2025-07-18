@@ -37,6 +37,11 @@ PORT=3000
 DATABASE_URL=postgresql://user:password@localhost:5432/portal_db
 JWT_SECRET=your-super-secret-jwt-key
 LOG_LEVEL=info
+
+# Optional: Email template configuration
+BASE_URL=http://localhost:3000
+COMPANY_NAME=Your Company Name
+COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", ...}
 ```
 
 ### 3. Database Setup
@@ -220,6 +225,11 @@ PORT=3000
 DATABASE_URL=postgresql://...
 JWT_SECRET=your-production-secret
 LOG_LEVEL=warn
+
+# Optional: Email template configuration
+BASE_URL=https://your-domain.com
+COMPANY_NAME=Your Company Name
+COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", ...}
 ```
 
 ### Database Setup

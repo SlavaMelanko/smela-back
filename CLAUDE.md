@@ -94,6 +94,12 @@ Required environment variables:
 - `JWT_SECRET` - Secret for JWT signing
 - `LOG_LEVEL` - Logging level (default: info)
 
+Optional environment variables:
+
+- `BASE_URL` - Base URL for email templates (default: http://localhost:3000)
+- `COMPANY_NAME` - Company name for emails (default: The Company)
+- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links for email footers. Format: `{"twitter": "https://twitter.com/company", "facebook": "https://facebook.com/company", "linkedin": "https://linkedin.com/company", "instagram": "https://instagram.com/company", "youtube": "https://youtube.com/company", "github": "https://github.com/company"}`
+
 ### Static File Serving
 
 - Static files served from `/static/*` using built-in Hono/Bun `serveStatic`
