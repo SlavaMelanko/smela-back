@@ -5,25 +5,29 @@ import {
   Text,
 } from '@react-email/components'
 
-import { Signature } from '../components'
+import type { WelcomeEmailContent } from '../content/types'
+
 import { config } from '../config'
-import getContent, { type SupportedLocale } from '../content'
-import styles from '../styles'
+import getContent from '../content'
 import BaseEmail from './base-email'
+import { Signature } from './components'
+import styles from './styles'
 
 interface WelcomeEmailProps {
-  firstName?: string
-  verificationUrl?: string
-  locale?: SupportedLocale
+  data: {
+    firstName: string
+    verificationUrl: string
+  }
+  content: WelcomeEmailContent
 }
 
-export const WelcomeEmail = ({
-  firstName,
-  verificationUrl,
-  locale,
+const WelcomeEmail = ({
+  data,
+  content,
 }: WelcomeEmailProps) => {
   const { component: { text, link } } = styles
-  const { welcome: c } = getContent({ locale })
+  const { firstName, verificationUrl } = data
+  const c = content
 
   return (
     <BaseEmail
@@ -54,9 +58,11 @@ export const WelcomeEmail = ({
 }
 
 WelcomeEmail.PreviewProps = {
-  firstName: 'Jason',
-  verificationUrl: `${config.baseUrl}/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
-  locale: 'en',
+  data: {
+    firstName: 'Jason',
+    verificationUrl: `${config.baseUrl}/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+  },
+  content: getContent('en').welcome,
 } as WelcomeEmailProps
 
 export default WelcomeEmail

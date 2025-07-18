@@ -21,5 +21,8 @@ const getEmailConfig = (): EmailConfig => {
   }
 }
 
-export const config = getEmailConfig()
+const config = getEmailConfig()
+
 export type { EmailConfig }
+
+export { config }

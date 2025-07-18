@@ -1,12 +1,17 @@
 import { z } from 'zod'
 
 const rules = {
+  // General
   nodeEnv: z.enum(['development', 'production', 'test']).default('development'),
-  jwtSecret: z.string().min(10),
-  dbUrl: z.string().url(),
   logLevel: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
 
-  // Email configuration
+  // Authentication
+  jwtSecret: z.string().min(10),
+
+  // Database
+  dbUrl: z.string().url(),
+
+  // Email
   baseUrl: z.string().url().default('http://localhost:3000'),
   companyName: z.string().default('The Company'),
   companySocialLinks: z.string().optional().transform((str) => {
@@ -21,6 +26,7 @@ const rules = {
       return {}
     }
   }),
+  emailResendApiKey: z.string().optional(),
 }
 
 export default rules

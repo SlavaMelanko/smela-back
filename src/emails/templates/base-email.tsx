@@ -8,8 +8,8 @@ import {
   Preview,
 } from '@react-email/components'
 
-import { Footer, Header } from '../components'
-import styles from '../styles'
+import { Footer, Header } from './components'
+import styles from './styles'
 
 export interface BaseEmailProps {
   subject: string

@@ -7,7 +7,7 @@ import {
   Section,
 } from '@react-email/components'
 
-import { config } from '../config'
+import { config } from '../../config'
 import styles from '../styles'
 
 interface HeaderProps {

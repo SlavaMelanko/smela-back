@@ -66,7 +66,7 @@ const signUpWithEmail = async (
 
   const token = await createEmailVerificationToken(newUser.id)
 
-  sendWelcomeEmail({
+  await sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
     token,

@@ -1,24 +1,14 @@
-import type { ContentOptions, EmailContent, SupportedLocale } from './types'
+import type { EmailContent, SupportedLocale } from './types'
 
-import enPasswordReset from './en/password-reset'
-import enWelcome from './en/welcome'
-import ukPasswordReset from './uk/password-reset'
-import ukWelcome from './uk/welcome'
+import * as en from './en'
+import * as uk from './uk'
 
 const content: Record<SupportedLocale, EmailContent> = {
-  en: {
-    welcome: enWelcome,
-    passwordReset: enPasswordReset,
-  },
-  uk: {
-    welcome: ukWelcome,
-    passwordReset: ukPasswordReset,
-  },
+  en,
+  uk,
 }
 
-export const getContent = (options: ContentOptions = {}) => {
-  const { locale = 'en' } = options
-
+export const getContent = (locale: SupportedLocale = 'en') => {
   if (locale in content) {
     return content[locale]
   }
@@ -26,6 +16,6 @@ export const getContent = (options: ContentOptions = {}) => {
   return content.en
 }
 
-export type { ContentOptions, SupportedLocale }
+export type { SupportedLocale }
 
 export default getContent

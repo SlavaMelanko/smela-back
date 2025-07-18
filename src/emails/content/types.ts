@@ -27,10 +27,6 @@ export interface PasswordResetEmailContent {
 
 export type SupportedLocale = 'en' | 'uk'
 
-export interface ContentOptions {
-  locale?: SupportedLocale
-}
-
 export interface EmailContent {
   welcome: WelcomeEmailContent
   passwordReset: PasswordResetEmailContent

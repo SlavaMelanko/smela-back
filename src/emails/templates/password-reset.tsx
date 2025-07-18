@@ -5,25 +5,29 @@ import {
   Text,
 } from '@react-email/components'
 
-import { Signature } from '../components'
+import type { PasswordResetEmailContent } from '../content/types'
+
 import { config } from '../config'
-import getContent, { type SupportedLocale } from '../content'
-import styles from '../styles'
+import getContent from '../content'
 import BaseEmail from './base-email'
+import { Signature } from './components'
+import styles from './styles'
 
 interface PasswordResetEmailProps {
-  firstName?: string
-  resetUrl?: string
-  locale?: SupportedLocale
+  data: {
+    firstName: string
+    resetUrl: string
+  }
+  content: PasswordResetEmailContent
 }
 
-export const PasswordResetEmail = ({
-  firstName,
-  resetUrl,
-  locale,
+const PasswordResetEmail = ({
+  data,
+  content,
 }: PasswordResetEmailProps) => {
   const { component: { text, link } } = styles
-  const { passwordReset: c } = getContent({ locale })
+  const { firstName, resetUrl } = data
+  const c = content
 
   return (
     <BaseEmail
@@ -58,9 +62,11 @@ export const PasswordResetEmail = ({
 }
 
 PasswordResetEmail.PreviewProps = {
-  firstName: 'Jason',
-  resetUrl: `${config.baseUrl}/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
-  locale: 'en',
+  data: {
+    firstName: 'Jason',
+    resetUrl: `${config.baseUrl}/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+  },
+  content: getContent('en').passwordReset,
 } as PasswordResetEmailProps
 
 export default PasswordResetEmail
