@@ -1,8 +1,10 @@
 import type { PasswordResetEmailContent } from '../types'
 
+import { config } from '../../config'
+
 export const content: PasswordResetEmailContent = {
   subject: 'Reset Your Password',
-  previewText: 'Reset your password for The Company account',
+  previewText: `Reset your password for ${config.company.name} account`,
   greeting: (firstName?: string) => `Hi ${firstName || 'there'} 👋`,
   body: 'We received a request to reset your password. Click the button below to choose a new password:',
   ctaText: 'Reset Password',
@@ -10,7 +12,7 @@ export const content: PasswordResetEmailContent = {
   expiryNotice: 'This link will expire in 1 hour for security reasons.',
   signature: {
     thanks: 'Thanks,',
-    who: 'The Company Team ❤️',
+    who: `${config.company.name} Team ❤️`,
   },
 }
 
