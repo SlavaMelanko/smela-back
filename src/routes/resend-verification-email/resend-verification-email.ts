@@ -1,5 +1,5 @@
 import { createTokenGenerator } from '@/lib/crypto'
-import { sendWelcomeEmail } from '@/lib/emails'
+import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
@@ -22,7 +22,7 @@ const resendVerificationEmail = async (email: string) => {
   await tokenRepo.deprecateOld(user.id, type)
   await tokenRepo.create({ userId: user.id, type, token, expiresAt })
 
-  sendWelcomeEmail({
+  await emailAgent.sendWelcomeEmail({
     firstName: user.firstName,
     email: user.email,
     token,

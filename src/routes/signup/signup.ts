@@ -1,7 +1,7 @@
 import type { Role } from '@/types'
 
 import { createPasswordEncoder, createTokenGenerator } from '@/lib/crypto'
-import { sendWelcomeEmail } from '@/lib/emails'
+import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
@@ -66,7 +66,7 @@ const signUpWithEmail = async (
 
   const token = await createEmailVerificationToken(newUser.id)
 
-  await sendWelcomeEmail({
+  await emailAgent.sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
     token,

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { sendWelcomeEmail } from '@/lib/emails'
+import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
@@ -46,9 +46,11 @@ describe('resendVerificationEmail', () => {
       createPasswordEncoder: mock(() => ({})),
     }))
 
-    // Mock emails module
-    mock.module('@/lib/emails', () => ({
-      sendWelcomeEmail: mock(() => {}),
+    // Mock email agent
+    mock.module('@/lib/email-agent', () => ({
+      emailAgent: {
+        sendWelcomeEmail: mock(() => Promise.resolve()),
+      },
     }))
   })
 
@@ -73,12 +75,12 @@ describe('resendVerificationEmail', () => {
     it('should send a welcome email with the new token', async () => {
       await resendVerificationEmail(mockUser.email)
 
-      expect(sendWelcomeEmail).toHaveBeenCalledWith({
+      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
         firstName: mockUser.firstName,
         email: mockUser.email,
         token: mockToken,
       })
-      expect(sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -107,7 +109,7 @@ describe('resendVerificationEmail', () => {
 
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
-      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -141,7 +143,7 @@ describe('resendVerificationEmail', () => {
 
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
-      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -162,6 +164,20 @@ describe('resendVerificationEmail', () => {
         },
         authRepo: {},
       }))
+    })
+
+    it('should throw AlreadyVerified error', async () => {
+      try {
+        await resendVerificationEmail(suspendedUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -189,7 +205,7 @@ describe('resendVerificationEmail', () => {
       }
 
       expect(tokenRepo.deprecateOld).toHaveBeenCalled()
-      expect(sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -224,6 +240,139 @@ describe('resendVerificationEmail', () => {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
       }
+    })
+
+    it('should reject users with Active status', async () => {
+      const activeUser = { ...mockUser, status: Status.Active }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(activeUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+
+      try {
+        await resendVerificationEmail(activeUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+    })
+
+    it('should reject users with Archived status', async () => {
+      const archivedUser = { ...mockUser, status: Status.Archived }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(archivedUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+
+      try {
+        await resendVerificationEmail(archivedUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+    })
+
+    it('should reject users with Pending status', async () => {
+      const pendingUser = { ...mockUser, status: Status.Pending }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(pendingUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+
+      try {
+        await resendVerificationEmail(pendingUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
+      }
+    })
+  })
+
+  describe('when email sending fails', () => {
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+
+      mock.module('@/lib/email-agent', () => ({
+        emailAgent: {
+          sendWelcomeEmail: mock(() => Promise.reject(new Error('Email service unavailable'))),
+        },
+      }))
+    })
+
+    it('should throw the email error after creating token', async () => {
+      try {
+        await resendVerificationEmail(mockUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Email service unavailable')
+      }
+
+      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
+      expect(tokenRepo.create).toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalled()
+    })
+  })
+
+  describe('when deprecateOld fails', () => {
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.reject(new Error('Database connection failed'))),
+          create: mock(() => Promise.resolve()),
+        },
+        authRepo: {},
+      }))
+    })
+
+    it('should throw the error and not proceed with token creation or email', async () => {
+      try {
+        await resendVerificationEmail(mockUser.email)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Database connection failed')
+      }
+
+      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 })

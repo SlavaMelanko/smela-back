@@ -5,10 +5,10 @@ import type { EmailPayload, EmailProvider } from './providers'
 import { getSenderProfile } from './sender-profiles'
 
 export class EmailService {
-  private emailProvider: EmailProvider
+  private provider: EmailProvider
 
-  constructor(emailProvider: EmailProvider) {
-    this.emailProvider = emailProvider
+  constructor(provider: EmailProvider) {
+    this.provider = provider
   }
 
   async sendEmail<T>(
@@ -32,7 +32,7 @@ export class EmailService {
       text: renderedEmail.text,
     }
 
-    await this.emailProvider.send(payload)
+    await this.provider.send(payload)
   }
 
   async sendWelcomeEmail(
