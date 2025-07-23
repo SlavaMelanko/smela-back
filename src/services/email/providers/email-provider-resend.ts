@@ -1,5 +1,7 @@
 import { Resend } from 'resend'
 
+import logger from '@/lib/logger'
+
 import type { EmailPayload } from './email-payload'
 import type { EmailProvider } from './email-provider'
 
@@ -11,12 +13,16 @@ export class ResendEmailProvider implements EmailProvider {
   }
 
   async send(payload: EmailPayload): Promise<void> {
-    await this.resend.emails.send({
+    const { error } = await this.resend.emails.send({
       from: `${payload.from.name} <${payload.from.email}>`,
       to: Array.isArray(payload.to) ? payload.to : [payload.to],
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
     })
+
+    if (error) {
+      logger.error(error)
+    }
   }
 }
