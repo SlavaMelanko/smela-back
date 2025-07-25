@@ -6,22 +6,22 @@ export interface SenderProfile {
 
 export const senderProfiles: Record<string, SenderProfile> = {
   system: {
-    email: 'noreply@company.com',
+    email: 'admin@smela.pro', // noreply
     name: 'The Company',
     use: ['welcome', 'verification', 'password-reset'],
   },
   support: {
-    email: 'support@company.com',
+    email: 'admin@smela.pro', // support
     name: 'Company Support Team',
     use: ['help', 'feedback', 'notifications'],
   },
   ceo: {
-    email: 'ceo@company.com',
+    email: 'admin@smela.pro', // ceo
     name: 'John Doe, CEO',
     use: ['announcements', 'company-updates'],
   },
   marketing: {
-    email: 'marketing@company.com',
+    email: 'admin@smela.pro', // marketing
     name: 'Company Marketing',
     use: ['newsletters', 'promotions'],
   },
