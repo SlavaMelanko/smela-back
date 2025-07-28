@@ -17,6 +17,7 @@ const validate = () => {
       COMPANY_NAME: envRules.companyName,
       COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
       EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,
+      EMAIL_SENDER_PROFILES: envRules.emailSenderProfiles,
     })
 
     // eslint-disable-next-line node/no-process-env

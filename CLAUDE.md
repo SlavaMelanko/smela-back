@@ -89,16 +89,59 @@ Key tables:
 Required environment variables:
 
 - `NODE_ENV` - development/production/test
-- `PORT` - Server port (default: 3000)
-- `DATABASE_URL` - PostgreSQL connection string
+- `DB_URL` - PostgreSQL connection string (Note: uses DB_URL, not DATABASE_URL)
 - `JWT_SECRET` - Secret for JWT signing
+- `EMAIL_SENDER_PROFILES` - JSON object defining sender profiles for different email types
+
+Optional environment variables with defaults:
+
+- `PORT` - Server port (default: 3000)
 - `LOG_LEVEL` - Logging level (default: info)
 
-Optional environment variables:
+Additional optional environment variables:
 
-- `BASE_URL` - Base URL for email templates (default: http://localhost:3000)
+- `BASE_URL` - Base URL for email templates (default: <http://localhost:3000>)
 - `COMPANY_NAME` - Company name for emails (default: The Company)
-- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links for email footers. Format: `{"twitter": "https://twitter.com/company", "facebook": "https://facebook.com/company", "linkedin": "https://linkedin.com/company", "instagram": "https://instagram.com/company", "youtube": "https://youtube.com/company", "github": "https://github.com/company"}`
+- `EMAIL_RESEND_API_KEY` - Resend service API key for sending emails
+- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links for email footers
+
+  ```json
+  {
+    "twitter": "https://twitter.com/company",
+    "facebook": "https://facebook.com/company",
+    "linkedin": "https://linkedin.com/company",
+    "github": "https://github.com/company"
+  }
+  ```
+
+#### EMAIL_SENDER_PROFILES Format
+
+Required JSON structure for sender profiles:
+
+```json
+{
+  "system": {
+    "email": "noreply@company.com",
+    "name": "Company Name",
+    "use": ["welcome", "verification", "password-reset"]
+  },
+  "support": {
+    "email": "support@company.com",
+    "name": "Support Team",
+    "use": ["help", "feedback", "notifications"]
+  },
+  "ceo": {
+    "email": "ceo@company.com",
+    "name": "CEO Name",
+    "use": ["announcements", "company-updates"]
+  },
+  "marketing": {
+    "email": "marketing@company.com",
+    "name": "Marketing Team",
+    "use": ["newsletters", "promotions"]
+  }
+}
+```
 
 ### Static File Serving
 

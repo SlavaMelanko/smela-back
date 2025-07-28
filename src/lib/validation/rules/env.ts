@@ -27,6 +27,20 @@ const rules = {
     }
   }),
   emailResendApiKey: z.string().optional(),
+  emailSenderProfiles: z.string().transform((str) => {
+    try {
+      const parsed = JSON.parse(str)
+      const profileSchema = z.record(z.string(), z.object({
+        email: z.string().email(),
+        name: z.string(),
+        use: z.array(z.string()),
+      }))
+
+      return profileSchema.parse(parsed)
+    } catch {
+      throw new Error('Invalid EMAIL_SENDER_PROFILES format. Expected valid JSON with profile objects.')
+    }
+  }),
 }
 
 export default rules

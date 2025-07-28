@@ -32,16 +32,21 @@ bun install
 Create a `.env` file in the root directory:
 
 ```env
+# Required
 NODE_ENV=development
-PORT=3000
-DATABASE_URL=postgresql://user:password@localhost:5432/portal_db
+DB_URL=postgresql://user:password@localhost:5432/portal_db
 JWT_SECRET=your-super-secret-jwt-key
+EMAIL_SENDER_PROFILES={"system":{"email":"noreply@yourcompany.com","name":"Your Company","use":["welcome","verification","password-reset"]},"support":{"email":"support@yourcompany.com","name":"Support Team","use":["help","feedback","notifications"]}}
+
+# Optional with defaults
+PORT=3000
 LOG_LEVEL=info
 
-# Optional: Email template configuration
+# Email configuration (optional)
 BASE_URL=http://localhost:3000
 COMPANY_NAME=Your Company Name
-COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", ...}
+EMAIL_RESEND_API_KEY=your-resend-api-key
+COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}
 ```
 
 ### 3. Database Setup
@@ -220,16 +225,21 @@ bun run lint:fix         # Auto-fix ESLint issues
 Ensure all required environment variables are set:
 
 ```env
+# Required
 NODE_ENV=production
-PORT=3000
-DATABASE_URL=postgresql://...
+DB_URL=postgresql://user:password@host:port/database
 JWT_SECRET=your-production-secret
+EMAIL_SENDER_PROFILES={"system":{"email":"noreply@yourcompany.com","name":"Your Company","use":["welcome","verification","password-reset"]},"support":{"email":"support@yourcompany.com","name":"Support Team","use":["help","feedback","notifications"]}}
+
+# Optional with defaults
+PORT=3000
 LOG_LEVEL=warn
 
-# Optional: Email template configuration
+# Email configuration (optional)
 BASE_URL=https://your-domain.com
 COMPANY_NAME=Your Company Name
-COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", ...}
+EMAIL_RESEND_API_KEY=your-resend-api-key
+COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}
 ```
 
 ### Database Setup
