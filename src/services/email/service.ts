@@ -2,6 +2,7 @@ import type { SupportedLocale } from '@/emails'
 
 import type { EmailPayload, EmailProvider } from './providers'
 import type { EmailRegistry } from './registry'
+import type { EmailType } from './registry'
 
 import { getSenderProfile } from './sender-profile'
 
@@ -13,7 +14,7 @@ export class EmailService {
 
   async send<T>(
     to: string | string[],
-    emailType: string,
+    emailType: EmailType,
     data: T,
     locale?: SupportedLocale,
   ): Promise<void> {
