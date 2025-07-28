@@ -4,9 +4,9 @@ import type { EmailProvider } from './email-provider'
 
 import { ResendEmailProvider } from './email-provider-resend'
 
-export type EmailProviderType = 'resend'
+export type EmailProviderType = 'resend' // | 'sendgrid' | etc.
 
-export const createEmailProvider = (type: EmailProviderType): EmailProvider => {
+export const createEmailProvider = (type: EmailProviderType = 'resend'): EmailProvider => {
   switch (type) {
     case 'resend': {
       if (!env.EMAIL_RESEND_API_KEY) {

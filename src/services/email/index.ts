@@ -1,3 +1,3 @@
-export { createEmailProvider } from './providers/email-provider-factory'
-export type { SenderProfile } from './sender-profiles'
+export { createEmailProvider, type EmailProvider, type EmailProviderType } from './providers'
+export { createEmailRegistry, type EmailRegistry } from './registry'
 export { EmailService } from './service'

@@ -1,57 +1,37 @@
-import type { EmailRenderer, SupportedLocale } from '@/emails'
+import type { SupportedLocale } from '@/emails'
 
 import type { EmailPayload, EmailProvider } from './providers'
+import type { EmailRegistry } from './registry'
 
-import { getSenderProfile } from './sender-profiles'
+import { getSenderProfile } from './sender-profile'
 
 export class EmailService {
-  private provider: EmailProvider
+  constructor(
+    private provider: EmailProvider,
+    private registry: EmailRegistry,
+  ) {}
 
-  constructor(provider: EmailProvider) {
-    this.provider = provider
-  }
-
-  async sendEmail<T>(
+  async send<T>(
     to: string | string[],
     emailType: string,
-    renderer: EmailRenderer<T>,
     data: T,
     locale?: SupportedLocale,
   ): Promise<void> {
-    const renderedEmail = await renderer.render(data, locale)
-    const senderProfile = getSenderProfile(emailType)
+    const renderer = await this.registry.getRenderer<T>(emailType)
+    const { subject, html, text } = await renderer.render(data, locale)
+    const { email, name } = getSenderProfile(emailType)
 
     const payload: EmailPayload = {
       to,
       from: {
-        email: senderProfile.email,
-        name: senderProfile.name,
+        email,
+        name,
       },
-      subject: renderedEmail.subject,
-      html: renderedEmail.html,
-      text: renderedEmail.text,
+      subject,
+      html,
+      text,
     }
 
     await this.provider.send(payload)
-  }
-
-  async sendWelcomeEmail(
-    to: string,
-    data: { firstName: string, verificationUrl: string },
-    locale?: SupportedLocale,
-  ): Promise<void> {
-    const { WelcomeEmailRenderer } = await import('@/emails')
-    const renderer = new WelcomeEmailRenderer()
-    await this.sendEmail(to, 'welcome', renderer, data, locale)
-  }
-
-  async sendPasswordResetEmail(
-    to: string,
-    data: { firstName: string, resetUrl: string },
-    locale?: SupportedLocale,
-  ): Promise<void> {
-    const { PasswordResetEmailRenderer } = await import('@/emails')
-    const renderer = new PasswordResetEmailRenderer()
-    await this.sendEmail(to, 'password-reset', renderer, data, locale)
   }
 }
