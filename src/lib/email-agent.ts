@@ -1,16 +1,12 @@
 import env from '@/lib/env'
-import { EmailService, ResendEmailProvider } from '@/services/email'
+import { createEmailProvider, EmailService } from '@/services/email'
 
 class EmailAgent {
   private static instance: EmailAgent | null = null
   private emailService: EmailService
 
   private constructor() {
-    if (!env.EMAIL_RESEND_API_KEY) {
-      throw new Error('EMAIL_RESEND_API_KEY environment variable is required for email agent')
-    }
-
-    const provider = new ResendEmailProvider(env.EMAIL_RESEND_API_KEY)
+    const provider = createEmailProvider('resend')
     this.emailService = new EmailService(provider)
   }
 
