@@ -1,22 +1,20 @@
-import type { EmailRenderer } from '@/emails'
-
 import type { EmailConfig } from './email-config'
-import type { EmailType } from './email-config'
 import type { EmailRegistry } from './email-registry'
+import type { EmailType } from './email-type'
 
 export class DefaultEmailRegistry implements EmailRegistry {
-  private types = new Map<EmailType, EmailConfig>()
+  private configs = new Map<EmailType, EmailConfig>()
 
   register<T>(config: EmailConfig<T>): void {
-    this.types.set(config.emailType, config)
+    this.configs.set(config.getType(), config)
   }
 
-  async getRenderer<T>(emailType: EmailType): Promise<EmailRenderer<T>> {
-    const config = this.types.get(emailType)
+  async get<T>(emailType: EmailType): Promise<EmailConfig<T>> {
+    const config = this.configs.get(emailType)
     if (!config) {
       throw new Error(`Unknown email type: ${emailType}`)
     }
 
-    return await config.rendererFactory()
+    return config as EmailConfig<T>
   }
 }

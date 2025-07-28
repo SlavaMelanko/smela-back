@@ -33,7 +33,6 @@ const rules = {
       const profileSchema = z.record(z.string(), z.object({
         email: z.string().email(),
         name: z.string(),
-        use: z.array(z.string()),
       }))
 
       return profileSchema.parse(parsed)

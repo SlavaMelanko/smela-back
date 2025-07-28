@@ -31,7 +31,7 @@ class EmailAgent {
   }) {
     const verificationUrl = `${env.BASE_URL}/auth/verify?token=${token}`
 
-    await this.service.send(email, EmailType.WELCOME, {
+    await this.service.send(EmailType.WELCOME, email, {
       firstName,
       verificationUrl,
     })
@@ -48,7 +48,7 @@ class EmailAgent {
   }) {
     const resetUrl = `${env.BASE_URL}/auth/reset-password?token=${token}`
 
-    await this.service.send(email, EmailType.PASSWORD_RESET, {
+    await this.service.send(EmailType.PASSWORD_RESET, email, {
       firstName,
       resetUrl,
     })

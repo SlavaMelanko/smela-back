@@ -1,31 +1,57 @@
 import type { EmailRenderer } from '@/emails'
 
-export enum EmailType {
-  WELCOME = 'welcome',
-  PASSWORD_RESET = 'password-reset',
-}
+import { type EmailSender, getSenderProfile } from './email-sender-profiles'
+import { SenderProfile } from './email-sender-profiles'
+import { EmailType } from './email-type'
 
 export interface EmailConfig<T = any> {
-  emailType: EmailType
-  rendererFactory: () => Promise<EmailRenderer<T>>
+  getType: () => EmailType
+  getRenderer: () => Promise<EmailRenderer<T>>
+  getSender: () => EmailSender
 }
 
-export const emailConfig = {
-  welcome: {
-    emailType: EmailType.WELCOME,
-    rendererFactory: async () => {
-      const { WelcomeEmailRenderer } = await import('@/emails')
+export class WelcomeEmailConfig implements EmailConfig {
+  private readonly emailType = EmailType.WELCOME
+  private readonly sender: EmailSender
 
-      return new WelcomeEmailRenderer()
-    },
-  } as EmailConfig,
+  constructor() {
+    this.sender = getSenderProfile(SenderProfile.SYSTEM)
+  }
 
-  passwordReset: {
-    emailType: EmailType.PASSWORD_RESET,
-    rendererFactory: async () => {
-      const { PasswordResetEmailRenderer } = await import('@/emails')
+  getType(): EmailType {
+    return this.emailType
+  }
 
-      return new PasswordResetEmailRenderer()
-    },
-  } as EmailConfig,
-} as const
+  async getRenderer(): Promise<EmailRenderer> {
+    const { WelcomeEmailRenderer } = await import('@/emails')
+
+    return new WelcomeEmailRenderer()
+  }
+
+  getSender(): EmailSender {
+    return this.sender
+  }
+}
+
+export class PasswordResetEmailConfig implements EmailConfig {
+  private readonly emailType = EmailType.PASSWORD_RESET
+  private readonly sender: EmailSender
+
+  constructor() {
+    this.sender = getSenderProfile(SenderProfile.SYSTEM)
+  }
+
+  getType(): EmailType {
+    return this.emailType
+  }
+
+  async getRenderer(): Promise<EmailRenderer> {
+    const { PasswordResetEmailRenderer } = await import('@/emails')
+
+    return new PasswordResetEmailRenderer()
+  }
+
+  getSender(): EmailSender {
+    return this.sender
+  }
+}

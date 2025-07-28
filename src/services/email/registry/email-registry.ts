@@ -1,9 +1,7 @@
-import type { EmailRenderer } from '@/emails'
-
 import type { EmailConfig } from './email-config'
-import type { EmailType } from './email-config'
+import type { EmailType } from './email-type'
 
 export interface EmailRegistry {
   register: <T>(config: EmailConfig<T>) => void
-  getRenderer: <T>(emailType: EmailType) => Promise<EmailRenderer<T>>
+  get: <T>(emailType: EmailType) => Promise<EmailConfig<T>>
 }
