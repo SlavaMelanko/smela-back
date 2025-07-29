@@ -1,5 +1,2 @@
-export { type EmailConfig, PasswordResetEmailConfig, WelcomeEmailConfig } from './email-config'
 export type { EmailRegistry } from './email-registry'
-export { createEmailRegistry } from './email-registry-factory'
-export { type EmailSender, getSenderProfile, SenderProfile as SenderProfileType } from './email-sender-profiles'
-export { EmailType } from './email-type'
+export { buildEmailRegistry } from './email-registry-builder'

@@ -1,5 +1,5 @@
 import env from '@/lib/env'
-import { createEmailProvider, createEmailRegistry, EmailService, EmailType } from '@/services/email'
+import { buildEmailRegistry, createEmailProvider, EmailService, EmailType } from '@/services/email'
 
 class EmailAgent {
   private static instance: EmailAgent | null = null
@@ -7,7 +7,7 @@ class EmailAgent {
 
   private constructor() {
     const provider = createEmailProvider()
-    const registry = createEmailRegistry()
+    const registry = buildEmailRegistry()
 
     this.service = new EmailService(provider, registry)
   }

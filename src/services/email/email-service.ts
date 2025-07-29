@@ -1,8 +1,8 @@
 import type { SupportedLocale } from '@/emails'
 
+import type { EmailType } from './email-type'
 import type { EmailPayload, EmailProvider } from './providers'
 import type { EmailRegistry } from './registry'
-import type { EmailType } from './registry'
 
 export class EmailService {
   constructor(

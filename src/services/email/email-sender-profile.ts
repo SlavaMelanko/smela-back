@@ -12,7 +12,7 @@ export interface EmailSender {
   name: string
 }
 
-export const getSenderProfile = (senderProfile: SenderProfile): EmailSender => {
+export const getSenderDetails = (senderProfile: SenderProfile): EmailSender => {
   const profiles = env.EMAIL_SENDER_PROFILES
   const profile = profiles[senderProfile] || profiles[SenderProfile.SYSTEM]
 

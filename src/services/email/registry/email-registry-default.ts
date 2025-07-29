@@ -1,11 +1,11 @@
-import type { EmailConfig } from './email-config'
+import type { EmailConfig } from '../configs/email-config'
+import type { EmailType } from '../email-type'
 import type { EmailRegistry } from './email-registry'
-import type { EmailType } from './email-type'
 
 export class DefaultEmailRegistry implements EmailRegistry {
   private configs = new Map<EmailType, EmailConfig>()
 
-  register<T>(config: EmailConfig<T>): void {
+  add<T>(config: EmailConfig<T>): void {
     this.configs.set(config.getType(), config)
   }
 
