@@ -4,10 +4,10 @@ A modern TypeScript backend API built with Bun runtime and Hono framework, provi
 
 ## 🚀 Features
 
-- **Authentication System**: Complete user registration, login, and email verification
+- **Authentication System**: Complete user registration, login, email verification, and password reset
 - **Role-Based Access Control**: Flexible permissions system with user roles
 - **Modern Stack**: Bun runtime, Hono framework, PostgreSQL with Drizzle ORM
-- **Security First**: bcrypt password hashing, JWT tokens, rate limiting
+- **Security First**: bcrypt password hashing, JWT tokens, rate limiting, email enumeration protection
 - **Developer Experience**: Hot reload, comprehensive testing, ESLint integration
 - **Database Management**: Migrations, seeding, and studio interface
 
@@ -83,6 +83,8 @@ Server will start on <http://localhost:3000>
 | `POST` | `/auth/login`                     | User login                | Public         |
 | `POST` | `/auth/verify-email`              | Email verification        | Public         |
 | `POST` | `/auth/resend-verification-email` | Resend verification email | Public         |
+| `POST` | `/auth/request-password-reset`    | Request password reset    | Public         |
+| `POST` | `/auth/reset-password`            | Reset password with token | Public         |
 
 ### Protected Routes
 
@@ -111,6 +113,27 @@ curl -X POST http://localhost:3000/auth/login \
   -d '{
     "email": "user@example.com",
     "password": "securepassword123"
+  }'
+```
+
+#### Password Reset Request
+
+```bash
+curl -X POST http://localhost:3000/auth/request-password-reset \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+#### Password Reset
+
+```bash
+curl -X POST http://localhost:3000/auth/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "your-reset-token-from-email",
+    "password": "NewSecurePassword123!"
   }'
 ```
 
@@ -145,6 +168,9 @@ src/
 │   ├── signup/            # User registration
 │   ├── login/             # User login
 │   ├── verify-email/      # Email verification
+│   ├── resend-verification-email/ # Resend verification
+│   ├── request-password-reset/    # Password reset request
+│   ├── reset-password/    # Password reset with token
 │   └── me/                # User profile
 └── types/                 # TypeScript type definitions
 ```
@@ -173,6 +199,8 @@ src/
 
 - **JWT Tokens**: Stateless authentication with configurable expiration
 - **Email Verification**: Required before account activation
+- **Password Reset**: Secure one-time token system with expiration
+- **Email Enumeration Protection**: Consistent error responses prevent user discovery
 - **Rate Limiting**: Protection against brute force attacks
 
 ### Database Security
