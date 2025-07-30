@@ -1,9 +1,8 @@
 import type { Status } from '@/types'
 
-import { generateToken } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
-import { PASSWORD_RESET_EXPIRY_HOURS } from '@/lib/token-consts'
+import { generateToken, PASSWORD_RESET_EXPIRY_HOURS } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { isActive, Token } from '@/types'
 

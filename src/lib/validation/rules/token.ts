@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { TOKEN_LENGTH } from '../../token-consts'
+import { TOKEN_LENGTH } from '../../token'
 
 const rules = {
   token: z.string().length(

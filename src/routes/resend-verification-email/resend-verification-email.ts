@@ -1,7 +1,6 @@
-import { generateToken } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
-import { EMAIL_VERIFICATION_EXPIRY_HOURS } from '@/lib/token-consts'
+import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
 

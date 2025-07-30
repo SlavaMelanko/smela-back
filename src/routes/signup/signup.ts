@@ -1,9 +1,9 @@
 import type { Role } from '@/types'
 
-import { createPasswordEncoder, generateToken } from '@/lib/crypto'
+import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
-import { EMAIL_VERIFICATION_EXPIRY_HOURS } from '@/lib/token-consts'
+import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
 

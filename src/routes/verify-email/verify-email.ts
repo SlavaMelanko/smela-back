@@ -1,4 +1,4 @@
-import TokenValidator from '@/lib/token-validator'
+import { TokenValidator } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token, TokenStatus } from '@/types'
 

@@ -35,15 +35,14 @@ describe('resendVerificationEmail', () => {
       authRepo: {},
     }))
 
-    // Mock crypto module
-    mock.module('@/lib/crypto', () => ({
-      createTokenGenerator: mock(() => ({
-        generateWithExpiry: () => ({
-          token: mockToken,
-          expiresAt: mockExpiresAt,
-        }),
+    // Mock token module
+    mock.module('@/lib/token', () => ({
+      generateToken: mock(() => ({
+        type: Token.EmailVerification,
+        token: mockToken,
+        expiresAt: mockExpiresAt,
       })),
-      createPasswordEncoder: mock(() => ({})),
+      EMAIL_VERIFICATION_EXPIRY_HOURS: 48,
     }))
 
     // Mock email agent
@@ -104,7 +103,7 @@ describe('resendVerificationEmail', () => {
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.NotFound)
+        expect((error as AppError).code).toBe(ErrorCode.UserNotFound)
       }
 
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()

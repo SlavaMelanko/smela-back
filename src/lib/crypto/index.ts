@@ -1,4 +1,8 @@
-import { createPasswordEncoder, createTokenGenerator } from './factory'
-import { generateToken } from './token-helper'
+import type PasswordEncoder from './password-encoder'
+import type RandomBytesGenerator from './random-bytes-generator'
 
-export { createPasswordEncoder, createTokenGenerator, generateToken }
+import { createPasswordEncoder, createRandomBytesGenerator } from './factory'
+
+export type { PasswordEncoder, RandomBytesGenerator }
+
+export { createPasswordEncoder, createRandomBytesGenerator }
