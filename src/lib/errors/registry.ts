@@ -29,10 +29,6 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.UNAUTHORIZED,
     error: 'Unauthorized access',
   },
-  [ErrorCode.UserNotFound]: {
-    status: StatusCodes.NOT_FOUND,
-    error: 'User not found',
-  },
 
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: {

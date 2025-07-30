@@ -4,7 +4,6 @@ enum ErrorCode {
   EmailAlreadyInUse = 'auth:email-already-in-use',
   Forbidden = 'auth:unverified-account',
   Unauthorized = 'auth:unauthorized',
-  UserNotFound = 'auth:not-found',
 
   TokenAlreadyUsed = 'token:already-used',
   TokenDeprecated = 'token:deprecated',

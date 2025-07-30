@@ -17,7 +17,7 @@ const resendVerificationEmail = async (email: string) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
-    throw new AppError(ErrorCode.UserNotFound)
+    throw new AppError(ErrorCode.Unauthorized)
   }
 
   if (user.status !== Status.New) {

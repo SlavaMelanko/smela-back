@@ -97,13 +97,13 @@ describe('requestPasswordReset', () => {
       }))
     })
 
-    it('should throw UserNotFound error', async () => {
+    it('should throw Unauthorized error to prevent email enumeration', async () => {
       try {
         await requestPasswordReset('nonexistent@example.com')
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.UserNotFound)
+        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
       }
 
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
