@@ -25,7 +25,7 @@ const findByUserId = async (userId: number): Promise<AuthRecord | undefined> => 
 const updateAuth = async (userId: number, updates: UpdateAuthInput): Promise<void> => {
   await db
     .update(authTable)
-    .set(updates)
+    .set({ ...updates, updatedAt: new Date() })
     .where(eq(authTable.userId, userId))
 }
 
