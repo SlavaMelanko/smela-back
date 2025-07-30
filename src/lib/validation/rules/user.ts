@@ -5,7 +5,12 @@ const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Z\d@$!%*#?&]{8,}$
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
 const rules = {
-  email: z.string().email().transform(normalizeEmail),
+  email: z
+    .string()
+    .transform(normalizeEmail)
+    .refine(email => z.string().email().safeParse(email).success, {
+      message: 'Invalid email',
+    }),
   password: z
     .string()
     .min(8)
