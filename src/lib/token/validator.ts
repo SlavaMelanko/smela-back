@@ -1,8 +1,9 @@
 import type { TokenRecord } from '@/repositories/token'
 import type { Token } from '@/types'
 
-import { AppError, ErrorCode } from '@/lib/errors'
 import { TokenStatus } from '@/types'
+
+import { AppError, ErrorCode } from '../errors'
 
 class TokenValidator {
   static validate(tokenRecord: TokenRecord | undefined, expectedType: Token): TokenRecord {

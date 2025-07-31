@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+7@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+17@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+6@gmail.com\"\n}",
+					"raw": "{\n    \"email\": \"slava.melanko+17@gmail.com\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -71,7 +71,7 @@
 					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}"
 				},
 				"url": {
-					"raw": "{{auth_url}}/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b",
+					"raw": "{{auth_url}}/verify-email?token=70cc277cbde33535d709d1d07c502ce1dd6ac0914097e386d1b3544af69c9012",
 					"host": [
 						"{{auth_url}}"
 					],
@@ -81,7 +81,7 @@
 					"query": [
 						{
 							"key": "token",
-							"value": "eb6a0c90a8e75d4c9d5a93def2911d7b"
+							"value": "70cc277cbde33535d709d1d07c502ce1dd6ac0914097e386d1b3544af69c9012"
 						}
 					]
 				}
@@ -112,7 +112,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+6@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
+					"raw": "{\n    \"email\": \"slava.melanko+16@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -126,6 +126,32 @@
 					],
 					"path": [
 						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request-password-reset",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"slava.melanko+16@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{auth_url}}/request-password-reset",
+					"host": [
+						"{{auth_url}}"
+					],
+					"path": [
+						"request-password-reset"
 					]
 				}
 			},

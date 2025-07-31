@@ -3,8 +3,8 @@ enum ErrorCode {
   BadCredentials = 'auth:bad-credentials',
   EmailAlreadyInUse = 'auth:email-already-in-use',
   Forbidden = 'auth:unverified-account',
+  InvalidCredentials = 'auth:invalid-credentials',
   Unauthorized = 'auth:unauthorized',
-  UserNotFound = 'auth:not-found',
 
   TokenAlreadyUsed = 'token:already-used',
   TokenDeprecated = 'token:deprecated',

@@ -1,8 +1,9 @@
 import type { Role } from '@/types'
 
-import { createPasswordEncoder, createTokenGenerator } from '@/lib/crypto'
+import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
+import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
 
@@ -37,9 +38,7 @@ const createUser = async ({ firstName, lastName, email, password, role }: Signup
 }
 
 const createEmailVerificationToken = async (userId: number) => {
-  const tokenGenerator = createTokenGenerator()
-  const { token, expiresAt } = tokenGenerator.generateWithExpiry()
-  const type = Token.EmailVerification
+  const { type, token, expiresAt } = generateToken(Token.EmailVerification, { expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS })
 
   await tokenRepo.deprecateOld(userId, type)
   await tokenRepo.create({ userId, type, token, expiresAt })

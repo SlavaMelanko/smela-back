@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 
 import db, { authTable } from '@/db'
 
-import type { AuthRecord, CreateAuthInput } from './types'
+import type { AuthRecord, CreateAuthInput, UpdateAuthInput } from './types'
 
 const createAuth = async (auth: CreateAuthInput): Promise<number> => {
   const [createdAuth] = await db
@@ -22,4 +22,11 @@ const findByUserId = async (userId: number): Promise<AuthRecord | undefined> => 
   return foundAuth
 }
 
-export { createAuth, findByUserId }
+const updateAuth = async (userId: number, updates: UpdateAuthInput): Promise<void> => {
+  await db
+    .update(authTable)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(authTable.userId, userId))
+}
+
+export { createAuth, findByUserId, updateAuth }

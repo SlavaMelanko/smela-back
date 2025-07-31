@@ -22,13 +22,13 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
-    throw new AppError(ErrorCode.Unauthorized)
+    throw new AppError(ErrorCode.InvalidCredentials)
   }
 
   const auth = await authRepo.findById(user.id)
 
   if (!auth || !auth.passwordHash) {
-    throw new AppError(ErrorCode.Unauthorized)
+    throw new AppError(ErrorCode.InvalidCredentials)
   }
 
   const isPasswordValid = await comparePasswords(password, auth.passwordHash)
