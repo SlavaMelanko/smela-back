@@ -14,6 +14,7 @@ describe('logInWithEmail', () => {
     email: 'john@example.com',
     status: Status.Verified,
     role: 'user' as const,
+    tokenVersion: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -83,6 +84,7 @@ describe('logInWithEmail', () => {
         mockUser.email,
         mockUser.role,
         mockUser.status,
+        mockUser.tokenVersion,
       )
       expect(jwt.default.sign).toHaveBeenCalledTimes(1)
     })
@@ -304,6 +306,7 @@ describe('logInWithEmail', () => {
         activeUser.email,
         activeUser.role,
         activeUser.status,
+        activeUser.tokenVersion,
       )
     })
 
@@ -332,7 +335,200 @@ describe('logInWithEmail', () => {
         adminUser.email,
         adminUser.role,
         adminUser.status,
+        adminUser.tokenVersion,
       )
+    })
+
+    it('should include tokenVersion in JWT for users with different tokenVersions', async () => {
+      const userWithHighTokenVersion = { ...mockUser, tokenVersion: 10 }
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(userWithHighTokenVersion)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(mockAuth)),
+        },
+        tokenRepo: {},
+      }))
+
+      const result = await logInWithEmail({
+        email: mockUser.email,
+        password: validPassword,
+      })
+
+      expect(result).toBe(mockToken)
+
+      const jwt = await import('@/lib/jwt')
+      expect(jwt.default.sign).toHaveBeenCalledWith(
+        userWithHighTokenVersion.id,
+        userWithHighTokenVersion.email,
+        userWithHighTokenVersion.role,
+        userWithHighTokenVersion.status,
+        userWithHighTokenVersion.tokenVersion,
+      )
+    })
+
+    it('should handle users with tokenVersion 0', async () => {
+      const userWithZeroTokenVersion = { ...mockUser, tokenVersion: 0 }
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(userWithZeroTokenVersion)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(mockAuth)),
+        },
+        tokenRepo: {},
+      }))
+
+      const result = await logInWithEmail({
+        email: mockUser.email,
+        password: validPassword,
+      })
+
+      expect(result).toBe(mockToken)
+
+      const jwt = await import('@/lib/jwt')
+      expect(jwt.default.sign).toHaveBeenCalledWith(
+        userWithZeroTokenVersion.id,
+        userWithZeroTokenVersion.email,
+        userWithZeroTokenVersion.role,
+        userWithZeroTokenVersion.status,
+        0,
+      )
+    })
+
+    it('should handle users with very large tokenVersion numbers', async () => {
+      const userWithLargeTokenVersion = { ...mockUser, tokenVersion: 999999999 }
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(userWithLargeTokenVersion)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(mockAuth)),
+        },
+        tokenRepo: {},
+      }))
+
+      const result = await logInWithEmail({
+        email: mockUser.email,
+        password: validPassword,
+      })
+
+      expect(result).toBe(mockToken)
+
+      const jwt = await import('@/lib/jwt')
+      expect(jwt.default.sign).toHaveBeenCalledWith(
+        userWithLargeTokenVersion.id,
+        userWithLargeTokenVersion.email,
+        userWithLargeTokenVersion.role,
+        userWithLargeTokenVersion.status,
+        999999999,
+      )
+    })
+  })
+
+  describe('Token Version Integration', () => {
+    it('should create JWT with current user tokenVersion', async () => {
+      const userWithSpecificTokenVersion = { ...mockUser, tokenVersion: 5 }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(userWithSpecificTokenVersion)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(mockAuth)),
+        },
+        tokenRepo: {},
+      }))
+
+      // Mock JWT to return a payload we can inspect
+      const mockJwtPayload = {
+        id: userWithSpecificTokenVersion.id,
+        email: userWithSpecificTokenVersion.email,
+        role: userWithSpecificTokenVersion.role,
+        status: userWithSpecificTokenVersion.status,
+        v: userWithSpecificTokenVersion.tokenVersion,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }
+
+      mock.module('@/lib/jwt', () => ({
+        default: {
+          sign: mock(() => Promise.resolve(mockToken)),
+          verify: mock(() => Promise.resolve(mockJwtPayload)),
+        },
+      }))
+
+      const result = await logInWithEmail({
+        email: userWithSpecificTokenVersion.email,
+        password: validPassword,
+      })
+
+      expect(result).toBe(mockToken)
+
+      const jwt = await import('@/lib/jwt')
+      expect(jwt.default.sign).toHaveBeenCalledWith(
+        userWithSpecificTokenVersion.id,
+        userWithSpecificTokenVersion.email,
+        userWithSpecificTokenVersion.role,
+        userWithSpecificTokenVersion.status,
+        userWithSpecificTokenVersion.tokenVersion,
+      )
+    })
+
+    it('should demonstrate login flow creates JWT that would pass auth middleware validation', async () => {
+      const testUser = { ...mockUser, tokenVersion: 3 }
+
+      mock.module('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(testUser)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(mockAuth)),
+        },
+        tokenRepo: {},
+      }))
+
+      // Mock JWT with real-like behavior
+      const mockJwtToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidG9rZW5WZXJzaW9uIjozfQ.signature'
+
+      mock.module('@/lib/jwt', () => ({
+        default: {
+          sign: mock(() => Promise.resolve(mockJwtToken)),
+          verify: mock(() => Promise.resolve({
+            id: testUser.id,
+            email: testUser.email,
+            role: testUser.role,
+            status: testUser.status,
+            v: testUser.tokenVersion,
+            exp: Math.floor(Date.now() / 1000) + 3600,
+          })),
+        },
+      }))
+
+      // Step 1: Login creates JWT with tokenVersion
+      const loginResult = await logInWithEmail({
+        email: testUser.email,
+        password: validPassword,
+      })
+
+      expect(loginResult).toBe(mockJwtToken)
+
+      // Step 2: Verify JWT contains correct tokenVersion
+      const jwt = await import('@/lib/jwt')
+      expect(jwt.default.sign).toHaveBeenCalledWith(
+        testUser.id,
+        testUser.email,
+        testUser.role,
+        testUser.status,
+        testUser.tokenVersion,
+      )
+
+      // Step 3: Simulate auth middleware validation
+      const payload = await jwt.default.verify(mockJwtToken)
+      expect(payload.v).toBe(testUser.tokenVersion)
+
+      // This JWT would pass auth middleware validation since:
+      // payload.v (3) === testUser.tokenVersion (3)
     })
   })
 

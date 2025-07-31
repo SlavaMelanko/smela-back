@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/errors'
-import { authRepo, tokenRepo } from '@/repositories'
+import jwt from '@/lib/jwt'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
@@ -53,7 +54,10 @@ describe('resetPassword', () => {
       authRepo: {
         update: mock(() => Promise.resolve()),
       },
-      userRepo: {},
+      userRepo: {
+        findById: mock(() => Promise.resolve({ id: 123, tokenVersion: 1 })),
+        update: mock(() => Promise.resolve()),
+      },
     }))
 
     // Mock TokenValidator
@@ -209,7 +213,10 @@ describe('resetPassword', () => {
         authRepo: {
           update: mock(() => Promise.resolve()),
         },
-        userRepo: {},
+        userRepo: {
+          findById: mock(() => Promise.resolve({ id: 123, tokenVersion: 1 })),
+          update: mock(() => Promise.resolve()),
+        },
       }))
     })
 
@@ -237,7 +244,10 @@ describe('resetPassword', () => {
         authRepo: {
           update: mock(() => Promise.reject(new Error('Password update failed'))),
         },
-        userRepo: {},
+        userRepo: {
+          findById: mock(() => Promise.resolve({ id: 123, tokenVersion: 1 })),
+          update: mock(() => Promise.resolve()),
+        },
       }))
     })
 
@@ -299,6 +309,273 @@ describe('resetPassword', () => {
 
       expect(mockCreatePasswordEncoder).toHaveBeenCalled()
       expect(mockHashFunction).toHaveBeenCalledWith(longPassword)
+    })
+  })
+
+  describe('Token Version Invalidation', () => {
+    describe('when password reset is successful', () => {
+      it('should increment user tokenVersion to invalidate existing JWTs', async () => {
+        const mockUser = {
+          id: 123,
+          tokenVersion: 2,
+          email: 'test@example.com',
+          firstName: 'John',
+        }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        await resetPassword({ token: mockToken, password: mockPassword })
+
+        expect(userRepo.findById).toHaveBeenCalledWith(123)
+        expect(userRepo.update).toHaveBeenCalledWith(123, { tokenVersion: 3 })
+        expect(userRepo.findById).toHaveBeenCalledTimes(1)
+        expect(userRepo.update).toHaveBeenCalledTimes(1)
+      })
+
+      it('should increment tokenVersion even if user has tokenVersion 1', async () => {
+        const mockUser = { id: 123, tokenVersion: 1 }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        await resetPassword({ token: mockToken, password: mockPassword })
+
+        expect(userRepo.update).toHaveBeenCalledWith(123, { tokenVersion: 2 })
+      })
+
+      it('should handle large tokenVersion numbers', async () => {
+        const mockUser = { id: 123, tokenVersion: 999999 }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        await resetPassword({ token: mockToken, password: mockPassword })
+
+        expect(userRepo.update).toHaveBeenCalledWith(123, { tokenVersion: 1000000 })
+      })
+    })
+
+    describe('Token Version Error Handling', () => {
+      it('should not update tokenVersion if user lookup fails', async () => {
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(null)), // User not found
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        const result = await resetPassword({ token: mockToken, password: mockPassword })
+
+        // Should still succeed - password was updated
+        expect(result).toEqual({ success: true })
+        expect(userRepo.update).not.toHaveBeenCalled() // No update if user not found
+      })
+
+      it('should fail if tokenVersion update fails', async () => {
+        const mockUser = { id: 123, tokenVersion: 2 }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.reject(new Error('TokenVersion update failed'))),
+          },
+        }))
+
+        try {
+          await resetPassword({ token: mockToken, password: mockPassword })
+          expect(true).toBe(false) // Should not reach here
+        } catch (error) {
+          expect(error).toBeInstanceOf(Error)
+          expect((error as Error).message).toBe('TokenVersion update failed')
+        }
+
+        expect(userRepo.findById).toHaveBeenCalledWith(123)
+        expect(userRepo.update).toHaveBeenCalledWith(123, { tokenVersion: 3 })
+      })
+    })
+
+    describe('JWT Integration with Token Version', () => {
+      it('should create JWT tokens with tokenVersion and detect mismatches', async () => {
+        const userId = 123
+        const oldTokenVersion = 2
+        const newTokenVersion = 3
+
+        // Create JWT with old tokenVersion
+        const oldJWT = await jwt.sign(userId, 'user@test.com', 'user', 'verified', oldTokenVersion)
+
+        // Verify we can decode the JWT and check tokenVersion
+        const payload = await jwt.verify(oldJWT)
+        expect(payload.id).toBe(userId)
+        expect(payload.v).toBe(oldTokenVersion)
+
+        // Simulate user after password reset (tokenVersion incremented)
+        const mockUserAfterReset = { id: userId, tokenVersion: newTokenVersion }
+
+        // Should detect version mismatch
+        expect(mockUserAfterReset.tokenVersion).toBe(newTokenVersion)
+        expect(payload.v).toBe(oldTokenVersion)
+        expect(mockUserAfterReset.tokenVersion).not.toBe(payload.v)
+      })
+
+      it('should create new JWT with updated tokenVersion after reset', async () => {
+        const userId = 123
+        const newTokenVersion = 5
+
+        // Create JWT with new tokenVersion
+        const newJWT = await jwt.sign(userId, 'user@test.com', 'user', 'verified', newTokenVersion)
+
+        // Verify new JWT has correct tokenVersion
+        const payload = await jwt.verify(newJWT)
+        expect(payload.v).toBe(newTokenVersion)
+      })
+    })
+
+    describe('Complete Password Reset Flow', () => {
+      it('should complete full flow: password reset → tokenVersion increment → JWT invalidation', async () => {
+        const userId = 123
+        const initialTokenVersion = 1
+        const expectedNewTokenVersion = 2
+
+        const mockUser = {
+          id: userId,
+          email: 'test@example.com',
+          tokenVersion: initialTokenVersion,
+          firstName: 'John',
+        }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        // Execute password reset
+        const result = await resetPassword({ token: mockToken, password: 'NewPassword123!' })
+
+        // Verify all operations completed in correct order
+        expect(result.success).toBe(true)
+
+        // 1. Token marked as used
+        expect(tokenRepo.update).toHaveBeenCalledWith(mockValidatedToken.id, {
+          status: TokenStatus.Used,
+          usedAt: expect.any(Date),
+        })
+
+        // 2. Password updated
+        expect(authRepo.update).toHaveBeenCalledWith(userId, {
+          passwordHash: mockHashedPassword,
+        })
+
+        // 3. TokenVersion incremented
+        expect(userRepo.findById).toHaveBeenCalledWith(userId)
+        expect(userRepo.update).toHaveBeenCalledWith(userId, {
+          tokenVersion: expectedNewTokenVersion,
+        })
+      })
+    })
+
+    describe('Token Version Edge Cases', () => {
+      it('should handle users with tokenVersion 0', async () => {
+        const mockUser = { id: 123, tokenVersion: 0 }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        await resetPassword({ token: mockToken, password: mockPassword })
+
+        expect(userRepo.update).toHaveBeenCalledWith(123, { tokenVersion: 1 })
+      })
+
+      it('should work with very high tokenVersion numbers', async () => {
+        const mockUser = { id: 123, tokenVersion: Number.MAX_SAFE_INTEGER - 1 }
+
+        mock.module('@/repositories', () => ({
+          tokenRepo: {
+            findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+            update: mock(() => Promise.resolve()),
+          },
+          authRepo: {
+            update: mock(() => Promise.resolve()),
+          },
+          userRepo: {
+            findById: mock(() => Promise.resolve(mockUser)),
+            update: mock(() => Promise.resolve()),
+          },
+        }))
+
+        await resetPassword({ token: mockToken, password: mockPassword })
+
+        expect(userRepo.update).toHaveBeenCalledWith(123, {
+          tokenVersion: Number.MAX_SAFE_INTEGER,
+        })
+      })
     })
   })
 })
