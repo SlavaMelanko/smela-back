@@ -1,11 +1,10 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { cors } from 'hono/cors'
 import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { authRateLimiter, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
+import { authRateLimiter, corsMiddleware, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
 import { authRoutes, protectedRoutes, publicRoutes } from '@/routes'
 
 class Server {
@@ -20,7 +19,7 @@ class Server {
 
   private setupMiddleware() {
     this.app
-      .use(cors())
+      .use(corsMiddleware)
       .use(requestId())
       .use(loggerMiddleware)
       .use(generalRateLimiter)

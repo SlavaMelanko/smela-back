@@ -7,6 +7,8 @@ const rules = {
 
   // Authentication
   jwtSecret: z.string().min(10),
+  allowedOrigins: z.string().optional(), // Comma-separated list of allowed origins for CORS
+  cookieDomain: z.string().optional(), // Domain for cookies in production
 
   // Database
   dbUrl: z.string().url(),
