@@ -46,4 +46,18 @@ const updateUser = async (userId: number, updates: UpdateUserInput): Promise<voi
     .where(eq(usersTable.id, userId))
 }
 
-export { createUser, findUserByEmail, findUserById, updateUser }
+// Increment token version to invalidate all existing JWTs.
+const incrementTokenVersion = async (userId: number): Promise<void> => {
+  const user = await findUserById(userId)
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  await updateUser(userId, {
+    tokenVersion: user.tokenVersion + 1,
+    updatedAt: new Date(),
+  })
+}
+
+export { createUser, findUserByEmail, findUserById, incrementTokenVersion, updateUser }
