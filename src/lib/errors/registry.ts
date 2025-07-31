@@ -25,6 +25,10 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.FORBIDDEN,
     error: 'Unverified account',
   },
+  [ErrorCode.InvalidCredentials]: {
+    status: StatusCodes.UNAUTHORIZED,
+    error: 'Invalid credentials',
+  },
   [ErrorCode.Unauthorized]: {
     status: StatusCodes.UNAUTHORIZED,
     error: 'Unauthorized access',

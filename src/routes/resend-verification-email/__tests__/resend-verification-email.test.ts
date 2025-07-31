@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { emailAgent } from '@/lib/email-agent'
-import { AppError, ErrorCode } from '@/lib/errors'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
 
@@ -97,15 +96,10 @@ describe('resendVerificationEmail', () => {
       }))
     })
 
-    it('should throw Unauthorized error to prevent email enumeration', async () => {
-      try {
-        await resendVerificationEmail('nonexistent@example.com')
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
-      }
+    it('should return success response to prevent email enumeration', async () => {
+      const result = await resendVerificationEmail('nonexistent@example.com')
 
+      expect(result).toEqual({ success: true })
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
@@ -131,15 +125,10 @@ describe('resendVerificationEmail', () => {
       }))
     })
 
-    it('should throw UserAlreadyVerified error', async () => {
-      try {
-        await resendVerificationEmail(verifiedUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+    it('should return success response to prevent email enumeration', async () => {
+      const result = await resendVerificationEmail(verifiedUser.email)
 
+      expect(result).toEqual({ success: true })
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
@@ -165,15 +154,10 @@ describe('resendVerificationEmail', () => {
       }))
     })
 
-    it('should throw AlreadyVerified error', async () => {
-      try {
-        await resendVerificationEmail(suspendedUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+    it('should return success response to prevent email enumeration', async () => {
+      const result = await resendVerificationEmail(suspendedUser.email)
 
+      expect(result).toEqual({ success: true })
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
@@ -231,14 +215,13 @@ describe('resendVerificationEmail', () => {
         authRepo: {},
       }))
 
-      // Should reject resending for Trial status (not Status.New)
-      try {
-        await resendVerificationEmail(trialUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+      // Should return success to prevent enumeration
+      const result = await resendVerificationEmail(trialUser.email)
+
+      expect(result).toEqual({ success: true })
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
 
     it('should reject users with Active status', async () => {
@@ -255,13 +238,12 @@ describe('resendVerificationEmail', () => {
         authRepo: {},
       }))
 
-      try {
-        await resendVerificationEmail(activeUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+      const result = await resendVerificationEmail(activeUser.email)
+
+      expect(result).toEqual({ success: true })
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
 
     it('should reject users with Archived status', async () => {
@@ -278,13 +260,12 @@ describe('resendVerificationEmail', () => {
         authRepo: {},
       }))
 
-      try {
-        await resendVerificationEmail(archivedUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+      const result = await resendVerificationEmail(archivedUser.email)
+
+      expect(result).toEqual({ success: true })
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
 
     it('should reject users with Pending status', async () => {
@@ -301,13 +282,12 @@ describe('resendVerificationEmail', () => {
         authRepo: {},
       }))
 
-      try {
-        await resendVerificationEmail(pendingUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.AlreadyVerified)
-      }
+      const result = await resendVerificationEmail(pendingUser.email)
+
+      expect(result).toEqual({ success: true })
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 

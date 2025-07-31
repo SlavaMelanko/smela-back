@@ -114,7 +114,7 @@ describe('logInWithEmail', () => {
       }))
     })
 
-    it('should throw Unauthorized error', async () => {
+    it('should throw InvalidCredentials error', async () => {
       try {
         await logInWithEmail({
           email: 'nonexistent@example.com',
@@ -123,7 +123,7 @@ describe('logInWithEmail', () => {
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith('nonexistent@example.com')
@@ -144,7 +144,7 @@ describe('logInWithEmail', () => {
       }))
     })
 
-    it('should throw Unauthorized error', async () => {
+    it('should throw InvalidCredentials error', async () => {
       try {
         await logInWithEmail({
           email: mockUser.email,
@@ -153,7 +153,7 @@ describe('logInWithEmail', () => {
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
@@ -175,7 +175,7 @@ describe('logInWithEmail', () => {
       }))
     })
 
-    it('should throw Unauthorized error', async () => {
+    it('should throw InvalidCredentials error', async () => {
       try {
         await logInWithEmail({
           email: mockUser.email,
@@ -184,7 +184,7 @@ describe('logInWithEmail', () => {
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
@@ -242,7 +242,7 @@ describe('logInWithEmail', () => {
       }
     })
 
-    it('should throw Unauthorized error for empty password hash', async () => {
+    it('should throw InvalidCredentials error for empty password hash', async () => {
       const authWithEmptyHash = { ...mockAuth, passwordHash: '' }
       mock.module('@/repositories', () => ({
         userRepo: {
@@ -262,7 +262,7 @@ describe('logInWithEmail', () => {
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
       }
     })
   })

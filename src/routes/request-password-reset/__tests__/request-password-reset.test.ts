@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { emailAgent } from '@/lib/email-agent'
-import { AppError, ErrorCode } from '@/lib/errors'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
 
@@ -97,15 +96,10 @@ describe('requestPasswordReset', () => {
       }))
     })
 
-    it('should throw Unauthorized error to prevent email enumeration', async () => {
-      try {
-        await requestPasswordReset('nonexistent@example.com')
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.Unauthorized)
-      }
+    it('should return success response to prevent email enumeration', async () => {
+      const result = await requestPasswordReset('nonexistent@example.com')
 
+      expect(result).toEqual({ success: true })
       expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
       expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
@@ -131,15 +125,10 @@ describe('requestPasswordReset', () => {
           }))
         })
 
-        it('should throw Forbidden error', async () => {
-          try {
-            await requestPasswordReset(mockUser.email)
-            expect(true).toBe(false) // Should not reach here
-          } catch (error) {
-            expect(error).toBeInstanceOf(AppError)
-            expect((error as AppError).code).toBe(ErrorCode.Forbidden)
-          }
+        it('should return success response to prevent email enumeration', async () => {
+          const result = await requestPasswordReset(mockUser.email)
 
+          expect(result).toEqual({ success: true })
           expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
           expect(tokenRepo.create).not.toHaveBeenCalled()
           expect(emailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()

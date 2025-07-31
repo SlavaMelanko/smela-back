@@ -1,7 +1,6 @@
 import type { Status } from '@/types'
 
 import { emailAgent } from '@/lib/email-agent'
-import { AppError, ErrorCode } from '@/lib/errors'
 import { generateToken, PASSWORD_RESET_EXPIRY_HOURS } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { isActive, Token } from '@/types'
@@ -18,21 +17,17 @@ const createPasswordResetToken = async (userId: number) => {
 const requestPasswordReset = async (email: string) => {
   const user = await userRepo.findByEmail(email)
 
-  if (!user) {
-    throw new AppError(ErrorCode.Unauthorized)
+  // Always return success to prevent email enumeration
+  // Only send email if user exists and is active
+  if (user && isActive(user.status as Status)) {
+    const token = await createPasswordResetToken(user.id)
+
+    await emailAgent.sendResetPasswordEmail({
+      firstName: user.firstName,
+      email: user.email,
+      token,
+    })
   }
-
-  if (!isActive(user.status as Status)) {
-    throw new AppError(ErrorCode.Forbidden)
-  }
-
-  const token = await createPasswordResetToken(user.id)
-
-  await emailAgent.sendResetPasswordEmail({
-    firstName: user.firstName,
-    email: user.email,
-    token,
-  })
 
   return { success: true }
 }
