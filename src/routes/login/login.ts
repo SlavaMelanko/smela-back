@@ -37,7 +37,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  return jwt.sign(user.id, user.email, user.role, user.status)
+  return jwt.sign(user.id, user.email, user.role, user.status, user.tokenVersion)
 }
 
 export default logInWithEmail

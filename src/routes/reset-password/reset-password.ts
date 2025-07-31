@@ -1,6 +1,6 @@
 import { createPasswordEncoder } from '@/lib/crypto'
 import { TokenValidator } from '@/lib/token'
-import { authRepo, tokenRepo } from '@/repositories'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
 interface ResetPasswordParams {
@@ -22,6 +22,13 @@ const updatePassword = async (userId: number, newPassword: string): Promise<void
   await authRepo.update(userId, { passwordHash })
 }
 
+const incrementTokenVersion = async (userId: number): Promise<void> => {
+  const user = await userRepo.findById(userId)
+  if (user) {
+    await userRepo.update(userId, { tokenVersion: user.tokenVersion + 1 })
+  }
+}
+
 const resetPassword = async ({ token, password }: ResetPasswordParams): Promise<{ success: boolean }> => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
@@ -30,6 +37,9 @@ const resetPassword = async ({ token, password }: ResetPasswordParams): Promise<
   await markTokenAsUsed(validatedToken.id)
 
   await updatePassword(validatedToken.userId, password)
+
+  // Increment token version to invalidate all existing JWTs
+  await incrementTokenVersion(validatedToken.userId)
 
   return { success: true }
 }

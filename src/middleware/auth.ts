@@ -7,23 +7,25 @@ import type { AppContext } from '@/types/context'
 
 import { AppError, ErrorCode } from '@/lib/errors'
 import jwt from '@/lib/jwt'
+import { userRepo } from '@/repositories'
 import { isActive } from '@/types'
 
 const jwtMiddleware: MiddlewareHandler<AppContext> = bearerAuth({
   verifyToken: async (token, c) => {
-    try {
-      const payload = await jwt.verify(token)
+    const payload = await jwt.verify(token)
 
-      if (!isActive(payload.status as Status)) {
-        throw new AppError(ErrorCode.Forbidden)
-      }
-
-      c.set('user', payload)
-
-      return true
-    } catch {
-      return false
+    if (!isActive(payload.status as Status)) {
+      throw new AppError(ErrorCode.Forbidden)
     }
+
+    const user = await userRepo.findById(payload.id as number)
+    if (!user || user.tokenVersion !== (payload.v as number)) {
+      throw new AppError(ErrorCode.Unauthorized)
+    }
+
+    c.set('user', payload)
+
+    return true
   },
 })
 
