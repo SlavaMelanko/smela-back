@@ -1,11 +1,11 @@
 import { cors } from 'hono/cors'
 
-import env, { isDevEnv } from '@/lib/env'
+import env, { isDevOrTestEnv } from '@/lib/env'
 
 const corsMiddleware = cors({
   origin: (origin: string) => {
     // In development, allow all origins
-    if (isDevEnv()) {
+    if (isDevOrTestEnv()) {
       return origin
     }
 
