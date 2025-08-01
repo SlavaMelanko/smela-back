@@ -20,6 +20,7 @@ mock.module('@/lib/env', () => ({
     COOKIE_DOMAIN: 'example.com',
   },
   isDevEnv: () => false,
+  isDevOrTestEnv: () => false,
 }))
 
 describe('Login Handler with Cookie', () => {
@@ -78,6 +79,7 @@ describe('Login Handler with Cookie', () => {
           COOKIE_DOMAIN: undefined,
         },
         isDevEnv: () => true,
+        isDevOrTestEnv: () => true,
       }))
 
       const res = await app.request('/auth/login', {
