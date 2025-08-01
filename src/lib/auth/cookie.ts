@@ -4,6 +4,8 @@ import { setCookie } from 'hono/cookie'
 
 import env, { isDevOrTestEnv } from '@/lib/env'
 
+import { TOKEN_EXPIRATION_TIME } from './constants'
+
 /**
  * Sets authentication cookie with JWT token
  * @param c - Hono context
@@ -14,7 +16,7 @@ export const setAuthCookie = (c: Context, token: string): void => {
     httpOnly: true,
     secure: !isDevOrTestEnv(), // secure in production
     sameSite: 'lax',
-    maxAge: 60 * 60, // 1 hour (matching JWT expiration)
+    maxAge: TOKEN_EXPIRATION_TIME, // Use the constant instead of hardcoded value
     path: '/',
     ...(env.COOKIE_DOMAIN && !isDevOrTestEnv() && { domain: env.COOKIE_DOMAIN }),
   })

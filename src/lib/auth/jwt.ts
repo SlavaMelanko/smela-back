@@ -1,8 +1,8 @@
 import { sign, verify } from 'hono/jwt'
 
-import env from './env'
+import env from '@/lib/env'
 
-const TOKEN_EXPIRATION_TIME = 60 * 60 // 1 hour
+import { TOKEN_EXPIRATION_TIME } from './constants'
 
 const getSecret = () => env.JWT_SECRET
 

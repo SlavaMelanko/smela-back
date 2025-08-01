@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { StatusCodes } from 'http-status-codes'
 
-import { setAuthCookie } from '@/lib/auth-cookie'
+import { setAuthCookie } from '@/lib/auth'
 
 import signUpWithEmail from './signup'
 

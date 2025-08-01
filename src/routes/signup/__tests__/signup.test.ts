@@ -31,9 +31,9 @@ mock.module('@/lib/jwt', () => ({
   },
 }))
 
+import { jwt } from '@/lib/auth'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
-import jwt from '@/lib/jwt'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
 

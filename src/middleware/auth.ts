@@ -6,7 +6,7 @@ import type { Status } from '@/types'
 import type { AppContext } from '@/types/context'
 
 import { AppError, ErrorCode } from '@/lib/errors'
-import jwt from '@/lib/jwt'
+import { jwt } from '@/lib/auth'
 import { userRepo } from '@/repositories'
 import { isActive } from '@/types'
 

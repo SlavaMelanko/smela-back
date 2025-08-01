@@ -1,6 +1,6 @@
+import { jwt } from '@/lib/auth'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { AppError, ErrorCode } from '@/lib/errors'
-import jwt from '@/lib/jwt'
 import { authRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
