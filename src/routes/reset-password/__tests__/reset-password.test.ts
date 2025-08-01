@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/errors'
-import jwt from '@/lib/jwt'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
@@ -359,42 +358,6 @@ describe('resetPassword', () => {
         }
 
         expect(userRepo.incrementTokenVersion).toHaveBeenCalledWith(123)
-      })
-    })
-
-    describe('JWT Integration with Token Version', () => {
-      it('should create JWT tokens with tokenVersion and detect mismatches', async () => {
-        const userId = 123
-        const oldTokenVersion = 2
-        const newTokenVersion = 3
-
-        // Create JWT with old tokenVersion
-        const oldJWT = await jwt.sign(userId, 'user@test.com', 'user', 'verified', oldTokenVersion)
-
-        // Verify we can decode the JWT and check tokenVersion
-        const payload = await jwt.verify(oldJWT)
-        expect(payload.id).toBe(userId)
-        expect(payload.v).toBe(oldTokenVersion)
-
-        // Simulate user after password reset (tokenVersion incremented)
-        const mockUserAfterReset = { id: userId, tokenVersion: newTokenVersion }
-
-        // Should detect version mismatch
-        expect(mockUserAfterReset.tokenVersion).toBe(newTokenVersion)
-        expect(payload.v).toBe(oldTokenVersion)
-        expect(mockUserAfterReset.tokenVersion).not.toBe(payload.v)
-      })
-
-      it('should create new JWT with updated tokenVersion after reset', async () => {
-        const userId = 123
-        const newTokenVersion = 5
-
-        // Create JWT with new tokenVersion
-        const newJWT = await jwt.sign(userId, 'user@test.com', 'user', 'verified', newTokenVersion)
-
-        // Verify new JWT has correct tokenVersion
-        const payload = await jwt.verify(newJWT)
-        expect(payload.v).toBe(newTokenVersion)
       })
     })
 

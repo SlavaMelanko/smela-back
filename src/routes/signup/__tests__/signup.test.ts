@@ -8,7 +8,7 @@ mock.module('@/lib/env', () => ({
       system: {
         email: 'noreply@test.com',
         name: 'Test System',
-      }
+      },
     }),
   },
 }))
