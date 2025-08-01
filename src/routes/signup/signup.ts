@@ -3,6 +3,7 @@ import type { Role } from '@/types'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
+import jwt from '@/lib/jwt'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
@@ -63,15 +64,27 @@ const signUpWithEmail = async (
     role,
   })
 
-  const token = await createEmailVerificationToken(newUser.id)
+  const secureToken = await createEmailVerificationToken(newUser.id)
 
   await emailAgent.sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
-    token,
+    token: secureToken,
   })
 
-  return newUser
+  // Generate JWT token for immediate authentication
+  const jwtToken = await jwt.sign(
+    newUser.id,
+    newUser.email,
+    newUser.role,
+    newUser.status,
+    newUser.tokenVersion,
+  )
+
+  // Return user without tokenVersion for security
+  const { tokenVersion, ...userWithoutTokenVersion } = newUser
+
+  return { user: userWithoutTokenVersion, token: jwtToken }
 }
 
 export default signUpWithEmail

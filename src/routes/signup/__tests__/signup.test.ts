@@ -20,8 +20,20 @@ mock.module('@/lib/email-agent', () => ({
   },
 }))
 
+// Mock JWT
+const mockJwtSign = mock((id: number, email: string, role: string, status: string, tokenVersion: number) =>
+  Promise.resolve(`mock-jwt-${id}-${email}-${tokenVersion}`),
+)
+
+mock.module('@/lib/jwt', () => ({
+  default: {
+    sign: mockJwtSign,
+  },
+}))
+
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
+import jwt from '@/lib/jwt'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
@@ -43,8 +55,8 @@ describe('signUpWithEmail', () => {
     email: 'john@example.com',
     status: Status.New,
     role: Role.User,
+    tokenVersion: 1,
     createdAt: new Date(),
-    updatedAt: new Date(),
   }
 
   const mockHashedPassword = '$2b$10$hashedPassword123'
@@ -52,6 +64,9 @@ describe('signUpWithEmail', () => {
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
 
   beforeEach(() => {
+    // Clear JWT mocks
+    mockJwtSign.mockClear()
+
     // Mock repository methods
     mock.module('@/repositories', () => ({
       userRepo: {
@@ -105,7 +120,9 @@ describe('signUpWithEmail', () => {
         status: Status.New,
       })
       expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(result).toEqual(mockNewUser)
+      const { tokenVersion, ...expectedUser } = mockNewUser
+      expect(result.user).toEqual(expectedUser)
+      expect(result.token).toBe(`mock-jwt-${mockNewUser.id}-${mockNewUser.email}-1`)
     })
 
     it('should create auth record with hashed password', async () => {
@@ -160,6 +177,21 @@ describe('signUpWithEmail', () => {
         token: mockToken,
       })
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+    })
+
+    it('should generate JWT token for immediate authentication', async () => {
+      const result = await signUpWithEmail(mockSignupParams)
+
+      expect(jwt.sign).toHaveBeenCalledWith(
+        mockNewUser.id,
+        mockNewUser.email,
+        mockNewUser.role,
+        mockNewUser.status,
+        1, // Default tokenVersion for new users
+      )
+      expect(jwt.sign).toHaveBeenCalledTimes(1)
+      expect(result.token).toBeDefined()
+      expect(result.token).toContain('mock-jwt')
     })
 
     it('should check for existing user first', async () => {
@@ -363,7 +395,8 @@ describe('signUpWithEmail', () => {
         role: mockSignupParams.role,
         status: Status.New,
       })
-      expect(result).toEqual(mockNewUser)
+      const { tokenVersion, ...expectedUser } = mockNewUser
+      expect(result.user).toEqual(expectedUser)
     })
 
     it('should handle users with minimal names', async () => {
@@ -432,7 +465,8 @@ describe('signUpWithEmail', () => {
         role: Role.Admin,
         status: Status.New,
       })
-      expect(result).toEqual(adminUser)
+      const { tokenVersion: _, ...expectedAdminUser } = adminUser
+      expect(result.user).toEqual(expectedAdminUser)
     })
 
     it('should handle complex passwords', async () => {
