@@ -1,5 +1,25 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
+// Mock environment first to prevent email provider initialization
+mock.module('@/lib/env', () => ({
+  default: {
+    EMAIL_RESEND_API_KEY: 'test-api-key',
+    EMAIL_SENDER_PROFILES: JSON.stringify({
+      system: {
+        email: 'noreply@test.com',
+        name: 'Test System',
+      }
+    }),
+  },
+}))
+
+// Mock email agent to prevent actual email sending
+mock.module('@/lib/email-agent', () => ({
+  emailAgent: {
+    sendWelcomeEmail: mock(() => Promise.resolve()),
+  },
+}))
+
 import { emailAgent } from '@/lib/email-agent'
 import { AppError, ErrorCode } from '@/lib/errors'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
