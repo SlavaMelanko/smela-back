@@ -9,6 +9,7 @@ const validate = () => {
     const envSchema = buildSchema({
       NODE_ENV: envRules.nodeEnv,
       JWT_SECRET: envRules.jwtSecret,
+      JWT_COOKIE_NAME: envRules.jwtCookieName,
       ALLOWED_ORIGINS: envRules.allowedOrigins,
       COOKIE_DOMAIN: envRules.cookieDomain,
       DB_URL: envRules.dbUrl,
