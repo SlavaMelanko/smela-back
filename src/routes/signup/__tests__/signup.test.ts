@@ -25,8 +25,8 @@ const mockJwtSign = mock((id: number, email: string, role: string, status: strin
   Promise.resolve(`mock-jwt-${id}-${email}-${tokenVersion}`),
 )
 
-mock.module('@/lib/jwt', () => ({
-  default: {
+mock.module('@/lib/auth', () => ({
+  jwt: {
     sign: mockJwtSign,
   },
 }))

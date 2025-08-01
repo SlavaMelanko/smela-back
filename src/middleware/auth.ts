@@ -5,8 +5,8 @@ import { bearerAuth } from 'hono/bearer-auth'
 import type { Status } from '@/types'
 import type { AppContext } from '@/types/context'
 
-import { AppError, ErrorCode } from '@/lib/errors'
 import { jwt } from '@/lib/auth'
+import { AppError, ErrorCode } from '@/lib/errors'
 import { userRepo } from '@/repositories'
 import { isActive } from '@/types'
 
