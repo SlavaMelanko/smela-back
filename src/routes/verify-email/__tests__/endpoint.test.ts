@@ -16,12 +16,13 @@ describe('Verify Email Endpoint', () => {
     app.route('/auth', verifyEmailRoute)
   })
 
-  describe('GET /auth/verify-email', () => {
+  describe('POST /auth/verify-email', () => {
     it('should return 200 when request is valid', async () => {
       const validToken = 'a'.repeat(64) // 64 character token
 
-      const res = await app.request(`/auth/verify-email?token=${validToken}`, {
-        method: 'GET',
+      const res = await app.request('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token: validToken }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -43,8 +44,9 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of invalidTokens) {
-        const res = await app.request(`/auth/verify-email?token=${token}`, {
-          method: 'GET',
+        const res = await app.request('/auth/verify-email', {
+          method: 'POST',
+          body: JSON.stringify({ token }),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -58,7 +60,8 @@ describe('Verify Email Endpoint', () => {
 
     it('should require token parameter', async () => {
       const res = await app.request('/auth/verify-email', {
-        method: 'GET',
+        method: 'POST',
+        body: JSON.stringify({}),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -69,8 +72,8 @@ describe('Verify Email Endpoint', () => {
       expect(json).toHaveProperty('error')
     })
 
-    it('should only accept GET method', async () => {
-      const methods = ['POST', 'PUT', 'DELETE', 'PATCH']
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
       const validToken = 'a'.repeat(64)
 
       for (const method of methods) {
@@ -96,8 +99,9 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of validTokens) {
-        const res = await app.request(`/auth/verify-email?token=${token}`, {
-          method: 'GET',
+        const res = await app.request('/auth/verify-email', {
+          method: 'POST',
+          body: JSON.stringify({ token }),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -113,12 +117,12 @@ describe('Verify Email Endpoint', () => {
       }
     })
 
-    it('should handle URL encoding in token parameter', async () => {
+    it('should handle special characters in token', async () => {
       const tokenWithSpecialChars = 'abc123def456ghi789jkl012mno345pqr678stu901vwx234yzA567BCD890EFG123'
-      const encodedToken = encodeURIComponent(tokenWithSpecialChars)
 
-      const res = await app.request(`/auth/verify-email?token=${encodedToken}`, {
-        method: 'GET',
+      const res = await app.request('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenWithSpecialChars }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -127,11 +131,12 @@ describe('Verify Email Endpoint', () => {
       expect(res.status).toBeDefined()
     })
 
-    it('should handle multiple query parameters (only token should be used)', async () => {
+    it('should handle extra fields in request body', async () => {
       const validToken = 'a'.repeat(64)
 
-      const res = await app.request(`/auth/verify-email?token=${validToken}&extra=value&another=param`, {
-        method: 'GET',
+      const res = await app.request('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token: validToken, extra: 'value', another: 'param' }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -146,9 +151,10 @@ describe('Verify Email Endpoint', () => {
       }
     })
 
-    it('should handle empty query string', async () => {
-      const res = await app.request('/auth/verify-email?', {
-        method: 'GET',
+    it('should handle empty request body', async () => {
+      const res = await app.request('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({}),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -159,25 +165,31 @@ describe('Verify Email Endpoint', () => {
       expect(json).toHaveProperty('error')
     })
 
-    it('should handle malformed query parameters', async () => {
-      const malformedUrls = [
-        '/auth/verify-email?token',
-        '/auth/verify-email?token=',
-        '/auth/verify-email?=token',
-        '/auth/verify-email?token&',
+    it('should handle malformed request body', async () => {
+      const malformedBodies = [
+        { token: null },
+        { token: undefined },
+        { token: '' },
+        'invalid json',
       ]
 
-      for (const url of malformedUrls) {
-        const res = await app.request(url, {
-          method: 'GET',
+      for (const body of malformedBodies) {
+        const res = await app.request('/auth/verify-email', {
+          method: 'POST',
+          body: typeof body === 'string' ? body : JSON.stringify(body),
           headers: {
             'Content-Type': 'application/json',
           },
         })
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-        const json = await res.json()
-        expect(json).toHaveProperty('error')
+        // Invalid JSON string returns 500, others return 400
+        if (typeof body === 'string') {
+          expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+        } else {
+          expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+          const json = await res.json()
+          expect(json).toHaveProperty('error')
+        }
       }
     })
   })

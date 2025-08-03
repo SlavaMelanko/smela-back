@@ -7,6 +7,6 @@ import schema from './schema'
 
 const verifyEmailRoute = new Hono()
 
-verifyEmailRoute.get('/verify-email', requestValidator('query', schema), handler)
+verifyEmailRoute.post('/verify-email', requestValidator('json', schema), handler)
 
 export default verifyEmailRoute

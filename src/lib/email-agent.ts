@@ -29,7 +29,7 @@ class EmailAgent {
     email: string
     token: string
   }) {
-    const verificationUrl = `${env.BASE_URL}/auth/verify?token=${token}`
+    const verificationUrl = `${env.BASE_URL}/auth/verify-email?token=${token}`
 
     await this.service.send(EmailType.WELCOME, email, {
       firstName,

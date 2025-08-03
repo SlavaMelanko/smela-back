@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import verifyEmail from './verify-email'
 
 const verifyEmailHandler = async (c: Context) => {
-  const { token } = c.req.query()
+  const { token } = await c.req.json()
 
   const { status } = await verifyEmail(token)
 
