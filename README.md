@@ -77,14 +77,14 @@ Server will start on <http://localhost:3000>
 
 ### Authentication Routes
 
-| Method | Endpoint                          | Description               | Authentication |
-| ------ | --------------------------------- | ------------------------- | -------------- |
-| `POST` | `/auth/signup`                    | User registration         | Public         |
-| `POST` | `/auth/login`                     | User login                | Public         |
-| `POST` | `/auth/verify-email`              | Email verification        | Public         |
-| `POST` | `/auth/resend-verification-email` | Resend verification email | Public         |
-| `POST` | `/auth/request-password-reset`    | Request password reset    | Public         |
-| `POST` | `/auth/reset-password`            | Reset password with token | Public         |
+| Method | Endpoint                          | Description                        | Authentication |
+| ------ | --------------------------------- | ---------------------------------- | -------------- |
+| `POST` | `/auth/signup`                    | User registration                  | Public         |
+| `POST` | `/auth/login`                     | User login                         | Public         |
+| `POST` | `/auth/verify-email`              | Email verification (token in body) | Public         |
+| `POST` | `/auth/resend-verification-email` | Resend verification email          | Public         |
+| `POST` | `/auth/request-password-reset`    | Request password reset             | Public         |
+| `POST` | `/auth/reset-password`            | Reset password with token          | Public         |
 
 ### Protected Routes
 
@@ -113,6 +113,16 @@ curl -X POST http://localhost:3000/auth/login \
   -d '{
     "email": "user@example.com",
     "password": "securepassword123"
+  }'
+```
+
+#### Email Verification
+
+```bash
+curl -X POST http://localhost:3000/auth/verify-email \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "your-64-character-verification-token"
   }'
 ```
 
@@ -174,6 +184,15 @@ src/
 │   └── me/                # User profile
 └── types/                 # TypeScript type definitions
 ```
+
+### Frontend-Backend Architecture
+
+The API is designed to work with a separate frontend application:
+
+1. **Email Links**: Verification and password reset emails contain links to the frontend application
+2. **Frontend Handling**: The frontend extracts tokens from URL parameters and makes POST requests to the backend
+3. **API Security**: Backend accepts tokens in JSON request body (not URL parameters) for better security
+4. **Token Format**: All tokens are 64-character hexadecimal strings
 
 ### Technology Stack
 
