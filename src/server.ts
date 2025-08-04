@@ -4,7 +4,7 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { authRateLimiter, corsMiddleware, generalRateLimiter, jwtMiddleware, loggerMiddleware, onError } from '@/middleware'
+import { authRateLimiter, corsMiddleware, dualAuthMiddleware, generalRateLimiter, loggerMiddleware, onError } from '@/middleware'
 import { authRoutes, protectedRoutes, publicRoutes } from '@/routes'
 
 class Server {
@@ -24,7 +24,7 @@ class Server {
       .use(loggerMiddleware)
       .use(generalRateLimiter)
       .use('/auth/*', authRateLimiter)
-      .use('/api/v1/*', jwtMiddleware)
+      .use('/api/v1/*', dualAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 

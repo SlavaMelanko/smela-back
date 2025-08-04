@@ -36,7 +36,7 @@ describe('Logout Endpoint', () => {
 
       // Check response body
       const data = await res.json()
-      expect(data).toEqual({ message: 'Logged out successfully' })
+      expect(data).toEqual({ success: true })
 
       // Check cookie deletion
       const cookies = res.headers.get('set-cookie')
@@ -55,7 +55,7 @@ describe('Logout Endpoint', () => {
       expect(res.status).toBe(StatusCodes.OK)
 
       const data = await res.json()
-      expect(data).toEqual({ message: 'Logged out successfully' })
+      expect(data).toEqual({ success: true })
 
       // Cookie deletion header should still be sent
       const cookies = res.headers.get('set-cookie')
@@ -126,7 +126,7 @@ describe('Logout Endpoint', () => {
 
       expect(res.status).toBe(StatusCodes.OK)
       const data = await res.json()
-      expect(data).toEqual({ message: 'Logged out successfully' })
+      expect(data).toEqual({ success: true })
     })
   })
 
