@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+22@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+23@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+21@gmail.com\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+23@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -65,7 +65,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"57ba48516ff7c03800fbfc0b52a58e82d9217c4a75aca2f579c13b3179a48a76\"\n}\n",
+					"raw": "{\n    \"token\": \"20b1a7aee168b5a34643a96d9366283f5ea01fbd9d942f4e2667c85c94b45a15\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -108,7 +108,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+22@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+23@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -161,7 +161,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+21@gmail.com\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+22@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -187,7 +187,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"a7926d8118ac6ea139b75b5cafce4813e164e18f931b40a614c9194b52307ece\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
+					"raw": "{\n    \"token\": \"9c94c5660c17fa4678a0415265b857f29ea542c79fe3ca51e2ce0f4ba9d9d919\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
