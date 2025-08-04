@@ -2,8 +2,7 @@ import type { Context, MiddlewareHandler } from 'hono'
 
 import { createMiddleware } from 'hono/factory'
 
-import type { Role, Status } from '@/types'
-import type { AppContext, UserPayload } from '@/types/context'
+import type { AppContext } from '@/types/context'
 
 import { getAuthCookie, jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/errors'
@@ -29,15 +28,6 @@ const extractToken = (c: Context): string | null => {
   return null
 }
 
-const createUserPayload = (payload: any): UserPayload => {
-  return {
-    id: payload.id as number,
-    email: payload.email as string,
-    role: payload.role as Role,
-    exp: payload.exp as number,
-  }
-}
-
 /**
  * Dual authentication middleware that supports both Bearer token and cookie authentication:
  * - For API/CLI/Mobile: Use Authorization: Bearer <token>
@@ -53,16 +43,16 @@ const dualAuthMiddleware: MiddlewareHandler<AppContext> = createMiddleware<AppCo
   try {
     const payload = await jwt.verify(token)
 
-    if (!isActive(payload.status as Status)) {
+    if (!isActive(payload.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Account is not active')
     }
 
-    const user = await userRepo.findById(payload.id as number)
-    if (!user || user.tokenVersion !== (payload.v as number)) {
+    const user = await userRepo.findById(payload.id)
+    if (!user || user.tokenVersion !== payload.v) {
       throw new AppError(ErrorCode.Unauthorized, 'Invalid token')
     }
 
-    c.set('user', createUserPayload(payload))
+    c.set('user', payload)
 
     await next()
   } catch (error) {
