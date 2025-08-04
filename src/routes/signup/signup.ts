@@ -25,6 +25,10 @@ const createUser = async ({ firstName, lastName, email, password, role }: Signup
     status: Status.New,
   })
 
+  if (!newUser) {
+    throw new AppError(ErrorCode.InternalError)
+  }
+
   const encoder = createPasswordEncoder()
   const hashedPassword = await encoder.hash(password)
 
@@ -81,10 +85,10 @@ const signUpWithEmail = async (
     newUser.tokenVersion,
   )
 
-  // Return user without tokenVersion for security
-  const { tokenVersion, ...userWithoutTokenVersion } = newUser
+  // Return user without sensitive fields and timestamps
+  const { tokenVersion, createdAt, updatedAt, ...userWithoutSensitiveFields } = newUser
 
-  return { user: userWithoutTokenVersion, token: jwtToken }
+  return { user: userWithoutSensitiveFields, token: jwtToken }
 }
 
 export default signUpWithEmail

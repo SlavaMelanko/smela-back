@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { authRepo, userRepo } from '@/repositories'
-import { Status } from '@/types'
+import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
 
@@ -13,7 +13,7 @@ describe('logInWithEmail', () => {
     lastName: 'Doe',
     email: 'john@example.com',
     status: Status.Verified,
-    role: 'user' as const,
+    role: Role.User,
     tokenVersion: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -311,7 +311,7 @@ describe('logInWithEmail', () => {
     })
 
     it('should handle users with different roles', async () => {
-      const adminUser = { ...mockUser, role: 'admin' as const }
+      const adminUser = { ...mockUser, role: Role.Admin }
       mock.module('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(adminUser)),

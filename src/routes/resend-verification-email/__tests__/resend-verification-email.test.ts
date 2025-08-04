@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { emailAgent } from '@/lib/email-agent'
 import { tokenRepo, userRepo } from '@/repositories'
-import { Status, Token } from '@/types'
+import { Role, Status, Token } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
 
@@ -13,7 +13,7 @@ describe('resendVerificationEmail', () => {
     lastName: 'Doe',
     email: 'john@example.com',
     status: Status.New,
-    role: 'user' as const,
+    role: Role.User,
     createdAt: new Date(),
     updatedAt: new Date(),
   }

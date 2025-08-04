@@ -120,7 +120,7 @@ describe('signUpWithEmail', () => {
         status: Status.New,
       })
       expect(userRepo.create).toHaveBeenCalledTimes(1)
-      const { tokenVersion, ...expectedUser } = mockNewUser
+      const { tokenVersion, createdAt, updatedAt, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result.token).toBe(`mock-jwt-${mockNewUser.id}-${mockNewUser.email}-1`)
     })
@@ -192,6 +192,23 @@ describe('signUpWithEmail', () => {
       expect(jwt.sign).toHaveBeenCalledTimes(1)
       expect(result.token).toBeDefined()
       expect(result.token).toContain('mock-jwt')
+    })
+
+    it('should not return sensitive fields in the response', async () => {
+      const result = await signUpWithEmail(mockSignupParams)
+
+      // Ensure sensitive fields are not included in the response
+      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.user).not.toHaveProperty('createdAt')
+      expect(result.user).not.toHaveProperty('updatedAt')
+
+      // Ensure expected fields are present
+      expect(result.user).toHaveProperty('id')
+      expect(result.user).toHaveProperty('firstName')
+      expect(result.user).toHaveProperty('lastName')
+      expect(result.user).toHaveProperty('email')
+      expect(result.user).toHaveProperty('status')
+      expect(result.user).toHaveProperty('role')
     })
 
     it('should check for existing user first', async () => {
@@ -395,7 +412,7 @@ describe('signUpWithEmail', () => {
         role: mockSignupParams.role,
         status: Status.New,
       })
-      const { tokenVersion, ...expectedUser } = mockNewUser
+      const { tokenVersion, createdAt, updatedAt, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
     })
 
@@ -465,8 +482,13 @@ describe('signUpWithEmail', () => {
         role: Role.Admin,
         status: Status.New,
       })
-      const { tokenVersion: _, ...expectedAdminUser } = adminUser
+      const { tokenVersion: _, createdAt, updatedAt, ...expectedAdminUser } = adminUser
       expect(result.user).toEqual(expectedAdminUser)
+
+      // Also verify no sensitive fields for admin users
+      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.user).not.toHaveProperty('createdAt')
+      expect(result.user).not.toHaveProperty('updatedAt')
     })
 
     it('should handle complex passwords', async () => {

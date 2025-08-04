@@ -1,4 +1,5 @@
 import type { usersTable } from '@/db/schema'
+import type { Role, Status } from '@/types'
 
 // Database type
 type UserRecord = typeof usersTable.$inferSelect
@@ -8,9 +9,9 @@ type CreateUserInput = typeof usersTable.$inferInsert
 type UpdateUserInput = Partial<CreateUserInput>
 
 // Public-facing / API-return type
-type User = Pick<UserRecord, 'id' | 'firstName' | 'lastName' | 'email' | 'role' | 'status' | 'tokenVersion' | 'createdAt'>
-type UserWithRole = Omit<User, 'role'> & {
-  role: string
+type User = Omit<UserRecord, 'role' | 'status'> & {
+  role: Role
+  status: Status
 }
 
-export type { CreateUserInput, UpdateUserInput, User, UserRecord, UserWithRole }
+export type { CreateUserInput, UpdateUserInput, User, UserRecord }
