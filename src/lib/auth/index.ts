@@ -1,2 +1,2 @@
-export { setAuthCookie } from './cookie'
+export { deleteAuthCookie, getAuthCookie, setAuthCookie } from './cookie'
 export { default as jwt } from './jwt'
