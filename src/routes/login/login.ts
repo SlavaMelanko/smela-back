@@ -1,3 +1,5 @@
+import type { Role, Status } from '@/types'
+
 import { jwt } from '@/lib/auth'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { AppError, ErrorCode } from '@/lib/errors'
@@ -37,7 +39,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  return jwt.sign(user.id, user.email, user.role, user.status, user.tokenVersion)
+  return jwt.sign(user.id, user.email, user.role as Role, user.status as Status, user.tokenVersion)
 }
 
 export default logInWithEmail

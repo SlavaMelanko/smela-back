@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/errors'
 import { userRepo } from '@/repositories'
-import { Status } from '@/types'
+import { Role, Status } from '@/types'
 import { isActive } from '@/types'
 
 describe('Auth Middleware Logic - Token Version Validation', () => {
   const mockUserId = 123
   const mockEmail = 'test@example.com'
-  const mockRole = 'user'
+  const mockRole = Role.User
   const mockStatus = Status.Verified
 
   // Simulate the core auth logic from the middleware

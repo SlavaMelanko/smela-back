@@ -1,5 +1,7 @@
 import { sign, verify } from 'hono/jwt'
 
+import type { Role, Status } from '@/types'
+
 import env from '@/lib/env'
 import { AppError, ErrorCode } from '@/lib/errors'
 
@@ -8,7 +10,7 @@ import { type JwtPayload, jwtPayloadSchema } from './schema'
 
 const getSecret = () => env.JWT_SECRET
 
-const signJwt = (id: number, email: string, role: string, status: string, tokenVersion: number): Promise<string> => {
+const signJwt = (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
   const payload = {
     id,
     email,
