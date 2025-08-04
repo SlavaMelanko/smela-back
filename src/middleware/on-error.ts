@@ -3,8 +3,8 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { getReasonPhrase } from 'http-status-codes'
 
+import { ErrorCode, ErrorRegistry } from '@/lib/catch'
 import { isProdEnv } from '@/lib/env'
-import { ErrorCode, ErrorRegistry } from '@/lib/errors'
 import logger from '@/lib/logger'
 
 const getErrorCode = (err: unknown): ErrorCode => {

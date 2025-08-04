@@ -3,7 +3,7 @@ import type { Token } from '@/types'
 
 import { TokenStatus } from '@/types'
 
-import { AppError, ErrorCode } from '../errors'
+import { AppError, ErrorCode } from '../catch'
 
 class TokenValidator {
   static validate(tokenRecord: TokenRecord | undefined, expectedType: Token): TokenRecord {

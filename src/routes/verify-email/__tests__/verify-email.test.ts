@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { AppError, ErrorCode } from '@/lib/errors'
+import { AppError, ErrorCode } from '@/lib/catch'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token, TokenStatus } from '@/types'
 

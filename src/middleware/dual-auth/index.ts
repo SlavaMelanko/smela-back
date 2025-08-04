@@ -5,7 +5,7 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/types/context'
 
 import { getAuthCookie, jwt } from '@/lib/auth'
-import { AppError, ErrorCode } from '@/lib/errors'
+import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
 import { isActive } from '@/types'
 

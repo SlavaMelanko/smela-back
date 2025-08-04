@@ -2,8 +2,8 @@ import { sign, verify } from 'hono/jwt'
 
 import type { Role, Status } from '@/types'
 
+import { AppError, ErrorCode } from '@/lib/catch'
 import env from '@/lib/env'
-import { AppError, ErrorCode } from '@/lib/errors'
 
 import { TOKEN_EXPIRATION_TIME } from './constants'
 import { type JwtPayload, jwtPayloadSchema } from './schema'

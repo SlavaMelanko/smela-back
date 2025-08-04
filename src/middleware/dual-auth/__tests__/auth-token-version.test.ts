@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { jwt } from '@/lib/auth'
-import { AppError, ErrorCode } from '@/lib/errors'
+import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
 import { Role, Status } from '@/types'
 import { isActive } from '@/types'

@@ -3,7 +3,7 @@ import type { ZodSchema } from 'zod'
 
 import { zValidator } from '@hono/zod-validator'
 
-import { AppError, ErrorCode } from '../errors'
+import { AppError, ErrorCode } from '../catch'
 
 const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTargets>(
   target: Target,

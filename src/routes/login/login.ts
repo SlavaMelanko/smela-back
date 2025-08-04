@@ -1,8 +1,8 @@
 import type { Role, Status } from '@/types'
 
 import { jwt } from '@/lib/auth'
+import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
-import { AppError, ErrorCode } from '@/lib/errors'
 import { authRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
