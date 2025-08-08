@@ -29,7 +29,7 @@ class EmailAgent {
     email: string
     token: string
   }) {
-    const verificationUrl = `${env.BASE_URL}/auth/verify-email?token=${token}`
+    const verificationUrl = `${env.FE_BASE_URL}/verify-email?token=${token}`
 
     await this.service.send(EmailType.WELCOME, email, {
       firstName,
@@ -46,7 +46,7 @@ class EmailAgent {
     email: string
     token: string
   }) {
-    const resetUrl = `${env.BASE_URL}/auth/reset-password?token=${token}`
+    const resetUrl = `${env.FE_BASE_URL}/reset-password?token=${token}`
 
     await this.service.send(EmailType.PASSWORD_RESET, email, {
       firstName,

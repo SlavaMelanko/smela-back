@@ -60,7 +60,7 @@ const WelcomeEmail = ({
 WelcomeEmail.PreviewProps = {
   data: {
     firstName: 'Jason',
-    verificationUrl: `${config.baseUrl}/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+    verificationUrl: `${config.frontendUrl}/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
   content: getContent('en').welcome,
 } as WelcomeEmailProps

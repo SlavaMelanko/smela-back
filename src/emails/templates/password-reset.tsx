@@ -64,7 +64,7 @@ const PasswordResetEmail = ({
 PasswordResetEmail.PreviewProps = {
   data: {
     firstName: 'Jason',
-    resetUrl: `${config.baseUrl}/auth/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+    resetUrl: `${config.frontendUrl}/reset-password?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
   content: getContent('en').passwordReset,
 } as PasswordResetEmailProps

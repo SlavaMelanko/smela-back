@@ -43,7 +43,8 @@ PORT=3000
 LOG_LEVEL=info
 
 # Email configuration (optional)
-BASE_URL=http://localhost:3000
+BE_BASE_URL=http://localhost:3000
+FE_BASE_URL=http://localhost:5173
 COMPANY_NAME=Your Company Name
 EMAIL_RESEND_API_KEY=your-resend-api-key
 COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}
@@ -283,7 +284,8 @@ PORT=3000
 LOG_LEVEL=warn
 
 # Email configuration (optional)
-BASE_URL=https://your-domain.com
+BE_BASE_URL=https://your-domain.com
+FE_BASE_URL=https://app.your-domain.com
 COMPANY_NAME=Your Company Name
 EMAIL_RESEND_API_KEY=your-resend-api-key
 COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}

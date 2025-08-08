@@ -16,7 +16,8 @@ const validate = () => {
       LOG_LEVEL: envRules.logLevel,
 
       // Email configuration
-      BASE_URL: envRules.baseUrl,
+      BE_BASE_URL: envRules.beBaseUrl,
+      FE_BASE_URL: envRules.feBaseUrl,
       COMPANY_NAME: envRules.companyName,
       COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
       EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,

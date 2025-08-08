@@ -14,8 +14,9 @@ const rules = {
   // Database
   dbUrl: z.string().url(),
 
-  // Email
-  baseUrl: z.string().url().default('http://localhost:3000'),
+  // Email and URLs
+  beBaseUrl: z.string().url().default('http://localhost:3000'),
+  feBaseUrl: z.string().url().default('http://localhost:5173'),
   companyName: z.string().default('The Company'),
   companySocialLinks: z.string().optional().transform((str) => {
     if (!str)

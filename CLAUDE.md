@@ -49,6 +49,7 @@ Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono fr
 ### Auth Routes Details
 
 All auth routes accept POST requests:
+
 - `/auth/signup` - User registration
 - `/auth/login` - User authentication
 - `/auth/verify-email` - Email verification (accepts token in JSON body)
@@ -120,7 +121,8 @@ Optional environment variables with defaults:
 
 Additional optional environment variables:
 
-- `BASE_URL` - Base URL for email templates (default: <http://localhost:3000>)
+- `BE_BASE_URL` - Backend base URL for API endpoints (default: <http://localhost:3000>)
+- `FE_BASE_URL` - Frontend base URL for email links (default: <http://localhost:5173>)
 - `COMPANY_NAME` - Company name for emails (default: The Company)
 - `EMAIL_RESEND_API_KEY` - Resend service API key for sending emails
 - `COMPANY_SOCIAL_LINKS` - JSON object containing social media links for email footers
