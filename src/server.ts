@@ -5,7 +5,7 @@ import { requestId } from 'hono/request-id'
 import type { AppContext } from '@/types/context'
 
 import { authRateLimiter, corsMiddleware, dualAuthMiddleware, generalRateLimiter, loggerMiddleware, onError } from '@/middleware'
-import { authRoutes, protectedRoutes, publicRoutes } from '@/routes'
+import { authRoutes, protectedRoutes } from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>
@@ -29,10 +29,6 @@ class Server {
   }
 
   private setupRoutes() {
-    publicRoutes.forEach((route) => {
-      this.app.route('/', route)
-    })
-
     authRoutes.forEach((route) => {
       this.app.route('/auth', route)
     })

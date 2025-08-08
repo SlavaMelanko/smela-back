@@ -1,12 +1,30 @@
-import loginRoute from './login'
-import logoutRoute from './logout'
-import meRoute from './me'
-import requestPasswordResetRoute from './request-password-reset'
-import resendVerificationEmailRoute from './resend-verification-email'
-import resetPasswordRoute from './reset-password'
-import signupRoute from './signup'
-import verifyEmailRoute from './verify-email'
+import {
+  loginRoute,
+  logoutRoute,
+  requestPasswordResetRoute,
+  resendVerificationEmailRoute,
+  resetPasswordRoute,
+  signupRoute,
+  verifyEmailRoute,
+} from './auth'
+import { meRoute } from './user'
 
-export const publicRoutes = []
-export const authRoutes = [loginRoute, logoutRoute, signupRoute, verifyEmailRoute, resendVerificationEmailRoute, requestPasswordResetRoute, resetPasswordRoute]
-export const protectedRoutes = [meRoute]
+const authRoutes = [
+  loginRoute,
+  logoutRoute,
+  signupRoute,
+  verifyEmailRoute,
+  resendVerificationEmailRoute,
+  requestPasswordResetRoute,
+  resetPasswordRoute,
+]
+
+const protectedRoutes = [meRoute]
+
+const publicRoutes = []
+
+export {
+  authRoutes,
+  protectedRoutes,
+  publicRoutes,
+}

@@ -37,7 +37,9 @@ Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono fr
 - `/src/lib/` - Core utilities (crypto, validation, JWT, errors)
 - `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
 - `/src/repositories/` - Data access layer following repository pattern
-- `/src/routes/` - API endpoint handlers
+- `/src/routes/` - API endpoint handlers organized by domain
+  - `/auth/` - Authentication routes (login, signup, password reset, etc.)
+  - `/user/` - User-specific routes (profile, settings, etc.)
 - `/src/types/` - TypeScript type definitions
 
 ### Route Organization
