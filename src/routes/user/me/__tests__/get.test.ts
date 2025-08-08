@@ -32,13 +32,13 @@ describe('GET /me endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    
+
     // Add middleware that sets user from JWT
     app.use('/api/v1/*', async (c, next) => {
       c.set('user', mockJwtPayload)
       await next()
     })
-    
+
     app.route('/api/v1', meRoute)
 
     // Mock user repository
@@ -54,7 +54,7 @@ describe('GET /me endpoint', () => {
     const res = await app.request('/api/v1/me', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer mock-token',
+        Authorization: 'Bearer mock-token',
       },
     })
 
@@ -76,7 +76,7 @@ describe('GET /me endpoint', () => {
 
     // Verify tokenVersion is not included
     expect(data.user).not.toHaveProperty('tokenVersion')
-    
+
     // Verify all other fields are included
     expect(data.user).toHaveProperty('id')
     expect(data.user).toHaveProperty('firstName')
@@ -104,12 +104,12 @@ describe('GET /me endpoint', () => {
     const res = await app.request('/api/v1/me', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer mock-token',
+        Authorization: 'Bearer mock-token',
       },
     })
 
     expect(res.status).toBe(StatusCodes.NOT_FOUND)
-    
+
     const data = await res.json()
     expect(data.error).toBe('User not found')
   })
@@ -118,20 +118,20 @@ describe('GET /me endpoint', () => {
     const res = await app.request('/api/v1/me', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer mock-token',
+        Authorization: 'Bearer mock-token',
       },
     })
 
     expect(res.status).toBe(StatusCodes.OK)
 
     const data = await res.json()
-    
+
     // Should have 'user' key at top level (like login/signup)
     expect(data).toHaveProperty('user')
-    
+
     // Should NOT have 'db' key (which was in old implementation)
     expect(data).not.toHaveProperty('db')
-    
+
     // User object should have all fields except tokenVersion
     const userKeys = Object.keys(data.user).sort()
     const expectedKeys = ['id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt'].sort()

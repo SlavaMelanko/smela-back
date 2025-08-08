@@ -13,14 +13,14 @@ const meRoute = new Hono<AppContext>()
 
 meRoute.get('/me', async (c) => {
   const jwtPayload = c.get('user')
-  
+
   // Fetch full user data from database
   const user = await userRepo.findById(jwtPayload.id)
-  
+
   if (!user) {
     throw new AppError(ErrorCode.NotFound, 'User not found')
   }
-  
+
   // Remove sensitive fields (same as login/signup)
   const { tokenVersion, ...userWithoutSensitiveFields } = user
 

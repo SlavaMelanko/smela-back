@@ -8,7 +8,7 @@ import { userRepo } from '@/repositories'
 
 import updateProfile from '../handler'
 
-describe('updateProfile handler', () => {
+describe('POST /me endpoint', () => {
   const mockUser = {
     id: 1,
     email: 'test@example.com',
