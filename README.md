@@ -185,6 +185,30 @@ curl -X POST http://localhost:3000/auth/reset-password \
   }'
 ```
 
+#### Get Current User Profile (Protected)
+
+```bash
+curl -X GET http://localhost:3000/api/v1/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Response:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "user@example.com",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
 #### Update Profile (Protected)
 
 ```bash
