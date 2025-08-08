@@ -92,6 +92,7 @@ Server will start on <http://localhost:3000>
 | Method | Endpoint     | Description              | Authentication |
 | ------ | ------------ | ------------------------ | -------------- |
 | `GET`  | `/api/v1/me` | Get current user profile | JWT Required   |
+| `POST` | `/api/v1/me` | Update user profile      | JWT Required   |
 
 ### Example API Usage
 
@@ -184,6 +185,35 @@ curl -X POST http://localhost:3000/auth/reset-password \
   }'
 ```
 
+#### Update Profile (Protected)
+
+```bash
+curl -X POST http://localhost:3000/api/v1/me \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "firstName": "Jane",
+    "lastName": "Smith"
+  }'
+```
+
+Response:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "user@example.com",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-02T00:00:00.000Z"
+  }
+}
+```
+
 ## 🏗️ Architecture
 
 ### Directory Structure
@@ -212,13 +242,15 @@ src/
 │   ├── auth/              # Authentication repository
 │   └── token/             # Token repository
 ├── routes/                # API endpoint handlers
-│   ├── signup/            # User registration
-│   ├── login/             # User login
-│   ├── verify-email/      # Email verification
-│   ├── resend-verification-email/ # Resend verification
-│   ├── request-password-reset/    # Password reset request
-│   ├── reset-password/    # Password reset with token
-│   └── me/                # User profile
+│   ├── auth/              # Authentication routes
+│   │   ├── signup/        # User registration
+│   │   ├── login/         # User login
+│   │   ├── verify-email/  # Email verification
+│   │   ├── resend-verification-email/ # Resend verification
+│   │   ├── request-password-reset/    # Password reset request
+│   │   └── reset-password/ # Password reset with token
+│   └── user/              # User-related routes
+│       └── me/            # User profile (GET & POST)
 └── types/                 # TypeScript type definitions
 ```
 

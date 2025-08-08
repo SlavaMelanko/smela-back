@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import type { Role, Status } from '@/types'
 
 import db, { usersTable } from '@/db'
+import { AppError, ErrorCode } from '@/lib/catch'
 
 import type { CreateUserInput, UpdateUserInput, User, UserRecord } from './types'
 
@@ -45,11 +46,14 @@ const findUserByEmail = async (email: string): Promise<User | undefined> => {
   return toTypeSafeUser(foundUser)
 }
 
-const updateUser = async (userId: number, updates: UpdateUserInput): Promise<void> => {
-  await db
+const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User | undefined> => {
+  const [updatedUser] = await db
     .update(usersTable)
     .set(updates)
     .where(eq(usersTable.id, userId))
+    .returning()
+
+  return toTypeSafeUser(updatedUser)
 }
 
 // Increment token version to invalidate all existing JWTs.
@@ -57,13 +61,17 @@ const incrementTokenVersion = async (userId: number): Promise<void> => {
   const user = await findUserById(userId)
 
   if (!user) {
-    throw new Error('User not found')
+    throw new AppError(ErrorCode.NotFound, 'User not found')
   }
 
-  await updateUser(userId, {
+  const updatedUser = await updateUser(userId, {
     tokenVersion: user.tokenVersion + 1,
     updatedAt: new Date(),
   })
+
+  if (!updatedUser) {
+    throw new AppError(ErrorCode.InternalError)
+  }
 }
 
 export { createUser, findUserByEmail, findUserById, incrementTokenVersion, updateUser }
