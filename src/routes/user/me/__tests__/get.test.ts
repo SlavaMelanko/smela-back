@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { AppError, ErrorCode } from '@/lib/catch'
 import { onError } from '@/middleware'
-import { userRepo } from '@/repositories'
 
 import meRoute from '../index'
 
@@ -41,12 +41,10 @@ describe('GET /me endpoint', () => {
 
     app.route('/api/v1', meRoute)
 
-    // Mock user repository
-    mock.module('@/repositories', () => ({
-      userRepo: {
-        findById: mock(() => Promise.resolve(mockFullUser)),
-        update: mock(() => Promise.resolve(mockFullUser)),
-      },
+    // Mock the business logic functions
+    mock.module('../me', () => ({
+      getUser: mock(() => Promise.resolve(mockFullUser)),
+      updateUser: mock(() => Promise.resolve(mockFullUser)),
     }))
   })
 
@@ -87,18 +85,17 @@ describe('GET /me endpoint', () => {
     expect(data.user).toHaveProperty('createdAt')
     expect(data.user).toHaveProperty('updatedAt')
 
-    // Verify findById was called with correct user ID
-    expect(userRepo.findById).toHaveBeenCalledWith(1)
-    expect(userRepo.findById).toHaveBeenCalledTimes(1)
+    // Verify getUser was called with correct user ID
+    const { getUser } = await import('../me')
+    expect(getUser).toHaveBeenCalledWith(1)
+    expect(getUser).toHaveBeenCalledTimes(1)
   })
 
   it('should handle user not found', async () => {
-    // Mock findById to return null
-    mock.module('@/repositories', () => ({
-      userRepo: {
-        findById: mock(() => Promise.resolve(null)),
-        update: mock(() => Promise.resolve(null)),
-      },
+    // Mock getUser to throw not found error
+    mock.module('../me', () => ({
+      getUser: mock(() => Promise.reject(new AppError(ErrorCode.NotFound, 'User not found'))),
+      updateUser: mock(() => Promise.resolve(null)),
     }))
 
     const res = await app.request('/api/v1/me', {

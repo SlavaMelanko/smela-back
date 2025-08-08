@@ -5,6 +5,7 @@ import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
+import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
 
@@ -85,9 +86,7 @@ const signUpWithEmail = async (
     newUser.tokenVersion,
   )
 
-  const { tokenVersion, ...userWithoutSensitiveFields } = newUser
-
-  return { user: userWithoutSensitiveFields, token: jwtToken }
+  return { user: normalizeUser(newUser), token: jwtToken }
 }
 
 export default signUpWithEmail

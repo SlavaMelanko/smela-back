@@ -3,6 +3,7 @@ import type { Role, Status } from '@/types'
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
+import { normalizeUser } from '@/lib/user'
 import { authRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
@@ -41,9 +42,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
 
   const token = await jwt.sign(user.id, user.email, user.role as Role, user.status as Status, user.tokenVersion)
 
-  const { tokenVersion, ...userWithoutSensitiveFields } = user
-
-  return { user: userWithoutSensitiveFields, token }
+  return { user: normalizeUser(user), token }
 }
 
 export default logInWithEmail

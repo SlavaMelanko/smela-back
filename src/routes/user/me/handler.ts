@@ -2,26 +2,25 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/types/context'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-import { userRepo } from '@/repositories'
+import { normalizeUser } from '@/lib/user'
 
-const updateProfile = async (c: Context<AppContext>) => {
+import { getUser, updateUser } from './me'
+
+const getHandler = async (c: Context<AppContext>) => {
+  const userContext = c.get('user')
+
+  const user = await getUser(userContext.id)
+
+  return c.json({ user: normalizeUser(user) })
+}
+
+const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
   const { firstName, lastName } = await c.req.json()
 
-  const updatedUser = await userRepo.update(user.id, {
-    firstName,
-    lastName,
-    updatedAt: new Date(),
-  })
+  const updatedUser = await updateUser(user.id, { firstName, lastName })
 
-  if (!updatedUser) {
-    throw new AppError(ErrorCode.InternalError, 'Failed to update user.')
-  }
-
-  const { tokenVersion, ...userWithoutSensitiveFields } = updatedUser
-
-  return c.json({ user: userWithoutSensitiveFields })
+  return c.json({ user: normalizeUser(updatedUser) })
 }
 
-export default updateProfile
+export { getHandler, postHandler }
