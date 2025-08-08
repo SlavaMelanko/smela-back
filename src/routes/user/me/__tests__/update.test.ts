@@ -96,7 +96,7 @@ describe('updateProfile handler', () => {
       expect(true).toBe(false) // Should not reach here
     } catch (error) {
       expect(error).toBeInstanceOf(Error)
-      expect((error as Error).message).toBe('User not found after update')
+      expect((error as Error).message).toBe('Failed to update user.')
     }
   })
 })
