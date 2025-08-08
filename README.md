@@ -106,6 +106,24 @@ curl -X POST http://localhost:3000/auth/signup \
   }'
 ```
 
+Response:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "user@example.com",
+    "role": "user",
+    "status": "new",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
 #### User Login
 
 ```bash
@@ -115,6 +133,24 @@ curl -X POST http://localhost:3000/auth/login \
     "email": "user@example.com",
     "password": "securepassword123"
   }'
+```
+
+Response:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "user@example.com",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
 #### Email Verification

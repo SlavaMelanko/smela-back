@@ -61,7 +61,7 @@ describe('logInWithEmail', () => {
   })
 
   describe('when credentials are valid', () => {
-    it('should return a JWT token for valid user and password', async () => {
+    it('should return user data and JWT token for valid user and password', async () => {
       const result = await logInWithEmail({
         email: mockUser.email,
         password: validPassword,
@@ -69,7 +69,19 @@ describe('logInWithEmail', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
       expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-      expect(result).toBe(mockToken)
+      expect(result).toEqual({
+        user: {
+          id: mockUser.id,
+          firstName: mockUser.firstName,
+          lastName: mockUser.lastName,
+          email: mockUser.email,
+          status: mockUser.status,
+          role: mockUser.role,
+          createdAt: mockUser.createdAt,
+          updatedAt: mockUser.updatedAt,
+        },
+        token: mockToken,
+      })
     })
 
     it('should call JWT sign with correct user data', async () => {
@@ -278,7 +290,7 @@ describe('logInWithEmail', () => {
       })
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
     })
 
     it('should handle users with different statuses', async () => {
@@ -298,7 +310,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -327,7 +339,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -356,7 +368,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -385,7 +397,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -414,7 +426,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -463,7 +475,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(result).toBe(mockToken)
+      expect(result.token).toBe(mockToken)
 
       const { jwt } = await import('@/lib/auth')
       expect(jwt.sign).toHaveBeenCalledWith(
@@ -511,7 +523,7 @@ describe('logInWithEmail', () => {
         password: validPassword,
       })
 
-      expect(loginResult).toBe(mockJwtToken)
+      expect(loginResult.token).toBe(mockJwtToken)
 
       // Step 2: Verify JWT contains correct tokenVersion
       const { jwt } = await import('@/lib/auth')

@@ -9,13 +9,13 @@ import logInWithEmail from './login'
 const loginHandler = async (c: Context) => {
   const { email, password } = await c.req.json()
 
-  const token = await logInWithEmail({ email, password })
+  const result = await logInWithEmail({ email, password })
 
   // Set cookie for web browser clients
-  setAuthCookie(c, token)
+  setAuthCookie(c, result.token)
 
-  // Return token in response body for CLI/mobile clients
-  return c.json({ token }, StatusCodes.OK)
+  // Return user and token in response body for CLI/mobile clients (same as signup)
+  return c.json(result, StatusCodes.OK)
 }
 
 export default loginHandler

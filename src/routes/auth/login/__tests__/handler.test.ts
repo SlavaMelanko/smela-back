@@ -7,7 +7,19 @@ import { onError } from '@/middleware'
 import loginRoute from '../index'
 
 // Mock the login function
-const mockLogInWithEmail = mock(() => Promise.resolve('test-jwt-token'))
+const mockLogInWithEmail = mock(() => Promise.resolve({
+  user: {
+    id: 1,
+    firstName: 'Test',
+    lastName: 'User',
+    email: 'test@example.com',
+    role: 'user',
+    status: 'active',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  },
+  token: 'test-jwt-token',
+}))
 
 mock.module('../login', () => ({
   default: mockLogInWithEmail,
@@ -50,7 +62,19 @@ describe('Login Handler with Cookie', () => {
 
       // Check response body
       const data = await res.json()
-      expect(data).toEqual({ token: 'test-jwt-token' })
+      expect(data).toEqual({
+        user: {
+          id: 1,
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          role: 'user',
+          status: 'active',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        token: 'test-jwt-token',
+      })
 
       // Check cookie
       const cookies = res.headers.get('set-cookie')

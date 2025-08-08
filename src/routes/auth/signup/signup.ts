@@ -85,8 +85,7 @@ const signUpWithEmail = async (
     newUser.tokenVersion,
   )
 
-  // Return user without sensitive fields and timestamps
-  const { tokenVersion, createdAt, updatedAt, ...userWithoutSensitiveFields } = newUser
+  const { tokenVersion, ...userWithoutSensitiveFields } = newUser
 
   return { user: userWithoutSensitiveFields, token: jwtToken }
 }
