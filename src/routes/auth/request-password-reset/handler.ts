@@ -9,7 +9,7 @@ const requestPasswordResetHandler = async (c: Context) => {
 
   const result = await requestPasswordReset(email)
 
-  return c.json({ ...result }, StatusCodes.OK)
+  return c.json({ ...result }, StatusCodes.ACCEPTED)
 }
 
 export default requestPasswordResetHandler

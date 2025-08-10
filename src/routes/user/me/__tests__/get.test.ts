@@ -91,10 +91,10 @@ describe('GET /me endpoint', () => {
     expect(getUser).toHaveBeenCalledTimes(1)
   })
 
-  it('should handle user not found', async () => {
-    // Mock getUser to throw not found error
+  it('should handle user not found as data inconsistency', async () => {
+    // Mock getUser to throw internal error for data inconsistency
     mock.module('../me', () => ({
-      getUser: mock(() => Promise.reject(new AppError(ErrorCode.NotFound, 'User not found'))),
+      getUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError))),
       updateUser: mock(() => Promise.resolve(null)),
     }))
 
@@ -105,10 +105,10 @@ describe('GET /me endpoint', () => {
       },
     })
 
-    expect(res.status).toBe(StatusCodes.NOT_FOUND)
+    expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
     const data = await res.json()
-    expect(data.error).toBe('User not found')
+    expect(data.error).toBe('Internal server error')
   })
 
   it('should return same structure as login and signup', async () => {

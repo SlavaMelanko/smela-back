@@ -16,7 +16,9 @@ const getUser = async (userId: number) => {
   const user = await userRepo.findById(userId)
 
   if (!user) {
-    throw new AppError(ErrorCode.NotFound, 'User not found')
+    // This represents a data inconsistency - user has valid JWT,
+    // but doesn't exist in DB.
+    throw new AppError(ErrorCode.InternalError)
   }
 
   return user

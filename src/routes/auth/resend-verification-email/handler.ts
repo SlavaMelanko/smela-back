@@ -9,7 +9,7 @@ const resendVerificationEmailHandler = async (c: Context) => {
 
   const result = await resendVerificationEmail(email)
 
-  return c.json({ ...result }, StatusCodes.OK)
+  return c.json({ ...result }, StatusCodes.ACCEPTED)
 }
 
 export default resendVerificationEmailHandler

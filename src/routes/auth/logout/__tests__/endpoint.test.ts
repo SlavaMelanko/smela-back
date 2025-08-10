@@ -32,11 +32,9 @@ describe('Logout Endpoint', () => {
         },
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
 
-      // Check response body
-      const data = await res.json()
-      expect(data).toEqual({ success: true })
+      // No content returned
 
       // Check cookie deletion
       const cookies = res.headers.get('set-cookie')
@@ -52,10 +50,9 @@ describe('Logout Endpoint', () => {
         method: 'POST',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
 
-      const data = await res.json()
-      expect(data).toEqual({ success: true })
+      // No content returned
 
       // Cookie deletion header should still be sent
       const cookies = res.headers.get('set-cookie')
@@ -76,7 +73,7 @@ describe('Logout Endpoint', () => {
         method: 'POST',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
 
       const cookies = res.headers.get('set-cookie')
       expect(cookies).toBeDefined()
@@ -103,7 +100,7 @@ describe('Logout Endpoint', () => {
         method: 'POST',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
     })
 
     it('should not require Content-Type header', async () => {
@@ -112,7 +109,7 @@ describe('Logout Endpoint', () => {
         method: 'POST',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
     })
 
     it('should ignore request body if provided', async () => {
@@ -124,9 +121,8 @@ describe('Logout Endpoint', () => {
         body: JSON.stringify({ someData: 'ignored' }),
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
-      const data = await res.json()
-      expect(data).toEqual({ success: true })
+      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      // No content returned
     })
   })
 
