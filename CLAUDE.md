@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
 
+- **Runtime:** Bun
+- **Framework:** Hono
+- **Database:** PostgreSQL
+- **ORM:** Drizzle ORM
+- **Authentication:** JWT tokens, bcrypt password hashing
+- **Validation:** Zod
+- **Testing:** Bun's built-in test runner
+- **Linting:** ESLint
+
 ## Key Commands
 
 ### Development
