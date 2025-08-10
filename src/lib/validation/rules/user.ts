@@ -1,18 +1,10 @@
 import { z } from 'zod'
 
+import { withVariants } from '../with-variants'
+
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Z\d@$!%*#?&]{8,}$/i
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
-
-/**
- * Wraps a Zod schema with required and optional variants
- * @param schema - The base Zod schema
- * @returns Object with .req (required) and .opt (optional) properties
- */
-const withVariants = <T extends z.ZodTypeAny>(schema: T) => ({
-  req: schema, // already required by default
-  opt: schema.nullable().optional(), // explicitly made optional
-})
 
 const rules = {
   email: withVariants(

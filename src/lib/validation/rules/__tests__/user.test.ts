@@ -18,7 +18,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of emailsWithoutSpaces) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -38,7 +38,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of emailsWithWhitespace) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -57,7 +57,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of emailsWithBoth) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -78,7 +78,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of structuralEmails) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -97,7 +97,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of edgeCases) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -116,7 +116,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const email of invalidEmails) {
-        const result = rules.email.req.safeParse(email)
+        const result = rules.email.safeParse(email)
         expect(result.success).toBe(false)
       }
     })
@@ -135,7 +135,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const { input, expected } of internationalEmails) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(expected)
@@ -154,7 +154,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const input of whitespaceOnlyInputs) {
-        const result = rules.email.req.safeParse(input)
+        const result = rules.email.safeParse(input)
         expect(result.success).toBe(false)
       }
     })
@@ -171,7 +171,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const email of validEmails) {
-        const result = rules.email.req.safeParse(email)
+        const result = rules.email.safeParse(email)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(email.toLowerCase())
@@ -192,7 +192,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const email of invalidEmails) {
-        const result = rules.email.req.safeParse(email)
+        const result = rules.email.safeParse(email)
         expect(result.success).toBe(false)
       }
     })
@@ -209,7 +209,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const password of validPasswords) {
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(password)
@@ -226,7 +226,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const password of shortPasswords) {
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(false)
       }
     })
@@ -241,7 +241,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const password of passwordsWithLowercase) {
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(password)
@@ -257,7 +257,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const password of noNumberPasswords) {
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(false)
       }
     })
@@ -270,7 +270,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const password of noSpecialCharPasswords) {
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(false)
       }
     })
@@ -280,7 +280,7 @@ describe('User Validation Rules', () => {
 
       for (const char of specialCharacters) {
         const password = `ValidPass123${char}`
-        const result = rules.password.req.safeParse(password)
+        const result = rules.password.safeParse(password)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(password)
@@ -304,7 +304,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const name of validNames) {
-        const result = rules.name.req.safeParse(name)
+        const result = rules.name.safeParse(name)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(name)
@@ -319,7 +319,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const name of shortNames) {
-        const result = rules.name.req.safeParse(name)
+        const result = rules.name.safeParse(name)
         expect(result.success).toBe(false)
       }
     })
@@ -331,7 +331,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const name of longNames) {
-        const result = rules.name.req.safeParse(name)
+        const result = rules.name.safeParse(name)
         expect(result.success).toBe(false)
       }
     })
@@ -343,7 +343,7 @@ describe('User Validation Rules', () => {
       ]
 
       for (const name of boundaryNames) {
-        const result = rules.name.req.safeParse(name)
+        const result = rules.name.safeParse(name)
         expect(result.success).toBe(true)
         if (result.success) {
           expect(result.data).toBe(name)
@@ -352,12 +352,12 @@ describe('User Validation Rules', () => {
     })
   })
 
-  describe('req and opt properties', () => {
-    it('should have .req property for email that works as required', () => {
-      expect(() => rules.email.req.parse('test@example.com')).not.toThrow()
-      expect(() => rules.email.req.parse('')).toThrow()
-      expect(() => rules.email.req.parse(null)).toThrow()
-      expect(() => rules.email.req.parse(undefined)).toThrow()
+  describe('default and opt properties', () => {
+    it('should work as required by default for email', () => {
+      expect(() => rules.email.parse('test@example.com')).not.toThrow()
+      expect(() => rules.email.parse('')).toThrow()
+      expect(() => rules.email.parse(null)).toThrow()
+      expect(() => rules.email.parse(undefined)).toThrow()
     })
 
     it('should have .opt property for email that allows null and undefined', () => {
@@ -367,11 +367,11 @@ describe('User Validation Rules', () => {
       expect(() => rules.email.opt.parse('')).toThrow() // Empty string still fails validation
     })
 
-    it('should have .req property for password that works as required', () => {
-      expect(() => rules.password.req.parse('Password1!')).not.toThrow()
-      expect(() => rules.password.req.parse('')).toThrow()
-      expect(() => rules.password.req.parse(null)).toThrow()
-      expect(() => rules.password.req.parse(undefined)).toThrow()
+    it('should work as required by default for password', () => {
+      expect(() => rules.password.parse('Password1!')).not.toThrow()
+      expect(() => rules.password.parse('')).toThrow()
+      expect(() => rules.password.parse(null)).toThrow()
+      expect(() => rules.password.parse(undefined)).toThrow()
     })
 
     it('should have .opt property for password that allows null and undefined', () => {
@@ -381,11 +381,11 @@ describe('User Validation Rules', () => {
       expect(() => rules.password.opt.parse('weak')).toThrow() // Weak password still fails
     })
 
-    it('should have .req property for name that works as required', () => {
-      expect(() => rules.name.req.parse('John')).not.toThrow()
-      expect(() => rules.name.req.parse('')).toThrow()
-      expect(() => rules.name.req.parse(null)).toThrow()
-      expect(() => rules.name.req.parse(undefined)).toThrow()
+    it('should work as required by default for name', () => {
+      expect(() => rules.name.parse('John')).not.toThrow()
+      expect(() => rules.name.parse('')).toThrow()
+      expect(() => rules.name.parse(null)).toThrow()
+      expect(() => rules.name.parse(undefined)).toThrow()
     })
 
     it('should have .opt property for name that allows null and undefined', () => {
@@ -395,11 +395,11 @@ describe('User Validation Rules', () => {
       expect(() => rules.name.opt.parse('J')).toThrow() // Too short still fails
     })
 
-    it('should work in schemas with required fields using .req', () => {
+    it('should work in schemas with required fields by default', () => {
       const schema = z.object({
-        email: rules.email.req,
-        password: rules.password.req,
-        name: rules.name.req,
+        email: rules.email,
+        password: rules.password,
+        name: rules.name,
       })
 
       const valid = {
@@ -428,10 +428,10 @@ describe('User Validation Rules', () => {
   describe('combined validation (schema-like usage)', () => {
     it('should validate user object with all fields including email normalization', () => {
       const userSchema = z.object({
-        firstName: rules.name.req,
-        lastName: rules.name.req,
-        email: rules.email.req,
-        password: rules.password.req,
+        firstName: rules.name,
+        lastName: rules.name,
+        email: rules.email,
+        password: rules.password,
       })
 
       const validUser = {
@@ -453,10 +453,10 @@ describe('User Validation Rules', () => {
 
     it('should fail validation with invalid fields', () => {
       const userSchema = z.object({
-        firstName: rules.name.req,
-        lastName: rules.name.req,
-        email: rules.email.req,
-        password: rules.password.req,
+        firstName: rules.name,
+        lastName: rules.name,
+        email: rules.email,
+        password: rules.password,
       })
 
       const invalidUser = {
@@ -487,7 +487,7 @@ describe('User Validation Rules', () => {
         'mixed.case+tag@sub.domain.com',
       ]
 
-      const results = emails.map(email => rules.email.req.safeParse(email))
+      const results = emails.map(email => rules.email.safeParse(email))
 
       results.forEach((result, index) => {
         expect(result.success).toBe(true)

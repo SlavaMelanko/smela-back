@@ -1,8 +1,8 @@
 import { buildSchema, userRules } from '@/lib/validation'
 
 const loginSchema = buildSchema({
-  email: userRules.email.req,
-  password: userRules.password.req,
+  email: userRules.email,
+  password: userRules.password,
 })
 
 export default loginSchema
