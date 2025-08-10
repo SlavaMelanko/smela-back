@@ -16,9 +16,9 @@ const getHandler = async (c: Context<AppContext>) => {
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
-  const { firstName, lastName } = await c.req.json()
+  const body = await c.req.json()
 
-  const updatedUser = await updateUser(user.id, { firstName, lastName })
+  const updatedUser = await updateUser(user.id, { ...body })
 
   return c.json({ user: normalizeUser(updatedUser) })
 }

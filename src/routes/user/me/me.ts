@@ -1,5 +1,16 @@
+import type { UpdateUserInput } from '@/repositories/user/types'
+
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
+
+const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
+  const validUpdates: UpdateUserInput = {
+    ...(updates.firstName && { firstName: updates.firstName.trim() }),
+    ...(updates.lastName && { lastName: updates.lastName.trim() }),
+  }
+
+  return validUpdates
+}
 
 const getUser = async (userId: number) => {
   const user = await userRepo.findById(userId)
@@ -11,9 +22,15 @@ const getUser = async (userId: number) => {
   return user
 }
 
-const updateUser = async (userId: number, updates: Partial<{ firstName: string, lastName: string }>) => {
+const updateUser = async (userId: number, updates: UpdateUserInput) => {
+  const validUpdates = prepareValidUpdates(updates)
+
+  if (Object.keys(validUpdates).length === 0) {
+    return getUser(userId)
+  }
+
   const updatedUser = await userRepo.update(userId, {
-    ...updates,
+    ...validUpdates,
     updatedAt: new Date(),
   })
 
