@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+23@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+26@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+23@gmail.com\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+26@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -65,7 +65,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"20b1a7aee168b5a34643a96d9366283f5ea01fbd9d942f4e2667c85c94b45a15\"\n}\n",
+					"raw": "{\n    \"token\": \"09e7b8fcc1ceb2154ee688d284c871da82e94911747095db52934afa7c76e7f5\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -108,7 +108,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+23@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+26@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -142,6 +142,32 @@
 				},
 				"method": "GET",
 				"header": [],
+				"url": {
+					"raw": "{{api_url}}/me",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "me",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Kate\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "{{api_url}}/me",
 					"host": [
