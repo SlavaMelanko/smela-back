@@ -373,8 +373,8 @@ describe('verifyEmail', () => {
         await verifyEmail(mockToken)
         expect(true).toBe(false) // Should not reach here
       } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Failed to update user status')
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InternalError)
       }
 
       expect(tokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
