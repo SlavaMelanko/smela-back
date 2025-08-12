@@ -18,7 +18,6 @@ const mockSignUpWithEmail = mock(() => Promise.resolve({
     status: 'new',
     createdAt: new Date(),
   },
-  token: 'test-jwt-token',
 }))
 
 mock.module('../signup', () => ({
@@ -35,7 +34,7 @@ mock.module('@/lib/env', () => ({
   isDevOrTestEnv: () => false,
 }))
 
-describe('Signup Handler with Cookie', () => {
+describe('Signup Handler', () => {
   let app: Hono
 
   beforeEach(() => {
@@ -45,8 +44,8 @@ describe('Signup Handler with Cookie', () => {
     mockSignUpWithEmail.mockClear()
   })
 
-  describe('POST /auth/signup - Cookie Setting', () => {
-    it('should set cookie with JWT token on successful signup', async () => {
+  describe('POST /auth/signup', () => {
+    it('should return user data without token on successful signup', async () => {
       const res = await app.request('/auth/signup', {
         method: 'POST',
         headers: {
@@ -66,20 +65,12 @@ describe('Signup Handler with Cookie', () => {
       // Check response body
       const data = await res.json()
       expect(data).toHaveProperty('user')
-      expect(data).toHaveProperty('token')
+      expect(data).not.toHaveProperty('token')
       expect(data.user.email).toBe('test@example.com')
-      expect(data.token).toBe('test-jwt-token')
 
-      // Check cookie
+      // Check no cookie is set
       const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('auth-token=test-jwt-token')
-      expect(cookies).toContain('HttpOnly')
-      expect(cookies).toContain('Secure')
-      expect(cookies).toContain('SameSite=Lax')
-      expect(cookies).toContain('Max-Age=3600')
-      expect(cookies).toContain('Path=/')
-      expect(cookies).toContain('Domain=example.com')
+      expect(cookies).toBeNull()
 
       // Verify signup function was called
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
@@ -92,7 +83,7 @@ describe('Signup Handler with Cookie', () => {
       })
     })
 
-    it('should set cookie in development without secure flag', async () => {
+    it('should not set cookie even in development', async () => {
       // Mock dev environment
       mock.module('@/lib/env', () => ({
         default: {
@@ -119,14 +110,9 @@ describe('Signup Handler with Cookie', () => {
 
       expect(res.status).toBe(StatusCodes.CREATED)
 
-      // Check cookie
+      // Check no cookie is set
       const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('auth-token=test-jwt-token')
-      expect(cookies).toContain('HttpOnly')
-      expect(cookies).not.toContain('Secure')
-      expect(cookies).toContain('SameSite=Lax')
-      expect(cookies).not.toContain('Domain=')
+      expect(cookies).toBeNull()
     })
 
     it('should handle signup errors and not set cookie', async () => {
@@ -159,7 +145,7 @@ describe('Signup Handler with Cookie', () => {
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
     })
 
-    it('should return user and token in response body', async () => {
+    it('should return only user data in response body', async () => {
       const res = await app.request('/auth/signup', {
         method: 'POST',
         headers: {
@@ -181,7 +167,7 @@ describe('Signup Handler with Cookie', () => {
       expect(data.user.id).toBe(1)
       expect(data.user.firstName).toBe('John') // From mock
       expect(data.user.email).toBe('test@example.com') // From mock
-      expect(data.token).toBe('test-jwt-token')
+      expect(data).not.toHaveProperty('token')
 
       // Verify the function was called with correct params
       expect(mockSignUpWithEmail).toHaveBeenCalledWith({

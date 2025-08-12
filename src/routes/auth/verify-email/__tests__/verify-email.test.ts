@@ -2,9 +2,20 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { tokenRepo, userRepo } from '@/repositories'
-import { Status, Token, TokenStatus } from '@/types'
+import { Role, Status, Token, TokenStatus } from '@/types'
 
 import verifyEmail from '../verify-email'
+
+// Mock JWT
+const mockJwtSign = mock((id: number, email: string, role: string, status: string, tokenVersion: number) =>
+  Promise.resolve(`mock-jwt-${id}-${email}-${tokenVersion}`),
+)
+
+mock.module('@/lib/auth', () => ({
+  jwt: {
+    sign: mockJwtSign,
+  },
+}))
 
 describe('verifyEmail', () => {
   const mockToken = 'a'.repeat(64) // 64 character token
@@ -20,7 +31,22 @@ describe('verifyEmail', () => {
     updatedAt: new Date(),
   }
 
+  const mockUser = {
+    id: 1,
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    status: Status.Verified,
+    role: Role.User,
+    tokenVersion: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
   beforeEach(() => {
+    // Clear JWT mocks
+    mockJwtSign.mockClear()
+
     // Mock repository methods
     mock.module('@/repositories', () => ({
       tokenRepo: {
@@ -28,14 +54,14 @@ describe('verifyEmail', () => {
         update: mock(() => Promise.resolve()),
       },
       userRepo: {
-        update: mock(() => Promise.resolve()),
+        update: mock(() => Promise.resolve(mockUser)),
       },
       authRepo: {},
     }))
   })
 
   describe('when token is valid and active', () => {
-    it('should mark token as used and return verified status', async () => {
+    it('should mark token as used, update user status, and return user with JWT token', async () => {
       const result = await verifyEmail(mockToken)
 
       expect(tokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
@@ -52,7 +78,22 @@ describe('verifyEmail', () => {
       })
       expect(userRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ status: Status.Verified })
+      // Check JWT generation
+      expect(mockJwtSign).toHaveBeenCalledWith(
+        mockUser.id,
+        mockUser.email,
+        mockUser.role,
+        mockUser.status,
+        mockUser.tokenVersion,
+      )
+      expect(mockJwtSign).toHaveBeenCalledTimes(1)
+
+      // Check response structure
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.user.email).toBe(mockUser.email)
+      expect(result.token).toBe(`mock-jwt-${mockUser.id}-${mockUser.email}-${mockUser.tokenVersion}`)
     })
 
     it('should set correct timestamp when marking token as used', async () => {
@@ -76,7 +117,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -111,7 +152,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -145,7 +186,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -179,7 +220,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -213,7 +254,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -244,7 +285,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -269,7 +310,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.reject(new Error('Token update failed'))),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
@@ -313,6 +354,35 @@ describe('verifyEmail', () => {
     })
   })
 
+  describe('when user update returns null', () => {
+    beforeEach(() => {
+      mock.module('@/repositories', () => ({
+        tokenRepo: {
+          findByToken: mock(() => Promise.resolve(mockTokenRecord)),
+          update: mock(() => Promise.resolve()),
+        },
+        userRepo: {
+          update: mock(() => Promise.resolve(null)),
+        },
+        authRepo: {},
+      }))
+    })
+
+    it('should throw error when user update returns null', async () => {
+      try {
+        await verifyEmail(mockToken)
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Failed to update user status')
+      }
+
+      expect(tokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(tokenRepo.update).toHaveBeenCalledTimes(1)
+      expect(userRepo.update).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle token that is exactly at expiry boundary', async () => {
       const boundaryTokenRecord = {
@@ -326,14 +396,16 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
 
       const result = await verifyEmail(mockToken)
 
-      expect(result).toEqual({ status: Status.Verified })
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      expect(result.user.email).toBe(mockUser.email)
       expect(tokenRepo.update).toHaveBeenCalledTimes(1)
       expect(userRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -350,14 +422,16 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
 
       const result = await verifyEmail(mockToken)
 
-      expect(result).toEqual({ status: Status.Verified })
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      expect(result.user.email).toBe(mockUser.email)
       expect(userRepo.update).toHaveBeenCalledWith(999, {
         status: Status.Verified,
       })
@@ -380,14 +454,16 @@ describe('verifyEmail', () => {
             update: mock(() => Promise.resolve()),
           },
           userRepo: {
-            update: mock(() => Promise.resolve()),
+            update: mock(() => Promise.resolve(mockUser)),
           },
           authRepo: {},
         }))
 
         const result = await verifyEmail(testToken)
 
-        expect(result).toEqual({ status: Status.Verified })
+        expect(result).toHaveProperty('user')
+        expect(result).toHaveProperty('token')
+        expect(result.user.email).toBe(mockUser.email)
         expect(tokenRepo.findByToken).toHaveBeenCalledWith(testToken)
       }
     })
@@ -404,14 +480,16 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))
 
       const result = await verifyEmail(mockToken)
 
-      expect(result).toEqual({ status: Status.Verified })
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      expect(result.user.email).toBe(mockUser.email)
       expect(tokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),
@@ -431,7 +509,7 @@ describe('verifyEmail', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve()),
+          update: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {},
       }))

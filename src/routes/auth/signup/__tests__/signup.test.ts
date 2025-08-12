@@ -20,18 +20,6 @@ mock.module('@/lib/email-agent', () => ({
   },
 }))
 
-// Mock JWT
-const mockJwtSign = mock((id: number, email: string, role: string, status: string, tokenVersion: number) =>
-  Promise.resolve(`mock-jwt-${id}-${email}-${tokenVersion}`),
-)
-
-mock.module('@/lib/auth', () => ({
-  jwt: {
-    sign: mockJwtSign,
-  },
-}))
-
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
@@ -65,9 +53,6 @@ describe('signUpWithEmail', () => {
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
 
   beforeEach(() => {
-    // Clear JWT mocks
-    mockJwtSign.mockClear()
-
     // Mock repository methods
     mock.module('@/repositories', () => ({
       userRepo: {
@@ -123,7 +108,7 @@ describe('signUpWithEmail', () => {
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
-      expect(result.token).toBe(`mock-jwt-${mockNewUser.id}-${mockNewUser.email}-1`)
+      expect(result).not.toHaveProperty('token')
     })
 
     it('should create auth record with hashed password', async () => {
@@ -180,19 +165,11 @@ describe('signUpWithEmail', () => {
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
 
-    it('should generate JWT token for immediate authentication', async () => {
+    it('should not generate JWT token for immediate authentication', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(jwt.sign).toHaveBeenCalledWith(
-        mockNewUser.id,
-        mockNewUser.email,
-        mockNewUser.role,
-        mockNewUser.status,
-        1, // Default tokenVersion for new users
-      )
-      expect(jwt.sign).toHaveBeenCalledTimes(1)
-      expect(result.token).toBeDefined()
-      expect(result.token).toContain('mock-jwt')
+      expect(result).not.toHaveProperty('token')
+      expect(result).toHaveProperty('user')
     })
 
     it('should not return sensitive fields in the response', async () => {

@@ -1,9 +1,15 @@
+import type { User } from '@/repositories/user/types'
+
+import { jwt } from '@/lib/auth'
+import { AppError, ErrorCode } from '@/lib/catch'
 import { TokenValidator } from '@/lib/token'
+import { normalizeUser } from '@/lib/user'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token, TokenStatus } from '@/types'
 
 interface VerifyEmailResult {
-  status: Status
+  user: ReturnType<typeof normalizeUser>
+  token: string
 }
 
 const markTokenAsUsed = async (tokenId: number): Promise<void> => {
@@ -13,11 +19,14 @@ const markTokenAsUsed = async (tokenId: number): Promise<void> => {
   })
 }
 
-const setVerifiedStatus = async (userId: number): Promise<Status> => {
-  const status = Status.Verified
-  await userRepo.update(userId, { status })
+const setVerifiedStatus = async (userId: number): Promise<User> => {
+  const updatedUser = await userRepo.update(userId, { status: Status.Verified })
 
-  return status
+  if (!updatedUser) {
+    throw new AppError(ErrorCode.InternalError)
+  }
+
+  return updatedUser
 }
 
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
@@ -27,9 +36,18 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
 
   await markTokenAsUsed(validatedToken.id)
 
-  const status = await setVerifiedStatus(validatedToken.userId)
+  const updatedUser = await setVerifiedStatus(validatedToken.userId)
 
-  return { status }
+  // Generate JWT token for immediate authentication.
+  const jwtToken = await jwt.sign(
+    updatedUser.id,
+    updatedUser.email,
+    updatedUser.role,
+    updatedUser.status,
+    updatedUser.tokenVersion,
+  )
+
+  return { user: normalizeUser(updatedUser), token: jwtToken }
 }
 
 export { verifyEmail as default, type VerifyEmailResult }
