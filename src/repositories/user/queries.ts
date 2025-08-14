@@ -49,7 +49,7 @@ const findUserByEmail = async (email: string): Promise<User | undefined> => {
 const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User | undefined> => {
   const [updatedUser] = await db
     .update(usersTable)
-    .set(updates)
+    .set({ ...updates, updatedAt: new Date() })
     .where(eq(usersTable.id, userId))
     .returning()
 
@@ -66,7 +66,6 @@ const incrementTokenVersion = async (userId: number): Promise<void> => {
 
   const updatedUser = await updateUser(userId, {
     tokenVersion: user.tokenVersion + 1,
-    updatedAt: new Date(),
   })
 
   if (!updatedUser) {
