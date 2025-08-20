@@ -131,7 +131,6 @@ describe('Signup Endpoint', () => {
     it('should require all required fields', async () => {
       const incompleteRequests = [
         { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' }, // Missing firstName
-        { firstName: 'John', email: 'test@example.com', password: 'ValidPass123!' }, // Missing lastName
         { firstName: 'John', lastName: 'Doe', password: 'ValidPass123!' }, // Missing email
         { firstName: 'John', lastName: 'Doe', email: 'test@example.com' }, // Missing password
         {}, // Missing all fields
@@ -237,6 +236,12 @@ describe('Signup Endpoint', () => {
           lastName: 'Williams',
           email: 'alice123@test-domain.com',
           password: 'ComplexPass2023#',
+        },
+        {
+          firstName: 'John',
+          // lastName is optional
+          email: 'john.nolast@example.com',
+          password: 'ValidPass123!',
         },
       ]
 
@@ -407,12 +412,6 @@ describe('Signup Endpoint', () => {
           email: 'test@example.com',
           password: 'ValidPass123!',
           // missing firstName
-        },
-        {
-          firstName: 'John',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-          // missing lastName
         },
         {
           firstName: 'John',
