@@ -10,8 +10,8 @@ import {
   generalRateLimiter,
   loggerMiddleware,
   onError,
-  relaxedAuthMiddleware,
-  strictAuthMiddleware,
+  userRelaxedAuthMiddleware,
+  userStrictAuthMiddleware,
 } from '@/middleware'
 import { authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
 
@@ -32,8 +32,8 @@ class Server {
       .use(loggerMiddleware)
       .use(generalRateLimiter)
       .use('/auth/*', authRateLimiter)
-      .use('/api/v1/me/*', relaxedAuthMiddleware)
-      .use('/api/v1/*', strictAuthMiddleware)
+      .use('/api/v1/me/*', userRelaxedAuthMiddleware)
+      .use('/api/v1/*', userStrictAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 

@@ -4,7 +4,7 @@ import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
 import { Role, Status } from '@/types'
-import { isActive, isNewOrActive } from '@/types'
+import { isActive, isNewOrActive, isUser } from '@/types'
 
 describe('Dual Auth Middleware - New User Access', () => {
   const mockUserId = 123
@@ -13,18 +13,26 @@ describe('Dual Auth Middleware - New User Access', () => {
   const tokenVersion = 1
 
   // Simulate the core auth logic from the middleware with different validators
-  const simulateAuthLogic = async (token: string, statusValidator: (status: Status) => boolean) => {
+  const simulateAuthLogic = async (
+    token: string,
+    statusValidator: (status: Status) => boolean,
+    roleValidator: (role: Role) => boolean,
+  ) => {
     try {
       const payload = await jwt.verify(token)
 
       if (!statusValidator(payload.status as Status)) {
-        throw new AppError(ErrorCode.Forbidden)
+        throw new AppError(ErrorCode.Forbidden, 'Status validation failures')
+      }
+
+      if (!roleValidator(payload.role as Role)) {
+        throw new AppError(ErrorCode.Forbidden, 'Role validation failures')
       }
 
       // Fetch current user to validate token version
       const user = await userRepo.findById(payload.id as number)
       if (!user || user.tokenVersion !== (payload.v as number)) {
-        throw new AppError(ErrorCode.Unauthorized, 'Invalid token')
+        throw new AppError(ErrorCode.Unauthorized, 'Token version mismatches')
       }
 
       return { success: true, user: payload }
@@ -48,11 +56,12 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(newUserToken, isActive)
+      const result = await simulateAuthLogic(newUserToken, isActive, isUser)
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
+      expect((result.error as AppError).message).toBe('Status validation failures')
     })
 
     it('should accept users with status Verified', async () => {
@@ -65,7 +74,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(verifiedToken, isActive)
+      const result = await simulateAuthLogic(verifiedToken, isActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -81,7 +90,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(trialToken, isActive)
+      const result = await simulateAuthLogic(trialToken, isActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -97,7 +106,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(activeToken, isActive)
+      const result = await simulateAuthLogic(activeToken, isActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -115,7 +124,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(newUserToken, isNewOrActive)
+      const result = await simulateAuthLogic(newUserToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -131,7 +140,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(verifiedToken, isNewOrActive)
+      const result = await simulateAuthLogic(verifiedToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -147,7 +156,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(trialToken, isNewOrActive)
+      const result = await simulateAuthLogic(trialToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -163,7 +172,7 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(activeToken, isNewOrActive)
+      const result = await simulateAuthLogic(activeToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -179,11 +188,12 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(suspendedToken, isNewOrActive)
+      const result = await simulateAuthLogic(suspendedToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
+      expect((result.error as AppError).message).toBe('Status validation failures')
     })
 
     it('should reject users with status Archived', async () => {
@@ -196,11 +206,12 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(archivedToken, isNewOrActive)
+      const result = await simulateAuthLogic(archivedToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
+      expect((result.error as AppError).message).toBe('Status validation failures')
     })
 
     it('should reject users with status Pending', async () => {
@@ -213,11 +224,12 @@ describe('Dual Auth Middleware - New User Access', () => {
         },
       }))
 
-      const result = await simulateAuthLogic(pendingToken, isNewOrActive)
+      const result = await simulateAuthLogic(pendingToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
+      expect((result.error as AppError).message).toBe('Status validation failures')
     })
   })
 
@@ -236,7 +248,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       }))
 
       // Simulate access to /me endpoint with isNewOrActive validator
-      const result = await simulateAuthLogic(newUserToken, isNewOrActive)
+      const result = await simulateAuthLogic(newUserToken, isNewOrActive, isUser)
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
@@ -259,11 +271,12 @@ describe('Dual Auth Middleware - New User Access', () => {
       }))
 
       // Simulate access to verified-only endpoint with isActive validator
-      const result = await simulateAuthLogic(newUserToken, isActive)
+      const result = await simulateAuthLogic(newUserToken, isActive, isUser)
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
+      expect((result.error as AppError).message).toBe('Status validation failures')
     })
   })
 })

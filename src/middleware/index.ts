@@ -1,16 +1,19 @@
 import corsMiddleware from './cors'
-import { relaxedAuthMiddleware, strictAuthMiddleware } from './dual-auth'
+import { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
 import loggerMiddleware from './logger'
 import onError from './on-error'
 import rateLimiterMiddleware, { authRateLimiter, generalRateLimiter } from './rate-limiter'
 
 export {
+  adminAuthMiddleware,
   authRateLimiter,
   corsMiddleware,
+  enterpriseStrictAuthMiddleware,
   generalRateLimiter,
   loggerMiddleware,
   onError,
+  ownerAuthMiddleware,
   rateLimiterMiddleware,
-  relaxedAuthMiddleware,
-  strictAuthMiddleware,
+  userRelaxedAuthMiddleware,
+  userStrictAuthMiddleware,
 }
