@@ -2,15 +2,16 @@ import type { Context, MiddlewareHandler } from 'hono'
 
 import { createMiddleware } from 'hono/factory'
 
+import type { Status } from '@/types'
 import type { AppContext } from '@/types/context'
 
 import { getAuthCookie, jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
-import { isActive } from '@/types'
+import { isActive, isNewOrActive } from '@/types'
 
 const extractToken = (c: Context): string | null => {
-  // First, try to get token from Authorization header
+  // First, try to get token from Authorization header.
   const authHeader = c.req.header('Authorization')
   if (authHeader) {
     const parts = authHeader.split(' ')
@@ -19,7 +20,7 @@ const extractToken = (c: Context): string | null => {
     }
   }
 
-  // If no Authorization header, try to get token from cookie
+  // If no Authorization header, try to get token from cookie.
   const cookieToken = getAuthCookie(c)
   if (cookieToken) {
     return cookieToken
@@ -29,11 +30,12 @@ const extractToken = (c: Context): string | null => {
 }
 
 /**
- * Dual authentication middleware that supports both Bearer token and cookie authentication:
- * - For API/CLI/Mobile: Use Authorization: Bearer <token>
- * - For Browser: Use cookie (automatically set on login)
+ * Factory function to create dual authentication middleware with configurable status validation.
+ * @param statusValidator Function to validate if user status is acceptable.
  */
-const dualAuthMiddleware: MiddlewareHandler<AppContext> = createMiddleware<AppContext>(async (c, next) => {
+const createDualAuthMiddleware = (
+  statusValidator: (status: Status) => boolean,
+): MiddlewareHandler<AppContext> => createMiddleware<AppContext>(async (c, next) => {
   const token = extractToken(c)
 
   if (!token) {
@@ -43,8 +45,8 @@ const dualAuthMiddleware: MiddlewareHandler<AppContext> = createMiddleware<AppCo
   try {
     const payload = await jwt.verify(token)
 
-    if (!isActive(payload.status)) {
-      throw new AppError(ErrorCode.Forbidden, 'Account is not active')
+    if (!statusValidator(payload.status)) {
+      throw new AppError(ErrorCode.Forbidden)
     }
 
     const user = await userRepo.findById(payload.id)
@@ -64,4 +66,17 @@ const dualAuthMiddleware: MiddlewareHandler<AppContext> = createMiddleware<AppCo
   }
 })
 
-export default dualAuthMiddleware
+/**
+ * Strict authentication middleware - requires verified users only.
+ * - For API/CLI/Mobile: Use Authorization: Bearer <token>.
+ * - For Browser: Use cookie (automatically set on login).
+ * - Requires user status to be Verified, Trial, or Active.
+ */
+export const strictAuthMiddleware = createDualAuthMiddleware(isActive)
+
+/**
+ * Relaxed authentication middleware - allows new users.
+ * - Same authentication methods as strictAuthMiddleware.
+ * - Allows users with status New, Verified, Trial, or Active.
+ */
+export const relaxedAuthMiddleware = createDualAuthMiddleware(isNewOrActive)
