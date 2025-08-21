@@ -4,8 +4,16 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/types/context'
 
-import { authRateLimiter, corsMiddleware, dualAuthMiddleware, generalRateLimiter, loggerMiddleware, onError } from '@/middleware'
-import { authRoutes, protectedRoutes } from '@/routes'
+import {
+  authRateLimiter,
+  corsMiddleware,
+  generalRateLimiter,
+  loggerMiddleware,
+  onError,
+  relaxedAuthMiddleware,
+  strictAuthMiddleware,
+} from '@/middleware'
+import { authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>
@@ -24,7 +32,8 @@ class Server {
       .use(loggerMiddleware)
       .use(generalRateLimiter)
       .use('/auth/*', authRateLimiter)
-      .use('/api/v1/*', dualAuthMiddleware)
+      .use('/api/v1/me/*', relaxedAuthMiddleware)
+      .use('/api/v1/*', strictAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 
@@ -33,6 +42,7 @@ class Server {
       this.app.route('/auth', route)
     })
 
+    const protectedRoutes = [...protectedRoutesAllowNew, ...protectedRoutesVerifiedOnly]
     protectedRoutes.forEach((route) => {
       this.app.route('/api/v1', route)
     })

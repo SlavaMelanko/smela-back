@@ -1,3 +1,7 @@
+import type { Hono } from 'hono'
+
+import type { AppContext } from '@/types/context'
+
 import {
   loginRoute,
   logoutRoute,
@@ -19,12 +23,17 @@ const authRoutes = [
   resetPasswordRoute,
 ]
 
-const protectedRoutes = [meRoute]
+// Routes that allow new users (status: new, verified, trial, active)
+const protectedRoutesAllowNew = [meRoute]
 
-const publicRoutes = []
+// Routes that require verified users only (status: verified, trial, active)
+const protectedRoutesVerifiedOnly: Hono<AppContext>[] = []
+
+const publicRoutes: Hono<AppContext>[] = []
 
 export {
   authRoutes,
-  protectedRoutes,
+  protectedRoutesAllowNew,
+  protectedRoutesVerifiedOnly,
   publicRoutes,
 }
