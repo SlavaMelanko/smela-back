@@ -12,4 +12,6 @@ const isActive = (status: Status) => status === Status.Verified
   || status === Status.Trial
   || status === Status.Active
 
-export { Status as default, isActive }
+const isNewOrActive = (status: Status) => status === Status.New || isActive(status)
+
+export { Status as default, isActive, isNewOrActive }
