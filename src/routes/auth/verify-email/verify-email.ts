@@ -38,7 +38,6 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
 
   const updatedUser = await setVerifiedStatus(validatedToken.userId)
 
-  // Generate JWT token for immediate authentication.
   const jwtToken = await jwt.sign(
     updatedUser.id,
     updatedUser.email,

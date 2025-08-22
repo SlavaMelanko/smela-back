@@ -13,14 +13,14 @@ describe('Verify Email Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', verifyEmailRoute)
+    app.route('/api/v1/auth', verifyEmailRoute)
   })
 
   describe('POST /auth/verify-email', () => {
     it('should return 200 when request is valid', async () => {
       const validToken = 'a'.repeat(64) // 64 character token
 
-      const res = await app.request('/auth/verify-email', {
+      const res = await app.request('/api/v1/auth/verify-email', {
         method: 'POST',
         body: JSON.stringify({ token: validToken }),
         headers: {
@@ -44,7 +44,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of invalidTokens) {
-        const res = await app.request('/auth/verify-email', {
+        const res = await app.request('/api/v1/auth/verify-email', {
           method: 'POST',
           body: JSON.stringify({ token }),
           headers: {
@@ -59,7 +59,7 @@ describe('Verify Email Endpoint', () => {
     })
 
     it('should require token parameter', async () => {
-      const res = await app.request('/auth/verify-email', {
+      const res = await app.request('/api/v1/auth/verify-email', {
         method: 'POST',
         body: JSON.stringify({}),
         headers: {
@@ -99,7 +99,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of validTokens) {
-        const res = await app.request('/auth/verify-email', {
+        const res = await app.request('/api/v1/auth/verify-email', {
           method: 'POST',
           body: JSON.stringify({ token }),
           headers: {
@@ -120,7 +120,7 @@ describe('Verify Email Endpoint', () => {
     it('should handle special characters in token', async () => {
       const tokenWithSpecialChars = 'abc123def456ghi789jkl012mno345pqr678stu901vwx234yzA567BCD890EFG123'
 
-      const res = await app.request('/auth/verify-email', {
+      const res = await app.request('/api/v1/auth/verify-email', {
         method: 'POST',
         body: JSON.stringify({ token: tokenWithSpecialChars }),
         headers: {
@@ -134,7 +134,7 @@ describe('Verify Email Endpoint', () => {
     it('should handle extra fields in request body', async () => {
       const validToken = 'a'.repeat(64)
 
-      const res = await app.request('/auth/verify-email', {
+      const res = await app.request('/api/v1/auth/verify-email', {
         method: 'POST',
         body: JSON.stringify({ token: validToken, extra: 'value', another: 'param' }),
         headers: {
@@ -152,7 +152,7 @@ describe('Verify Email Endpoint', () => {
     })
 
     it('should handle empty request body', async () => {
-      const res = await app.request('/auth/verify-email', {
+      const res = await app.request('/api/v1/auth/verify-email', {
         method: 'POST',
         body: JSON.stringify({}),
         headers: {
@@ -174,7 +174,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const body of malformedBodies) {
-        const res = await app.request('/auth/verify-email', {
+        const res = await app.request('/api/v1/auth/verify-email', {
           method: 'POST',
           body: typeof body === 'string' ? body : JSON.stringify(body),
           headers: {

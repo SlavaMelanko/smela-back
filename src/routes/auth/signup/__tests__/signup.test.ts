@@ -10,6 +10,8 @@ mock.module('@/lib/env', () => ({
         name: 'Test System',
       },
     }),
+    JWT_SECRET: 'test-jwt-secret',
+    JWT_COOKIE_NAME: 'auth-token',
   },
 }))
 
@@ -17,6 +19,13 @@ mock.module('@/lib/env', () => ({
 mock.module('@/lib/email-agent', () => ({
   emailAgent: {
     sendWelcomeEmail: mock(() => Promise.resolve()),
+  },
+}))
+
+// Mock JWT module
+mock.module('@/lib/auth', () => ({
+  jwt: {
+    sign: mock(() => Promise.resolve('mock-jwt-token')),
   },
 }))
 
@@ -108,7 +117,8 @@ describe('signUpWithEmail', () => {
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
-      expect(result).not.toHaveProperty('token')
+      expect(result).toHaveProperty('token')
+      expect(result.token).toBe('mock-jwt-token')
     })
 
     it('should create auth record with hashed password', async () => {
@@ -165,10 +175,11 @@ describe('signUpWithEmail', () => {
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
 
-    it('should not generate JWT token for immediate authentication', async () => {
+    it('should generate JWT token for immediate authentication', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(result).not.toHaveProperty('token')
+      expect(result).toHaveProperty('token')
+      expect(result.token).toBe('mock-jwt-token')
       expect(result).toHaveProperty('user')
     })
 

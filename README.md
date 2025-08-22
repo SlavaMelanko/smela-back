@@ -78,28 +78,34 @@ Server will start on <http://localhost:3000>
 
 ### Authentication Routes
 
-| Method | Endpoint                          | Description                        | Authentication |
-| ------ | --------------------------------- | ---------------------------------- | -------------- |
-| `POST` | `/auth/signup`                    | User registration                  | Public         |
-| `POST` | `/auth/login`                     | User login                         | Public         |
-| `POST` | `/auth/verify-email`              | Email verification (token in body) | Public         |
-| `POST` | `/auth/resend-verification-email` | Resend verification email          | Public         |
-| `POST` | `/auth/request-password-reset`    | Request password reset             | Public         |
-| `POST` | `/auth/reset-password`            | Reset password with token          | Public         |
+| Method | Endpoint                                   | Description                        | Authentication |
+| ------ | ------------------------------------------ | ---------------------------------- | -------------- |
+| `POST` | `/api/v1/auth/signup`                      | User registration                  | Public         |
+| `POST` | `/api/v1/auth/login`                       | User login                         | Public         |
+| `POST` | `/api/v1/auth/verify-email`                | Email verification (token in body) | Public         |
+| `POST` | `/api/v1/auth/resend-verification-email`   | Resend verification email          | Public         |
+| `POST` | `/api/v1/auth/request-password-reset`      | Request password reset             | Public         |
+| `POST` | `/api/v1/auth/reset-password`              | Reset password with token          | Public         |
 
-### Protected Routes
+### Protected Routes (Allow New Users)
 
-| Method | Endpoint     | Description              | Authentication |
-| ------ | ------------ | ------------------------ | -------------- |
-| `GET`  | `/api/v1/me` | Get current user profile | JWT Required   |
-| `POST` | `/api/v1/me` | Update user profile      | JWT Required   |
+| Method | Endpoint                  | Description              | Authentication           |
+| ------ | ------------------------- | ------------------------ | ------------------------ |
+| `GET`  | `/api/v1/protected/me`    | Get current user profile | JWT Required (New+)      |
+| `POST` | `/api/v1/protected/me`    | Update user profile      | JWT Required (New+)      |
+
+### Private Routes (Verified Users Only)
+
+| Method | Endpoint                  | Description              | Authentication           |
+| ------ | ------------------------- | ------------------------ | ------------------------ |
+| -      | -                         | Currently empty          | JWT Required (Verified+) |
 
 ### Example API Usage
 
 #### User Registration
 
 ```bash
-curl -X POST http://localhost:3000/auth/signup \
+curl -X POST http://localhost:3000/api/v1/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -128,7 +134,7 @@ Response:
 #### User Login
 
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -157,7 +163,7 @@ Response:
 #### Email Verification
 
 ```bash
-curl -X POST http://localhost:3000/auth/verify-email \
+curl -X POST http://localhost:3000/api/v1/auth/verify-email \
   -H "Content-Type: application/json" \
   -d '{
     "token": "your-64-character-verification-token"
@@ -167,7 +173,7 @@ curl -X POST http://localhost:3000/auth/verify-email \
 #### Password Reset Request
 
 ```bash
-curl -X POST http://localhost:3000/auth/request-password-reset \
+curl -X POST http://localhost:3000/api/v1/auth/request-password-reset \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com"
@@ -177,7 +183,7 @@ curl -X POST http://localhost:3000/auth/request-password-reset \
 #### Password Reset
 
 ```bash
-curl -X POST http://localhost:3000/auth/reset-password \
+curl -X POST http://localhost:3000/api/v1/auth/reset-password \
   -H "Content-Type: application/json" \
   -d '{
     "token": "your-reset-token-from-email",
@@ -188,7 +194,7 @@ curl -X POST http://localhost:3000/auth/reset-password \
 #### Get Current User Profile (Protected)
 
 ```bash
-curl -X GET http://localhost:3000/api/v1/me \
+curl -X GET http://localhost:3000/api/v1/protected/me \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -212,7 +218,7 @@ Response:
 #### Update Profile (Protected)
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/me \
+curl -X POST http://localhost:3000/api/v1/protected/me \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{

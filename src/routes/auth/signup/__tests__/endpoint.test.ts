@@ -13,12 +13,12 @@ describe('Signup Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', signupRoute)
+    app.route('/api/v1/auth', signupRoute)
   })
 
   describe('POST /auth/signup', () => {
     it('should return 201 when request is valid', async () => {
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ describe('Signup Endpoint', () => {
       ]
 
       for (const body of invalidFirstNames) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ describe('Signup Endpoint', () => {
       ]
 
       for (const body of invalidLastNames) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ describe('Signup Endpoint', () => {
       ]
 
       for (const body of invalidEmails) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ describe('Signup Endpoint', () => {
       ]
 
       for (const body of invalidPasswords) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ describe('Signup Endpoint', () => {
       ]
 
       for (const body of incompleteRequests) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ describe('Signup Endpoint', () => {
     })
 
     it('should require Content-Type header', async () => {
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         body: JSON.stringify({
           firstName: 'John',
@@ -166,7 +166,7 @@ describe('Signup Endpoint', () => {
     })
 
     it('should handle malformed JSON', async () => {
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ describe('Signup Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/auth/signup', {
+        const res = await app.request('/api/v1/auth/signup', {
           method,
           headers: {
             'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ describe('Signup Endpoint', () => {
     })
 
     it('should handle missing request body', async () => {
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

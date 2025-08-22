@@ -20,12 +20,12 @@ describe('Logout Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', logoutRoute)
+    app.route('/api/v1/auth', logoutRoute)
   })
 
   describe('POST /auth/logout', () => {
     it('should clear authentication cookie', async () => {
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
         headers: {
           Cookie: 'auth-token=existing-token',
@@ -46,7 +46,7 @@ describe('Logout Endpoint', () => {
     })
 
     it('should work even without existing cookie', async () => {
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -69,7 +69,7 @@ describe('Logout Endpoint', () => {
         },
       }))
 
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -86,7 +86,7 @@ describe('Logout Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/auth/logout', {
+        const res = await app.request('/api/v1/auth/logout', {
           method,
         })
 
@@ -96,7 +96,7 @@ describe('Logout Endpoint', () => {
 
     it('should not require authentication to logout', async () => {
       // Test without any authentication headers/cookies
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -105,7 +105,7 @@ describe('Logout Endpoint', () => {
 
     it('should not require Content-Type header', async () => {
       // Logout doesn't need a request body
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -113,7 +113,7 @@ describe('Logout Endpoint', () => {
     })
 
     it('should ignore request body if provided', async () => {
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ describe('Logout Endpoint', () => {
 
   describe('Cookie Deletion Mechanics', () => {
     it('should set Max-Age=0 to delete cookie', async () => {
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -140,7 +140,7 @@ describe('Logout Endpoint', () => {
     })
 
     it('should match the same path as login cookie', async () => {
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
@@ -158,7 +158,7 @@ describe('Logout Endpoint', () => {
         },
       }))
 
-      const res = await app.request('/auth/logout', {
+      const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 

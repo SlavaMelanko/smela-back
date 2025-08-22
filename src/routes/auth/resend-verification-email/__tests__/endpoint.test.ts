@@ -13,12 +13,12 @@ describe('Resend Verification Email Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', resendVerificationEmailRoute)
+    app.route('/api/v1/auth', resendVerificationEmailRoute)
   })
 
   describe('POST /auth/resend-verification-email', () => {
     it('should return 200 when request is valid', async () => {
-      const res = await app.request('/auth/resend-verification-email', {
+      const res = await app.request('/api/v1/auth/resend-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const body of invalidEmails) {
-        const res = await app.request('/auth/resend-verification-email', {
+        const res = await app.request('/api/v1/auth/resend-verification-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ describe('Resend Verification Email Endpoint', () => {
     })
 
     it('should require Content-Type header', async () => {
-      const res = await app.request('/auth/resend-verification-email', {
+      const res = await app.request('/api/v1/auth/resend-verification-email', {
         method: 'POST',
         body: JSON.stringify({
           email: 'test@example.com',
@@ -70,7 +70,7 @@ describe('Resend Verification Email Endpoint', () => {
     })
 
     it('should handle malformed JSON', async () => {
-      const res = await app.request('/auth/resend-verification-email', {
+      const res = await app.request('/api/v1/auth/resend-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ describe('Resend Verification Email Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/auth/resend-verification-email', {
+        const res = await app.request('/api/v1/auth/resend-verification-email', {
           method,
           headers: {
             'Content-Type': 'application/json',

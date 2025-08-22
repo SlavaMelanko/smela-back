@@ -21,7 +21,7 @@ import { authRateLimiter, createRateLimiter, generalRateLimiter } from '@/middle
 const app = new Hono()
 
 // Use predefined limiters
-app.use('/auth/*', authRateLimiter)
+app.use('/api/v1/auth/*', authRateLimiter)
 app.use('/api/*', generalRateLimiter)
 
 // Create custom limiters
@@ -40,12 +40,12 @@ For authentication endpoints (login, registration, password reset).
 
 - **Production**: 5 attempts per 15 minutes
 - **Development/Test**: 1000 attempts per 15 minutes
-- **Use cases**: `/auth/login`, `/auth/register`, `/auth/reset-password`
+- **Use cases**: `/api/v1/auth/login`, `/api/v1/auth/signup`, `/api/v1/auth/reset-password`
 
 ```typescript
 import { authRateLimiter } from '@/middleware/rate-limiter'
 
-app.use('/auth/*', authRateLimiter)
+app.use('/api/v1/auth/*', authRateLimiter)
 ```
 
 ### `generalRateLimiter`

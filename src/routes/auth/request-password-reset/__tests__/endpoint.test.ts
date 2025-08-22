@@ -13,12 +13,12 @@ describe('Request Password Reset Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', requestPasswordResetRoute)
+    app.route('/api/v1/auth', requestPasswordResetRoute)
   })
 
   describe('POST /auth/request-password-reset', () => {
     it('should return 200 when request is valid', async () => {
-      const res = await app.request('/auth/request-password-reset', {
+      const res = await app.request('/api/v1/auth/request-password-reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ describe('Request Password Reset Endpoint', () => {
       ]
 
       for (const body of invalidEmails) {
-        const res = await app.request('/auth/request-password-reset', {
+        const res = await app.request('/api/v1/auth/request-password-reset', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ describe('Request Password Reset Endpoint', () => {
     })
 
     it('should require Content-Type header', async () => {
-      const res = await app.request('/auth/request-password-reset', {
+      const res = await app.request('/api/v1/auth/request-password-reset', {
         method: 'POST',
         body: JSON.stringify({
           email: 'test@example.com',
@@ -70,7 +70,7 @@ describe('Request Password Reset Endpoint', () => {
     })
 
     it('should handle malformed JSON', async () => {
-      const res = await app.request('/auth/request-password-reset', {
+      const res = await app.request('/api/v1/auth/request-password-reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ describe('Request Password Reset Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/auth/request-password-reset', {
+        const res = await app.request('/api/v1/auth/request-password-reset', {
           method,
           headers: {
             'Content-Type': 'application/json',

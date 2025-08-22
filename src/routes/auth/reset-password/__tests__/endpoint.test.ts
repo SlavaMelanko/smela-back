@@ -20,7 +20,7 @@ describe('Reset Password Endpoint', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', resetPasswordRoute)
+    app.route('/api/v1/auth', resetPasswordRoute)
     mockResetPassword.mockClear()
   })
 
@@ -31,7 +31,7 @@ describe('Reset Password Endpoint', () => {
 
   describe('POST /auth/reset-password', () => {
     it('should reset password successfully with valid input', async () => {
-      const res = await app.request('/auth/reset-password', {
+      const res = await app.request('/api/v1/auth/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ describe('Reset Password Endpoint', () => {
 
     describe('token validation', () => {
       it('should reject short token', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject long token', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject missing token', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ describe('Reset Password Endpoint', () => {
 
     describe('password validation', () => {
       it('should reject short password', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject password without special characters', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject password without numbers', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject password without letters', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should reject missing password', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ describe('Reset Password Endpoint', () => {
 
     describe('request validation', () => {
       it('should reject empty body', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should handle malformed JSON', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ describe('Reset Password Endpoint', () => {
       })
 
       it('should require Content-Type header', async () => {
-        const res = await app.request('/auth/reset-password', {
+        const res = await app.request('/api/v1/auth/reset-password', {
           method: 'POST',
           body: JSON.stringify(validPayload),
         })
@@ -246,7 +246,7 @@ describe('Reset Password Endpoint', () => {
         const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
         for (const method of methods) {
-          const res = await app.request('/auth/reset-password', {
+          const res = await app.request('/api/v1/auth/reset-password', {
             method,
             headers: {
               'Content-Type': 'application/json',

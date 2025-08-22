@@ -1,5 +1,6 @@
 import type { Role } from '@/types'
 
+import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
@@ -76,7 +77,15 @@ const signUpWithEmail = async (
     token: secureToken,
   })
 
-  return { user: normalizeUser(newUser) }
+  const jwtToken = await jwt.sign(
+    newUser.id,
+    newUser.email,
+    newUser.role,
+    newUser.status,
+    newUser.tokenVersion,
+  )
+
+  return { user: normalizeUser(newUser), token: jwtToken }
 }
 
 export default signUpWithEmail

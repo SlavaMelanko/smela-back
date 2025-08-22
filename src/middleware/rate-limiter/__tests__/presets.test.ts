@@ -13,9 +13,9 @@ describe('Rate Limiter Presets', () => {
   describe('authRateLimiter', () => {
     it('should have restrictive limits for authentication', async () => {
       app.use(authRateLimiter)
-      app.post('/auth/login', c => c.json({ success: true }))
+      app.post('/api/v1/auth/login', c => c.json({ success: true }))
 
-      const res = await app.request('/auth/login', { method: 'POST' })
+      const res = await app.request('/api/v1/auth/login', { method: 'POST' })
 
       expect(res.status).toBe(200)
       // In test environment, should have high limit (1000)
@@ -31,19 +31,19 @@ describe('Rate Limiter Presets', () => {
         return mockAuthLimiter(c, next)
       })
 
-      app.post('/auth/login', c => c.json({ success: true }))
+      app.post('/api/v1/auth/login', c => c.json({ success: true }))
 
       // The custom message is "Too many authentication attempts, please try again later."
       // This is tested indirectly by checking the preset exists and works
-      const res = await app.request('/auth/login', { method: 'POST' })
+      const res = await app.request('/api/v1/auth/login', { method: 'POST' })
       expect(res.status).toBe(200)
     })
 
     it('should skip rate limiting with X-Skip-Rate-Limit header in test environment', async () => {
       app.use(authRateLimiter)
-      app.post('/auth/login', c => c.json({ success: true }))
+      app.post('/api/v1/auth/login', c => c.json({ success: true }))
 
-      const res = await app.request('/auth/login', {
+      const res = await app.request('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'X-Skip-Rate-Limit': 'true' },
       })

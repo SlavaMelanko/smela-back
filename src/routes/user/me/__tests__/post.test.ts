@@ -58,12 +58,12 @@ describe('POST /me endpoint', () => {
     app.onError(onError)
 
     // Add middleware that sets user from JWT
-    app.use('/api/v1/*', async (c, next) => {
+    app.use('/api/v1/protected/*', async (c, next) => {
       c.set('user', mockJwtPayload)
       await next()
     })
 
-    app.route('/api/v1', meRoute)
+    app.route('/api/v1/protected', meRoute)
   })
 
   it('should update user profile successfully', async () => {
@@ -73,7 +73,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.'))),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should validate input data - empty strings', async () => {
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -183,7 +183,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUserMinimal)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ describe('POST /me endpoint', () => {
       updateUser: mockUpdateUser,
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -277,7 +277,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -299,7 +299,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should reject empty strings at validation level', async () => {
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -340,7 +340,7 @@ describe('POST /me endpoint', () => {
       updateUser: mockUpdateUser,
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -369,7 +369,7 @@ describe('POST /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

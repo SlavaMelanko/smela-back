@@ -54,19 +54,20 @@ Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono fr
 ### Route Organization
 
 - Public routes: `/` (currently empty)
-- Auth routes: `/auth/*` (login, signup, email verification, resend verification, password reset)
-- Private routes: `/api/v1/*` (JWT-protected endpoints)
+- Auth routes: `/api/v1/auth/*` (login, signup, email verification, resend verification, password reset)
+- Protected routes: `/api/v1/protected/*` (JWT-protected endpoints, allows new users)
+- Private routes: `/api/v1/private/*` (JWT-protected endpoints, requires verified users)
 
 ### Auth Routes Details
 
 All auth routes accept POST requests:
 
-- `/auth/signup` - User registration
-- `/auth/login` - User authentication
-- `/auth/verify-email` - Email verification (accepts token in JSON body)
-- `/auth/resend-verification-email` - Resend verification email
-- `/auth/request-password-reset` - Request password reset
-- `/auth/reset-password` - Reset password with token
+- `/api/v1/auth/signup` - User registration
+- `/api/v1/auth/login` - User authentication
+- `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
+- `/api/v1/auth/resend-verification-email` - Resend verification email
+- `/api/v1/auth/request-password-reset` - Request password reset
+- `/api/v1/auth/reset-password` - Reset password with token
 
 ### Database Schema
 

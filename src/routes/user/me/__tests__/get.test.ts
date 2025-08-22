@@ -34,12 +34,12 @@ describe('GET /me endpoint', () => {
     app.onError(onError)
 
     // Add middleware that sets user from JWT
-    app.use('/api/v1/*', async (c, next) => {
+    app.use('/api/v1/protected/*', async (c, next) => {
       c.set('user', mockJwtPayload)
       await next()
     })
 
-    app.route('/api/v1', meRoute)
+    app.route('/api/v1/protected', meRoute)
 
     // Mock the business logic functions
     mock.module('../me', () => ({
@@ -49,7 +49,7 @@ describe('GET /me endpoint', () => {
   })
 
   it('should return full user data without tokenVersion', async () => {
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'GET',
       headers: {
         Authorization: 'Bearer mock-token',
@@ -98,7 +98,7 @@ describe('GET /me endpoint', () => {
       updateUser: mock(() => Promise.resolve(null)),
     }))
 
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'GET',
       headers: {
         Authorization: 'Bearer mock-token',
@@ -112,7 +112,7 @@ describe('GET /me endpoint', () => {
   })
 
   it('should return same structure as login and signup', async () => {
-    const res = await app.request('/api/v1/me', {
+    const res = await app.request('/api/v1/protected/me', {
       method: 'GET',
       headers: {
         Authorization: 'Bearer mock-token',

@@ -11,10 +11,8 @@ const verifyEmailHandler = async (c: Context) => {
 
   const result = await verifyEmail(token)
 
-  // Set cookie for web browser clients.
   setAuthCookie(c, result.token)
 
-  // Return user and token in response body for CLI/mobile clients.
   return c.json(result, StatusCodes.OK)
 }
 

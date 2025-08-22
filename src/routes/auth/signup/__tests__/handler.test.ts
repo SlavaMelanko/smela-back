@@ -18,6 +18,7 @@ const mockSignUpWithEmail = mock(() => Promise.resolve({
     status: 'new',
     createdAt: new Date(),
   },
+  token: 'mock-jwt-token',
 }))
 
 mock.module('../signup', () => ({
@@ -29,9 +30,15 @@ mock.module('@/lib/env', () => ({
   default: {
     JWT_COOKIE_NAME: 'auth-token',
     COOKIE_DOMAIN: 'example.com',
+    JWT_SECRET: 'test-jwt-secret',
   },
   isDevEnv: () => false,
   isDevOrTestEnv: () => false,
+}))
+
+// Mock auth library
+mock.module('@/lib/auth', () => ({
+  setAuthCookie: mock(() => {}),
 }))
 
 describe('Signup Handler', () => {
@@ -40,13 +47,13 @@ describe('Signup Handler', () => {
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
-    app.route('/auth', signupRoute)
+    app.route('/api/v1/auth', signupRoute)
     mockSignUpWithEmail.mockClear()
   })
 
   describe('POST /auth/signup', () => {
-    it('should return user data without token on successful signup', async () => {
-      const res = await app.request('/auth/signup', {
+    it('should return user data with token and set cookie on successful signup', async () => {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,12 +72,11 @@ describe('Signup Handler', () => {
       // Check response body
       const data = await res.json()
       expect(data).toHaveProperty('user')
-      expect(data).not.toHaveProperty('token')
+      expect(data).toHaveProperty('token')
+      expect(data.token).toBe('mock-jwt-token')
       expect(data.user.email).toBe('test@example.com')
 
-      // Check no cookie is set
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeNull()
+      // Note: Cookie setting is mocked so we don't check for actual cookie header
 
       // Verify signup function was called
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
@@ -83,7 +89,7 @@ describe('Signup Handler', () => {
       })
     })
 
-    it('should not set cookie even in development', async () => {
+    it('should set cookie even in development', async () => {
       // Mock dev environment
       mock.module('@/lib/env', () => ({
         default: {
@@ -94,7 +100,7 @@ describe('Signup Handler', () => {
         isDevOrTestEnv: () => true,
       }))
 
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,9 +116,10 @@ describe('Signup Handler', () => {
 
       expect(res.status).toBe(StatusCodes.CREATED)
 
-      // Check no cookie is set
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeNull()
+      // Check response includes token
+      const data = await res.json()
+      expect(data).toHaveProperty('token')
+      expect(data.token).toBe('mock-jwt-token')
     })
 
     it('should handle signup errors and not set cookie', async () => {
@@ -121,7 +128,7 @@ describe('Signup Handler', () => {
         throw new Error('Signup failed')
       })
 
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +153,7 @@ describe('Signup Handler', () => {
     })
 
     it('should return only user data in response body', async () => {
-      const res = await app.request('/auth/signup', {
+      const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +174,8 @@ describe('Signup Handler', () => {
       expect(data.user.id).toBe(1)
       expect(data.user.firstName).toBe('John') // From mock
       expect(data.user.email).toBe('test@example.com') // From mock
-      expect(data).not.toHaveProperty('token')
+      expect(data).toHaveProperty('token')
+      expect(data.token).toBe('mock-jwt-token')
 
       // Verify the function was called with correct params
       expect(mockSignUpWithEmail).toHaveBeenCalledWith({

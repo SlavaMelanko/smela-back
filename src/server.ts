@@ -31,20 +31,23 @@ class Server {
       .use(requestId())
       .use(loggerMiddleware)
       .use(generalRateLimiter)
-      .use('/auth/*', authRateLimiter)
-      .use('/api/v1/me/*', userRelaxedAuthMiddleware)
-      .use('/api/v1/*', userStrictAuthMiddleware)
+      .use('/api/v1/auth/*', authRateLimiter)
+      .use('/api/v1/protected/*', userRelaxedAuthMiddleware)
+      .use('/api/v1/private/*', userStrictAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 
   private setupRoutes() {
     authRoutes.forEach((route) => {
-      this.app.route('/auth', route)
+      this.app.route('/api/v1/auth', route)
     })
 
-    const protectedRoutes = [...protectedRoutesAllowNew, ...protectedRoutesVerifiedOnly]
-    protectedRoutes.forEach((route) => {
-      this.app.route('/api/v1', route)
+    protectedRoutesAllowNew.forEach((route) => {
+      this.app.route('/api/v1/protected', route)
+    })
+
+    protectedRoutesVerifiedOnly.forEach((route) => {
+      this.app.route('/api/v1/private', route)
     })
   }
 
