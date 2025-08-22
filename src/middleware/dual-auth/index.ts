@@ -1,67 +1,48 @@
-import type { Context, MiddlewareHandler } from 'hono'
+import { isActive, isActiveOnly, isAdmin, isEnterprise, isNewOrActive, isOwner, isUser } from '@/types'
 
-import { createMiddleware } from 'hono/factory'
-
-import type { AppContext } from '@/types/context'
-
-import { getAuthCookie, jwt } from '@/lib/auth'
-import { AppError, ErrorCode } from '@/lib/catch'
-import { userRepo } from '@/repositories'
-import { isActive } from '@/types'
-
-const extractToken = (c: Context): string | null => {
-  // First, try to get token from Authorization header
-  const authHeader = c.req.header('Authorization')
-  if (authHeader) {
-    const parts = authHeader.split(' ')
-    if (parts.length === 2 && parts[0] === 'Bearer') {
-      return parts[1]
-    }
-  }
-
-  // If no Authorization header, try to get token from cookie
-  const cookieToken = getAuthCookie(c)
-  if (cookieToken) {
-    return cookieToken
-  }
-
-  return null
-}
+import createDualAuthMiddleware from './factory'
 
 /**
- * Dual authentication middleware that supports both Bearer token and cookie authentication:
- * - For API/CLI/Mobile: Use Authorization: Bearer <token>
- * - For Browser: Use cookie (automatically set on login)
+ * Strict user authentication middleware - requires verified users only.
+ * - For API/CLI/Mobile: Use Authorization: Bearer <token>.
+ * - For Browser: Use cookie (automatically set on login).
+ * - Requires user status to be Verified, Trial, or Active.
+ * - Requires user role to be User or Enterprise.
  */
-const dualAuthMiddleware: MiddlewareHandler<AppContext> = createMiddleware<AppContext>(async (c, next) => {
-  const token = extractToken(c)
+export const userStrictAuthMiddleware = createDualAuthMiddleware(isActive, isUser)
 
-  if (!token) {
-    throw new AppError(ErrorCode.Unauthorized, 'No authentication token provided')
-  }
+/**
+ * Relaxed user authentication middleware - allows new users.
+ * - Same authentication methods as userStrictAuthMiddleware.
+ * - Allows users with status New, Verified, Trial, or Active.
+ * - Requires user role to be User or Enterprise.
+ */
+export const userRelaxedAuthMiddleware = createDualAuthMiddleware(isNewOrActive, isUser)
 
-  try {
-    const payload = await jwt.verify(token)
+/**
+ * Strict enterprise authentication middleware - requires fully active enterprise users only.
+ * - For API/CLI/Mobile: Use Authorization: Bearer <token>.
+ * - For Browser: Use cookie (automatically set on login).
+ * - Requires user status to be exactly Active (not Verified or Trial).
+ * - Requires user role to be Enterprise only (not User).
+ */
+export const enterpriseStrictAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isEnterprise)
 
-    if (!isActive(payload.status)) {
-      throw new AppError(ErrorCode.Forbidden, 'Account is not active')
-    }
+/**
+ * Admin authentication middleware - requires admin privileges.
+ * - For API/CLI/Mobile: Use Authorization: Bearer <token>.
+ * - For Browser: Use cookie (automatically set on login).
+ * - Requires user status to be exactly Active (not Verified or Trial).
+ * - Requires user role to be Admin or Owner.
+ */
+export const adminAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isAdmin)
 
-    const user = await userRepo.findById(payload.id)
-    if (!user || user.tokenVersion !== payload.v) {
-      throw new AppError(ErrorCode.Unauthorized, 'Invalid token')
-    }
-
-    c.set('user', payload)
-
-    await next()
-  } catch (error) {
-    if (error instanceof AppError) {
-      throw error
-    }
-
-    throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
-  }
-})
-
-export default dualAuthMiddleware
+/**
+ * Owner authentication middleware - requires owner privileges.
+ * - For API/CLI/Mobile: Use Authorization: Bearer <token>.
+ * - For Browser: Use cookie (automatically set on login).
+ * - Requires user status to be exactly Active (not Verified or Trial).
+ * - Requires user role to be Owner only.
+ * - Use this for critical operations like adding/removing admins.
+ */
+export const ownerAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isOwner)
