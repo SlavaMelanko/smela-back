@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'
+import nodemailer, { type Transporter } from 'nodemailer'
 
 import logger from '@/lib/logger'
 
@@ -6,7 +6,7 @@ import type { EmailPayload } from './email-payload'
 import type { EmailProvider } from './email-provider'
 
 export class EtherealEmailProvider implements EmailProvider {
-  private transporter: any // Nodemailer transporter
+  private transporter: Transporter
 
   constructor(
     host: string | undefined,
