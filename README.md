@@ -29,26 +29,72 @@ bun install
 
 ### 2. Environment Setup
 
-Create a `.env` file in the root directory:
+Bun automatically loads environment files based on `NODE_ENV`. Create the following files:
+
+#### Base Configuration (`.env`)
+
+Create a `.env` file for sensitive values (never commit this to git):
 
 ```env
-# Required
-NODE_ENV=development
-DB_URL=postgresql://user:password@localhost:5432/portal_db
+# Sensitive values - NEVER commit this file
 JWT_SECRET=your-super-secret-jwt-key
-EMAIL_SENDER_PROFILES={"system":{"email":"noreply@yourcompany.com","name":"Your Company","use":["welcome","verification","password-reset"]},"support":{"email":"support@yourcompany.com","name":"Support Team","use":["help","feedback","notifications"]}}
-
-# Optional with defaults
-PORT=3000
-LOG_LEVEL=info
-
-# Email configuration (optional)
-BE_BASE_URL=http://localhost:3000
-FE_BASE_URL=http://localhost:5173
-COMPANY_NAME=Your Company Name
+DB_URL=postgresql://user:password@localhost:5432/portal_db
 EMAIL_RESEND_API_KEY=your-resend-api-key
+
+# Shared configuration (can be overridden per environment)
+EMAIL_SENDER_PROFILES={"system":{"email":"noreply@yourcompany.com","name":"Your Company"}}
+COMPANY_NAME=Your Company Name
 COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}
 ```
+
+#### Environment-Specific Files
+
+Create environment-specific files for different configurations:
+
+**`.env.development`** (for local development):
+
+```env
+LOG_LEVEL=debug
+BE_BASE_URL=http://localhost:3000
+FE_BASE_URL=http://localhost:5173
+```
+
+**`.env.production`** (for production):
+
+```env
+LOG_LEVEL=info
+BE_BASE_URL=https://api.yourcompany.com
+FE_BASE_URL=https://app.yourcompany.com
+```
+
+**`.env.staging`** (for staging):
+
+```env
+LOG_LEVEL=info
+BE_BASE_URL=https://api-staging.yourcompany.com
+FE_BASE_URL=https://app-staging.yourcompany.com
+```
+
+**`.env.test`** (for testing):
+
+```env
+LOG_LEVEL=error
+BE_BASE_URL=http://localhost:3000
+FE_BASE_URL=http://localhost:5173
+# Optionally use a separate test database
+# DB_URL=postgresql://test_user:test_pass@localhost:5432/testdb
+```
+
+#### Environment File Loading Order
+
+Bun loads files in this order (later files override earlier ones):
+
+1. `.env` (base configuration)
+2. `.env.{NODE_ENV}` (environment-specific)
+3. `.env.local` (local overrides, not in git)
+4. `.env.{NODE_ENV}.local` (environment-specific local overrides, not in git)
+
+**Note:** The `NODE_ENV` variable determines which environment file is loaded. See `.env.example` for a complete template.
 
 ### 3. Database Setup
 
@@ -78,177 +124,41 @@ Server will start on <http://localhost:3000>
 
 ### Authentication Routes
 
-| Method | Endpoint                                   | Description                        | Authentication |
-| ------ | ------------------------------------------ | ---------------------------------- | -------------- |
-| `POST` | `/api/v1/auth/signup`                      | User registration                  | Public         |
-| `POST` | `/api/v1/auth/login`                       | User login                         | Public         |
-| `POST` | `/api/v1/auth/verify-email`                | Email verification (token in body) | Public         |
-| `POST` | `/api/v1/auth/resend-verification-email`   | Resend verification email          | Public         |
-| `POST` | `/api/v1/auth/request-password-reset`      | Request password reset             | Public         |
-| `POST` | `/api/v1/auth/reset-password`              | Reset password with token          | Public         |
+| Method | Endpoint                                 | Description                        | Authentication |
+| ------ | ---------------------------------------- | ---------------------------------- | -------------- |
+| `POST` | `/api/v1/auth/signup`                    | User registration                  | Public         |
+| `POST` | `/api/v1/auth/login`                     | User login                         | Public         |
+| `POST` | `/api/v1/auth/verify-email`              | Email verification (token in body) | Public         |
+| `POST` | `/api/v1/auth/resend-verification-email` | Resend verification email          | Public         |
+| `POST` | `/api/v1/auth/request-password-reset`    | Request password reset             | Public         |
+| `POST` | `/api/v1/auth/reset-password`            | Reset password with token          | Public         |
 
 ### Protected Routes (Allow New Users)
 
-| Method | Endpoint                  | Description              | Authentication           |
-| ------ | ------------------------- | ------------------------ | ------------------------ |
-| `GET`  | `/api/v1/protected/me`    | Get current user profile | JWT Required (New+)      |
-| `POST` | `/api/v1/protected/me`    | Update user profile      | JWT Required (New+)      |
+| Method | Endpoint               | Description              | Authentication      |
+| ------ | ---------------------- | ------------------------ | ------------------- |
+| `GET`  | `/api/v1/protected/me` | Get current user profile | JWT Required (New+) |
+| `POST` | `/api/v1/protected/me` | Update user profile      | JWT Required (New+) |
 
 ### Private Routes (Verified Users Only)
 
-| Method | Endpoint                  | Description              | Authentication           |
-| ------ | ------------------------- | ------------------------ | ------------------------ |
-| -      | -                         | Currently empty          | JWT Required (Verified+) |
+| Method | Endpoint | Description     | Authentication           |
+| ------ | -------- | --------------- | ------------------------ |
+| -      | -        | Currently empty | JWT Required (Verified+) |
 
-### Example API Usage
+### API Testing
 
-#### User Registration
+A complete Postman collection is available in the repository root:
 
-```bash
-curl -X POST http://localhost:3000/api/v1/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "securepassword123"
-  }'
-```
+📁 **`portal-v2.postman_collection.json`**
 
-Response:
-
-```json
-{
-  "user": {
-    "id": 1,
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "user@example.com",
-    "role": "user",
-    "status": "new",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### User Login
-
-```bash
-curl -X POST http://localhost:3000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "securepassword123"
-  }'
-```
-
-Response:
-
-```json
-{
-  "user": {
-    "id": 1,
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "user@example.com",
-    "role": "user",
-    "status": "active",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Email Verification
-
-```bash
-curl -X POST http://localhost:3000/api/v1/auth/verify-email \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "your-64-character-verification-token"
-  }'
-```
-
-#### Password Reset Request
-
-```bash
-curl -X POST http://localhost:3000/api/v1/auth/request-password-reset \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com"
-  }'
-```
-
-#### Password Reset
-
-```bash
-curl -X POST http://localhost:3000/api/v1/auth/reset-password \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "your-reset-token-from-email",
-    "password": "NewSecurePassword123!"
-  }'
-```
-
-#### Get Current User Profile (Protected)
-
-```bash
-curl -X GET http://localhost:3000/api/v1/protected/me \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-Response:
-
-```json
-{
-  "user": {
-    "id": 1,
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "user@example.com",
-    "role": "user",
-    "status": "active",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-}
-```
-
-#### Update Profile (Protected)
-
-```bash
-curl -X POST http://localhost:3000/api/v1/protected/me \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "firstName": "Jane",
-    "lastName": "Smith"
-  }'
-```
-
-Response:
-
-```json
-{
-  "user": {
-    "id": 1,
-    "firstName": "Jane",
-    "lastName": "Smith",
-    "email": "user@example.com",
-    "role": "user",
-    "status": "active",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-02T00:00:00.000Z"
-  }
-}
-```
+Import this collection into Postman to test all API endpoints with pre-configured requests and examples.
 
 ## 🏗️ Architecture
 
 ### Directory Structure
 
-```
+```text
 src/
 ├── app.ts                 # Application entry point
 ├── server.ts              # Server configuration and middleware setup
@@ -273,14 +183,7 @@ src/
 │   └── token/             # Token repository
 ├── routes/                # API endpoint handlers
 │   ├── auth/              # Authentication routes
-│   │   ├── signup/        # User registration
-│   │   ├── login/         # User login
-│   │   ├── verify-email/  # Email verification
-│   │   ├── resend-verification-email/ # Resend verification
-│   │   ├── request-password-reset/    # Password reset request
-│   │   └── reset-password/ # Password reset with token
 │   └── user/              # User-related routes
-│       └── me/            # User profile (GET & POST)
 └── types/                 # TypeScript type definitions
 ```
 
@@ -366,27 +269,18 @@ bun run lint:fix         # Auto-fix ESLint issues
 
 ## 🚀 Deployment
 
-### Environment Variables
+### Running in Production
 
-Ensure all required environment variables are set:
+1. **Configure environment files** as described in the [Environment Setup](#2-environment-setup) section
+2. **Update production URLs** in `.env.production` with your actual domains
+3. **Set sensitive values** in `.env` on your production server
 
-```env
-# Required
-NODE_ENV=production
-DB_URL=postgresql://user:password@host:port/database
-JWT_SECRET=your-production-secret
-EMAIL_SENDER_PROFILES={"system":{"email":"noreply@yourcompany.com","name":"Your Company","use":["welcome","verification","password-reset"]},"support":{"email":"support@yourcompany.com","name":"Support Team","use":["help","feedback","notifications"]}}
+```bash
+# Run in production mode
+NODE_ENV=production bun run src/app.ts
 
-# Optional with defaults
-PORT=3000
-LOG_LEVEL=warn
-
-# Email configuration (optional)
-BE_BASE_URL=https://your-domain.com
-FE_BASE_URL=https://app.your-domain.com
-COMPANY_NAME=Your Company Name
-EMAIL_RESEND_API_KEY=your-resend-api-key
-COMPANY_SOCIAL_LINKS={"twitter": "https://twitter.com/yourcompany", "github": "https://github.com/yourcompany"}
+# Run in staging mode
+NODE_ENV=staging bun run src/app.ts
 ```
 
 ### Database Setup

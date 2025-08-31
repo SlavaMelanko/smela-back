@@ -1,4 +1,5 @@
-import 'dotenv/config'
+// Bun automatically loads .env files based on NODE_ENV
+// No need to import dotenv when using Bun runtime
 
 import type { ZodError } from 'zod'
 
@@ -22,6 +23,12 @@ const validate = () => {
       COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
       EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,
       EMAIL_SENDER_PROFILES: envRules.emailSenderProfiles,
+
+      // Ethereal email configuration (for development)
+      EMAIL_ETHEREAL_HOST: envRules.emailEtherealHost,
+      EMAIL_ETHEREAL_PORT: envRules.emailEtherealPort,
+      EMAIL_ETHEREAL_USERNAME: envRules.emailEtherealUsername,
+      EMAIL_ETHEREAL_PASSWORD: envRules.emailEtherealPassword,
     })
 
     // eslint-disable-next-line node/no-process-env
@@ -38,6 +45,7 @@ const env = validate()
 const isDevEnv = () => env.NODE_ENV === 'development'
 const isProdEnv = () => env.NODE_ENV === 'production'
 const isTestEnv = () => env.NODE_ENV === 'test'
+const isStagingEnv = () => env.NODE_ENV === 'staging'
 const isDevOrTestEnv = () => isDevEnv() || isTestEnv()
 
-export { env as default, isDevEnv, isDevOrTestEnv, isProdEnv, isTestEnv }
+export { env as default, isDevEnv, isDevOrTestEnv, isProdEnv, isStagingEnv, isTestEnv }
