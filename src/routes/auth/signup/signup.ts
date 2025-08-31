@@ -71,7 +71,7 @@ const signUpWithEmail = async (
 
   const secureToken = await createEmailVerificationToken(newUser.id)
 
-  await emailAgent.sendWelcomeEmail({
+  emailAgent.sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
     token: secureToken,

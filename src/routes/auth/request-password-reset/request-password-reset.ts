@@ -20,7 +20,7 @@ const requestPasswordReset = async (email: string) => {
   if (user && isActive(user.status)) {
     const token = await createPasswordResetToken(user.id)
 
-    await emailAgent.sendResetPasswordEmail({
+    emailAgent.sendResetPasswordEmail({
       firstName: user.firstName,
       email: user.email,
       token,
