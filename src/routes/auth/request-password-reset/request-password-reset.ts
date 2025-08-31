@@ -1,4 +1,5 @@
 import { emailAgent } from '@/lib/email-agent'
+import logger from '@/lib/logger'
 import { generateToken, PASSWORD_RESET_EXPIRY_HOURS } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { isActive, Token } from '@/types'
@@ -25,7 +26,10 @@ const requestPasswordReset = async (email: string) => {
       email: user.email,
       token,
     }).catch((error) => {
-      console.error('Failed to send email:', error)
+      logger.error({
+        msg: `Failed to send password reset email to ${user.email}`,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
     })
   }
 
