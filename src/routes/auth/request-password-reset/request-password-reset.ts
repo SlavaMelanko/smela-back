@@ -24,6 +24,8 @@ const requestPasswordReset = async (email: string) => {
       firstName: user.firstName,
       email: user.email,
       token,
+    }).catch((error) => {
+      console.error('Failed to send email:', error)
     })
   }
 

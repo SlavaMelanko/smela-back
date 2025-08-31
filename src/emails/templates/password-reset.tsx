@@ -17,6 +17,8 @@ interface PasswordResetEmailProps {
   data: {
     firstName: string
     resetUrl: string
+    emailId?: string
+    sentAt?: string
   }
   content: PasswordResetEmailContent
 }
@@ -26,13 +28,15 @@ const PasswordResetEmail = ({
   content,
 }: PasswordResetEmailProps) => {
   const { component: { text, link } } = styles
-  const { firstName, resetUrl } = data
+  const { firstName, resetUrl, emailId, sentAt } = data
   const c = content
 
   return (
     <BaseEmail
       subject={c.subject}
       previewText={c.previewText}
+      emailId={emailId}
+      sentAt={sentAt}
     >
       <Text style={text.body}>
         {c.greeting(firstName)}

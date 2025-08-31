@@ -75,6 +75,8 @@ const signUpWithEmail = async (
     firstName: newUser.firstName,
     email: newUser.email,
     token: secureToken,
+  }).catch((error) => {
+    console.error('Failed to send email:', error)
   })
 
   const jwtToken = await jwt.sign(

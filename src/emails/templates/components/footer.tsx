@@ -18,6 +18,8 @@ interface SocialLink {
 interface FooterProps {
   companyName?: string
   socialLinks?: SocialLink[]
+  emailId?: string
+  sentAt?: string
 }
 
 const footerStyles = {
@@ -130,11 +132,24 @@ const getDefaultSocialLinks = (): SocialLink[] => {
 const Footer = ({
   companyName = config.company.name,
   socialLinks = getDefaultSocialLinks(),
+  emailId,
+  sentAt,
 }: FooterProps) => {
   const year = new Date().getFullYear()
 
   return (
     <Section style={footerStyles.footer}>
+      {/* Hidden email tracking information */}
+      {emailId && (
+        <div style={{ display: 'none' }}>
+          {`Email-ID: ${emailId}`}
+        </div>
+      )}
+      {sentAt && (
+        <div style={{ display: 'none' }}>
+          {`Sent-At: ${sentAt}`}
+        </div>
+      )}
       <div style={footerStyles.social}>
         {socialLinks.map((social, index) => (
           <Link key={index} href={social.href} aria-label={social.label}>
