@@ -17,6 +17,8 @@ interface WelcomeEmailProps {
   data: {
     firstName: string
     verificationUrl: string
+    emailId?: string
+    sentAt?: string
   }
   content: WelcomeEmailContent
 }
@@ -26,13 +28,15 @@ const WelcomeEmail = ({
   content,
 }: WelcomeEmailProps) => {
   const { component: { text, link } } = styles
-  const { firstName, verificationUrl } = data
+  const { firstName, verificationUrl, emailId, sentAt } = data
   const c = content
 
   return (
     <BaseEmail
       subject={c.subject}
       previewText={c.previewText}
+      emailId={emailId}
+      sentAt={sentAt}
     >
       <Text style={text.body}>
         {c.greeting(firstName)}

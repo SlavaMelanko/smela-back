@@ -8,7 +8,11 @@ import type { EmailProvider } from './email-provider'
 export class ResendEmailProvider implements EmailProvider {
   private resend: Resend
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string | undefined) {
+    if (!apiKey) {
+      throw new Error('Email configuration is required.')
+    }
+
     this.resend = new Resend(apiKey)
   }
 

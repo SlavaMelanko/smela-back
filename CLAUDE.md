@@ -119,63 +119,109 @@ Key tables:
 
 ### Environment Configuration
 
-Required environment variables:
+**Bun Native Environment Loading:**
+Bun automatically loads environment files based on `NODE_ENV` without requiring the `dotenv` package. Files are loaded in this order:
 
-- `NODE_ENV` - development/production/test
-- `DB_URL` - PostgreSQL connection string (Note: uses DB_URL, not DATABASE_URL)
-- `JWT_SECRET` - Secret for JWT signing
-- `EMAIL_SENDER_PROFILES` - JSON object defining sender profiles for different email types
+1. `.env` - Base configuration (always loaded first)
+2. `.env.{NODE_ENV}` - Environment-specific configuration (development/production/staging/test)
+3. `.env.local` - Local overrides (not committed to git)
+4. `.env.{NODE_ENV}.local` - Environment-specific local overrides (not committed to git)
 
-Optional environment variables with defaults:
+**Supported Environments:**
 
-- `PORT` - Server port (default: 3000)
-- `LOG_LEVEL` - Logging level (default: info)
+- `development` - Local development with debug logging and Ethereal email
+- `production` - Production deployment with Resend email
+- `staging` - Staging environment (uses production-like settings with Resend email)
+- `test` - Test environment with minimal logging
 
-Additional optional environment variables:
+**Base `.env` file (sensitive/shared values):**
 
-- `BE_BASE_URL` - Backend base URL for API endpoints (default: <http://localhost:3000>)
-- `FE_BASE_URL` - Frontend base URL for email links (default: <http://localhost:5173>)
+- `JWT_SECRET` - Secret for JWT signing (required, sensitive)
+- `DB_URL` - PostgreSQL connection string (required, sensitive)
+- `EMAIL_RESEND_API_KEY` - Resend service API key (required for staging/production, sensitive)
+- `EMAIL_SENDER_PROFILES` - JSON object defining sender profiles (required)
 - `COMPANY_NAME` - Company name for emails (default: The Company)
-- `EMAIL_RESEND_API_KEY` - Resend service API key for sending emails
-- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links for email footers
+- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links
 
-  ```json
-  {
-    "twitter": "https://twitter.com/company",
-    "facebook": "https://facebook.com/company",
-    "linkedin": "https://linkedin.com/company",
-    "github": "https://github.com/company"
-  }
-  ```
+**Environment-specific files (.env.development, .env.production, .env.staging, .env.test):**
+
+- `LOG_LEVEL` - Logging level (debug/info/error)
+- `BE_BASE_URL` - Backend base URL for API endpoints
+- `FE_BASE_URL` - Frontend base URL for email links
+- `PORT` - Server port (default: 3000, optional)
+
+**Development-specific (.env.development):**
+
+- `EMAIL_ETHEREAL_HOST` - Ethereal SMTP host (smtp.ethereal.email)
+- `EMAIL_ETHEREAL_PORT` - Ethereal SMTP port (587)
+- `EMAIL_ETHEREAL_USERNAME` - Ethereal account username
+- `EMAIL_ETHEREAL_PASSWORD` - Ethereal account password
+
+**Note:** The `NODE_ENV` variable is automatically set based on which environment file is being used and determines:
+
+- Which environment-specific `.env` file is loaded
+- Whether to show stack traces in errors (hidden in production/staging)
+- Logging configuration (pretty printing in development)
+- Email provider selection (Ethereal for development, Resend for staging/production)
 
 #### EMAIL_SENDER_PROFILES Format
 
-Required JSON structure for sender profiles:
+Required JSON structure for sender profiles (place in base `.env` file):
 
 ```json
 {
   "system": {
     "email": "noreply@company.com",
-    "name": "Company Name",
-    "use": ["welcome", "verification", "password-reset"]
+    "name": "Company Name"
   },
   "support": {
     "email": "support@company.com",
-    "name": "Support Team",
-    "use": ["help", "feedback", "notifications"]
+    "name": "Support Team"
   },
   "ceo": {
     "email": "ceo@company.com",
-    "name": "CEO Name",
-    "use": ["announcements", "company-updates"]
+    "name": "CEO Name"
   },
   "marketing": {
     "email": "marketing@company.com",
-    "name": "Marketing Team",
-    "use": ["newsletters", "promotions"]
+    "name": "Marketing Team"
   }
 }
 ```
+
+#### Example Environment File Structure
+
+```
+project/
+├── .env                    # Sensitive values (JWT_SECRET, DB_URL, etc.)
+├── .env.development        # Development settings (LOG_LEVEL=debug, Ethereal email)
+├── .env.production        # Production settings (LOG_LEVEL=info, Resend email)
+├── .env.staging           # Staging settings (LOG_LEVEL=info, Resend email)
+├── .env.test              # Test settings (LOG_LEVEL=error)
+├── .env.local             # Local overrides (optional, not in git)
+└── .env.example           # Template for environment setup
+```
+
+### Email Configuration
+
+**Development (Ethereal):**
+
+- Uses Ethereal email service for development to avoid sending real emails
+- All emails are captured and can be viewed via preview URLs logged to console
+- Preview URLs are generated for each sent email (e.g., `https://ethereal.email/message/...`)
+- No real emails are sent, perfect for testing email flows
+
+**Production/Staging (Resend):**
+
+- Uses Resend email service for actual email delivery
+- Requires `EMAIL_RESEND_API_KEY` to be configured
+- Supports multiple sender profiles configured via `EMAIL_SENDER_PROFILES`
+
+**Email Provider Selection:**
+
+- Automatically selects Ethereal for development environment
+- Automatically selects Resend for staging and production environments
+- Can be overridden by passing explicit provider type to `createEmailProvider()`
 
 ### Static File Serving
 

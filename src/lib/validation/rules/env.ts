@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const rules = {
   // General
-  nodeEnv: z.enum(['development', 'production', 'test']).default('development'),
+  nodeEnv: z.enum(['development', 'production', 'staging', 'test']).default('development'),
   logLevel: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
 
   // Authentication
@@ -44,6 +44,12 @@ const rules = {
       throw new Error('Invalid EMAIL_SENDER_PROFILES format. Expected valid JSON with profile objects.')
     }
   }),
+
+  // Ethereal email configuration (for development)
+  emailEtherealHost: z.string().optional(),
+  emailEtherealPort: z.coerce.number().optional(),
+  emailEtherealUsername: z.string().optional(),
+  emailEtherealPassword: z.string().optional(),
 }
 
 export default rules

@@ -4,6 +4,7 @@ import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
+import logger from '@/lib/logger'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
@@ -71,10 +72,15 @@ const signUpWithEmail = async (
 
   const secureToken = await createEmailVerificationToken(newUser.id)
 
-  await emailAgent.sendWelcomeEmail({
+  emailAgent.sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
     token: secureToken,
+  }).catch((error) => {
+    logger.error({
+      msg: `Failed to send welcome email to ${newUser.email}`,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
   })
 
   const jwtToken = await jwt.sign(

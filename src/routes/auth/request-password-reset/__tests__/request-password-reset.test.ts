@@ -211,16 +211,14 @@ describe('requestPasswordReset', () => {
       }))
     })
 
-    it('should throw the email error after creating token', async () => {
-      try {
-        await requestPasswordReset(mockUser.email)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Email service unavailable')
-      }
+    it('should complete successfully even if email fails (fire-and-forget)', async () => {
+      // Email sending is now fire-and-forget, so request should succeed even if email fails
+      const result = await requestPasswordReset(mockUser.email)
 
-      // Token should still be created before email fails
+      // Request should complete successfully
+      expect(result).toEqual({ success: true })
+
+      // Token should still be created and email attempt should be made
       expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
       expect(tokenRepo.create).toHaveBeenCalledTimes(1)
       expect(emailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)

@@ -20,8 +20,11 @@ export class EmailService {
 
     const { email, name } = config.getSender()
 
+    const emailId = Bun.randomUUIDv7()
+    const sentAt = new Date().toISOString()
+
     const renderer = await config.getRenderer()
-    const { subject, html, text } = await renderer.render(data, locale)
+    const { subject, html, text } = await renderer.render({ ...data, emailId, sentAt }, locale)
 
     const payload: EmailPayload = {
       to,

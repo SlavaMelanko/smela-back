@@ -15,6 +15,8 @@ export interface BaseEmailProps {
   subject: string
   previewText: string
   children: React.ReactNode
+  emailId?: string
+  sentAt?: string
 }
 
 const emailStyles = {
@@ -35,6 +37,8 @@ export const BaseEmail = ({
   subject,
   previewText,
   children,
+  emailId,
+  sentAt,
 }: BaseEmailProps) => {
   return (
     <Html>
@@ -47,7 +51,7 @@ export const BaseEmail = ({
           <Header />
           {children}
         </Container>
-        <Footer />
+        <Footer emailId={emailId} sentAt={sentAt} />
       </Body>
     </Html>
   )

@@ -151,7 +151,7 @@ bun-debug.log*
 
 # Env files
 .env
-.env.*.local
+.env.*
 !.env.example
 
 # OS/system files

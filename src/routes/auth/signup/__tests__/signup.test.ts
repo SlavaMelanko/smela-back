@@ -369,15 +369,17 @@ describe('signUpWithEmail', () => {
       }))
     })
 
-    it('should throw the email error after creating user, auth, and token', async () => {
-      try {
-        await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Email service unavailable')
-      }
+    it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
+      // Email sending is now fire-and-forget, so signup should succeed even if email fails
+      const result = await signUpWithEmail(mockSignupParams)
 
+      // Signup should complete successfully
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      const { tokenVersion, ...expectedUser } = mockNewUser
+      expect(result.user).toEqual(expectedUser)
+
+      // All operations should have been called
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)

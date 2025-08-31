@@ -4,7 +4,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { getReasonPhrase } from 'http-status-codes'
 
 import { ErrorCode, ErrorRegistry } from '@/lib/catch'
-import { isProdEnv } from '@/lib/env'
+import { isProdEnv, isStagingEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
 const getErrorCode = (err: unknown): ErrorCode => {
@@ -24,7 +24,7 @@ const onError: ErrorHandler = (err, c) => {
   const status = error.status
   const message = err.message || error.error || getReasonPhrase(status)
   const name = err.name
-  const stack = isProdEnv() ? undefined : err.stack
+  const stack = (isProdEnv() || isStagingEnv()) ? undefined : err.stack
 
   return c.json(
     {
