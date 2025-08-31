@@ -139,17 +139,6 @@ const Footer = ({
 
   return (
     <Section style={footerStyles.footer}>
-      {/* Hidden email tracking information */}
-      {emailId && (
-        <div style={{ display: 'none' }}>
-          {`Email-ID: ${emailId}`}
-        </div>
-      )}
-      {sentAt && (
-        <div style={{ display: 'none' }}>
-          {`Sent-At: ${sentAt}`}
-        </div>
-      )}
       <div style={footerStyles.social}>
         {socialLinks.map((social, index) => (
           <Link key={index} href={social.href} aria-label={social.label}>
@@ -165,6 +154,19 @@ const Footer = ({
         {companyName}
         , All Rights Reserved
       </Text>
+      <div>
+        {/* Hidden email tracking information */}
+        {emailId && (
+          <div style={{ display: 'none' }}>
+            {`Email-ID: ${emailId}`}
+          </div>
+        )}
+        {sentAt && (
+          <div style={{ display: 'none' }}>
+            {`Sent-At: ${sentAt}`}
+          </div>
+        )}
+      </div>
     </Section>
   )
 }
