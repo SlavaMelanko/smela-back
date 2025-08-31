@@ -3,8 +3,8 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { Hono } from 'hono'
 
-// Mock the environment module
-const originalEnv = process.env
+// Store original environment
+const originalEnv = { ...process.env }
 
 describe('CORS Middleware', () => {
   let app: Hono
@@ -16,8 +16,17 @@ describe('CORS Middleware', () => {
   })
 
   afterEach(() => {
-    // Restore original environment
-    process.env = { ...originalEnv }
+    // Properly restore original environment
+    Object.keys(process.env).forEach((key) => {
+      if (!(key in originalEnv)) {
+        delete process.env[key]
+      }
+    })
+    Object.assign(process.env, originalEnv)
+
+    // Clear require cache again to ensure clean state for next test
+    delete require.cache[require.resolve('../cors')]
+    delete require.cache[require.resolve('@/lib/env')]
   })
 
   describe('Development Environment', () => {
