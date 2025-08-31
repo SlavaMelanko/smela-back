@@ -205,17 +205,20 @@ project/
 ### Email Configuration
 
 **Development (Ethereal):**
+
 - Uses Ethereal email service for development to avoid sending real emails
 - All emails are captured and can be viewed via preview URLs logged to console
 - Preview URLs are generated for each sent email (e.g., `https://ethereal.email/message/...`)
 - No real emails are sent, perfect for testing email flows
 
 **Production/Staging (Resend):**
+
 - Uses Resend email service for actual email delivery
 - Requires `EMAIL_RESEND_API_KEY` to be configured
 - Supports multiple sender profiles configured via `EMAIL_SENDER_PROFILES`
 
 **Email Provider Selection:**
+
 - Automatically selects Ethereal for development environment
 - Automatically selects Resend for staging and production environments
 - Can be overridden by passing explicit provider type to `createEmailProvider()`
