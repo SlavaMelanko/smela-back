@@ -43,10 +43,10 @@ export class EtherealEmailProvider implements EmailProvider {
 
       logger.info({
         msg: 'Ethereal email sent',
+        subject: payload.subject,
         messageId: info.messageId,
         previewUrl: previewUrl || 'No preview URL available',
         to: payload.to,
-        subject: payload.subject,
       })
     } catch (error) {
       logger.error({
