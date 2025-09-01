@@ -1,54 +1,64 @@
 import type { MiddlewareHandler } from 'hono'
 
+import { secureHeaders } from 'hono/secure-headers'
+
 import { isDevEnv, isProdEnv, isStagingEnv } from '@/lib/env'
 
-const securityHeadersMiddleware: MiddlewareHandler = async (c, next) => {
-  await next()
-
-  // Prevent MIME type sniffing.
-  c.header('X-Content-Type-Options', 'nosniff')
-
-  // Prevent clickjacking attacks.
-  c.header('X-Frame-Options', 'DENY')
-
-  // Enable XSS protection (legacy browsers).
-  c.header('X-XSS-Protection', '1; mode=block')
-
-  // Control referrer information.
-  c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
-
-  // Enforce HTTPS in production/staging.
-  if (isProdEnv() || isStagingEnv()) {
-    c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+// Configure security headers based on environment.
+const getSecurityHeadersConfig = () => {
+  // Build CSP configuration object.
+  const devCsp = {
+    defaultSrc: ['\'self\''],
+    scriptSrc: ['\'self\'', '\'unsafe-inline\'', '\'unsafe-eval\''], // allow eval in dev for HMR
+    styleSrc: ['\'self\'', '\'unsafe-inline\''], // allow inline styles for better compatibility
+    imgSrc: ['\'self\'', 'data:', 'https:', 'http:'], // allow http images in dev
+    fontSrc: ['\'self\''],
+    connectSrc: ['\'self\''],
+    frameAncestors: ['\'none\''],
+    baseUri: ['\'self\''],
+    formAction: ['\'self\''],
   }
 
-  // Content Security Policy.
-  const cspDirectives = [
-    'default-src \'self\'',
-    'script-src \'self\'',
-    'style-src \'self\' \'unsafe-inline\'', // allow inline styles for better compatibility
-    'img-src \'self\' data: https:',
-    'font-src \'self\'',
-    'connect-src \'self\'',
-    'frame-ancestors \'none\'',
-    'base-uri \'self\'',
-    'form-action \'self\'',
-    'upgrade-insecure-requests',
-  ]
-
-  // Relax CSP in development.
-  if (isDevEnv()) {
-    cspDirectives[1] = 'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'' // allow eval in dev for HMR
-    cspDirectives[3] = 'img-src \'self\' data: https: http:' // allow http images in dev
+  const prodCsp = {
+    defaultSrc: ['\'self\''],
+    scriptSrc: ['\'self\''], // strict script-src
+    styleSrc: ['\'self\'', '\'unsafe-inline\''], // allow inline styles for better compatibility
+    imgSrc: ['\'self\'', 'data:', 'https:'],
+    fontSrc: ['\'self\''],
+    connectSrc: ['\'self\''],
+    frameAncestors: ['\'none\''],
+    baseUri: ['\'self\''],
+    formAction: ['\'self\''],
+    upgradeInsecureRequests: [],
   }
 
-  c.header('Content-Security-Policy', cspDirectives.join('; '))
+  // Build configuration object.
+  const config: Parameters<typeof secureHeaders>[0] = {
+    xContentTypeOptions: 'nosniff',
+    xFrameOptions: 'DENY',
+    xXssProtection: '1; mode=block',
+    referrerPolicy: 'strict-origin-when-cross-origin',
+    contentSecurityPolicy: isDevEnv() ? devCsp : prodCsp,
+    permissionsPolicy: {
+      geolocation: [],
+      camera: [],
+      microphone: [],
+      payment: [],
+      usb: [],
+      magnetometer: [],
+      gyroscope: [],
+      accelerometer: [],
+    },
+    // Add Strict-Transport-Security for production/staging.
+    strictTransportSecurity: (isProdEnv() || isStagingEnv())
+      ? 'max-age=31536000; includeSubDomains; preload'
+      : undefined,
+  }
 
-  // Permissions Policy (formerly Feature Policy).
-  c.header(
-    'Permissions-Policy',
-    'geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
-  )
+  return config
 }
+
+// Create middleware with environment-specific configuration.
+const securityHeadersMiddleware: MiddlewareHandler = secureHeaders(getSecurityHeadersConfig())
 
 export default securityHeadersMiddleware
