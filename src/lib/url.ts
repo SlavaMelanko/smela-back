@@ -9,7 +9,7 @@ export const isLocalhost = (origin: string): boolean => {
   return localhostPatterns.some(pattern => pattern.test(origin))
 }
 
-export const isHTTPS = (url: string): boolean => {
+export const isHttps = (url: string): boolean => {
   return url.startsWith('https://')
 }
 

@@ -4,7 +4,7 @@ import { cors } from 'hono/cors'
 
 import env, { isDevEnv, isProdEnv, isStagingEnv, isTestEnv } from '@/lib/env'
 import logger from '@/lib/logger'
-import { isHTTPS, isLocalhost, isValidOrigin, normalizeOrigin } from '@/lib/url'
+import { isHttps, isLocalhost, isValidOrigin, normalizeOrigin } from '@/lib/url'
 
 const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 const ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -66,7 +66,7 @@ const buildProductionCors = (): MiddlewareHandler => {
 
       const normalized = normalizeOrigin(origin)
 
-      if (!isHTTPS(normalized)) {
+      if (!isHttps(normalized)) {
         logger.warn(`Blocked non-HTTPS origin: ${normalized}`)
 
         return undefined
