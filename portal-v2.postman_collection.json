@@ -77,7 +77,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+36@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+42@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"role\": \"user\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -103,7 +103,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+36@gmail.com\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+42@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -173,7 +173,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"fb2fd2dd75de8a29a9b5c6ca4d22d32a1105d627fb7974fc214b48d7692e0ff7\"\n}",
+					"raw": "{\n    \"token\": \"5971bb6e0e9760d990b4462e08e1af981a449116f6acb61dc76cd1ab27e03747\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -216,7 +216,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+36@gmail.com\",\n    \"password\": \"P@ssw0rd!\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+42@gmail.com\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -269,7 +269,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Kate\"\n}\n",
+					"raw": "{\n    \"lastName\": \"Melankoo\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -295,7 +295,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+22@gmail.com\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+42@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -321,7 +321,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"9c94c5660c17fa4678a0415265b857f29ea542c79fe3ca51e2ce0f4ba9d9d919\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
+					"raw": "{\n    \"token\": \"5a7364840b53dac1bc25ce7b7164aa2366e87c9d17dbc5e3e90470cc7281d62f\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
