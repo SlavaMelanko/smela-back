@@ -4,6 +4,7 @@ import { cors } from 'hono/cors'
 
 import env, { isDevEnv, isProdEnv, isStagingEnv, isTestEnv } from '@/lib/env'
 import logger from '@/lib/logger'
+import { isHTTPS, isLocalhost, isValidOrigin, normalizeOrigin } from '@/lib/url'
 
 const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 const ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -19,22 +20,19 @@ const buildTestCors = (): MiddlewareHandler => {
 }
 
 const buildDevCors = (): MiddlewareHandler => {
-  const allowedPatterns = [
-    /^http:\/\/localhost(:\d+)?$/,
-    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-    /^http:\/\/\[::1\](:\d+)?$/,
-    /^https:\/\/localhost(:\d+)?$/,
-  ]
-
   return cors({
     origin: (origin: string) => {
       if (!origin) {
         return '*'
       }
 
-      const isAllowed = allowedPatterns.some(pattern => pattern.test(origin))
+      if (!isValidOrigin(origin)) {
+        return undefined
+      }
 
-      return isAllowed ? origin : undefined
+      const normalized = normalizeOrigin(origin)
+
+      return isLocalhost(normalized) ? normalized : undefined
     },
     allowMethods: ALLOWED_METHODS,
     allowHeaders: ALLOWED_HEADERS,
@@ -45,7 +43,10 @@ const buildDevCors = (): MiddlewareHandler => {
 }
 
 const buildProductionCors = (): MiddlewareHandler => {
-  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || []
+  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',')
+    .map(o => o.trim())
+    .filter(Boolean)
+    .map(normalizeOrigin) || []
 
   if (allowedOrigins.length === 0) {
     logger.warn('No ALLOWED_ORIGINS configured for production/staging.')
@@ -57,7 +58,21 @@ const buildProductionCors = (): MiddlewareHandler => {
         return undefined
       }
 
-      return allowedOrigins.includes(origin) ? origin : undefined
+      if (!isValidOrigin(origin)) {
+        logger.warn(`Invalid origin format: ${origin}`)
+
+        return undefined
+      }
+
+      const normalized = normalizeOrigin(origin)
+
+      if (!isHTTPS(normalized)) {
+        logger.warn(`Blocked non-HTTPS origin: ${normalized}`)
+
+        return undefined
+      }
+
+      return allowedOrigins.includes(normalized) ? normalized : undefined
     },
     allowMethods: ALLOWED_METHODS,
     allowHeaders: ALLOWED_HEADERS,
