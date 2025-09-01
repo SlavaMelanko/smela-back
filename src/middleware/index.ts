@@ -3,6 +3,7 @@ import { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddlewar
 import loggerMiddleware from './logger'
 import onError from './on-error'
 import rateLimiterMiddleware, { authRateLimiter, generalRateLimiter } from './rate-limiter'
+import securityHeadersMiddleware from './security-headers'
 
 export {
   adminAuthMiddleware,
@@ -14,6 +15,7 @@ export {
   onError,
   ownerAuthMiddleware,
   rateLimiterMiddleware,
+  securityHeadersMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 }
