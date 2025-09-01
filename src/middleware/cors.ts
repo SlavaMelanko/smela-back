@@ -3,6 +3,13 @@ import type { MiddlewareHandler } from 'hono'
 import { cors } from 'hono/cors'
 
 import env, { isDevEnv, isProdEnv, isStagingEnv, isTestEnv } from '@/lib/env'
+import logger from '@/lib/logger'
+
+const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+const ALLOWED_HEADERS = ['Content-Type', 'Authorization', 'X-Requested-With']
+const EXPOSED_HEADERS = ['Content-Length', 'X-Request-Id']
+const TEN_MINUTES = 600
+const ONE_HOUR = 3600
 
 const buildTestCors = (): MiddlewareHandler => {
   return cors({
@@ -21,17 +28,18 @@ const buildDevCors = (): MiddlewareHandler => {
 
   return cors({
     origin: (origin: string) => {
-      if (!origin)
+      if (!origin) {
         return '*'
+      }
 
       const isAllowed = allowedPatterns.some(pattern => pattern.test(origin))
 
       return isAllowed ? origin : undefined
     },
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposeHeaders: ['Content-Length', 'X-Request-Id'],
-    maxAge: 600,
+    allowMethods: ALLOWED_METHODS,
+    allowHeaders: ALLOWED_HEADERS,
+    exposeHeaders: EXPOSED_HEADERS,
+    maxAge: TEN_MINUTES,
     credentials: true,
   })
 }
@@ -40,20 +48,21 @@ const buildProductionCors = (): MiddlewareHandler => {
   const allowedOrigins = env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || []
 
   if (allowedOrigins.length === 0) {
-    console.warn('⚠️ CORS Warning: No ALLOWED_ORIGINS configured for production/staging')
+    logger.warn('No ALLOWED_ORIGINS configured for production/staging.')
   }
 
   return cors({
     origin: (origin: string) => {
-      if (!origin)
+      if (!origin) {
         return undefined
+      }
 
       return allowedOrigins.includes(origin) ? origin : undefined
     },
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposeHeaders: ['Content-Length', 'X-Request-Id'],
-    maxAge: 3600,
+    allowMethods: ALLOWED_METHODS,
+    allowHeaders: ALLOWED_HEADERS,
+    exposeHeaders: EXPOSED_HEADERS,
+    maxAge: ONE_HOUR,
     credentials: true,
   })
 }

@@ -30,8 +30,9 @@ const rules = {
   feBaseUrl: z.string().url().default('http://localhost:5173'),
   companyName: z.string().default('The Company'),
   companySocialLinks: z.string().optional().transform((str) => {
-    if (!str)
+    if (!str) {
       return {}
+    }
 
     try {
       const parsed = JSON.parse(str)
