@@ -26,6 +26,7 @@ export default antfu({
     'antfu/top-level-function': ['off'],
     'func-style': ['error', 'expression', { allowArrowFunctions: true }],
     'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+    'curly': ['error', 'all'],
     'padding-line-between-statements': [
       'error',
       { blankLine: 'always', prev: '*', next: 'return' },
