@@ -407,6 +407,132 @@ describe('Request Size Limiter Middleware', () => {
     })
   })
 
+  describe('Streaming Validation', () => {
+    it('should use streaming for large payloads when enabled', async () => {
+      const streamingLimiter = createRequestSizeLimiter({
+        maxSize: 1024 * 1024, // 1MB
+        useStreaming: true,
+        streamingThreshold: 10 * 1024, // 10KB
+      })
+
+      app.use('*', streamingLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      // Test with 500KB payload (should use streaming)
+      const largePayload = 'x'.repeat(500 * 1024)
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Length': largePayload.length.toString(),
+        },
+        body: largePayload,
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+      const json = await res.json()
+      expect(json.success).toBe(true)
+    })
+
+    it('should reject large streaming payloads exceeding limit', async () => {
+      const streamingLimiter = createRequestSizeLimiter({
+        maxSize: 100 * 1024, // 100KB
+        useStreaming: true,
+        streamingThreshold: 10 * 1024, // 10KB
+      })
+
+      app.use('*', streamingLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      // Test with 200KB payload (should be rejected)
+      const largePayload = 'x'.repeat(200 * 1024)
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Length': largePayload.length.toString(),
+        },
+        body: largePayload,
+      })
+
+      expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
+      const text = await res.text()
+      expect(text).toBe('Request body too large')
+    })
+
+    it('should handle streaming validation without Content-Length', async () => {
+      const streamingLimiter = createRequestSizeLimiter({
+        maxSize: 50 * 1024, // 50KB
+        useStreaming: true,
+        streamingThreshold: 5 * 1024, // 5KB
+      })
+
+      app.use('*', streamingLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      // Test with 30KB payload without Content-Length
+      const payload = 'x'.repeat(30 * 1024)
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: payload,
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+      const json = await res.json()
+      expect(json.success).toBe(true)
+    })
+
+    it('should detect Content-Length mismatch with streaming', async () => {
+      const streamingLimiter = createRequestSizeLimiter({
+        maxSize: 100 * 1024, // 100KB
+        useStreaming: true,
+        streamingThreshold: 10 * 1024, // 10KB
+      })
+
+      app.use('*', streamingLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      const payload = 'x'.repeat(20 * 1024) // 20KB
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Length': '10000', // Lie about size
+        },
+        body: payload,
+      })
+
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      const text = await res.text()
+      expect(text).toBe('Content-Length header does not match actual body size')
+    })
+
+    it('should handle fileUploadSizeLimiter with streaming', async () => {
+      app.use('*', fileUploadSizeLimiter)
+      app.post('/upload', c => c.json({ success: true }))
+
+      // Test with 2MB file (under 5MB limit)
+      const fileSize = 2 * 1024 * 1024
+      const fileContent = new ArrayBuffer(fileSize)
+
+      const res = await app.request('/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'Content-Length': fileSize.toString(),
+        },
+        body: fileContent,
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+      const json = await res.json()
+      expect(json.success).toBe(true)
+    })
+  })
+
   describe('Security Attack Scenarios', () => {
     it('should prevent bypass via missing Content-Length with large body', async () => {
       app.use('*', generalRequestSizeLimiter)
