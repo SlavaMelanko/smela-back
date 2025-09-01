@@ -211,24 +211,26 @@ The API is designed to work with a separate frontend application:
 
 ## 🔐 Security Features
 
-### Password Security
+### Core Security Strengths
 
-- **bcrypt Hashing**: 10 rounds for optimal security/performance balance
-- **Password Validation**: Minimum strength requirements
+- **Input Validation**: Comprehensive Zod schemas for all endpoints
+- **SQL Injection Prevention**: Parameterized queries via Drizzle ORM
+- **XSS Protection**: Security headers with strict CSP policies
+- **Rate Limiting**: Different limits for auth vs general endpoints
+- **Request Size Limiting**: Configurable limits (10KB auth, 100KB general, 5MB uploads)
+- **Security Headers**: HSTS, X-Frame-Options, CSP, and more
+- **Password Security**: bcrypt hashing (10 rounds) with strong validation
+- **Token Security**: Cryptographically secure, one-time use, with expiration
+- **JWT Authentication**: Dual support (cookies + Bearer tokens)
+- **CORS Protection**: Environment-specific origin validation
+- **Error Handling**: No sensitive data leakage, consistent responses
 
-### Authentication
+### Authentication Features
 
-- **JWT Tokens**: Stateless authentication with configurable expiration
 - **Email Verification**: Required before account activation
-- **Password Reset**: Secure one-time token system with expiration
-- **Email Enumeration Protection**: Consistent error responses prevent user discovery
-- **Rate Limiting**: Protection against brute force attacks
-
-### Database Security
-
-- **Parameterized Queries**: Protection against SQL injection
-- **Connection Pooling**: Secure database connection management
-- **Environment Variables**: Sensitive data stored securely
+- **Password Reset**: Secure token-based flow with expiration
+- **Role-Based Access**: Flexible RBAC system with permissions
+- **Session Management**: Secure cookies with httpOnly and sameSite
 
 ## 🧪 Development
 
