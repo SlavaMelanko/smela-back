@@ -5,29 +5,30 @@ import { secureHeaders } from 'hono/secure-headers'
 import { isDevEnv, isProdEnv, isStagingEnv } from '@/lib/env'
 
 const getSecurityHeadersConfig = () => {
-  // Build CSP configuration object.
-  const devCsp = {
+  const commonCsp = {
     defaultSrc: ['\'self\''],
-    scriptSrc: ['\'self\'', '\'unsafe-inline\'', '\'unsafe-eval\''], // allow eval in dev for HMR
-    styleSrc: ['\'self\'', '\'unsafe-inline\''], // allow inline styles for better compatibility
-    imgSrc: ['\'self\'', 'data:', 'https:', 'http:'], // allow http images in dev
     fontSrc: ['\'self\''],
     connectSrc: ['\'self\''],
+    mediaSrc: ['\'self\''], // control audio/video content
+    objectSrc: ['\'none\''], // prevent Flash/plugins
+    manifestSrc: ['\'self\''], // PWA manifest support
     frameAncestors: ['\'none\''],
     baseUri: ['\'self\''],
     formAction: ['\'self\''],
   }
 
+  const devCsp = {
+    ...commonCsp,
+    scriptSrc: ['\'self\'', '\'unsafe-inline\'', '\'unsafe-eval\''], // allow eval in dev for HMR
+    styleSrc: ['\'self\'', '\'unsafe-inline\''], // allow inline styles for better compatibility
+    imgSrc: ['\'self\'', 'data:', 'https:', 'http:'], // allow http images in dev
+  }
+
   const prodCsp = {
-    defaultSrc: ['\'self\''],
+    ...commonCsp,
     scriptSrc: ['\'self\''], // strict script-src
     styleSrc: ['\'self\'', '\'unsafe-inline\''], // allow inline styles for better compatibility
     imgSrc: ['\'self\'', 'data:', 'https:'],
-    fontSrc: ['\'self\''],
-    connectSrc: ['\'self\''],
-    frameAncestors: ['\'none\''],
-    baseUri: ['\'self\''],
-    formAction: ['\'self\''],
     upgradeInsecureRequests: [],
   }
 
@@ -35,7 +36,6 @@ const getSecurityHeadersConfig = () => {
   const config: Parameters<typeof secureHeaders>[0] = {
     xContentTypeOptions: 'nosniff',
     xFrameOptions: 'DENY',
-    xXssProtection: '1; mode=block',
     referrerPolicy: 'strict-origin-when-cross-origin',
     contentSecurityPolicy: isDevEnv() ? devCsp : prodCsp,
     permissionsPolicy: {
