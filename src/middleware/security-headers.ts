@@ -9,9 +9,9 @@ const getSecurityHeadersConfig = () => {
     defaultSrc: ['\'self\''],
     fontSrc: ['\'self\''],
     connectSrc: ['\'self\''],
-    mediaSrc: ['\'self\''], // control audio/video content
-    objectSrc: ['\'none\''], // prevent Flash/plugins
-    manifestSrc: ['\'self\''], // PWA manifest support
+    mediaSrc: ['\'self\''],
+    objectSrc: ['\'none\''],
+    manifestSrc: ['\'self\''],
     frameAncestors: ['\'none\''],
     baseUri: ['\'self\''],
     formAction: ['\'self\''],
@@ -32,7 +32,6 @@ const getSecurityHeadersConfig = () => {
     upgradeInsecureRequests: [],
   }
 
-  // Build configuration object.
   const config: Parameters<typeof secureHeaders>[0] = {
     xContentTypeOptions: 'nosniff',
     xFrameOptions: 'DENY',

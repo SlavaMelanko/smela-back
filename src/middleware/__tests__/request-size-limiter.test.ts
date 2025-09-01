@@ -56,21 +56,40 @@ describe('Request Size Limiter Middleware', () => {
       expect(text).toBe('Request body too large')
     })
 
-    it('should allow requests without Content-Length header', async () => {
+    it('should allow requests without Content-Length header if body is under limit', async () => {
       app.use('*', generalRequestSizeLimiter)
       app.post('/test', c => c.json({ success: true }))
 
+      const smallPayload = JSON.stringify({ data: 'x'.repeat(50000) }) // ~50KB
       const res = await app.request('/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: 'test' }),
+        body: smallPayload,
       })
 
       expect(res.status).toBe(StatusCodes.OK)
       const json = await res.json()
       expect(json.success).toBe(true)
+    })
+
+    it('should reject requests without Content-Length header if body exceeds limit', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      const largePayload = JSON.stringify({ data: 'x'.repeat(150000) }) // ~150KB
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: largePayload,
+      })
+
+      expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
+      const text = await res.text()
+      expect(text).toBe('Request body too large')
     })
 
     it('should reject requests with invalid Content-Length header', async () => {
@@ -234,6 +253,46 @@ describe('Request Size Limiter Middleware', () => {
     })
   })
 
+  describe('Content-Length Mismatch Detection', () => {
+    it('should reject when Content-Length is smaller than actual body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      const payload = JSON.stringify({ data: 'x'.repeat(1000) })
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': '100', // Declare smaller size than actual
+        },
+        body: payload,
+      })
+
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      const text = await res.text()
+      expect(text).toBe('Content-Length header does not match actual body size')
+    })
+
+    it('should reject when Content-Length is larger than actual body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      const payload = JSON.stringify({ data: 'test' })
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': '10000', // Declare larger size than actual
+        },
+        body: payload,
+      })
+
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      const text = await res.text()
+      expect(text).toBe('Content-Length header does not match actual body size')
+    })
+  })
+
   describe('Edge Cases', () => {
     it('should handle Content-Length of 0', async () => {
       app.use('*', generalRequestSizeLimiter)
@@ -274,17 +333,21 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', generalRequestSizeLimiter)
       app.post('/test', c => c.json({ success: true }))
 
+      const payload = JSON.stringify({ data: 'test' })
       const res = await app.request('/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': '-1',
         },
-        body: JSON.stringify({ data: 'test' }),
+        body: payload,
       })
 
-      // Negative numbers should be allowed as they're less than max size
-      expect(res.status).toBe(StatusCodes.OK)
+      // Negative Content-Length is technically invalid but actual body validation will pass if under limit
+      // The mismatch check will also fail since -1 != actual body size
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      const text = await res.text()
+      expect(text).toBe('Content-Length header does not match actual body size')
     })
 
     it('should handle GET requests without body', async () => {
@@ -298,6 +361,92 @@ describe('Request Size Limiter Middleware', () => {
       expect(res.status).toBe(StatusCodes.OK)
       const json = await res.json()
       expect(json.success).toBe(true)
+    })
+
+    it('should handle HEAD requests without body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.all('/test', (c) => {
+        if (c.req.method === 'HEAD') {
+          return c.body(null, StatusCodes.OK)
+        }
+
+        return c.json({ success: true })
+      })
+
+      const res = await app.request('/test', {
+        method: 'HEAD',
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+    })
+
+    it('should handle DELETE requests without body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.delete('/test', c => c.json({ success: true }))
+
+      const res = await app.request('/test', {
+        method: 'DELETE',
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+      const json = await res.json()
+      expect(json.success).toBe(true)
+    })
+
+    it('should handle OPTIONS requests without body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.options('/test', c => c.json({ success: true }))
+
+      const res = await app.request('/test', {
+        method: 'OPTIONS',
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+      const json = await res.json()
+      expect(json.success).toBe(true)
+    })
+  })
+
+  describe('Security Attack Scenarios', () => {
+    it('should prevent bypass via missing Content-Length with large body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      // Attempt to bypass by not sending Content-Length header
+      const largePayload = 'x'.repeat(200000) // 200KB
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          // No Content-Length header
+        },
+        body: largePayload,
+      })
+
+      expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
+      const text = await res.text()
+      expect(text).toBe('Request body too large')
+    })
+
+    it('should prevent bypass via incorrect Content-Length with large body', async () => {
+      app.use('*', generalRequestSizeLimiter)
+      app.post('/test', c => c.json({ success: true }))
+
+      // Attempt to bypass by sending small Content-Length but large body
+      const largePayload = 'x'.repeat(200000) // 200KB
+      const res = await app.request('/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Length': '100', // Lie about size
+        },
+        body: largePayload,
+      })
+
+      // Should be rejected due to actual body size exceeding limit
+      expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
+      const text = await res.text()
+      expect(text).toBe('Request body too large')
     })
   })
 })

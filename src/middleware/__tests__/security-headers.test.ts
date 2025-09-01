@@ -27,10 +27,12 @@ describe('Security Headers Middleware', () => {
       expect(res.headers.get('X-Frame-Options')).toBe('DENY')
     })
 
-    it('should set X-XSS-Protection header', async () => {
+    it('should not set deprecated X-XSS-Protection header or set it to 0', async () => {
       const res = await app.request('/test')
 
-      expect(res.headers.get('X-XSS-Protection')).toBe('1; mode=block')
+      // X-XSS-Protection is deprecated and should either be absent or set to "0"
+      const xssProtection = res.headers.get('X-XSS-Protection')
+      expect(xssProtection === null || xssProtection === '0').toBe(true)
     })
 
     it('should set Referrer-Policy header', async () => {
@@ -51,7 +53,9 @@ describe('Security Headers Middleware', () => {
 
         expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
         expect(res.headers.get('X-Frame-Options')).toBe('DENY')
-        expect(res.headers.get('X-XSS-Protection')).toBe('1; mode=block')
+        // X-XSS-Protection is deprecated and should either be absent or set to "0"
+        const xssProtection = res.headers.get('X-XSS-Protection')
+        expect(xssProtection === null || xssProtection === '0').toBe(true)
         expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
       }
     })
@@ -213,7 +217,9 @@ describe('Security Headers Middleware', () => {
 
       const createdRes = await app.request('/created')
       expect(createdRes.status).toBe(201)
-      expect(createdRes.headers.get('X-XSS-Protection')).toBe('1; mode=block')
+      // X-XSS-Protection is deprecated and should either be absent or set to "0"
+      const xssProtection = createdRes.headers.get('X-XSS-Protection')
+      expect(xssProtection === null || xssProtection === '0').toBe(true)
     })
 
     it('should preserve original response body', async () => {
@@ -234,7 +240,9 @@ describe('Security Headers Middleware', () => {
       const htmlRes = await app.request('/html')
       const htmlBody = await htmlRes.text()
       expect(htmlBody).toBe('<h1>HTML</h1>')
-      expect(htmlRes.headers.get('X-XSS-Protection')).toBe('1; mode=block')
+      // X-XSS-Protection is deprecated and should either be absent or set to "0"
+      const htmlXssProtection = htmlRes.headers.get('X-XSS-Protection')
+      expect(htmlXssProtection === null || htmlXssProtection === '0').toBe(true)
     })
 
     it('should not override existing security headers', async () => {
