@@ -47,7 +47,6 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
   }
 }
 
-// Pre-configured middleware instances.
 export const generalRequestSizeLimiter = createRequestSizeLimiter()
 
 export const authRequestSizeLimiter = createRequestSizeLimiter({

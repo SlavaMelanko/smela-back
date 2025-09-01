@@ -4,7 +4,6 @@ import { secureHeaders } from 'hono/secure-headers'
 
 import { isDevEnv, isProdEnv, isStagingEnv } from '@/lib/env'
 
-// Configure security headers based on environment.
 const getSecurityHeadersConfig = () => {
   // Build CSP configuration object.
   const devCsp = {
@@ -58,7 +57,6 @@ const getSecurityHeadersConfig = () => {
   return config
 }
 
-// Create middleware with environment-specific configuration.
 const securityHeadersMiddleware: MiddlewareHandler = secureHeaders(getSecurityHeadersConfig())
 
 export default securityHeadersMiddleware
