@@ -1,7 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { StatusCodes } from 'http-status-codes'
-
+import { AppError, ErrorCode } from '@/lib/catch'
 import logger from '@/lib/logger'
 
 const DEFAULT_MAX_SIZE = 100 * 1024 // 100KB default
@@ -11,7 +10,6 @@ const DEFAULT_STREAMING_THRESHOLD = 100 * 1024 // 100KB threshold for streaming
 
 interface RequestSizeLimiterOptions {
   maxSize?: number
-  onError?: (size: number) => void
   useStreaming?: boolean // Enable streaming validation for large payloads.
   streamingThreshold?: number // Size threshold to switch to streaming (default 100KB).
 }
@@ -67,46 +65,56 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
   }
 }
 
+const validateContentLengthHeader = (contentHeader: string | null | undefined, maxSize: number, path?: string): {
+  ok: boolean
+  length: number
+  errorCode?: ErrorCode
+} => {
+  if (!contentHeader) {
+    return { ok: true, length: 0 }
+  }
+
+  const contentLength = +contentHeader
+
+  if (Number.isNaN(contentLength) || contentLength < 0) {
+    logger.warn('Invalid Content-Length header', { contentLength: contentHeader, path })
+
+    return { ok: false, length: 0, errorCode: ErrorCode.InvalidContentLength }
+  }
+
+  if (contentLength > maxSize) {
+    logger.warn('Request body too large (Content-Length)', {
+      length: contentLength,
+      maxSize,
+      path,
+    })
+
+    return { ok: false, length: contentLength, errorCode: ErrorCode.RequestTooLarge }
+  }
+
+  return { ok: true, length: contentLength }
+}
+
 const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): MiddlewareHandler => {
   const {
     maxSize = DEFAULT_MAX_SIZE,
-    onError,
     useStreaming = false,
     streamingThreshold = DEFAULT_STREAMING_THRESHOLD,
   } = options
 
   return async (c, next) => {
-    const contentLength = c.req.header('content-length')
-    let contentLengthSize: number | null = null
+    const contentHeader = c.req.header('content-length')
+    const { ok, length, errorCode } = validateContentLengthHeader(contentHeader, maxSize, c.req.path)
 
-    // Check Content-Length header if present.
-    if (contentLength) {
-      contentLengthSize = +contentLength
-
-      if (Number.isNaN(contentLengthSize)) {
-        logger.warn('Invalid Content-Length header', { contentLength })
-
-        return c.text('Invalid Content-Length header', StatusCodes.BAD_REQUEST)
-      }
-
-      if (contentLengthSize > maxSize) {
-        logger.warn('Request body too large (Content-Length)', {
-          size: contentLengthSize,
-          maxSize,
-          path: c.req.path,
-        })
-
-        if (onError) {
-          onError(contentLengthSize)
-        }
-
-        return c.text('Request body too large', StatusCodes.REQUEST_TOO_LONG)
-      }
+    if (!ok) {
+      throw new AppError(errorCode!)
     }
+
+    const contentLength = length > 0 ? length : null
 
     // Determine whether to use streaming based on Content-Length or settings.
     const shouldUseStreaming = useStreaming
-      || (contentLengthSize !== null && contentLengthSize > streamingThreshold)
+      || (contentLength !== null && contentLength > streamingThreshold)
       || (maxSize > streamingThreshold)
 
     // Validate actual body size to prevent bypassing via missing/incorrect Content-Length.
@@ -124,15 +132,11 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
           logger.warn('Request body too large (streaming validation)', {
             actualSize: result.actualSize,
             maxSize,
-            contentLength: contentLength || 'not provided',
+            contentLength: contentHeader || 'not provided',
             path: c.req.path,
           })
 
-          if (onError) {
-            onError(result.actualSize)
-          }
-
-          return c.text('Request body too large', StatusCodes.REQUEST_TOO_LONG)
+          throw new AppError(ErrorCode.RequestTooLarge)
         }
 
         actualSize = result.actualSize
@@ -145,32 +149,31 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
           logger.warn('Request body too large (actual size)', {
             actualSize,
             maxSize,
-            contentLength: contentLength || 'not provided',
+            contentLength: contentHeader || 'not provided',
             path: c.req.path,
           })
 
-          if (onError) {
-            onError(actualSize)
-          }
-
-          return c.text('Request body too large', StatusCodes.REQUEST_TOO_LONG)
+          throw new AppError(ErrorCode.RequestTooLarge)
         }
       }
 
       // Also validate that Content-Length matches actual size if header was provided.
-      if (contentLength && contentLengthSize !== null) {
-        if (contentLengthSize !== actualSize) {
-          logger.warn('Content-Length mismatch', {
-            declaredSize: contentLengthSize,
-            actualSize,
-            path: c.req.path,
-            usedStreaming: shouldUseStreaming,
-          })
+      if (contentHeader && contentLength !== null && contentLength !== actualSize) {
+        logger.warn('Content-Length mismatch', {
+          declaredSize: contentLength,
+          actualSize,
+          path: c.req.path,
+          usedStreaming: shouldUseStreaming,
+        })
 
-          return c.text('Content-Length header does not match actual body size', StatusCodes.BAD_REQUEST)
-        }
+        throw new AppError(ErrorCode.ContentLengthMismatch)
       }
     } catch (error) {
+      // Re-throw AppErrors without modification
+      if (error instanceof AppError) {
+        throw error
+      }
+
       // If body parsing fails, it might be due to the request method not having a body (GET, HEAD, etc.).
       // In such cases, we can safely proceed.
       const method = c.req.method
@@ -188,7 +191,7 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
       })
 
       // For safety, reject the request if we can't validate the body size.
-      return c.text('Failed to validate request size', StatusCodes.BAD_REQUEST)
+      throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }
 
     await next()

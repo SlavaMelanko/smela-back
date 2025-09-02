@@ -69,6 +69,20 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.BAD_REQUEST,
     error: 'Validation error',
   },
+
+  // Request errors
+  [ErrorCode.RequestTooLarge]: {
+    status: StatusCodes.REQUEST_TOO_LONG,
+    error: 'Request body too large',
+  },
+  [ErrorCode.InvalidContentLength]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'Invalid Content-Length header',
+  },
+  [ErrorCode.ContentLengthMismatch]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'Content-Length header does not match actual body size',
+  },
 }
 
 export default ErrorRegistry
