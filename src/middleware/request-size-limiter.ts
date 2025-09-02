@@ -77,17 +77,19 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
 
   return async (c, next) => {
     const contentLength = c.req.header('content-length')
-    const contentLengthSize = contentLength ? Number.parseInt(contentLength, 10) : null
+    let contentLengthSize: number | null = null
 
     // Check Content-Length header if present.
     if (contentLength) {
-      if (Number.isNaN(contentLengthSize!)) {
+      contentLengthSize = +contentLength
+
+      if (Number.isNaN(contentLengthSize)) {
         logger.warn('Invalid Content-Length header', { contentLength })
 
         return c.text('Invalid Content-Length header', StatusCodes.BAD_REQUEST)
       }
 
-      if (contentLengthSize! > maxSize) {
+      if (contentLengthSize > maxSize) {
         logger.warn('Request body too large (Content-Length)', {
           size: contentLengthSize,
           maxSize,
@@ -95,7 +97,7 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
         })
 
         if (onError) {
-          onError(contentLengthSize!)
+          onError(contentLengthSize)
         }
 
         return c.text('Request body too large', StatusCodes.REQUEST_TOO_LONG)
@@ -139,7 +141,6 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
         const body = await clonedRequest.arrayBuffer()
         actualSize = body.byteLength
 
-        // Check if actual size exceeds limit.
         if (actualSize > maxSize) {
           logger.warn('Request body too large (actual size)', {
             actualSize,
