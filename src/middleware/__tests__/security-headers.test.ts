@@ -70,16 +70,18 @@ describe('Security Headers Middleware', () => {
         expect(res.headers.get('Strict-Transport-Security')).toBeNull()
       })
 
-      it('should have strict CSP in test environment', async () => {
-        // Test environment should have production-like CSP (without HSTS)
+      it('should have development CSP in test environment', async () => {
+        // Test environment uses development CSP for better compatibility with testing frameworks
         const res = await app.request('/test')
         const csp = res.headers.get('Content-Security-Policy')
 
         expect(csp).toBeTruthy()
-        expect(csp).toContain('script-src \'self\'')
-        expect(csp).not.toContain('unsafe-eval')
-        expect(csp).toContain('img-src \'self\' data: https:')
-        expect(csp).not.toContain('http:')
+        // Test environment uses dev CSP with unsafe-eval for testing frameworks
+        expect(csp).toContain('script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'')
+        expect(csp).toContain('unsafe-eval')
+        // Test environment allows http images for testing
+        expect(csp).toContain('img-src \'self\' data: https: http:')
+        expect(csp).toContain('http:')
       })
     })
 
@@ -106,7 +108,7 @@ describe('Security Headers Middleware', () => {
         expect(csp).toContain('frame-ancestors \'none\'')
         expect(csp).toContain('base-uri \'self\'')
         expect(csp).toContain('form-action \'self\'')
-        expect(csp).toContain('upgrade-insecure-requests')
+        // upgrade-insecure-requests is only in production/staging, not dev/test
       })
     })
   })
@@ -126,7 +128,7 @@ describe('Security Headers Middleware', () => {
       expect(csp).toContain('frame-ancestors \'none\'')
       expect(csp).toContain('base-uri \'self\'')
       expect(csp).toContain('form-action \'self\'')
-      expect(csp).toContain('upgrade-insecure-requests')
+      // upgrade-insecure-requests is only in production/staging, not dev/test
     })
 
     it('should format CSP as semicolon-separated directives', async () => {
@@ -141,9 +143,8 @@ describe('Security Headers Middleware', () => {
 
       // Verify each directive has proper format
       for (const directive of directives) {
-        if (directive !== 'upgrade-insecure-requests') {
-          expect(directive).toMatch(/^[\w-]+\s+/)
-        }
+        // All directives in dev/test should have values (no standalone directives like upgrade-insecure-requests)
+        expect(directive).toMatch(/^[\w-]+\s+/)
       }
     })
 

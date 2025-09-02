@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { secureHeaders } from 'hono/secure-headers'
 
-import { isDevEnv, isStagingOrProdEnv } from '@/lib/env'
+import { isDevOrTestEnv, isStagingOrProdEnv } from '@/lib/env'
 
 const getSecurityHeadersConfig = () => {
   const commonCsp = {
@@ -36,7 +36,7 @@ const getSecurityHeadersConfig = () => {
     xContentTypeOptions: 'nosniff',
     xFrameOptions: 'DENY',
     referrerPolicy: 'strict-origin-when-cross-origin',
-    contentSecurityPolicy: isDevEnv() ? devCsp : prodCsp,
+    contentSecurityPolicy: isDevOrTestEnv() ? devCsp : prodCsp,
     permissionsPolicy: {
       geolocation: [],
       camera: [],
