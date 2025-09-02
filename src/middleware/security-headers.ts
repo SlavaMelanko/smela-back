@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { secureHeaders } from 'hono/secure-headers'
 
-import { isDevEnv, isProdEnv, isStagingEnv } from '@/lib/env'
+import { isDevEnv, isStagingOrProdEnv } from '@/lib/env'
 
 const getSecurityHeadersConfig = () => {
   const commonCsp = {
@@ -48,7 +48,7 @@ const getSecurityHeadersConfig = () => {
       accelerometer: [],
     },
     // Add Strict-Transport-Security for production/staging.
-    strictTransportSecurity: (isProdEnv() || isStagingEnv())
+    strictTransportSecurity: isStagingOrProdEnv()
       ? 'max-age=31536000; includeSubDomains; preload'
       : undefined,
   }

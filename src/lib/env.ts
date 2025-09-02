@@ -47,5 +47,6 @@ const isProdEnv = () => env.NODE_ENV === 'production'
 const isTestEnv = () => env.NODE_ENV === 'test'
 const isStagingEnv = () => env.NODE_ENV === 'staging'
 const isDevOrTestEnv = () => isDevEnv() || isTestEnv()
+const isStagingOrProdEnv = () => isStagingEnv() || isProdEnv()
 
-export { env as default, isDevEnv, isDevOrTestEnv, isProdEnv, isStagingEnv, isTestEnv }
+export { env as default, isDevEnv, isDevOrTestEnv, isProdEnv, isStagingEnv, isStagingOrProdEnv, isTestEnv }

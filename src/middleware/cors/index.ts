@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { isDevEnv, isProdEnv, isStagingEnv, isTestEnv } from '@/lib/env'
+import { isDevEnv, isStagingOrProdEnv, isTestEnv } from '@/lib/env'
 
 import { dev, fallback, prodAndStage, test } from './env'
 
@@ -13,7 +13,7 @@ const getCorsMiddleware = (): MiddlewareHandler => {
     return dev()
   }
 
-  if (isStagingEnv() || isProdEnv()) {
+  if (isStagingOrProdEnv()) {
     return prodAndStage()
   }
 
