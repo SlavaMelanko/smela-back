@@ -15,7 +15,7 @@ const stagingAndProdCors = (): MiddlewareHandler => {
     .map(normalizeOrigin) || []
 
   if (allowedOrigins.length === 0) {
-    logger.warn('No ALLOWED_ORIGINS configured for production/staging.')
+    throw new Error('ALLOWED_ORIGINS must be configured for production/staging')
   }
 
   return cors({
