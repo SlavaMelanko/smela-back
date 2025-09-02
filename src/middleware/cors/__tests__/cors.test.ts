@@ -11,7 +11,12 @@ describe('CORS Middleware', () => {
 
   beforeEach(() => {
     // Reset modules to ensure fresh imports
-    delete require.cache[require.resolve('../cors')]
+    delete require.cache[require.resolve('../index')]
+    delete require.cache[require.resolve('../env/index')]
+    delete require.cache[require.resolve('../env/dev')]
+    delete require.cache[require.resolve('../env/test')]
+    delete require.cache[require.resolve('../env/prod-and-stage')]
+    delete require.cache[require.resolve('../env/fallback')]
     delete require.cache[require.resolve('@/lib/env')]
   })
 
@@ -25,7 +30,12 @@ describe('CORS Middleware', () => {
     Object.assign(process.env, originalEnv)
 
     // Clear require cache again to ensure clean state for next test
-    delete require.cache[require.resolve('../cors')]
+    delete require.cache[require.resolve('../index')]
+    delete require.cache[require.resolve('../env/index')]
+    delete require.cache[require.resolve('../env/dev')]
+    delete require.cache[require.resolve('../env/test')]
+    delete require.cache[require.resolve('../env/prod-and-stage')]
+    delete require.cache[require.resolve('../env/fallback')]
     delete require.cache[require.resolve('@/lib/env')]
   })
 
@@ -39,7 +49,7 @@ describe('CORS Middleware', () => {
       })
 
       // Import after setting env
-      const corsMiddleware = require('../cors').default
+      const corsMiddleware = require('../index').default
       app = new Hono()
       app.use('*', corsMiddleware)
       app.get('/test', c => c.json({ success: true }))
@@ -117,7 +127,7 @@ describe('CORS Middleware', () => {
         system: { email: 'test@test.com', name: 'Test' },
       })
 
-      const corsMiddleware = require('../cors').default
+      const corsMiddleware = require('../index').default
       app = new Hono()
       app.use('*', corsMiddleware)
       app.get('/test', c => c.json({ success: true }))
@@ -154,7 +164,7 @@ describe('CORS Middleware', () => {
         system: { email: 'test@test.com', name: 'Test' },
       })
 
-      const corsMiddleware = require('../cors').default
+      const corsMiddleware = require('../index').default
       app = new Hono()
       app.use('*', corsMiddleware)
       app.get('/test', c => c.json({ success: true }))
@@ -211,7 +221,7 @@ describe('CORS Middleware', () => {
         system: { email: 'test@test.com', name: 'Test' },
       })
 
-      const corsMiddleware = require('../cors').default
+      const corsMiddleware = require('../index').default
       app = new Hono()
       app.use('*', corsMiddleware)
       app.get('/test', c => c.json({ success: true }))
