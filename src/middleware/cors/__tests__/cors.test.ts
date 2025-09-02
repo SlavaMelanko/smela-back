@@ -15,7 +15,7 @@ describe('CORS Middleware', () => {
     delete require.cache[require.resolve('../env/index')]
     delete require.cache[require.resolve('../env/dev')]
     delete require.cache[require.resolve('../env/test')]
-    delete require.cache[require.resolve('../env/prod-and-stage')]
+    delete require.cache[require.resolve('../env/staging-and-prod')]
     delete require.cache[require.resolve('../env/fallback')]
     delete require.cache[require.resolve('@/lib/env')]
   })
@@ -34,7 +34,7 @@ describe('CORS Middleware', () => {
     delete require.cache[require.resolve('../env/index')]
     delete require.cache[require.resolve('../env/dev')]
     delete require.cache[require.resolve('../env/test')]
-    delete require.cache[require.resolve('../env/prod-and-stage')]
+    delete require.cache[require.resolve('../env/staging-and-prod')]
     delete require.cache[require.resolve('../env/fallback')]
     delete require.cache[require.resolve('@/lib/env')]
   })

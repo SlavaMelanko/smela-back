@@ -8,7 +8,7 @@ import { isHttps, isValidOrigin, normalizeOrigin } from '@/lib/url'
 
 import { ALLOWED_HEADERS, ALLOWED_METHODS, EXPOSED_HEADERS, MAX_AGE_ONE_HOUR } from '../constants'
 
-const prodAndStageCors = (): MiddlewareHandler => {
+const stagingAndProdCors = (): MiddlewareHandler => {
   const allowedOrigins = env.ALLOWED_ORIGINS?.split(',')
     .map(o => o.trim())
     .filter(Boolean)
@@ -48,4 +48,4 @@ const prodAndStageCors = (): MiddlewareHandler => {
   })
 }
 
-export default prodAndStageCors
+export default stagingAndProdCors
