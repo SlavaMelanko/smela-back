@@ -55,7 +55,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
 
@@ -92,7 +92,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
 
@@ -111,7 +111,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
-      expect(json.error).toBe('Invalid Content-Length header')
+      expect(json.error).toBe('Invalid Content-Length header.')
       expect(json.code).toBe('request/invalid-content-length')
     })
   })
@@ -156,7 +156,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
   })
@@ -197,7 +197,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
   })
@@ -253,7 +253,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
-      expect(json.error).toBe('Content-Length header does not match actual body size')
+      expect(json.error).toBe('Content-Length header does not match actual body size.')
       expect(json.code).toBe('request/content-length-mismatch')
     })
 
@@ -273,7 +273,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
-      expect(json.error).toBe('Content-Length header does not match actual body size')
+      expect(json.error).toBe('Content-Length header does not match actual body size.')
       expect(json.code).toBe('request/content-length-mismatch')
     })
   })
@@ -331,7 +331,7 @@ describe('Request Size Limiter Middleware', () => {
       // Negative Content-Length is invalid and should be rejected immediately
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
-      expect(json.error).toBe('Invalid Content-Length header')
+      expect(json.error).toBe('Invalid Content-Length header.')
       expect(json.code).toBe('request/invalid-content-length')
     })
 
@@ -438,7 +438,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
 
@@ -485,7 +485,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
-      expect(json.error).toBe('Content-Length header does not match actual body size')
+      expect(json.error).toBe('Content-Length header does not match actual body size.')
       expect(json.code).toBe('request/content-length-mismatch')
     })
 
@@ -530,7 +530,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
 
@@ -552,7 +552,7 @@ describe('Request Size Limiter Middleware', () => {
       // Should be rejected due to actual body size exceeding limit
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
-      expect(json.error).toBe('Request body too large')
+      expect(json.error).toBe('Request body too large.')
       expect(json.code).toBe('request/too-large')
     })
   })

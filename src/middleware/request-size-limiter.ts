@@ -12,10 +12,6 @@ interface RequestSizeLimiterOptions {
   maxSize?: number
 }
 
-/**
- * Validates request body size using streaming to avoid loading entire body into memory.
- * This is more efficient for large payloads like file uploads.
- */
 const validateBodySizeStreaming = async (request: Request, maxSize: number): Promise<{
   valid: boolean
   actualSize: number
@@ -63,7 +59,7 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
   }
 }
 
-const validateContentLengthHeader = (contentHeader: string | null | undefined, maxSize: number, path?: string): number | null => {
+const validateContentLengthHeader = (contentHeader: string | null | undefined, maxSize: number): number | null => {
   if (!contentHeader) {
     return null
   }
@@ -71,7 +67,7 @@ const validateContentLengthHeader = (contentHeader: string | null | undefined, m
   const contentLength = +contentHeader
 
   if (Number.isNaN(contentLength) || contentLength < 0) {
-    logger.warn('Invalid Content-Length header', { contentLength: contentHeader, path })
+    logger.warn('Invalid Content-Length header', { contentLength: contentHeader })
 
     throw new AppError(ErrorCode.InvalidContentLength)
   }
@@ -80,7 +76,6 @@ const validateContentLengthHeader = (contentHeader: string | null | undefined, m
     logger.warn('Request body too large (Content-Length)', {
       length: contentLength,
       maxSize,
-      path,
     })
 
     throw new AppError(ErrorCode.RequestTooLarge)
@@ -97,9 +92,8 @@ const validateBodySize = async (
   request: Request,
   maxSize: number,
   contentLength: number | null,
-  path: string,
 ): Promise<number> => {
-  // Determine whether to use streaming based on Content-Length or max size
+  // Determine whether to use streaming based on Content-Length or max size.
   const shouldUseStreaming
     = (contentLength !== null && contentLength > DEFAULT_STREAMING_THRESHOLD)
       || (maxSize > DEFAULT_STREAMING_THRESHOLD)
@@ -115,7 +109,6 @@ const validateBodySize = async (
         actualSize: result.actualSize,
         maxSize,
         contentLength: contentLength || 'not provided',
-        path,
       })
 
       throw new AppError(ErrorCode.RequestTooLarge)
@@ -132,7 +125,6 @@ const validateBodySize = async (
         actualSize,
         maxSize,
         contentLength: contentLength || 'not provided',
-        path,
       })
 
       throw new AppError(ErrorCode.RequestTooLarge)
@@ -153,40 +145,33 @@ const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): Midd
       return next()
     }
 
-    const contentHeader = c.req.header('content-length')
-    const contentLength = validateContentLengthHeader(contentHeader, maxSize, c.req.path)
-
-    // Clone request to avoid consuming the body stream
-    const clonedRequest = c.req.raw.clone()
-
     try {
-      // Validate actual body size
-      const actualSize = await validateBodySize(clonedRequest, maxSize, contentLength, c.req.path)
+      const contentHeader = c.req.header('content-length')
+      const contentLength = validateContentLengthHeader(contentHeader, maxSize)
 
-      // Validate that Content-Length matches actual size if header was provided
-      if (contentHeader && contentLength !== null && contentLength !== actualSize) {
+      const clonedRequest = c.req.raw.clone()
+      const bodySize = await validateBodySize(clonedRequest, maxSize, contentLength)
+
+      // Validate that Content-Length matches actual size if header was provided.
+      if (contentHeader && contentLength !== null && contentLength !== bodySize) {
         logger.warn('Content-Length mismatch', {
           declaredSize: contentLength,
-          actualSize,
-          path: c.req.path,
+          actualSize: bodySize,
         })
 
         throw new AppError(ErrorCode.ContentLengthMismatch)
       }
     } catch (error) {
-      // Re-throw AppErrors without modification
       if (error instanceof AppError) {
         throw error
       }
 
-      // Log unexpected errors
       logger.error('Failed to validate request body size', {
         error,
         path: c.req.path,
         method: c.req.method,
       })
 
-      // For safety, reject the request if we can't validate the body size.
       throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }
 

@@ -108,7 +108,7 @@ describe('GET /me endpoint', () => {
     expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
     const data = await res.json()
-    expect(data.error).toBe('Internal server error')
+    expect(data.error).toBe('Internal server error.')
   })
 
   it('should return same structure as login and signup', async () => {

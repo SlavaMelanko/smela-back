@@ -11,77 +11,77 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   // Auth errors
   [ErrorCode.AlreadyVerified]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'User is already verified',
+    error: 'User is already verified.',
   },
   [ErrorCode.BadCredentials]: {
     status: StatusCodes.UNAUTHORIZED,
-    error: 'Invalid email or password',
+    error: 'Invalid email or password.',
   },
   [ErrorCode.EmailAlreadyInUse]: {
     status: StatusCodes.CONFLICT,
-    error: 'Email is already in use',
+    error: 'Email is already in use.',
   },
   [ErrorCode.Forbidden]: {
     status: StatusCodes.FORBIDDEN,
-    error: 'Unverified account',
+    error: 'Unverified account.',
   },
   [ErrorCode.InvalidCredentials]: {
     status: StatusCodes.UNAUTHORIZED,
-    error: 'Invalid credentials',
+    error: 'Invalid credentials.',
   },
   [ErrorCode.Unauthorized]: {
     status: StatusCodes.UNAUTHORIZED,
-    error: 'Unauthorized access',
+    error: 'Unauthorized access.',
   },
 
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'Token has already been used',
+    error: 'Token has already been used.',
   },
   [ErrorCode.TokenDeprecated]: {
     status: StatusCodes.GONE,
-    error: 'Token has been deprecated',
+    error: 'Token has been deprecated.',
   },
   [ErrorCode.TokenExpired]: {
     status: StatusCodes.UNAUTHORIZED,
-    error: 'Token has expired',
+    error: 'Token has expired.',
   },
   [ErrorCode.TokenNotFound]: {
     status: StatusCodes.NOT_FOUND,
-    error: 'Token not found',
+    error: 'Token not found.',
   },
   [ErrorCode.TokenTypeMismatch]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'Token type mismatch',
+    error: 'Token type mismatch.',
   },
 
   // System errors
   [ErrorCode.InternalError]: {
     status: StatusCodes.INTERNAL_SERVER_ERROR,
-    error: 'Internal server error',
+    error: 'Internal server error.',
   },
   [ErrorCode.NotFound]: {
     status: StatusCodes.NOT_FOUND,
-    error: 'Resource not found',
+    error: 'Resource not found.',
   },
   [ErrorCode.ValidationError]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'Validation error',
+    error: 'Validation error.',
   },
 
   // Request errors
   [ErrorCode.RequestTooLarge]: {
     status: StatusCodes.REQUEST_TOO_LONG,
-    error: 'Request body too large',
+    error: 'Request body too large.',
   },
   [ErrorCode.InvalidContentLength]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'Invalid Content-Length header',
+    error: 'Invalid Content-Length header.',
   },
   [ErrorCode.ContentLengthMismatch]: {
     status: StatusCodes.BAD_REQUEST,
-    error: 'Content-Length header does not match actual body size',
+    error: 'Content-Length header does not match actual body size.',
   },
 }
 
