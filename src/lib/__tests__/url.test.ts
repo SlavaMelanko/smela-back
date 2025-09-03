@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { isHTTPS, isLocalhost, isValidOrigin, normalizeOrigin, parseOrigin } from '@/lib/url'
+import { isHttps, isLocalhost, isValidOrigin, normalizeOrigin, parseOrigin } from '@/lib/url'
 
 describe('URL utilities', () => {
   describe('isLocalhost', () => {
@@ -46,31 +46,31 @@ describe('URL utilities', () => {
     })
   })
 
-  describe('isHTTPS', () => {
+  describe('isHttps', () => {
     test('should return true for HTTPS URLs', () => {
-      expect(isHTTPS('https://example.com')).toBe(true)
-      expect(isHTTPS('https://localhost')).toBe(true)
-      expect(isHTTPS('https://api.example.com:8443')).toBe(true)
-      expect(isHTTPS('https://192.168.1.1')).toBe(true)
+      expect(isHttps('https://example.com')).toBe(true)
+      expect(isHttps('https://localhost')).toBe(true)
+      expect(isHttps('https://api.example.com:8443')).toBe(true)
+      expect(isHttps('https://192.168.1.1')).toBe(true)
     })
 
     test('should return false for non-HTTPS URLs', () => {
-      expect(isHTTPS('http://example.com')).toBe(false)
-      expect(isHTTPS('http://localhost')).toBe(false)
-      expect(isHTTPS('ws://example.com')).toBe(false)
-      expect(isHTTPS('wss://example.com')).toBe(false)
-      expect(isHTTPS('ftp://example.com')).toBe(false)
+      expect(isHttps('http://example.com')).toBe(false)
+      expect(isHttps('http://localhost')).toBe(false)
+      expect(isHttps('ws://example.com')).toBe(false)
+      expect(isHttps('wss://example.com')).toBe(false)
+      expect(isHttps('ftp://example.com')).toBe(false)
     })
 
     test('should return false for invalid or empty strings', () => {
-      expect(isHTTPS('')).toBe(false)
-      expect(isHTTPS('example.com')).toBe(false)
-      expect(isHTTPS('not-a-url')).toBe(false)
+      expect(isHttps('')).toBe(false)
+      expect(isHttps('example.com')).toBe(false)
+      expect(isHttps('not-a-url')).toBe(false)
     })
 
     test('should be case-sensitive', () => {
-      expect(isHTTPS('HTTPS://example.com')).toBe(false)
-      expect(isHTTPS('Https://example.com')).toBe(false)
+      expect(isHttps('HTTPS://example.com')).toBe(false)
+      expect(isHttps('Https://example.com')).toBe(false)
     })
   })
 

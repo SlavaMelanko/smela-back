@@ -38,6 +38,6 @@ export const setAuthCookie = (c: Context, token: string): void => {
 export const deleteAuthCookie = (c: Context): void => {
   honoDeleteCookie(c, env.JWT_COOKIE_NAME, {
     path: '/',
-    ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+    ...(env.COOKIE_DOMAIN && !isDevOrTestEnv() && { domain: env.COOKIE_DOMAIN }),
   })
 }

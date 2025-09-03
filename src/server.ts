@@ -6,10 +6,13 @@ import type { AppContext } from '@/types/context'
 
 import {
   authRateLimiter,
+  authRequestSizeLimiter,
   corsMiddleware,
   generalRateLimiter,
+  generalRequestSizeLimiter,
   loggerMiddleware,
   onError,
+  securityHeadersMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
@@ -27,10 +30,13 @@ class Server {
 
   private setupMiddleware() {
     this.app
+      .use(securityHeadersMiddleware)
       .use(corsMiddleware)
       .use(requestId())
       .use(loggerMiddleware)
+      .use(generalRequestSizeLimiter)
       .use(generalRateLimiter)
+      .use('/api/v1/auth/*', authRequestSizeLimiter)
       .use('/api/v1/auth/*', authRateLimiter)
       .use('/api/v1/protected/*', userRelaxedAuthMiddleware)
       .use('/api/v1/private/*', userStrictAuthMiddleware)

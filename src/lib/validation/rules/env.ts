@@ -57,6 +57,9 @@ const rules = {
     }
   }),
 
+  // Email provider configuration
+  emailProvider: z.enum(['resend', 'ethereal']).optional(),
+
   // Ethereal email configuration (for development)
   emailEtherealHost: z.string().optional(),
   emailEtherealPort: z.coerce.number().optional(),
