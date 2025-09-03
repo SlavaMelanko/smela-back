@@ -21,6 +21,7 @@ const validate = () => {
       FE_BASE_URL: envRules.feBaseUrl,
       COMPANY_NAME: envRules.companyName,
       COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
+      EMAIL_PROVIDER: envRules.emailProvider,
       EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,
       EMAIL_SENDER_PROFILES: envRules.emailSenderProfiles,
 
