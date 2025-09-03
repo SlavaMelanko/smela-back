@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -396,8 +396,6 @@ describe('Request Size Limiter Middleware', () => {
     it('should use streaming for large payloads when enabled', async () => {
       const streamingLimiter = createRequestSizeLimiter({
         maxSize: 1024 * 1024, // 1MB
-        useStreaming: true,
-        streamingThreshold: 10 * 1024, // 10KB
       })
 
       app.use('*', streamingLimiter)
@@ -422,8 +420,6 @@ describe('Request Size Limiter Middleware', () => {
     it('should reject large streaming payloads exceeding limit', async () => {
       const streamingLimiter = createRequestSizeLimiter({
         maxSize: 100 * 1024, // 100KB
-        useStreaming: true,
-        streamingThreshold: 10 * 1024, // 10KB
       })
 
       app.use('*', streamingLimiter)
@@ -449,8 +445,6 @@ describe('Request Size Limiter Middleware', () => {
     it('should handle streaming validation without Content-Length', async () => {
       const streamingLimiter = createRequestSizeLimiter({
         maxSize: 50 * 1024, // 50KB
-        useStreaming: true,
-        streamingThreshold: 5 * 1024, // 5KB
       })
 
       app.use('*', streamingLimiter)
@@ -474,8 +468,6 @@ describe('Request Size Limiter Middleware', () => {
     it('should detect Content-Length mismatch with streaming', async () => {
       const streamingLimiter = createRequestSizeLimiter({
         maxSize: 100 * 1024, // 100KB
-        useStreaming: true,
-        streamingThreshold: 10 * 1024, // 10KB
       })
 
       app.use('*', streamingLimiter)
