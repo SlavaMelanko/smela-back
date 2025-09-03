@@ -3,8 +3,8 @@ import { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddlewar
 import loggerMiddleware from './logger'
 import onError from './on-error'
 import rateLimiterMiddleware, { authRateLimiter, generalRateLimiter } from './rate-limiter'
-import createRequestSizeLimiter, { authRequestSizeLimiter, fileUploadSizeLimiter, generalRequestSizeLimiter } from './request-size-limiter'
 import securityHeadersMiddleware from './security-headers'
+import { authRequestSizeLimiter, createRequestSizeLimiter, fileUploadSizeLimiter, generalRequestSizeLimiter } from './size-limiter'
 
 export {
   adminAuthMiddleware,

@@ -4,12 +4,13 @@ import { StatusCodes } from 'http-status-codes'
 
 import type { AppContext } from '@/types/context'
 
-import onError from '../on-error'
-import createRequestSizeLimiter, {
+import onError from '../../on-error'
+import {
   authRequestSizeLimiter,
+  createRequestSizeLimiter,
   fileUploadSizeLimiter,
   generalRequestSizeLimiter,
-} from '../request-size-limiter'
+} from '../index'
 
 describe('Request Size Limiter Middleware', () => {
   let app: Hono<AppContext>
@@ -208,7 +209,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', customLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Test with 500 bytes (should pass)
+      // Test with 500 bytes (should pass).
       const smallPayload = JSON.stringify({ data: 'x'.repeat(400) })
       const smallRes = await app.request('/test', {
         method: 'POST',
@@ -221,7 +222,7 @@ describe('Request Size Limiter Middleware', () => {
 
       expect(smallRes.status).toBe(StatusCodes.OK)
 
-      // Test with 2KB (should fail)
+      // Test with 2KB (should fail).
       const largePayload = JSON.stringify({ data: 'x'.repeat(2000) })
       const largeRes = await app.request('/test', {
         method: 'POST',
@@ -300,7 +301,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', customLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Create payload of exactly 1024 bytes
+      // Create payload of exactly 1024 bytes.
       const exactPayload = 'x'.repeat(1024)
       const res = await app.request('/test', {
         method: 'POST',
@@ -328,7 +329,7 @@ describe('Request Size Limiter Middleware', () => {
         body: payload,
       })
 
-      // Negative Content-Length is invalid and should be rejected immediately
+      // Negative Content-Length is invalid and should be rejected immediately.
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
       expect(json.error).toBe('Invalid Content-Length header.')
@@ -401,7 +402,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', streamingLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Test with 500KB payload (should use streaming)
+      // Test with 500KB payload (should use streaming).
       const largePayload = 'x'.repeat(500 * 1024)
       const res = await app.request('/test', {
         method: 'POST',
@@ -425,7 +426,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', streamingLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Test with 200KB payload (should be rejected)
+      // Test with 200KB payload (should be rejected).
       const largePayload = 'x'.repeat(200 * 1024)
       const res = await app.request('/test', {
         method: 'POST',
@@ -450,7 +451,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', streamingLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Test with 30KB payload without Content-Length
+      // Test with 30KB payload without Content-Length.
       const payload = 'x'.repeat(30 * 1024)
       const res = await app.request('/test', {
         method: 'POST',
@@ -493,7 +494,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', fileUploadSizeLimiter)
       app.post('/upload', c => c.json({ success: true }))
 
-      // Test with 2MB file (under 5MB limit)
+      // Test with 2MB file (under 5MB limit).
       const fileSize = 2 * 1024 * 1024
       const fileContent = new ArrayBuffer(fileSize)
 
@@ -517,13 +518,13 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', generalRequestSizeLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Attempt to bypass by not sending Content-Length header
+      // Attempt to bypass by not sending Content-Length header.
       const largePayload = 'x'.repeat(200000) // 200KB
       const res = await app.request('/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
-          // No Content-Length header
+          // No Content-Length header.
         },
         body: largePayload,
       })
@@ -538,7 +539,7 @@ describe('Request Size Limiter Middleware', () => {
       app.use('*', generalRequestSizeLimiter)
       app.post('/test', c => c.json({ success: true }))
 
-      // Attempt to bypass by sending small Content-Length but large body
+      // Attempt to bypass by sending small Content-Length but large body.
       const largePayload = 'x'.repeat(200000) // 200KB
       const res = await app.request('/test', {
         method: 'POST',
@@ -549,7 +550,7 @@ describe('Request Size Limiter Middleware', () => {
         body: largePayload,
       })
 
-      // Should be rejected due to actual body size exceeding limit
+      // Should be rejected due to actual body size exceeding limit.
       expect(res.status).toBe(StatusCodes.REQUEST_TOO_LONG)
       const json = await res.json()
       expect(json.error).toBe('Request body too large.')
