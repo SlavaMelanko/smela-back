@@ -4,6 +4,11 @@ import type { EmailType } from './email-type'
 import type { EmailPayload, EmailProvider } from './providers'
 import type { EmailRegistry } from './registry'
 
+const makeMetadata = (): any => ({
+  emailId: Bun.randomUUIDv7(),
+  sentAt: new Date().toISOString(),
+})
+
 export class EmailService {
   constructor(
     private provider: EmailProvider,
@@ -20,11 +25,8 @@ export class EmailService {
 
     const { email, name } = config.getSender()
 
-    const emailId = Bun.randomUUIDv7()
-    const sentAt = new Date().toISOString()
-
     const renderer = await config.getRenderer()
-    const { subject, html, text } = await renderer.render({ ...data, emailId, sentAt }, locale)
+    const { subject, html, text } = await renderer.render({ ...data, ...makeMetadata() }, locale)
 
     const payload: EmailPayload = {
       to,
