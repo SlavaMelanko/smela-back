@@ -12,3 +12,5 @@ export const authRequestSizeLimiter = createRequestSizeLimiter({
 export const fileUploadSizeLimiter = createRequestSizeLimiter({
   maxSize: FILE_UPLOAD_MAX_SIZE,
 })
+
+export { createRequestSizeLimiter }
