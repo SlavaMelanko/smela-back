@@ -48,7 +48,7 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Token has expired.',
   },
   [ErrorCode.TokenNotFound]: {
-    status: StatusCodes.NOT_FOUND,
+    status: StatusCodes.BAD_REQUEST,
     error: 'Token not found.',
   },
   [ErrorCode.TokenTypeMismatch]: {
