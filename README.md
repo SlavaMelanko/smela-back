@@ -2,7 +2,7 @@
 
 Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
 
-## 🛠️ Technology Stack
+## 📦 Technology Stack
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
