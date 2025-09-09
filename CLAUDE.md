@@ -20,8 +20,11 @@ Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono fr
 ### Development
 
 - `bun run dev` - Start development server with hot reload on port 3000
+- `bun run start` - Start production server (NODE_ENV=production)
+- `bun run staging` - Start staging server (NODE_ENV=staging)
 - `bun test` - Run all tests using Bun's built-in test runner
-- `bun test [file]` - Run a specific test file
+- `bun test [file]` - Run a specific test file (e.g., `bun test src/routes/auth/login/__tests__/login.test.ts`)
+- `bun run email` - Start React Email dev server on port 3001 for email template development
 
 ### Database Operations
 
@@ -116,6 +119,16 @@ Key tables:
 - Zod schemas for request/response validation
 - Structured error handling with custom error classes
 - Comprehensive logging with Pino
+
+### Coding Standards
+
+- **ESLint Configuration**: Using @antfu/eslint-config with strict rules
+- **File Naming**: Kebab-case for all files (except README.md, CLAUDE.md)
+- **Import Style**: Path aliases using `@/` for src directory imports
+- **Function Style**: Arrow functions preferred (`const funcName = () => {}`)
+- **Code Style**: 2-space indentation, no semicolons, single quotes
+- **Curly Braces**: Always required, even for single-line blocks
+- **Environment Variables**: Access via `env` object, not `process.env` directly
 
 ### Environment Configuration
 
@@ -229,3 +242,33 @@ project/
 - Files located in `./static/` directory
 - Includes proper MIME type detection and caching headers
 - CORS configured per environment with appropriate origins
+
+### Middleware Stack Order
+
+Middleware is applied in this specific order in `server.ts`:
+
+1. **Security Headers** - CSP, HSTS, X-Frame-Options, etc.
+2. **CORS** - Cross-origin resource sharing configuration
+3. **Request ID** - Unique ID generation for request tracking
+4. **Logger** - Pino request/response logging
+5. **General Size Limiter** - 100KB default request size limit
+6. **General Rate Limiter** - 100 requests per 15 minutes
+7. **Auth-specific middleware** (for `/api/v1/auth/*`):
+   - Size Limiter: 10KB for auth endpoints
+   - Rate Limiter: 5 attempts per 15 minutes
+8. **Protected route auth** (for `/api/v1/protected/*`): JWT validation, allows new users
+9. **Private route auth** (for `/api/v1/private/*`): JWT validation, requires verified users
+
+### CORS Configuration
+
+- **Development**: Automatically allows all localhost ports (`http://localhost:*`, `http://127.0.0.1:*`)
+- **Test**: All origins allowed with credentials disabled
+- **Staging/Production**: Strict validation requiring `ALLOWED_ORIGINS` environment variable
+- **Important**: In production/staging, `ALLOWED_ORIGINS` must be a comma-separated list of allowed frontend URLs
+
+## Important Instruction Reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
