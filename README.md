@@ -23,11 +23,9 @@ Backend API with authentication, user management, and role-based access control.
 
 ## 🛠️ Installation
 
-### 1. Clone and Install
+### 1. Install
 
 ```bash
-git clone <repository-url>
-cd portal-back-v2
 bun install
 ```
 
