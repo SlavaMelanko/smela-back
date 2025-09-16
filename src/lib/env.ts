@@ -30,6 +30,9 @@ const validate = () => {
       EMAIL_ETHEREAL_PORT: envRules.emailEtherealPort,
       EMAIL_ETHEREAL_USERNAME: envRules.emailEtherealUsername,
       EMAIL_ETHEREAL_PASSWORD: envRules.emailEtherealPassword,
+
+      // reCAPTCHA configuration
+      CAPTCHA_SECRET_KEY: envRules.captchaSecretKey,
     })
 
     // eslint-disable-next-line node/no-process-env

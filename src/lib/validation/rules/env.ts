@@ -65,6 +65,9 @@ const rules = {
   emailEtherealPort: z.coerce.number().optional(),
   emailEtherealUsername: z.string().optional(),
   emailEtherealPassword: z.string().optional(),
+
+  // reCAPTCHA configuration
+  captchaSecretKey: z.string().min(1),
 }
 
 export default rules

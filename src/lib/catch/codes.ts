@@ -12,6 +12,9 @@ enum ErrorCode {
   TokenNotFound = 'token/not-found',
   TokenTypeMismatch = 'token/type-mismatch',
 
+  CaptchaInvalidToken = 'captcha/invalid-token',
+  CaptchaValidationFailed = 'captcha/validation-failed',
+
   InternalError = 'system/internal-error',
   NotFound = 'resource/not-found',
   ValidationError = 'validation/error',
