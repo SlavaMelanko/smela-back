@@ -1,13 +1,8 @@
 import env from '@/lib/env'
 
-export interface Config {
-  baseUrl: string
-  path: string
-  headers: Record<string, string>
-  secret: string
-}
+import type { Config } from '../config'
 
-export const config: Config = {
+export const recaptchaConfig: Config = {
   baseUrl: 'https://www.google.com',
   path: '/recaptcha/api/siteverify',
   headers: {

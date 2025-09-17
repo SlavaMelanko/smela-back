@@ -1,3 +1,4 @@
+import captchaMiddleware from './captcha'
 import corsMiddleware from './cors'
 import { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
 import loggerMiddleware from './logger'
@@ -10,6 +11,7 @@ export {
   adminAuthMiddleware,
   authRateLimiter,
   authRequestSizeLimiter,
+  captchaMiddleware,
   corsMiddleware,
   createRequestSizeLimiter,
   enterpriseStrictAuthMiddleware,
