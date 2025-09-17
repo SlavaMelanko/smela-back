@@ -1,3 +1,5 @@
+import { AppError, ErrorCode } from './catch'
+import logger from './logger'
 import { makeUrl, removeTrailingSlash } from './url'
 
 export type Headers = Record<string, string>
@@ -34,6 +36,12 @@ export class ApiClient {
     }
 
     const response = await fetch(url, config)
+
+    if (!response.ok) {
+      logger.error(`API request failed: ${response.status} ${response.statusText} - ${url}`)
+
+      throw new AppError(ErrorCode.InternalError)
+    }
 
     return response.json()
   }
