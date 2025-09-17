@@ -86,10 +86,10 @@ describe('Token Validation Rules', () => {
         'ABC123DEF456GHI789JKL012MNO345PQR678STU901VWX234YZ567890abcdefghijklmnopqrstuvwxyz',
         'a'.repeat(500),
         'A'.repeat(1000),
-        '1234567890ABCDEFGHIJ',
-        'token_with_underscores',
-        'token-with-hyphens',
-        'mixedCASE123_token-test',
+        '1234567890ABCDEFGHIJ', // 20 chars - minimum
+        'token_with_underscores_12', // 25 chars - valid
+        'token-with-hyphens-123456', // 25 chars - valid
+        'mixedCASE123_token-test', // 23 chars - valid
         `very_long_token_${'x'.repeat(1980)}`,
       ]
 
@@ -201,17 +201,17 @@ describe('Token Validation Rules', () => {
 
     it('should accept tokens with valid characters only', () => {
       const validCharacterTokens = [
-        'abcdefghijklmnopqrstuvwxyz',
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        '0123456789',
-        'token_with_underscores_123',
-        'token-with-hyphens-456',
-        'MIXED_case_TOKEN-with_NUMBERS_789',
-        'a1b2c3d4e5f6g7h8i9j0',
-        '___underscore_only___',
-        '---hyphen-only---',
-        '123456789012345678901234567890',
-        'aZ_-123',
+        'abcdefghijklmnopqrstuvwxyz', // 26 chars - valid
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ', // 26 chars - valid
+        '01234567890123456789', // 20 chars - minimum length
+        'token_with_underscores_123', // 26 chars - valid
+        'token-with-hyphens-456', // 23 chars - valid
+        'MIXED_case_TOKEN-with_NUMBERS_789', // 33 chars - valid
+        'a1b2c3d4e5f6g7h8i9j0k1l2', // 24 chars - valid
+        '___underscore_only___123', // 24 chars - valid
+        '---hyphen-only---1234567', // 24 chars - valid
+        '123456789012345678901234567890', // 30 chars - valid
+        'aZ_-123456789012345678', // 22 chars - valid
       ]
 
       for (const token of validCharacterTokens) {
@@ -411,7 +411,7 @@ describe('Token Validation Rules', () => {
       const emptyToken = ''
       const shortToken = 'short'
       const longToken = 'a'.repeat(2001)
-      const invalidCharsToken = 'invalid@token'
+      const invalidCharsToken = 'invalid@token@with@symbols@1234567890' // 35 chars with invalid @
 
       const emptyResult = rules.captchaToken.safeParse(emptyToken)
       const shortResult = rules.captchaToken.safeParse(shortToken)

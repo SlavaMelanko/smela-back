@@ -7,6 +7,9 @@
 export interface Config {
   baseUrl: string
   path: string
-  headers: Record<string, string>
+  options: {
+    headers: Record<string, string>
+    timeout: number
+  }
   secret: string
 }

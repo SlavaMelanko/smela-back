@@ -1,3 +1,4 @@
+import { withTimeout } from './async'
 import { AppError, ErrorCode } from './catch'
 import logger from './logger'
 import { makeUrl, removeTrailingSlash } from './url'
@@ -9,24 +10,34 @@ export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   headers?: Headers
   body?: Body
+  timeout?: number
+}
+
+export interface ApiClientOptions {
+  headers?: Headers
+  timeout?: number
 }
 
 export class ApiClient {
   private baseUrl: string
-  private defaultHeaders: Headers
+  private defaultOptions: Required<ApiClientOptions>
 
-  constructor(baseUrl: string, defaultHeaders: Headers = {}) {
+  constructor(baseUrl: string, defaultOptions: ApiClientOptions = {}) {
     this.baseUrl = removeTrailingSlash(baseUrl)
-    this.defaultHeaders = defaultHeaders
+    this.defaultOptions = {
+      headers: defaultOptions.headers ?? {},
+      timeout: defaultOptions.timeout ?? 10000,
+    }
   }
 
   private async request<T = any>(path: string, options: RequestOptions = {}): Promise<T> {
     const url = makeUrl(this.baseUrl, path)
+    const timeout = options.timeout ?? this.defaultOptions.timeout
 
     const config: RequestInit = {
       method: options.method || 'GET',
       headers: {
-        ...this.defaultHeaders,
+        ...this.defaultOptions.headers,
         ...options.headers,
       },
     }
@@ -35,7 +46,10 @@ export class ApiClient {
       config.body = options.body
     }
 
-    const response = await fetch(url, config)
+    const response = await withTimeout(
+      async () => fetch(url, config),
+      timeout,
+    )
 
     if (!response.ok) {
       logger.error(`API request failed: ${response.status} ${response.statusText} - ${url}`)

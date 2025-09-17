@@ -4,6 +4,7 @@ import { ApiClient } from '@/lib/api-client'
 
 // Mock fetch globally
 const mockFetch = mock(() => Promise.resolve({
+  ok: true,
   json: () => Promise.resolve({ success: true, data: 'test' }),
 }))
 
@@ -29,14 +30,30 @@ describe('ApiClient', () => {
       expect(client).toBeInstanceOf(ApiClient)
     })
 
-    test('should store default headers', () => {
+    test('should store default options with headers', () => {
       const headers = { 'Content-Type': 'application/json' }
-      const client = new ApiClient('https://example.com', headers)
+      const client = new ApiClient('https://example.com', { headers })
       expect(client).toBeInstanceOf(ApiClient)
     })
 
-    test('should work with empty default headers', () => {
+    test('should store default options with timeout', () => {
+      const client = new ApiClient('https://example.com', { timeout: 5000 })
+      expect(client).toBeInstanceOf(ApiClient)
+    })
+
+    test('should store default options with headers and timeout', () => {
+      const headers = { 'Content-Type': 'application/json' }
+      const client = new ApiClient('https://example.com', { headers, timeout: 5000 })
+      expect(client).toBeInstanceOf(ApiClient)
+    })
+
+    test('should work with empty default options', () => {
       const client = new ApiClient('https://example.com')
+      expect(client).toBeInstanceOf(ApiClient)
+    })
+
+    test('should use default timeout when not specified', () => {
+      const client = new ApiClient('https://example.com', { headers: {} })
       expect(client).toBeInstanceOf(ApiClient)
     })
   })
@@ -67,7 +84,9 @@ describe('ApiClient', () => {
     })
 
     test('should merge custom headers with default headers', async () => {
-      const client = new ApiClient('https://example.com', { Authorization: 'Bearer token' })
+      const client = new ApiClient('https://example.com', {
+        headers: { Authorization: 'Bearer token' }
+      })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -85,6 +104,7 @@ describe('ApiClient', () => {
     test('should return parsed JSON response', async () => {
       const mockData = { id: 1, name: 'John' }
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve(mockData),
       } as any)
 
@@ -157,7 +177,9 @@ describe('ApiClient', () => {
     })
 
     test('should merge custom headers', async () => {
-      const client = new ApiClient('https://example.com', { Authorization: 'Bearer token' })
+      const client = new ApiClient('https://example.com', {
+        headers: { Authorization: 'Bearer token' }
+      })
       await client.post('/users', 'data', { 'Content-Type': 'application/json' })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -296,7 +318,9 @@ describe('ApiClient', () => {
 
   describe('header merging', () => {
     test('should use only default headers when no custom headers provided', async () => {
-      const client = new ApiClient('https://example.com', { 'User-Agent': 'TestClient' })
+      const client = new ApiClient('https://example.com', {
+        headers: { 'User-Agent': 'TestClient' }
+      })
       await client.get('/users')
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -308,7 +332,9 @@ describe('ApiClient', () => {
     })
 
     test('should override default headers with custom headers', async () => {
-      const client = new ApiClient('https://example.com', { 'Content-Type': 'application/xml' })
+      const client = new ApiClient('https://example.com', {
+        headers: { 'Content-Type': 'application/xml' }
+      })
       await client.post('/users', 'data', { 'Content-Type': 'application/json' })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -321,8 +347,10 @@ describe('ApiClient', () => {
 
     test('should merge multiple headers correctly', async () => {
       const client = new ApiClient('https://example.com', {
-        'Authorization': 'Bearer token',
-        'User-Agent': 'TestClient',
+        headers: {
+          'Authorization': 'Bearer token',
+          'User-Agent': 'TestClient',
+        }
       })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
@@ -336,6 +364,47 @@ describe('ApiClient', () => {
           },
         }),
       )
+    })
+  })
+
+  describe('timeout functionality', () => {
+    test('should use default timeout when not specified', async () => {
+      const client = new ApiClient('https://example.com')
+      await client.get('/users')
+
+      // We can't directly test the timeout value, but we can verify the request was made
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+
+    test('should use custom default timeout', async () => {
+      const client = new ApiClient('https://example.com', { timeout: 5000 })
+      await client.get('/users')
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+
+    test('should handle timeout errors', async () => {
+      // Mock a slow response that exceeds timeout
+      mockFetch.mockImplementationOnce(() =>
+        new Promise(resolve => setTimeout(resolve, 20)) // 20ms delay
+      )
+
+      const client = new ApiClient('https://example.com', { timeout: 10 }) // 10ms timeout
+
+      await expect(client.get('/users')).rejects.toThrow('Timeout.')
+    })
+
+    test('should complete before timeout', async () => {
+      const mockData = { id: 1, name: 'John' }
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockData),
+      } as any)
+
+      const client = new ApiClient('https://example.com', { timeout: 1000 })
+      const result = await client.get('/users')
+
+      expect(result).toEqual(mockData)
     })
   })
 })

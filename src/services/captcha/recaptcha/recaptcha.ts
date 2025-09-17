@@ -20,7 +20,7 @@ export class Recaptcha implements Captcha {
     this.config = config
     this.apiClient = new ApiClient(
       config.baseUrl,
-      config.headers,
+      config.options,
     )
   }
 

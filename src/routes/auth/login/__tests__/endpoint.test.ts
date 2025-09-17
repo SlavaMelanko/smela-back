@@ -26,6 +26,7 @@ describe('Login Endpoint', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         }),
       })
 
@@ -37,10 +38,10 @@ describe('Login Endpoint', () => {
 
     it('should validate email format', async () => {
       const invalidEmails = [
-        { email: '', password: 'ValidPass123!' }, // Empty email
-        { email: 'invalid', password: 'ValidPass123!' }, // Invalid format
-        { email: 'test@', password: 'ValidPass123!' }, // Incomplete
-        { email: '@example.com', password: 'ValidPass123!' }, // Missing local part
+        { email: '', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Empty email
+        { email: 'invalid', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Invalid format
+        { email: 'test@', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Incomplete
+        { email: '@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Missing local part
       ]
 
       for (const body of invalidEmails) {
@@ -60,11 +61,11 @@ describe('Login Endpoint', () => {
 
     it('should validate password requirements', async () => {
       const invalidPasswords = [
-        { email: 'test@example.com', password: '' }, // Empty password
-        { email: 'test@example.com', password: '123' }, // Too short
-        { email: 'test@example.com', password: 'short' }, // Too short
-        { email: 'test@example.com', password: 'NoNumbers!' }, // Missing number
-        { email: 'test@example.com', password: 'NoSpecial123' }, // Missing special char
+        { email: 'test@example.com', password: '', captchaToken: 'valid-captcha-token' }, // Empty password
+        { email: 'test@example.com', password: '123', captchaToken: 'valid-captcha-token' }, // Too short
+        { email: 'test@example.com', password: 'short', captchaToken: 'valid-captcha-token' }, // Too short
+        { email: 'test@example.com', password: 'NoNumbers!', captchaToken: 'valid-captcha-token' }, // Missing number
+        { email: 'test@example.com', password: 'NoSpecial123', captchaToken: 'valid-captcha-token' }, // Missing special char
       ]
 
       for (const body of invalidPasswords) {
@@ -84,9 +85,10 @@ describe('Login Endpoint', () => {
 
     it('should require both email and password fields', async () => {
       const incompleteRequests = [
-        { email: 'test@example.com' }, // Missing password
-        { password: 'ValidPass123!' }, // Missing email
-        {}, // Missing both
+        { email: 'test@example.com', captchaToken: 'valid-captcha-token' }, // Missing password
+        { password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Missing email
+        { captchaToken: 'valid-captcha-token' }, // Missing both email and password
+        {}, // Missing all fields
       ]
 
       for (const body of incompleteRequests) {
@@ -110,6 +112,7 @@ describe('Login Endpoint', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         }),
       })
 
@@ -140,6 +143,7 @@ describe('Login Endpoint', () => {
           body: JSON.stringify({
             email: 'test@example.com',
             password: 'validPassword123',
+            captchaToken: 'valid-captcha-token',
           }),
         })
 
@@ -165,18 +169,22 @@ describe('Login Endpoint', () => {
         {
           email: 'user@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'john.doe@company.com',
           password: 'AnotherPass456@',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'test+tag@email.com',
           password: 'SecurePass789!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'user123@test-domain.com',
           password: 'ComplexPass2023#',
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -191,30 +199,37 @@ describe('Login Endpoint', () => {
         {
           email: '',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'invalid',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'test@',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: '@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'user @example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'user@.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'user..name@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -229,18 +244,22 @@ describe('Login Endpoint', () => {
         {
           email: 'test@example.com',
           password: '',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'test@example.com',
           password: '123',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'test@example.com',
           password: 'short',
+          captchaToken: 'valid-captcha-token',
         },
         {
           email: 'test@example.com',
           password: '1234567', // Assuming min length is 8
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -254,14 +273,20 @@ describe('Login Endpoint', () => {
       const incompleteCredentials = [
         {
           email: 'test@example.com',
+          captchaToken: 'valid-captcha-token',
           // missing password
         },
         {
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
           // missing email
         },
         {
-          // missing both
+          captchaToken: 'valid-captcha-token',
+          // missing both email and password
+        },
+        {
+          // missing all fields including captchaToken
         },
       ]
 
@@ -275,6 +300,7 @@ describe('Login Endpoint', () => {
       const result = loginSchema.safeParse({
         email: 'test@example.com',
         password: 'ValidPass123!',
+        captchaToken: 'valid-captcha-token',
         extra: 'field',
         remember: true,
       })
@@ -284,6 +310,7 @@ describe('Login Endpoint', () => {
         expect(result.data).toEqual({
           email: 'test@example.com',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         })
         expect(result.data).not.toHaveProperty('extra')
         expect(result.data).not.toHaveProperty('remember')
@@ -302,6 +329,7 @@ describe('Login Endpoint', () => {
         const result = loginSchema.safeParse({
           email: 'test@example.com',
           password,
+          captchaToken: 'valid-captcha-token',
         })
         expect(result.success).toBe(true)
       }

@@ -27,6 +27,7 @@ describe('Reset Password Endpoint', () => {
   const validPayload = {
     token: '1234567890123456789012345678901234567890123456789012345678901234',
     password: 'NewSecure@123',
+    captchaToken: 'valid-captcha-token',
   }
 
   describe('POST /auth/reset-password', () => {
@@ -100,6 +101,7 @@ describe('Reset Password Endpoint', () => {
           },
           body: JSON.stringify({
             password: validPayload.password,
+            captchaToken: 'valid-captcha-token',
           }),
         })
 
@@ -197,6 +199,7 @@ describe('Reset Password Endpoint', () => {
           },
           body: JSON.stringify({
             token: validPayload.token,
+            captchaToken: 'valid-captcha-token',
           }),
         })
 
@@ -266,14 +269,17 @@ describe('Reset Password Endpoint', () => {
         {
           token: '1234567890123456789012345678901234567890123456789012345678901234',
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           token: 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWX1234',
           password: 'AnotherPass456@',
+          captchaToken: 'valid-captcha-token',
         },
         {
           token: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
           password: 'SecurePass789#',
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -288,14 +294,17 @@ describe('Reset Password Endpoint', () => {
         {
           token: '', // Empty
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           token: 'short', // Too short
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
         {
           token: 'a'.repeat(100), // Too long
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -311,22 +320,27 @@ describe('Reset Password Endpoint', () => {
         {
           token,
           password: '', // Empty
+          captchaToken: 'valid-captcha-token',
         },
         {
           token,
           password: '123', // Too short
+          captchaToken: 'valid-captcha-token',
         },
         {
           token,
           password: 'NoNumbers!', // Missing number
+          captchaToken: 'valid-captcha-token',
         },
         {
           token,
           password: 'NoSpecial123', // Missing special char
+          captchaToken: 'valid-captcha-token',
         },
         {
           token,
           password: '12345678!', // Missing letter
+          captchaToken: 'valid-captcha-token',
         },
       ]
 
@@ -340,14 +354,20 @@ describe('Reset Password Endpoint', () => {
       const incompleteInputs = [
         {
           token: '1234567890123456789012345678901234567890123456789012345678901234',
+          captchaToken: 'valid-captcha-token',
           // missing password
         },
         {
           password: 'ValidPass123!',
+          captchaToken: 'valid-captcha-token',
           // missing token
         },
         {
-          // missing both
+          captchaToken: 'valid-captcha-token',
+          // missing both token and password
+        },
+        {
+          // missing all fields including captchaToken
         },
       ]
 

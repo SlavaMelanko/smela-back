@@ -25,6 +25,7 @@ describe('Resend Verification Email Endpoint', () => {
         },
         body: JSON.stringify({
           email: 'test@example.com',
+          captchaToken: 'valid-captcha-token',
         }),
       })
 
@@ -36,11 +37,12 @@ describe('Resend Verification Email Endpoint', () => {
 
     it('should validate email format', async () => {
       const invalidEmails = [
-        { email: '' }, // Empty email
-        { email: 'invalid' }, // Invalid format
-        { email: 'test@' }, // Incomplete
-        { email: '@example.com' }, // Missing local part
-        {}, // Missing email field
+        { email: '', captchaToken: 'valid-captcha-token' }, // Empty email
+        { email: 'invalid', captchaToken: 'valid-captcha-token' }, // Invalid format
+        { email: 'test@', captchaToken: 'valid-captcha-token' }, // Incomplete
+        { email: '@example.com', captchaToken: 'valid-captcha-token' }, // Missing local part
+        { captchaToken: 'valid-captcha-token' }, // Missing email field
+        {}, // Missing all fields
       ]
 
       for (const body of invalidEmails) {
@@ -63,6 +65,7 @@ describe('Resend Verification Email Endpoint', () => {
         method: 'POST',
         body: JSON.stringify({
           email: 'test@example.com',
+          captchaToken: 'valid-captcha-token',
         }),
       })
 
@@ -92,6 +95,7 @@ describe('Resend Verification Email Endpoint', () => {
           },
           body: JSON.stringify({
             email: 'test@example.com',
+            captchaToken: 'valid-captcha-token',
           }),
         })
 
@@ -110,7 +114,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const email of validEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email })
+        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: 'valid-captcha-token' })
         expect(result.success).toBe(true)
       }
     })
@@ -127,7 +131,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const email of invalidEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email })
+        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: 'valid-captcha-token' })
         expect(result.success).toBe(false)
       }
     })
@@ -135,12 +139,13 @@ describe('Resend Verification Email Endpoint', () => {
     it('should not accept extra fields', () => {
       const result = resendVerificationEmailSchema.safeParse({
         email: 'test@example.com',
+        captchaToken: 'valid-captcha-token',
         extra: 'field',
       })
 
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data).toEqual({ email: 'test@example.com' })
+        expect(result.data).toEqual({ email: 'test@example.com', captchaToken: 'valid-captcha-token' })
         expect(result.data).not.toHaveProperty('extra')
       }
     })
