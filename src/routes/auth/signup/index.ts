@@ -8,6 +8,11 @@ import schema from './schema'
 
 const signupRoute = new Hono()
 
-signupRoute.post('/signup', requestValidator('json', schema), captchaMiddleware(), handler)
+signupRoute.post(
+  '/signup',
+  requestValidator('json', schema),
+  captchaMiddleware(),
+  handler,
+)
 
 export default signupRoute

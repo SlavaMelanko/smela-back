@@ -8,6 +8,11 @@ import schema from './schema'
 
 const resendVerificationEmailRoute = new Hono()
 
-resendVerificationEmailRoute.post('/resend-verification-email', requestValidator('json', schema), captchaMiddleware(), handler)
+resendVerificationEmailRoute.post(
+  '/resend-verification-email',
+  requestValidator('json', schema),
+  captchaMiddleware(),
+  handler,
+)
 
 export default resendVerificationEmailRoute
