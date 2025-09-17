@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { isHttps, isLocalhost, isValidOrigin, normalizeOrigin, parseOrigin } from '@/lib/url'
+import { isHttps, isLocalhost, isValidOrigin, makeUrl, normalizeOrigin, parseOrigin, removeTrailingSlash } from '@/lib/url'
 
 describe('URL utilities', () => {
   describe('isLocalhost', () => {
@@ -165,6 +165,65 @@ describe('URL utilities', () => {
       expect(isValidOrigin('https://example.com?query=value')).toBe(true)
       expect(isValidOrigin('https://example.com#section')).toBe(true)
       expect(isValidOrigin('https://example.com/path?query=value#section')).toBe(true)
+    })
+  })
+
+  describe('removeTrailingSlash', () => {
+    test('should remove trailing slash from URLs', () => {
+      expect(removeTrailingSlash('https://example.com/')).toBe('https://example.com')
+      expect(removeTrailingSlash('http://localhost:3000/')).toBe('http://localhost:3000')
+      expect(removeTrailingSlash('https://api.example.com:8443/')).toBe('https://api.example.com:8443')
+    })
+
+    test('should not modify URLs without trailing slash', () => {
+      expect(removeTrailingSlash('https://example.com')).toBe('https://example.com')
+      expect(removeTrailingSlash('http://localhost:3000')).toBe('http://localhost:3000')
+      expect(removeTrailingSlash('https://api.example.com/path')).toBe('https://api.example.com/path')
+    })
+
+    test('should handle multiple trailing slashes', () => {
+      expect(removeTrailingSlash('https://example.com//')).toBe('https://example.com/')
+      expect(removeTrailingSlash('http://localhost///')).toBe('http://localhost//')
+    })
+
+    test('should handle empty and single slash strings', () => {
+      expect(removeTrailingSlash('')).toBe('')
+      expect(removeTrailingSlash('/')).toBe('')
+      expect(removeTrailingSlash('a/')).toBe('a')
+    })
+  })
+
+  describe('makeUrl', () => {
+    test('should join base URL with path starting with slash', () => {
+      expect(makeUrl('https://example.com', '/api')).toBe('https://example.com/api')
+      expect(makeUrl('http://localhost:3000', '/users')).toBe('http://localhost:3000/users')
+      expect(makeUrl('https://api.example.com', '/v1/auth')).toBe('https://api.example.com/v1/auth')
+    })
+
+    test('should join base URL with path not starting with slash', () => {
+      expect(makeUrl('https://example.com', 'api')).toBe('https://example.com/api')
+      expect(makeUrl('http://localhost:3000', 'users')).toBe('http://localhost:3000/users')
+      expect(makeUrl('https://api.example.com', 'v1/auth')).toBe('https://api.example.com/v1/auth')
+    })
+
+    test('should handle empty paths', () => {
+      expect(makeUrl('https://example.com', '')).toBe('https://example.com/')
+      expect(makeUrl('http://localhost:3000', '')).toBe('http://localhost:3000/')
+    })
+
+    test('should handle root path', () => {
+      expect(makeUrl('https://example.com', '/')).toBe('https://example.com/')
+      expect(makeUrl('http://localhost:3000', '/')).toBe('http://localhost:3000/')
+    })
+
+    test('should handle complex paths', () => {
+      expect(makeUrl('https://example.com', '/api/v1/users/123')).toBe('https://example.com/api/v1/users/123')
+      expect(makeUrl('http://localhost:3000', 'api/v1/users/123')).toBe('http://localhost:3000/api/v1/users/123')
+    })
+
+    test('should work with base URLs containing ports', () => {
+      expect(makeUrl('https://example.com:8443', '/secure')).toBe('https://example.com:8443/secure')
+      expect(makeUrl('http://127.0.0.1:3000', 'local')).toBe('http://127.0.0.1:3000/local')
     })
   })
 })

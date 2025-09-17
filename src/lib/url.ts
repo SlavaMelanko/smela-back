@@ -34,3 +34,11 @@ export const normalizeOrigin = (origin: string): string => {
 export const isValidOrigin = (origin: string): boolean => {
   return parseOrigin(origin) !== null
 }
+
+export const removeTrailingSlash = (url: string): string => {
+  return url.replace(/\/$/, '')
+}
+
+export const makeUrl = (baseUrl: string, path: string): string => {
+  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+}

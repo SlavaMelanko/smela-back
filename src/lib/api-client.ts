@@ -1,3 +1,5 @@
+import { makeUrl, removeTrailingSlash } from './url'
+
 export type Headers = Record<string, string>
 export type Body = string | FormData | URLSearchParams
 
@@ -12,12 +14,12 @@ export class ApiClient {
   private defaultHeaders: Headers
 
   constructor(baseUrl: string, defaultHeaders: Headers = {}) {
-    this.baseUrl = baseUrl.replace(/\/$/, '') // remove trailing slash
+    this.baseUrl = removeTrailingSlash(baseUrl)
     this.defaultHeaders = defaultHeaders
   }
 
   private async request<T = any>(path: string, options: RequestOptions = {}): Promise<T> {
-    const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+    const url = makeUrl(this.baseUrl, path)
 
     const config: RequestInit = {
       method: options.method || 'GET',
