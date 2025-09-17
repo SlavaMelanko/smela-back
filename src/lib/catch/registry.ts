@@ -61,6 +61,10 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.BAD_REQUEST,
     error: 'Invalid reCAPTCHA token.',
   },
+  [ErrorCode.CaptchaTokenMissing]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'reCAPTCHA token is required.',
+  },
   [ErrorCode.CaptchaValidationFailed]: {
     status: StatusCodes.BAD_REQUEST,
     error: 'reCAPTCHA token validation failed.',

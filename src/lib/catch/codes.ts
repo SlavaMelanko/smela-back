@@ -13,6 +13,7 @@ enum ErrorCode {
   TokenTypeMismatch = 'token/type-mismatch',
 
   CaptchaInvalidToken = 'captcha/invalid-token',
+  CaptchaTokenMissing = 'captcha/token-missing',
   CaptchaValidationFailed = 'captcha/validation-failed',
 
   InternalError = 'system/internal-error',
