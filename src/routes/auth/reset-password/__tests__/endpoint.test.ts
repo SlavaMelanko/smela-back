@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
+import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resetPasswordRoute from '../index'
 import resetPasswordSchema from '../schema'
@@ -17,6 +18,9 @@ mock.module('../reset-password', () => ({
 describe('Reset Password Endpoint', () => {
   let app: Hono
 
+  // Mock CAPTCHA service to prevent actual service calls in tests
+  mockCaptchaService()
+
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
@@ -27,7 +31,7 @@ describe('Reset Password Endpoint', () => {
   const validPayload = {
     token: '1234567890123456789012345678901234567890123456789012345678901234',
     password: 'NewSecure@123',
-    captchaToken: 'valid-captcha-token',
+    captchaToken: VALID_CAPTCHA_TOKEN,
   }
 
   describe('POST /auth/reset-password', () => {
@@ -101,7 +105,7 @@ describe('Reset Password Endpoint', () => {
           },
           body: JSON.stringify({
             password: validPayload.password,
-            captchaToken: 'valid-captcha-token',
+            captchaToken: VALID_CAPTCHA_TOKEN,
           }),
         })
 
@@ -199,7 +203,7 @@ describe('Reset Password Endpoint', () => {
           },
           body: JSON.stringify({
             token: validPayload.token,
-            captchaToken: 'valid-captcha-token',
+            captchaToken: VALID_CAPTCHA_TOKEN,
           }),
         })
 
@@ -269,17 +273,17 @@ describe('Reset Password Endpoint', () => {
         {
           token: '1234567890123456789012345678901234567890123456789012345678901234',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token: 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWX1234',
           password: 'AnotherPass456@',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
           password: 'SecurePass789#',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -294,17 +298,17 @@ describe('Reset Password Endpoint', () => {
         {
           token: '', // Empty
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token: 'short', // Too short
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token: 'a'.repeat(100), // Too long
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -320,27 +324,27 @@ describe('Reset Password Endpoint', () => {
         {
           token,
           password: '', // Empty
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token,
           password: '123', // Too short
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token,
           password: 'NoNumbers!', // Missing number
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token,
           password: 'NoSpecial123', // Missing special char
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           token,
           password: '12345678!', // Missing letter
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -354,16 +358,16 @@ describe('Reset Password Endpoint', () => {
       const incompleteInputs = [
         {
           token: '1234567890123456789012345678901234567890123456789012345678901234',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing password
         },
         {
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing token
         },
         {
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing both token and password
         },
         {

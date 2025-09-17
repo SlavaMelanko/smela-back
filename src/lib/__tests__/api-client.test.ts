@@ -85,7 +85,7 @@ describe('ApiClient', () => {
 
     test('should merge custom headers with default headers', async () => {
       const client = new ApiClient('https://example.com', {
-        headers: { Authorization: 'Bearer token' }
+        headers: { Authorization: 'Bearer token' },
       })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
@@ -178,7 +178,7 @@ describe('ApiClient', () => {
 
     test('should merge custom headers', async () => {
       const client = new ApiClient('https://example.com', {
-        headers: { Authorization: 'Bearer token' }
+        headers: { Authorization: 'Bearer token' },
       })
       await client.post('/users', 'data', { 'Content-Type': 'application/json' })
 
@@ -319,7 +319,7 @@ describe('ApiClient', () => {
   describe('header merging', () => {
     test('should use only default headers when no custom headers provided', async () => {
       const client = new ApiClient('https://example.com', {
-        headers: { 'User-Agent': 'TestClient' }
+        headers: { 'User-Agent': 'TestClient' },
       })
       await client.get('/users')
 
@@ -333,7 +333,7 @@ describe('ApiClient', () => {
 
     test('should override default headers with custom headers', async () => {
       const client = new ApiClient('https://example.com', {
-        headers: { 'Content-Type': 'application/xml' }
+        headers: { 'Content-Type': 'application/xml' },
       })
       await client.post('/users', 'data', { 'Content-Type': 'application/json' })
 
@@ -350,7 +350,7 @@ describe('ApiClient', () => {
         headers: {
           'Authorization': 'Bearer token',
           'User-Agent': 'TestClient',
-        }
+        },
       })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
@@ -386,7 +386,7 @@ describe('ApiClient', () => {
     test('should handle timeout errors', async () => {
       // Mock a slow response that exceeds timeout
       mockFetch.mockImplementationOnce(() =>
-        new Promise(resolve => setTimeout(resolve, 20)) // 20ms delay
+        new Promise(resolve => setTimeout(resolve, 20)), // 20ms delay
       )
 
       const client = new ApiClient('https://example.com', { timeout: 10 }) // 10ms timeout

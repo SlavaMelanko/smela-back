@@ -45,7 +45,7 @@ export const withTimeout = async <T>(
       asyncFn(),
       new Promise<never>((_, reject) => {
         controller.signal.addEventListener('abort', () =>
-          reject(new Error('Timeout.')) )
+          reject(new Error('Timeout.')))
       }),
     ])
 

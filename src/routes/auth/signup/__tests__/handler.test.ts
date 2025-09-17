@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
+import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 import { Role } from '@/types'
 
 import signupRoute from '../index'
@@ -44,6 +45,9 @@ mock.module('@/lib/auth', () => ({
 describe('Signup Handler', () => {
   let app: Hono
 
+  // Mock CAPTCHA service to prevent actual service calls in tests
+  mockCaptchaService()
+
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
@@ -64,6 +68,7 @@ describe('Signup Handler', () => {
           email: 'test@example.com',
           password: 'ValidPass123!',
           role: Role.User,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -111,6 +116,7 @@ describe('Signup Handler', () => {
           email: 'test@example.com',
           password: 'ValidPass123!',
           role: Role.User,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -139,6 +145,7 @@ describe('Signup Handler', () => {
           email: 'test@example.com',
           password: 'ValidPass123!',
           role: Role.User,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -164,6 +171,7 @@ describe('Signup Handler', () => {
           email: 'jane@example.com',
           password: 'AnotherPass123!',
           role: Role.Admin,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 

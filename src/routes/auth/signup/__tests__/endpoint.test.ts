@@ -3,12 +3,16 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
+import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import signupRoute from '../index'
 import signupSchema from '../schema'
 
 describe('Signup Endpoint', () => {
   let app: Hono
+
+  // Mock CAPTCHA service to prevent actual service calls in tests
+  mockCaptchaService()
 
   beforeEach(() => {
     app = new Hono()
@@ -28,7 +32,7 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'john@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -40,9 +44,9 @@ describe('Signup Endpoint', () => {
 
     it('should validate firstName requirements', async () => {
       const invalidFirstNames = [
-        { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Empty firstName
-        { firstName: 'A', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Too short
-        { firstName: 'A'.repeat(51), lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Too long
+        { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty firstName
+        { firstName: 'A', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Too short
+        { firstName: 'A'.repeat(51), lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Too long
       ]
 
       for (const body of invalidFirstNames) {
@@ -62,9 +66,9 @@ describe('Signup Endpoint', () => {
 
     it('should validate lastName requirements', async () => {
       const invalidLastNames = [
-        { firstName: 'John', lastName: '', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Empty lastName
-        { firstName: 'John', lastName: 'A', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Too short
-        { firstName: 'John', lastName: 'B'.repeat(51), email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Too long
+        { firstName: 'John', lastName: '', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty lastName
+        { firstName: 'John', lastName: 'A', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Too short
+        { firstName: 'John', lastName: 'B'.repeat(51), email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Too long
       ]
 
       for (const body of invalidLastNames) {
@@ -84,10 +88,10 @@ describe('Signup Endpoint', () => {
 
     it('should validate email format', async () => {
       const invalidEmails = [
-        { firstName: 'John', lastName: 'Doe', email: '', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Empty email
-        { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Invalid format
-        { firstName: 'John', lastName: 'Doe', email: 'test@', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Incomplete
-        { firstName: 'John', lastName: 'Doe', email: '@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Missing local part
+        { firstName: 'John', lastName: 'Doe', email: '', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty email
+        { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Invalid format
+        { firstName: 'John', lastName: 'Doe', email: 'test@', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Incomplete
+        { firstName: 'John', lastName: 'Doe', email: '@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing local part
       ]
 
       for (const body of invalidEmails) {
@@ -107,11 +111,11 @@ describe('Signup Endpoint', () => {
 
     it('should validate password requirements', async () => {
       const invalidPasswords = [
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: '', captchaToken: 'valid-captcha-token' }, // Empty password
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: '123', captchaToken: 'valid-captcha-token' }, // Too short
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short', captchaToken: 'valid-captcha-token' }, // Too short
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!', captchaToken: 'valid-captcha-token' }, // Missing number
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123', captchaToken: 'valid-captcha-token' }, // Missing special char
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: '', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty password
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: '123', captchaToken: VALID_CAPTCHA_TOKEN }, // Too short
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short', captchaToken: VALID_CAPTCHA_TOKEN }, // Too short
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing number
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing special char
       ]
 
       for (const body of invalidPasswords) {
@@ -131,10 +135,10 @@ describe('Signup Endpoint', () => {
 
     it('should require all required fields', async () => {
       const incompleteRequests = [
-        { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Missing firstName
-        { firstName: 'John', lastName: 'Doe', password: 'ValidPass123!', captchaToken: 'valid-captcha-token' }, // Missing email
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', captchaToken: 'valid-captcha-token' }, // Missing password
-        { captchaToken: 'valid-captcha-token' }, // Missing most fields
+        { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing firstName
+        { firstName: 'John', lastName: 'Doe', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing email
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing password
+        { captchaToken: VALID_CAPTCHA_TOKEN }, // Missing most fields
         {}, // Missing all fields
       ]
 
@@ -161,7 +165,7 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -194,7 +198,7 @@ describe('Signup Endpoint', () => {
             lastName: 'Doe',
             email: 'test@example.com',
             password: 'ValidPass123!',
-            captchaToken: 'valid-captcha-token',
+            captchaToken: VALID_CAPTCHA_TOKEN,
           }),
         })
 
@@ -222,35 +226,35 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'john@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'Jane',
           lastName: 'Smith',
           email: 'jane.smith@company.com',
           password: 'AnotherPass456@',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'Bob',
           lastName: 'Johnson',
           email: 'bob+test@email.com',
           password: 'SecurePass789!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'Alice',
           lastName: 'Williams',
           email: 'alice123@test-domain.com',
           password: 'ComplexPass2023#',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           // lastName is optional
           email: 'john.nolast@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -267,21 +271,21 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'A',
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'A'.repeat(51),
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -298,21 +302,21 @@ describe('Signup Endpoint', () => {
           lastName: '',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'A',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'B'.repeat(51),
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -329,49 +333,49 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: '',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'invalid',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: '@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'user @example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'user@.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'user..name@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -388,42 +392,42 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password: '',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
           password: '123',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'short',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
           password: '1234567', // Assuming min length is 8
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'NoNumbers!', // Missing number
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'NoSpecial123', // Missing special char
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -439,25 +443,25 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing firstName
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing email
         },
         {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing password
         },
         {
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
           // missing most fields
         },
         {
@@ -477,7 +481,7 @@ describe('Signup Endpoint', () => {
         lastName: 'Doe',
         email: 'test@example.com',
         password: 'ValidPass123!',
-        captchaToken: 'valid-captcha-token',
+        captchaToken: VALID_CAPTCHA_TOKEN,
         extra: 'field',
         confirmPassword: 'ValidPass123!',
       })
@@ -489,7 +493,7 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         })
         expect(result.data).not.toHaveProperty('extra')
         expect(result.data).not.toHaveProperty('confirmPassword')
@@ -503,21 +507,21 @@ describe('Signup Endpoint', () => {
           lastName: 'Smith-Jones',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'José',
           lastName: 'García',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'Marie-Claire',
           lastName: 'D\'Angelo',
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
@@ -542,7 +546,7 @@ describe('Signup Endpoint', () => {
           lastName: 'Doe',
           email: 'test@example.com',
           password,
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         })
         expect(result.success).toBe(true)
       }
@@ -555,14 +559,14 @@ describe('Signup Endpoint', () => {
           lastName: 'Li', // Minimum length
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
           firstName: 'A'.repeat(50), // Maximum length
           lastName: 'B'.repeat(50), // Maximum length
           email: 'test@example.com',
           password: 'ValidPass123!',
-          captchaToken: 'valid-captcha-token',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
 
