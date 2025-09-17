@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeEach, afterEach, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 
 import { ApiClient } from '@/lib/api-client'
 
 // Mock fetch globally
 const mockFetch = mock(() => Promise.resolve({
-  json: () => Promise.resolve({ success: true, data: 'test' })
+  json: () => Promise.resolve({ success: true, data: 'test' }),
 }))
 
 // Store original fetch to restore later
@@ -51,8 +51,8 @@ describe('ApiClient', () => {
         'https://example.com/users',
         expect.objectContaining({
           method: 'GET',
-          headers: {}
-        })
+          headers: {},
+        }),
       )
     })
 
@@ -62,12 +62,12 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/users',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       )
     })
 
     test('should merge custom headers with default headers', async () => {
-      const client = new ApiClient('https://example.com', { 'Authorization': 'Bearer token' })
+      const client = new ApiClient('https://example.com', { Authorization: 'Bearer token' })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -76,16 +76,16 @@ describe('ApiClient', () => {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer token',
-            'Content-Type': 'application/json'
-          }
-        })
+            'Content-Type': 'application/json',
+          },
+        }),
       )
     })
 
     test('should return parsed JSON response', async () => {
       const mockData = { id: 1, name: 'John' }
       mockFetch.mockResolvedValueOnce({
-        json: () => Promise.resolve(mockData)
+        json: () => Promise.resolve(mockData),
       } as any)
 
       const client = new ApiClient('https://example.com')
@@ -106,9 +106,9 @@ describe('ApiClient', () => {
         'https://example.com/users',
         expect.objectContaining({
           method: 'POST',
-          body: body,
-          headers: {}
-        })
+          body,
+          headers: {},
+        }),
       )
     })
 
@@ -120,8 +120,8 @@ describe('ApiClient', () => {
         'https://example.com/users',
         expect.objectContaining({
           method: 'POST',
-          headers: {}
-        })
+          headers: {},
+        }),
       )
     })
 
@@ -135,8 +135,8 @@ describe('ApiClient', () => {
         'https://example.com/users',
         expect.objectContaining({
           method: 'POST',
-          body: body
-        })
+          body,
+        }),
       )
     })
 
@@ -151,13 +151,13 @@ describe('ApiClient', () => {
         'https://example.com/users',
         expect.objectContaining({
           method: 'POST',
-          body: body
-        })
+          body,
+        }),
       )
     })
 
     test('should merge custom headers', async () => {
-      const client = new ApiClient('https://example.com', { 'Authorization': 'Bearer token' })
+      const client = new ApiClient('https://example.com', { Authorization: 'Bearer token' })
       await client.post('/users', 'data', { 'Content-Type': 'application/json' })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -166,9 +166,9 @@ describe('ApiClient', () => {
           method: 'POST',
           headers: {
             'Authorization': 'Bearer token',
-            'Content-Type': 'application/json'
-          }
-        })
+            'Content-Type': 'application/json',
+          },
+        }),
       )
     })
   })
@@ -184,9 +184,9 @@ describe('ApiClient', () => {
         'https://example.com/users/1',
         expect.objectContaining({
           method: 'PUT',
-          body: body,
-          headers: {}
-        })
+          body,
+          headers: {},
+        }),
       )
     })
 
@@ -198,8 +198,8 @@ describe('ApiClient', () => {
         'https://example.com/users/1',
         expect.objectContaining({
           method: 'PUT',
-          headers: {}
-        })
+          headers: {},
+        }),
       )
     })
   })
@@ -213,21 +213,21 @@ describe('ApiClient', () => {
         'https://example.com/users/1',
         expect.objectContaining({
           method: 'DELETE',
-          headers: {}
-        })
+          headers: {},
+        }),
       )
     })
 
     test('should handle custom headers', async () => {
       const client = new ApiClient('https://example.com')
-      await client.delete('/users/1', { 'Authorization': 'Bearer token' })
+      await client.delete('/users/1', { Authorization: 'Bearer token' })
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/users/1',
         expect.objectContaining({
           method: 'DELETE',
-          headers: { 'Authorization': 'Bearer token' }
-        })
+          headers: { Authorization: 'Bearer token' },
+        }),
       )
     })
   })
@@ -239,7 +239,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/users',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
 
@@ -249,7 +249,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/users',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
 
@@ -259,7 +259,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/api/users',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
 
@@ -269,7 +269,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
 
@@ -279,7 +279,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
 
@@ -289,7 +289,7 @@ describe('ApiClient', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3000/api/users',
-        expect.any(Object)
+        expect.any(Object),
       )
     })
   })
@@ -302,8 +302,8 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/users',
         expect.objectContaining({
-          headers: { 'User-Agent': 'TestClient' }
-        })
+          headers: { 'User-Agent': 'TestClient' },
+        }),
       )
     })
 
@@ -314,15 +314,15 @@ describe('ApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/users',
         expect.objectContaining({
-          headers: { 'Content-Type': 'application/json' }
-        })
+          headers: { 'Content-Type': 'application/json' },
+        }),
       )
     })
 
     test('should merge multiple headers correctly', async () => {
       const client = new ApiClient('https://example.com', {
         'Authorization': 'Bearer token',
-        'User-Agent': 'TestClient'
+        'User-Agent': 'TestClient',
       })
       await client.get('/users', { 'Content-Type': 'application/json' })
 
@@ -332,9 +332,9 @@ describe('ApiClient', () => {
           headers: {
             'Authorization': 'Bearer token',
             'User-Agent': 'TestClient',
-            'Content-Type': 'application/json'
-          }
-        })
+            'Content-Type': 'application/json',
+          },
+        }),
       )
     })
   })
