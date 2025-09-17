@@ -48,7 +48,7 @@ describe('Token Validation Rules', () => {
         'a'.repeat(TOKEN_LENGTH),
         '1'.repeat(TOKEN_LENGTH),
         'A'.repeat(TOKEN_LENGTH),
-        (`abcd1234${  'x'.repeat(TOKEN_LENGTH - 8)}`),
+        (`abcd1234${'x'.repeat(TOKEN_LENGTH - 8)}`),
       ]
 
       for (const token of exactLengthTokens) {
@@ -90,7 +90,7 @@ describe('Token Validation Rules', () => {
         'token_with_underscores',
         'token-with-hyphens',
         'mixedCASE123_token-test',
-        `very_long_token_${  'x'.repeat(1980)}`,
+        `very_long_token_${'x'.repeat(1980)}`,
       ]
 
       for (const token of validTokens) {
