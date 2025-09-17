@@ -67,7 +67,7 @@ const rules = {
   emailEtherealPassword: z.string().optional(),
 
   // reCAPTCHA configuration
-  captchaSecretKey: z.string().min(1),
+  captchaSecretKey: z.string().regex(/^[\w-]{40}$/, 'Invalid reCAPTCHA secret key format'),
 }
 
 export default rules
