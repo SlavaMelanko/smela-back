@@ -28,6 +28,6 @@
 
 A complete Postman collection is available in the repository root:
 
-[`portal-v2.postman_collection.json`](../../portal-v2.postman_collection.json)
+[`postman.json`](../../postman.json)
 
 Import this collection into Postman to test all API endpoints with pre-configured requests and examples.

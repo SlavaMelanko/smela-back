@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "portal-back-v2",
+      "name": "smela-back",
       "dependencies": {
         "@hono/zod-validator": "^0.7.0",
         "@neondatabase/serverless": "^1.0.1",
