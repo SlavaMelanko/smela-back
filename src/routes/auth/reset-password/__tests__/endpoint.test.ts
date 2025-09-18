@@ -124,7 +124,7 @@ describe('Reset Password Endpoint', () => {
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
 
         const data = await res.json()
-        expect(data.error).toContain('String must contain at least 8 character(s)')
+        expect(data.error).toContain('Too small: expected string to have >=8 characters')
 
         expect(mockResetPassword).not.toHaveBeenCalled()
       })
