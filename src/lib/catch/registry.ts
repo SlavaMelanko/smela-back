@@ -56,6 +56,16 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Token type mismatch.',
   },
 
+  // Captcha errors
+  [ErrorCode.CaptchaInvalidToken]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'Invalid reCAPTCHA token.',
+  },
+  [ErrorCode.CaptchaValidationFailed]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'reCAPTCHA token validation failed.',
+  },
+
   // System errors
   [ErrorCode.InternalError]: {
     status: StatusCodes.INTERNAL_SERVER_ERROR,

@@ -65,6 +65,9 @@ const rules = {
   emailEtherealPort: z.coerce.number().optional(),
   emailEtherealUsername: z.string().optional(),
   emailEtherealPassword: z.string().optional(),
+
+  // reCAPTCHA configuration
+  captchaSecretKey: z.string().regex(/^[\w-]{40}$/, 'Invalid reCAPTCHA secret key format'),
 }
 
 export default rules

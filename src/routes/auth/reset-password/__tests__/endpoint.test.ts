@@ -347,7 +347,7 @@ describe('Reset Password Endpoint', () => {
           // missing token
         },
         {
-          // missing both
+          // missing both token and password
         },
       ]
 

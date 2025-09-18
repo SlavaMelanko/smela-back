@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { authRepo, userRepo } from '@/repositories'
 import { Role, Status } from '@/types'
+import '@/middleware/__tests__/mocks/captcha' // Ensure CAPTCHA is mocked globally
 
 import logInWithEmail from '../login'
 

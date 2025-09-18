@@ -152,7 +152,6 @@ const Footer = ({
         {year}
         {' '}
         {companyName}
-        , All Rights Reserved
       </Text>
       <div>
         {/* Hidden email tracking information */}

@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
+import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
 
@@ -44,6 +45,9 @@ mock.module('@/lib/auth', () => ({
 describe('Login Handler with Cookie', () => {
   let app: Hono
 
+  // Mock CAPTCHA service to prevent actual service calls in tests
+  mockCaptchaService()
+
   beforeEach(() => {
     app = new Hono()
     app.onError(onError)
@@ -61,6 +65,7 @@ describe('Login Handler with Cookie', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           password: 'ValidPass123!',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -112,6 +117,7 @@ describe('Login Handler with Cookie', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           password: 'ValidPass123!',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -137,6 +143,7 @@ describe('Login Handler with Cookie', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           password: 'WrongPass123!',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 

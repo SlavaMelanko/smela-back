@@ -3,12 +3,16 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
+import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resendVerificationEmailRoute from '../index'
 import resendVerificationEmailSchema from '../schema'
 
 describe('Resend Verification Email Endpoint', () => {
   let app: Hono
+
+  // Mock CAPTCHA service to prevent actual service calls in tests
+  mockCaptchaService()
 
   beforeEach(() => {
     app = new Hono()
@@ -25,6 +29,7 @@ describe('Resend Verification Email Endpoint', () => {
         },
         body: JSON.stringify({
           email: 'test@example.com',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -36,11 +41,12 @@ describe('Resend Verification Email Endpoint', () => {
 
     it('should validate email format', async () => {
       const invalidEmails = [
-        { email: '' }, // Empty email
-        { email: 'invalid' }, // Invalid format
-        { email: 'test@' }, // Incomplete
-        { email: '@example.com' }, // Missing local part
-        {}, // Missing email field
+        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty email
+        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // Invalid format
+        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // Incomplete
+        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing local part
+        { captchaToken: VALID_CAPTCHA_TOKEN }, // Missing email field
+        {}, // Missing all fields
       ]
 
       for (const body of invalidEmails) {
@@ -63,6 +69,7 @@ describe('Resend Verification Email Endpoint', () => {
         method: 'POST',
         body: JSON.stringify({
           email: 'test@example.com',
+          captchaToken: VALID_CAPTCHA_TOKEN,
         }),
       })
 
@@ -92,6 +99,7 @@ describe('Resend Verification Email Endpoint', () => {
           },
           body: JSON.stringify({
             email: 'test@example.com',
+            captchaToken: VALID_CAPTCHA_TOKEN,
           }),
         })
 
@@ -110,7 +118,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const email of validEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email })
+        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: VALID_CAPTCHA_TOKEN })
         expect(result.success).toBe(true)
       }
     })
@@ -127,7 +135,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const email of invalidEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email })
+        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: VALID_CAPTCHA_TOKEN })
         expect(result.success).toBe(false)
       }
     })
@@ -135,12 +143,13 @@ describe('Resend Verification Email Endpoint', () => {
     it('should not accept extra fields', () => {
       const result = resendVerificationEmailSchema.safeParse({
         email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
         extra: 'field',
       })
 
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data).toEqual({ email: 'test@example.com' })
+        expect(result.data).toEqual({ email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN })
         expect(result.data).not.toHaveProperty('extra')
       }
     })
