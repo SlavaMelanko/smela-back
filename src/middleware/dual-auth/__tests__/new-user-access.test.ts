@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
-import { Role, Status } from '@/types'
-import { isActive, isNewOrActive, isUser } from '@/types'
+import { isActive, isNewOrActive, isUser, Role, Status } from '@/types'
 
 describe('Dual Auth Middleware - New User Access', () => {
   const mockUserId = 123

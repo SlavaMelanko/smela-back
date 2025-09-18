@@ -1,4 +1,6 @@
-import nodemailer, { type Transporter } from 'nodemailer'
+import type { Transporter } from 'nodemailer'
+
+import nodemailer from 'nodemailer'
 
 import logger from '@/lib/logger'
 

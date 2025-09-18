@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { AppError, ErrorCode } from '@/lib/catch'
+import { emailAgent } from '@/lib/email-agent'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
+import { AuthProvider, Role, Status, Token } from '@/types'
+
+import signUpWithEmail from '../signup'
+
 // Mock environment first to prevent email provider initialization
 mock.module('@/lib/env', () => ({
   default: {
@@ -28,13 +35,6 @@ mock.module('@/lib/auth', () => ({
     sign: mock(() => Promise.resolve('mock-jwt-token')),
   },
 }))
-
-import { AppError, ErrorCode } from '@/lib/catch'
-import { emailAgent } from '@/lib/email-agent'
-import { authRepo, tokenRepo, userRepo } from '@/repositories'
-import { AuthProvider, Role, Status, Token } from '@/types'
-
-import signUpWithEmail from '../signup'
 
 describe('signUpWithEmail', () => {
   const mockSignupParams = {

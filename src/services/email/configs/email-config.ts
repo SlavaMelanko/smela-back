@@ -1,8 +1,9 @@
 import type { EmailRenderer } from '@/emails'
 
+import type { EmailSender } from '../email-sender-profile'
 import type { EmailType } from '../email-type'
 
-import { type EmailSender, getSenderDetails, SenderProfile } from '../email-sender-profile'
+import { getSenderDetails, SenderProfile } from '../email-sender-profile'
 
 export interface EmailConfig<T = any> {
   getType: () => EmailType

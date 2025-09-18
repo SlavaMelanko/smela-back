@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
-import { Role, Status } from '@/types'
-import { isActiveOnly, isEnterprise, isOwner, isUser } from '@/types'
+import { isActiveOnly, isEnterprise, isOwner, isUser, Role, Status } from '@/types'
 
 describe('Owner Authentication Middleware', () => {
   const tokenVersion = 1

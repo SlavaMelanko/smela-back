@@ -5,8 +5,10 @@ import type { Role, Status } from '@/types'
 import { AppError, ErrorCode } from '@/lib/catch'
 import env from '@/lib/env'
 
+import type { JwtPayload } from './schema'
+
 import { TOKEN_EXPIRATION_TIME } from './constants'
-import { type JwtPayload, jwtPayloadSchema } from './schema'
+import { jwtPayloadSchema } from './schema'
 
 const getSecret = () => env.JWT_SECRET
 

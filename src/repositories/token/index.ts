@@ -1,11 +1,11 @@
-export * from './types'
-
 import {
   createToken,
   deprecateOldTokens,
   findByToken,
   updateToken,
 } from './queries'
+
+export * from './types'
 
 export const tokenRepo = {
   deprecateOld: deprecateOldTokens,

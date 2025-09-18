@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { userRepo } from '@/repositories'
-import { Role, Status } from '@/types'
-import { isActiveOnly, isEnterprise } from '@/types'
+import { isActiveOnly, isEnterprise, Role, Status } from '@/types'
 
 describe('Enterprise Authentication Middleware', () => {
   const tokenVersion = 1

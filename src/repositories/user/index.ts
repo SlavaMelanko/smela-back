@@ -1,6 +1,6 @@
-export * from './types'
-
 import { createUser, findUserByEmail, findUserById, incrementTokenVersion, updateUser } from './queries'
+
+export * from './types'
 
 export const userRepo = {
   create: createUser,
