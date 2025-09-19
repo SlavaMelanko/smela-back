@@ -21,7 +21,7 @@ const Header = ({
   <>
     <Logo width={logoWidth} />
     {showBorder && (
-      <Section style={{ width: '100%' }}>
+      <Section style={{ width: '100%', marginTop: styles.spacing.md }}>
         <Row>
           <Column style={{ borderBottom: `1px solid ${styles.color.border}` }} />
           <Column style={{ borderBottom: '1px solid #e66e5a', width: '220px' }} />
