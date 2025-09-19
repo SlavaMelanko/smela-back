@@ -1,5 +1,3 @@
-import env from '../lib/env'
-
 interface EmailConfig {
   baseUrl: string // Backend URL for assets
   frontendUrl: string // Frontend URL for user-facing links
@@ -10,16 +8,12 @@ interface EmailConfig {
 }
 
 const getEmailConfig = (): EmailConfig => {
-  const baseUrl = env.BE_BASE_URL
-  const frontendUrl = env.FE_BASE_URL
-  const companyName = env.COMPANY_NAME
-
   return {
-    baseUrl,
-    frontendUrl,
+    baseUrl: '',
+    frontendUrl: '',
     company: {
-      name: companyName,
-      social: env.COMPANY_SOCIAL_LINKS,
+      name: 'SMELA',
+      social: JSON.parse('{"twitter": "https://twitter.com", "facebook": "https://facebook.com", "linkedin": "https://linkedin.com", "github": "https://github.com"}'),
     },
   }
 }
