@@ -1,5 +1,4 @@
-// Bun automatically loads .env files based on NODE_ENV
-// No need to import dotenv when using Bun runtime
+import 'dotenv/config'
 
 import type { ZodError } from 'zod'
 
