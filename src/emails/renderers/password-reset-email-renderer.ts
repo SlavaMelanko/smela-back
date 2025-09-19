@@ -16,7 +16,7 @@ class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData
     const content = getContent(locale).passwordReset
 
     const subject = content.subject
-    const { html, text } = await renderEmail(PasswordResetEmail, data, content, metadata)
+    const { html, text } = await renderEmail(PasswordResetEmail, { data, content, metadata })
 
     return {
       subject,

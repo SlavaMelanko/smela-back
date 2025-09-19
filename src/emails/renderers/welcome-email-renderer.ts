@@ -16,7 +16,7 @@ class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
     const content = getContent(locale).welcome
 
     const subject = content.subject
-    const { html, text } = await renderEmail(WelcomeEmail, data, content, metadata)
+    const { html, text } = await renderEmail(WelcomeEmail, { data, content, metadata })
 
     return {
       subject,

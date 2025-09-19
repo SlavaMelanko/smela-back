@@ -6,15 +6,13 @@ import type { Metadata } from '../types'
 
 const renderEmail = async <T>(
   template: (props: { data: T, content: any, metadata?: Metadata }) => ReactElement,
-  data: T,
-  content: any,
-  metadata?: Metadata,
+  props: { data: T, content: any, metadata?: Metadata },
 ): Promise<{ html: string, text: string }> => {
-  const props = { data, content, metadata }
+  const reactElement = template(props)
 
   const [html, text] = await Promise.all([
-    render(template(props)),
-    render(template(props), { plainText: true }),
+    render(reactElement),
+    render(reactElement, { plainText: true }),
   ])
 
   return { html, text }
