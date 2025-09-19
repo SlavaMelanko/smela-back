@@ -30,7 +30,7 @@ const validate = () => {
       EMAIL_ETHEREAL_USERNAME: envRules.emailEtherealUsername,
       EMAIL_ETHEREAL_PASSWORD: envRules.emailEtherealPassword,
 
-      // reCAPTCHA configuration
+      // reCAPTCHA
       CAPTCHA_SECRET_KEY: envRules.captchaSecretKey,
     })
 
