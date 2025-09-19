@@ -1,6 +1,6 @@
 import type { SupportedLocale } from '../content'
-import type { EmailRenderer, RenderedEmail } from './email-renderer'
 import type { Metadata } from '../types'
+import type { EmailRenderer, RenderedEmail } from './email-renderer'
 
 import getContent from '../content'
 import { WelcomeEmail } from '../templates'

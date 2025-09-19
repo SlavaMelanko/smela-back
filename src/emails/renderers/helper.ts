@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 
 import { render } from '@react-email/components'
+
 import type { Metadata } from '../types'
 
 const renderEmail = async <T>(
