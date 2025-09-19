@@ -1,6 +1,8 @@
 {
   "name": "smela-back",
   "scripts": {
+    "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
+    "reinstall": "bun clean && bun install",
     "dev": "bun --watch src/app.ts",
     "start": "NODE_ENV=production bun src/app.ts",
     "staging": "NODE_ENV=staging bun src/app.ts",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.14.1",
+    "@react-email/preview-server": "4.1.3",
     "@types/bcrypt": "^5.0.2",
     "@types/bun": "latest",
     "@types/nodemailer": "^7.0.1",
