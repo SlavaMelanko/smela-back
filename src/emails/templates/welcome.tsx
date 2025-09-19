@@ -13,7 +13,7 @@ import { Signature } from './components'
 import BaseEmail from './components/base-email'
 import styles from './styles'
 
-interface WelcomeEmailProps {
+interface Props {
   data: {
     firstName: string
     verificationUrl: string
@@ -26,7 +26,7 @@ const WelcomeEmail = ({
   data,
   content,
   metadata,
-}: WelcomeEmailProps) => {
+}: Props) => {
   const { component: { text, link } } = styles
   const { firstName, verificationUrl } = data
   const c = content
@@ -63,7 +63,7 @@ WelcomeEmail.PreviewProps = {
     firstName: 'Jason',
     verificationUrl: `http://localhost:5173/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
-  content: getContent('en').welcome,
-} as WelcomeEmailProps
+  content: getContent('uk').welcome,
+} as Props
 
 export default WelcomeEmail

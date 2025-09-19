@@ -2,7 +2,9 @@
 
 import type { Metadata } from '../../../types'
 
-const MetadataContainer = ({ emailId, sentAt }: Metadata): React.ReactElement => (
+interface Props extends Metadata {}
+
+const MetadataContainer = ({ emailId, sentAt }: Props): React.ReactElement => (
   <div>
     {/* Hidden email tracking information. */}
     {emailId && (
@@ -17,5 +19,10 @@ const MetadataContainer = ({ emailId, sentAt }: Metadata): React.ReactElement =>
     )}
   </div>
 )
+
+MetadataContainer.PreviewProps = {
+  emailId: 'email-12345',
+  sentAt: new Date().toISOString(),
+} as Props
 
 export default MetadataContainer

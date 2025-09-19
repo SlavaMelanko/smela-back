@@ -7,7 +7,7 @@ interface Props {
   height?: number | string
 }
 
-const Logo = ({ width = 200, height }: Props): React.ReactNode => (
+const Logo = ({ width = 200, height }: Props): React.ReactElement => (
   <div style={{
     display: 'flex',
     justifyContent: 'center',
