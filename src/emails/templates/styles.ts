@@ -1,35 +1,20 @@
 export const color = {
-  primary: '#e66e5a',
-  secondary: '#6b7280',
-  success: '#22c55e',
-  error: '#dc2626',
-  warning: '#eab308',
-  info: '#3b82f6',
-
   text: {
-    primary: '#1f2937',
-    secondary: '#6b7280',
-    muted: '#9ca3af',
-    inverse: '#ffffff',
-    highlight: '#be185d',
+    primary: '#141414',
+    secondary: '#5c5c5c',
+    tertiary: '#9ca3af',
   },
 
   background: {
-    primary: '#fff',
-    secondary: '#f9fafb',
-    muted: '#f3f4f6',
-    highlight: '#fce7f3',
-    gradientStart: '#ffffff',
-    gradientEnd: '#f5f3ff',
-    dark: '#1f2937',
+    primary: '#f7f7f7',
+    secondary: '#fff',
+    tertiary: '#eaeaea',
   },
 
-  border: {
-    light: '#e5e7eb',
-    medium: '#d1d5db',
-    hover: '#e9d5ff',
-    error: '#dc2626',
-  },
+  border: '#e5e7eb',
+
+  link: '#7678ed',
+
 } as const
 
 export const font = {
@@ -50,6 +35,7 @@ export const font = {
   },
 
   weight: {
+    thin: '300',
     normal: '400',
     medium: '500',
     semibold: '600',
@@ -90,96 +76,44 @@ export const shadow = {
 } as const
 
 export const component = {
-  button: {
-    primary: {
-      backgroundColor: color.primary,
-      color: color.text.inverse,
-      fontFamily: font.family.sans,
-      fontSize: font.size.base,
-      fontWeight: font.weight.medium,
-      padding: `${spacing.md} ${spacing.lg}`,
-      borderRadius: borderRadius.md,
-      textDecoration: 'none',
-      display: 'inline-block',
-      border: 'none',
-      cursor: 'pointer',
-    },
-    secondary: {
-      backgroundColor: color.background.secondary,
-      color: color.text.primary,
-      fontFamily: font.family.sans,
-      fontSize: font.size.base,
-      fontWeight: font.weight.medium,
-      padding: `${spacing.md} ${spacing.lg}`,
-      borderRadius: borderRadius.md,
-      textDecoration: 'none',
-      display: 'inline-block',
-      border: `1px solid ${color.border.light}`,
-      cursor: 'pointer',
-    },
-  },
-
-  card: {
-    backgroundColor: color.background.primary,
-    borderRadius: borderRadius.lg,
-    border: `1px solid ${color.border.light}`,
-    padding: spacing.lg,
-    margin: `${spacing.md} 0`,
-  },
-
   text: {
-    heading: {
-      fontFamily: font.family.sans,
-      fontWeight: font.weight.bold,
-      lineHeight: font.lineHeight.tight,
-      color: color.text.primary,
-      margin: `${spacing.lg} 0 ${spacing.md} 0`,
-    },
     body: {
       fontFamily: font.family.sans,
       fontSize: font.size.base,
+      fontWeight: font.weight.normal,
       lineHeight: font.lineHeight.normal,
       color: color.text.primary,
-      margin: `${spacing.md} 0`,
     },
-    muted: {
+    detail: {
       fontFamily: font.family.sans,
       fontSize: font.size.sm,
+      fontWeight: font.weight.normal,
       lineHeight: font.lineHeight.normal,
-      color: color.text.muted,
-      margin: `${spacing.sm} 0`,
+      color: color.text.tertiary,
+    },
+    legal: {
+      fontFamily: font.family.sans,
+      fontSize: font.size.xs,
+      fontWeight: font.weight.thin,
+      lineHeight: font.lineHeight.normal,
+      color: color.text.tertiary,
     },
   },
 
   link: {
-    primary: {
-      color: color.primary,
-      textDecoration: 'underline',
-      fontWeight: font.weight.medium,
-    },
-    secondary: {
-      color: color.secondary,
-      textDecoration: 'underline',
-      fontWeight: font.weight.normal,
-    },
-    muted: {
-      color: color.text.muted,
-      textDecoration: 'underline',
-      fontWeight: font.weight.normal,
-    },
+    color: color.link,
+    textDecoration: 'underline',
+    fontWeight: font.weight.medium,
   },
 
-  container: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    padding: spacing.lg,
-    fontFamily: font.family.sans,
-  },
-
-  divider: {
-    border: 'none',
-    borderTop: `1px solid ${color.border.light}`,
-    margin: `${spacing.lg} 0`,
+  icon: {
+    width: '24px',
+    height: '24px',
+    stroke: color.text.tertiary,
+    strokeWidth: '1.5',
+    fill: 'none',
+    transition: 'stroke 0.2s ease-in-out',
+    cursor: 'pointer',
   },
 } as const
 

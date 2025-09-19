@@ -1,24 +1,25 @@
 interface EmailConfig {
-  baseUrl: string // Backend URL for assets
-  frontendUrl: string // Frontend URL for user-facing links
   company: {
     name: string
-    social: Record<string, string>
+    socialMediaLinks: Record<string, string>
   }
 }
 
-const getEmailConfig = (): EmailConfig => {
+const createEmailConfig = (): EmailConfig => {
   return {
-    baseUrl: '',
-    frontendUrl: '',
     company: {
       name: 'SMELA',
-      social: JSON.parse('{"twitter": "https://twitter.com", "facebook": "https://facebook.com", "linkedin": "https://linkedin.com", "github": "https://github.com"}'),
+      socialMediaLinks: {
+        twitter: 'https://twitter.com',
+        facebook: 'https://facebook.com',
+        linkedin: 'https://linkedin.com',
+        github: 'https://github.com',
+      },
     },
   }
 }
 
-const config = getEmailConfig()
+const config = createEmailConfig()
 
 export type { EmailConfig }
 

@@ -6,37 +6,36 @@ import {
 } from '@react-email/components'
 
 import type { WelcomeEmailContent } from '../content/types'
+import type { Metadata } from '../types'
 
-import { config } from '../config'
 import getContent from '../content'
-import BaseEmail from './base-email'
 import { Signature } from './components'
+import BaseEmail from './components/base-email'
 import styles from './styles'
 
 interface WelcomeEmailProps {
   data: {
     firstName: string
     verificationUrl: string
-    emailId?: string
-    sentAt?: string
   }
   content: WelcomeEmailContent
+  metadata?: Metadata
 }
 
 const WelcomeEmail = ({
   data,
   content,
+  metadata,
 }: WelcomeEmailProps) => {
   const { component: { text, link } } = styles
-  const { firstName, verificationUrl, emailId, sentAt } = data
+  const { firstName, verificationUrl } = data
   const c = content
 
   return (
     <BaseEmail
       subject={c.subject}
       previewText={c.previewText}
-      emailId={emailId}
-      sentAt={sentAt}
+      metadata={metadata}
     >
       <Text style={text.body}>
         {c.greeting(firstName)}
@@ -46,17 +45,15 @@ const WelcomeEmail = ({
         {c.body}
       </Text>
 
-      <Text style={text.body}>
-        <Link href={verificationUrl} style={link.primary}>
-          {c.ctaText}
-        </Link>
-      </Text>
+      <Link href={verificationUrl} style={link}>
+        {c.ctaText}
+      </Link>
 
-      <Text style={text.muted}>
+      <Text style={text.detail}>
         {c.disclaimer}
       </Text>
 
-      <Signature signature={c.signature} />
+      <Signature {...c.signature} />
     </BaseEmail>
   )
 }
@@ -64,7 +61,7 @@ const WelcomeEmail = ({
 WelcomeEmail.PreviewProps = {
   data: {
     firstName: 'Jason',
-    verificationUrl: `${config.frontendUrl}/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+    verificationUrl: `http://localhost:5173/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
   content: getContent('en').welcome,
 } as WelcomeEmailProps

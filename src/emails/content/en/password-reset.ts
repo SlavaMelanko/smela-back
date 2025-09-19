@@ -12,7 +12,7 @@ export const content: PasswordResetEmailContent = {
   expiryNotice: 'This link will expire in 1 hour for security reasons.',
   signature: {
     thanks: 'Thanks,',
-    who: `${config.company.name} Team`,
+    who: `The ${config.company.name} team`,
   },
 }
 

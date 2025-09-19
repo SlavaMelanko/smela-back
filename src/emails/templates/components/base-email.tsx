@@ -8,15 +8,16 @@ import {
   Preview,
 } from '@react-email/components'
 
-import { Footer, Header } from './components'
-import styles from './styles'
+import type { Metadata } from '../../types'
+
+import { Footer, Header } from '.'
+import styles from '../styles'
 
 export interface BaseEmailProps {
   subject: string
   previewText: string
   children: React.ReactNode
-  emailId?: string
-  sentAt?: string
+  metadata?: Metadata
 }
 
 const emailStyles = {
@@ -36,9 +37,8 @@ const emailStyles = {
 export const BaseEmail = ({
   subject,
   previewText,
+  metadata,
   children,
-  emailId,
-  sentAt,
 }: BaseEmailProps) => {
   return (
     <Html>
@@ -51,7 +51,7 @@ export const BaseEmail = ({
           <Header />
           {children}
         </Container>
-        <Footer emailId={emailId} sentAt={sentAt} />
+        <Footer metadata={metadata} />
       </Body>
     </Html>
   )

@@ -1,5 +1,6 @@
 import type { SupportedLocale } from '../content'
 import type { EmailRenderer, RenderedEmail } from './email-renderer'
+import type { Metadata } from '../types'
 
 import getContent from '../content'
 import { PasswordResetEmail } from '../templates'
@@ -11,11 +12,11 @@ interface PasswordResetEmailData {
 }
 
 class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData> {
-  async render(data: PasswordResetEmailData, locale?: SupportedLocale): Promise<RenderedEmail> {
+  async render(data: PasswordResetEmailData, locale?: SupportedLocale, metadata?: Metadata): Promise<RenderedEmail> {
     const content = getContent(locale).passwordReset
 
     const subject = content.subject
-    const { html, text } = await renderEmail(PasswordResetEmail, data, content)
+    const { html, text } = await renderEmail(PasswordResetEmail, data, content, metadata)
 
     return {
       subject,
