@@ -1,6 +1,6 @@
 export type { EmailConfig } from './configs'
-export { type EmailSender, getSenderDetails, SenderProfile as SenderProfileType } from './email-sender-profile'
-export { EmailService } from './email-service'
 export { EmailType } from './email-type'
 export { createEmailProvider, type EmailProvider, type EmailProviderType } from './providers'
 export { buildEmailRegistry, type EmailRegistry } from './registry'
+export { type EmailSender, getSenderDetails, SenderProfile as SenderProfileType } from './sender-profile'
+export { EmailService } from './service'

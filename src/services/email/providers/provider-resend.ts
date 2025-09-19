@@ -2,8 +2,8 @@ import { Resend } from 'resend'
 
 import logger from '@/lib/logger'
 
-import type { EmailPayload } from './email-payload'
-import type { EmailProvider } from './email-provider'
+import type { EmailPayload } from './payload'
+import type { EmailProvider } from './provider'
 
 export class ResendEmailProvider implements EmailProvider {
   private resend: Resend

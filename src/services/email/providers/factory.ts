@@ -1,10 +1,10 @@
 import env, { isDevEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
-import type { EmailProvider } from './email-provider'
+import type { EmailProvider } from './provider'
 
-import { EtherealEmailProvider } from './email-provider-ethereal'
-import { ResendEmailProvider } from './email-provider-resend'
+import { EtherealEmailProvider } from './provider-ethereal'
+import { ResendEmailProvider } from './provider-resend'
 
 export type EmailProviderType = 'resend' | 'ethereal' // | etc.
 

@@ -50,9 +50,9 @@ const PasswordResetEmail = ({
       </Link>
 
       <Text style={text.detail}>
-        {c.expiryNotice}
+        • {c.expiryNotice}
         <br />
-        {c.disclaimer}
+        • {c.disclaimer}
       </Text>
 
       <Signature {...c.signature} />

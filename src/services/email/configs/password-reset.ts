@@ -1,7 +1,7 @@
 import type { EmailRenderer } from '@/emails'
 
 import { EmailType } from '../email-type'
-import { BaseEmailConfig } from './email-config'
+import { BaseEmailConfig } from './config'
 
 export class PasswordResetEmailConfig extends BaseEmailConfig {
   constructor() {
