@@ -26,7 +26,7 @@ export class EmailService {
     const { email, name } = config.getSender()
 
     const renderer = await config.getRenderer()
-    const { subject, html, text } = await renderer.render({ ...data, ...makeMetadata() }, locale)
+    const { subject, html, text } = await renderer.render(data, locale, makeMetadata())
 
     const payload: EmailPayload = {
       to,
