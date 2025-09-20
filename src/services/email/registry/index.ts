@@ -1,2 +1,2 @@
-export type { EmailRegistry } from './email-registry'
-export { buildEmailRegistry } from './email-registry-builder'
+export { buildEmailRegistry } from './builder'
+export type { EmailRegistry } from './registry'

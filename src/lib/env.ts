@@ -1,5 +1,4 @@
-// Bun automatically loads .env files based on NODE_ENV
-// No need to import dotenv when using Bun runtime
+import 'dotenv/config'
 
 import type { ZodError } from 'zod'
 
@@ -31,7 +30,7 @@ const validate = () => {
       EMAIL_ETHEREAL_USERNAME: envRules.emailEtherealUsername,
       EMAIL_ETHEREAL_PASSWORD: envRules.emailEtherealPassword,
 
-      // reCAPTCHA configuration
+      // reCAPTCHA
       CAPTCHA_SECRET_KEY: envRules.captchaSecretKey,
     })
 

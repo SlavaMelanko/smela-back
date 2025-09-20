@@ -1,3 +1,3 @@
-export type { EmailPayload } from './email-payload'
-export type { EmailProvider } from './email-provider'
 export { createEmailProvider, type EmailProviderType } from './factory'
+export type { EmailPayload } from './payload'
+export type { EmailProvider } from './provider'

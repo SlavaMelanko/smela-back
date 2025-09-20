@@ -1,13 +1,19 @@
-import type { SupportedLocale } from '@/emails'
+import type { Metadata, UserPreferences } from '@/emails'
 
 import type { EmailType } from './email-type'
 import type { EmailPayload, EmailProvider } from './providers'
 import type { EmailRegistry } from './registry'
 
-const makeMetadata = (): any => ({
+const createMetadata = (): Metadata => ({
   emailId: Bun.randomUUIDv7(),
   sentAt: new Date().toISOString(),
 })
+
+const mergeWithDefaultPreferences = (preferences?: UserPreferences): UserPreferences => {
+  const defaultPreferences: UserPreferences = { locale: 'en', theme: 'light' }
+
+  return preferences ? { ...defaultPreferences, ...preferences } : defaultPreferences
+}
 
 export class EmailService {
   constructor(
@@ -19,14 +25,16 @@ export class EmailService {
     emailType: EmailType,
     to: string | string[],
     data: T,
-    locale?: SupportedLocale,
+    preferences?: UserPreferences,
   ): Promise<void> {
     const config = await this.registry.get<T>(emailType)
 
     const { email, name } = config.getSender()
 
     const renderer = await config.getRenderer()
-    const { subject, html, text } = await renderer.render({ ...data, ...makeMetadata() }, locale)
+    const userPreferences = mergeWithDefaultPreferences(preferences)
+    const metadata = createMetadata()
+    const { subject, html, text } = await renderer.render(data, userPreferences, metadata)
 
     const payload: EmailPayload = {
       to,

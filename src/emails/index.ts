@@ -1,3 +1,3 @@
-export type { SupportedLocale } from './content/types'
-
 export * from './renderers'
+
+export type { Metadata, UserPreferences } from './types'

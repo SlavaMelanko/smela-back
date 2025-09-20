@@ -1,4 +1,4 @@
-import type { EmailConfig } from '../configs/email-config'
+import type { EmailConfig } from '../configs/config'
 import type { EmailType } from '../email-type'
 
 export interface EmailRegistry {

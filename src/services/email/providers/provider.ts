@@ -1,4 +1,4 @@
-import type { EmailPayload } from './email-payload'
+import type { EmailPayload } from './payload'
 
 export interface EmailProvider {
   send: (payload: EmailPayload) => Promise<void>

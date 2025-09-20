@@ -1,7 +1,7 @@
-import type { EmailRegistry } from './email-registry'
+import type { EmailRegistry } from './registry'
 
 import { PasswordResetEmailConfig, WelcomeEmailConfig } from '../configs'
-import { DefaultEmailRegistry } from './email-registry-default'
+import { DefaultEmailRegistry } from './registry-default'
 
 export const buildEmailRegistry = (): EmailRegistry => {
   const registry = new DefaultEmailRegistry()
