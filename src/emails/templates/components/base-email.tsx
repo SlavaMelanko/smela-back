@@ -11,16 +11,17 @@ import {
 import type { Metadata } from '../../types'
 
 import { Footer, Header } from '.'
-import styles from '../styles'
+import { getThemeStyles } from '../styles'
 
-export interface BaseEmailProps {
+export interface Props {
   subject: string
   previewText: string
-  children: React.ReactNode
+  styles: any
   metadata?: Metadata
+  children: React.ReactNode
 }
 
-const emailStyles = {
+const getStyles = (styles: any) => ({
   main: {
     backgroundColor: styles.color.background.primary,
     fontFamily: styles.font.family.sans,
@@ -32,29 +33,38 @@ const emailStyles = {
     backgroundColor: styles.color.background.secondary,
     borderRadius: styles.borderRadius.lg,
   },
-}
+})
 
 export const BaseEmail = ({
   subject,
   previewText,
+  styles,
   metadata,
   children,
-}: BaseEmailProps) => {
+}: Props) => {
+  const emailStyles = getStyles(styles)
+
   return (
-    <Html>
+    <Html style={{ backgroundColor: styles.color.background.primary }}>
       <Head>
         <title>{subject}</title>
       </Head>
       <Preview>{previewText}</Preview>
       <Body style={emailStyles.main}>
         <Container style={emailStyles.container}>
-          <Header />
+          <Header styles={styles} />
           {children}
         </Container>
-        <Footer metadata={metadata} />
+        <Footer styles={styles} metadata={metadata} />
       </Body>
     </Html>
   )
 }
+
+BaseEmail.PreviewProps = {
+  subject: 'Email Subject',
+  previewText: 'Email Preview Text',
+  styles: getThemeStyles('dark')
+} as Props
 
 export default BaseEmail

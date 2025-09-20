@@ -6,20 +6,22 @@ import {
   Section,
 } from '@react-email/components'
 
-import styles from '../../styles'
+import { getThemeStyles } from '../../styles'
 import Logo from './logo'
 
 interface Props {
+  styles: any
   logoWidth?: number | string
   showBorder?: boolean
 }
 
 const Header = ({
+  styles,
   logoWidth = 200,
   showBorder = true,
 }: Props): React.ReactElement => (
   <>
-    <Logo width={logoWidth} />
+    <Logo styles={styles} width={logoWidth} />
     {showBorder && (
       <Section style={{ width: '100%', marginTop: styles.spacing.md }}>
         <Row>
@@ -33,6 +35,7 @@ const Header = ({
 )
 
 Header.PreviewProps = {
+  styles: getThemeStyles('dark'),
   logoWidth: 200,
   showBorder: true,
 } as Props

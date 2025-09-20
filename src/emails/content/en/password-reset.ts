@@ -1,4 +1,4 @@
-import type { PasswordResetEmailContent } from '../types'
+import type PasswordResetEmailContent from '../password-reset'
 
 import { config } from '../../config'
 

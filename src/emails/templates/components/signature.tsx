@@ -2,15 +2,18 @@
 
 import { Text } from '@react-email/components'
 
-import styles from '../styles'
+import { getThemeStyles } from '../styles'
 
 interface Props {
-  thanks: string
+  styles: any
+  signature: {
+    thanks: string
   who: string
+  }
 }
 
-const Signature = ({ thanks, who }: Props): React.ReactElement => (
-  <Text style={styles.component.text.body}>
+const Signature = ({ styles, signature: { thanks, who } }: Props): React.ReactElement => (
+  <Text style={styles.text.body}>
     {thanks}
     <br />
     {who}
@@ -18,8 +21,11 @@ const Signature = ({ thanks, who }: Props): React.ReactElement => (
 )
 
 Signature.PreviewProps = {
-  thanks: 'Best regards,',
-  who: 'The Team',
+  styles: getThemeStyles('dark'),
+  signature: {
+    thanks: 'Best regards,',
+    who: 'The Team'
+  },
 } as Props
 
 export default Signature

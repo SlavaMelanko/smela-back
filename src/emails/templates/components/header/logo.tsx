@@ -1,13 +1,14 @@
 /** @jsxImportSource react */
 
-import styles from '../../styles'
+import { getThemeStyles } from '../../styles'
 
 interface Props {
+  styles: any
   width?: number | string
   height?: number | string
 }
 
-const Logo = ({ width = 200, height }: Props): React.ReactElement => (
+const Logo = ({ styles, width = 200, height }: Props): React.ReactElement => (
   <div style={{
     display: 'flex',
     justifyContent: 'center',
@@ -47,6 +48,7 @@ const Logo = ({ width = 200, height }: Props): React.ReactElement => (
 )
 
 Logo.PreviewProps = {
+  styles: getThemeStyles('dark'),
   width: 200,
 } as Props
 

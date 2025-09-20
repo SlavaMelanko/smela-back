@@ -3,24 +3,26 @@
 import {
   Text,
 } from '@react-email/components'
+import { getThemeStyles } from '../../styles'
 
-import styles from '../../styles'
 
 interface Props {
+  styles: any
   companyName?: string
 }
 
-const Copyright = ({ companyName }: Props): React.ReactElement => {
+const Copyright = ({ styles, companyName }: Props): React.ReactElement => {
   const year = new Date().getFullYear()
 
   return (
-    <Text style={styles.component.text.legal}>
+    <Text style={styles.text.legal}>
       {`© ${year} ${companyName}`}
     </Text>
   )
 }
 
 Copyright.PreviewProps = {
+  styles: getThemeStyles('dark'),
   companyName: 'Company Name',
 } as Props
 

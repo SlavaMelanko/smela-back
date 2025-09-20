@@ -1,5 +1,4 @@
-import type { SupportedLocale } from '../content'
-import type { Metadata } from '../types'
+import type { Metadata, UserPreferences } from '../types'
 
 export interface RenderedEmail {
   subject: string
@@ -8,5 +7,5 @@ export interface RenderedEmail {
 }
 
 export interface EmailRenderer<T = any> {
-  render: (data: T, locale?: SupportedLocale, metadata?: Metadata) => Promise<RenderedEmail>
+  render: (data: T, userPreferences?: UserPreferences, metadata?: Metadata) => Promise<RenderedEmail>
 }

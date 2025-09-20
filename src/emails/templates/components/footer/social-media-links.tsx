@@ -3,8 +3,7 @@
 import {
   Link,
 } from '@react-email/components'
-
-import styles from '../../styles'
+import { getThemeStyles } from '../../styles'
 
 interface SocialLink {
   href: string
@@ -12,11 +11,11 @@ interface SocialLink {
   label: string
 }
 
-const getIcon = (platform: string): React.ReactNode | null => {
+const getIcon = (platform: string, style: any): React.ReactNode | null => {
   const icons: Record<string, React.ReactNode> = {
     facebook: (
       <svg
-        style={styles.component.icon}
+        style={style}
         viewBox="0 0 24 24"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -28,7 +27,7 @@ const getIcon = (platform: string): React.ReactNode | null => {
     ),
     github: (
       <svg
-        style={styles.component.icon}
+        style={style}
         viewBox="0 0 24 24"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -38,7 +37,7 @@ const getIcon = (platform: string): React.ReactNode | null => {
     ),
     linkedin: (
       <svg
-        style={styles.component.icon}
+        style={style}
         viewBox="0 0 24 24"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -50,7 +49,7 @@ const getIcon = (platform: string): React.ReactNode | null => {
     ),
     twitter: (
       <svg
-        style={styles.component.icon}
+        style={style}
         viewBox="0 0 24 24"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -68,19 +67,20 @@ const getIcon = (platform: string): React.ReactNode | null => {
 
 const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1)
 
-const mapIcons = (links: Record<string, string>): SocialLink[] =>
+const mapIcons = (links: Record<string, string>, style: any): SocialLink[] =>
   Object.entries(links).map(([platform, url]) => ({
     href: url,
-    icon: getIcon(platform),
+    icon: getIcon(platform, style),
     label: capitalize(platform),
   }))
 
 interface Props {
+  styles: any
   socialMediaLinks: Record<string, string>
 }
 
-const SocialMediaLinks = ({ socialMediaLinks }: Props): React.ReactElement => {
-  const links: SocialLink[] = mapIcons(socialMediaLinks)
+const SocialMediaLinks = ({ styles, socialMediaLinks }: Props): React.ReactElement => {
+  const links: SocialLink[] = mapIcons(socialMediaLinks, styles.icon)
 
   return (
     <div style={{
@@ -104,6 +104,7 @@ const SocialMediaLinks = ({ socialMediaLinks }: Props): React.ReactElement => {
 }
 
 SocialMediaLinks.PreviewProps = {
+  styles: getThemeStyles('dark'),
   socialMediaLinks: {
     facebook: 'https://facebook.com/your-profile',
     github: 'https://github.com/your-profile',

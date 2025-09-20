@@ -1,20 +1,41 @@
+import type { Theme } from '../types'
+
 export const color = {
-  text: {
-    primary: '#141414',
-    secondary: '#5c5c5c',
-    tertiary: '#9ca3af',
+  light: {
+    text: {
+      primary: '#141414',
+      secondary: '#5c5c5c',
+      tertiary: '#a0a0a0',
+    },
+
+    background: {
+      primary: '#f7f7f7',
+      secondary: '#fff',
+      tertiary: '#eaeaea',
+    },
+
+    border: '#e5e7eb',
+
+    link: '#7678ed',
   },
 
-  background: {
-    primary: '#f7f7f7',
-    secondary: '#fff',
-    tertiary: '#eaeaea',
+  dark: {
+    text: {
+      primary: '#f7f7f7',
+      secondary: '#a1a1aa',
+      tertiary: '#71717a',
+    },
+
+    background: {
+      primary: '#141414',
+      secondary: '#1e1e1e',
+      tertiary: '#2a2a2a',
+    },
+
+    border: '#2e2e2e',
+
+    link: '#a5a7ff',
   },
-
-  border: '#e5e7eb',
-
-  link: '#7678ed',
-
 } as const
 
 export const font = {
@@ -69,39 +90,33 @@ export const borderRadius = {
   full: '9999px',
 } as const
 
-export const shadow = {
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-} as const
-
-export const component = {
+export const get = (theme: Theme = 'light') => ({
   text: {
     body: {
       fontFamily: font.family.sans,
       fontSize: font.size.base,
       fontWeight: font.weight.normal,
       lineHeight: font.lineHeight.normal,
-      color: color.text.primary,
+      color: color[theme].text.primary,
     },
     detail: {
       fontFamily: font.family.sans,
       fontSize: font.size.sm,
       fontWeight: font.weight.normal,
       lineHeight: font.lineHeight.normal,
-      color: color.text.tertiary,
+      color: color[theme].text.tertiary,
     },
     legal: {
       fontFamily: font.family.sans,
       fontSize: font.size.xs,
       fontWeight: font.weight.thin,
       lineHeight: font.lineHeight.normal,
-      color: color.text.tertiary,
+      color: color[theme].text.tertiary,
     },
   },
 
   link: {
-    color: color.link,
+    color: color[theme].link,
     textDecoration: 'underline',
     fontWeight: font.weight.medium,
   },
@@ -109,21 +124,30 @@ export const component = {
   icon: {
     width: '24px',
     height: '24px',
-    stroke: color.text.tertiary,
+    stroke: color[theme].text.tertiary,
     strokeWidth: '1.5',
     fill: 'none',
     transition: 'stroke 0.2s ease-in-out',
     cursor: 'pointer',
   },
-} as const
+})
+
+// Legacy component export for backward compatibility
+export const component = get('light')
 
 const styles = {
   color,
   font,
   spacing,
   borderRadius,
-  shadow,
   component,
+  get,
 } as const
+
+export const getThemeStyles = (theme?: Theme) => {
+  const t = theme || 'light'
+
+  return { ...styles, ...styles.get(t), color: styles.color[t] }
+}
 
 export default styles

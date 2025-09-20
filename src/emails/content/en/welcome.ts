@@ -1,4 +1,4 @@
-import type { WelcomeEmailContent } from '../types'
+import type WelcomeEmailContent from '../welcome'
 
 import { config } from '../../config'
 

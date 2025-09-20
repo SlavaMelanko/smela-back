@@ -5,13 +5,13 @@ import {
   Text,
 } from '@react-email/components'
 
-import type { WelcomeEmailContent } from '../content/types'
+import type { WelcomeEmailContent } from '../content'
 import type { Metadata } from '../types'
 
 import getContent from '../content'
 import { Signature } from './components'
 import BaseEmail from './components/base-email'
-import styles from './styles'
+import { getThemeStyles } from './styles'
 
 interface Props {
   data: {
@@ -19,41 +19,42 @@ interface Props {
     verificationUrl: string
   }
   content: WelcomeEmailContent
+  styles: any
   metadata?: Metadata
 }
 
 const WelcomeEmail = ({
   data,
-  content,
+  content: c,
+  styles: s,
   metadata,
 }: Props) => {
-  const { component: { text, link } } = styles
   const { firstName, verificationUrl } = data
-  const c = content
 
   return (
     <BaseEmail
       subject={c.subject}
       previewText={c.previewText}
+      styles={s}
       metadata={metadata}
     >
-      <Text style={text.body}>
+      <Text style={s.text.body}>
         {c.greeting(firstName)}
       </Text>
 
-      <Text style={text.body}>
+      <Text style={s.text.body}>
         {c.body}
       </Text>
 
-      <Link href={verificationUrl} style={link}>
+      <Link href={verificationUrl} style={s.link}>
         {c.ctaText}
       </Link>
 
-      <Text style={text.detail}>
-        {c.disclaimer}
+      <Text style={s.text.detail}>
+        {`• ${c.disclaimer}`}
       </Text>
 
-      <Signature {...c.signature} />
+      <Signature styles={s} signature={c.signature} />
     </BaseEmail>
   )
 }
@@ -64,6 +65,7 @@ WelcomeEmail.PreviewProps = {
     verificationUrl: `http://localhost:5173/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
   content: getContent('uk').welcome,
+  styles: getThemeStyles('dark'),
 } as Props
 
 export default WelcomeEmail

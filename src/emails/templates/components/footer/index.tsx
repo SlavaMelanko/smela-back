@@ -6,14 +6,17 @@ import { config } from '../../../config'
 import Copyright from './copyright'
 import MetadataContainer from './metadata'
 import SocialMediaLinks from './social-media-links'
+import { getThemeStyles } from '../../styles'
 
 interface Props {
+  styles: any
   companyName?: string
   socialMediaLinks?: Record<string, string>
   metadata?: Metadata
 }
 
 const Footer = ({
+  styles,
   companyName = config.company.name,
   socialMediaLinks = config.company.socialMediaLinks,
   metadata,
@@ -25,10 +28,20 @@ const Footer = ({
     alignItems: 'center',
   }}
   >
-    <SocialMediaLinks socialMediaLinks={socialMediaLinks} />
-    <Copyright companyName={companyName} />
+    <SocialMediaLinks styles={styles} socialMediaLinks={socialMediaLinks} />
+    <Copyright styles={styles} companyName={companyName} />
     {metadata && <MetadataContainer {...metadata} />}
   </div>
 )
+
+Footer.PreviewProps = {
+  styles: getThemeStyles('dark'),
+  companyName: 'Company Name',
+  socialMediaLinks: {
+    facebook: 'https://facebook.com/your-profile',
+    github: 'https://github.com/your-profile',
+    linkedin: 'https://linkedin.com/in/your-profile',
+  },
+} as Props
 
 export default Footer

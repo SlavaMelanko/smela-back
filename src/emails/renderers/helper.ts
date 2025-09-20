@@ -5,8 +5,8 @@ import { render } from '@react-email/components'
 import type { Metadata } from '../types'
 
 const renderEmail = async <T>(
-  template: (props: { data: T, content: any, metadata?: Metadata }) => ReactElement,
-  props: { data: T, content: any, metadata?: Metadata },
+  template: (props: { data: T, content: any, styles: any, metadata?: Metadata }) => ReactElement,
+  props: { data: T, content: any, styles: any, metadata?: Metadata },
 ): Promise<{ html: string, text: string }> => {
   const reactElement = template(props)
 
