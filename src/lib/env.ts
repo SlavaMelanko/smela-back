@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import type { ZodError } from 'zod'
 
 import { buildSchema, envRules } from './validation'
