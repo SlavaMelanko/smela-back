@@ -1,6 +1,7 @@
 {
   "name": "smela-back",
   "scripts": {
+    "prepare": "husky",
     "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
     "reinstall": "bun clean && bun install",
     "dev": "bun --watch src/app.ts",
@@ -40,6 +41,7 @@
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.28.0",
     "eslint-plugin-format": "^1.0.1",
+    "husky": "^9.1.7",
     "pino-pretty": "^13.0.0",
     "react-email": "^4.2.11"
   }
