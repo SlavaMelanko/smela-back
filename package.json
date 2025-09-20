@@ -1,6 +1,7 @@
 {
   "name": "smela-back",
   "scripts": {
+    "prepare": "husky",
     "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
     "reinstall": "bun clean && bun install",
     "dev": "bun --watch src/app.ts",
@@ -11,6 +12,7 @@
     "db:seed": "bun run src/db/seed.ts",
     "db:setup": "bun run db:generate && bun run db:migrate && bun run db:seed",
     "db:studio": "drizzle-kit studio",
+    "test": "NODE_ENV=test bun test",
     "lint": "bunx eslint ./src",
     "lint:fix": "bunx eslint --fix ./src",
     "email": "email dev --dir src/emails --port 3001"
@@ -20,7 +22,6 @@
     "@neondatabase/serverless": "^1.0.1",
     "@react-email/components": "^0.5.3",
     "bcrypt": "^6.0.0",
-    "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.7.11",
     "hono-pino": "^0.8.0",
@@ -41,6 +42,7 @@
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.28.0",
     "eslint-plugin-format": "^1.0.1",
+    "husky": "^9.1.7",
     "pino-pretty": "^13.0.0",
     "react-email": "^4.2.11"
   }
