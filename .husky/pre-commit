@@ -12,7 +12,7 @@ if [ -n "$STAGED_FILES" ]; then
   STAGED_TS=$(echo "$STAGED_FILES" | grep -E '\.(ts|js)$' || true)
   if [ -n "$STAGED_TS" ]; then
     # Run tests for related files
-    bun test --bail $STAGED_TS
+    bun test --bail "$STAGED_TS"
   fi
 fi
 
@@ -23,8 +23,5 @@ for file in $STAGED_FILES; do
   fi
   if [ ! -f "$file" ] && git ls-files --error-unmatch "$file" > /dev/null 2>&1; then
     git rm --cached "$file"
-  fi
-  if [ -L "$file" ] && ! git diff --quiet "$file"; then
-    git add "$file"
   fi
 done
