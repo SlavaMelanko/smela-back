@@ -3,8 +3,8 @@
 import {
   Text,
 } from '@react-email/components'
-import { getThemeStyles } from '../../styles'
 
+import { getThemeStyles } from '../../../styles'
 
 interface Props {
   styles: any
@@ -22,7 +22,7 @@ const Copyright = ({ styles, companyName }: Props): React.ReactElement => {
 }
 
 Copyright.PreviewProps = {
-  styles: getThemeStyles('dark'),
+  styles: getThemeStyles('light'),
   companyName: 'Company Name',
 } as Props
 

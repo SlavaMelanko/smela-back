@@ -2,7 +2,8 @@ import type { Metadata, UserPreferences } from '../types'
 import type { EmailRenderer, RenderedEmail } from './email-renderer'
 
 import getContent from '../content'
-import { PasswordResetEmail, themeStyles } from '../templates'
+import { getThemeStyles } from '../styles'
+import { PasswordResetEmail } from '../templates'
 import { renderEmail } from './helper'
 
 interface PasswordResetEmailData {
@@ -12,10 +13,8 @@ interface PasswordResetEmailData {
 
 class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData> {
   async render(data: PasswordResetEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
-    const locale = userPreferences?.locale || 'en'
-    const content = getContent(locale).passwordReset
-
-    const styles = { ...themeStyles, ...themeStyles.get(userPreferences?.theme || 'light') }
+    const content = getContent(userPreferences?.locale).passwordReset
+    const styles = getThemeStyles(userPreferences?.theme)
 
     const subject = content.subject
     const { html, text } = await renderEmail(PasswordResetEmail, { data, content, styles, metadata })

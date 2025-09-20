@@ -3,7 +3,8 @@
 import {
   Link,
 } from '@react-email/components'
-import { getThemeStyles } from '../../styles'
+
+import { getThemeStyles } from '../../../styles'
 
 interface SocialLink {
   href: string
@@ -104,7 +105,7 @@ const SocialMediaLinks = ({ styles, socialMediaLinks }: Props): React.ReactEleme
 }
 
 SocialMediaLinks.PreviewProps = {
-  styles: getThemeStyles('dark'),
+  styles: getThemeStyles('light'),
   socialMediaLinks: {
     facebook: 'https://facebook.com/your-profile',
     github: 'https://github.com/your-profile',

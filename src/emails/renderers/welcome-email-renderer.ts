@@ -2,7 +2,8 @@ import type { Metadata, UserPreferences } from '../types'
 import type { EmailRenderer, RenderedEmail } from './email-renderer'
 
 import getContent from '../content'
-import { themeStyles, WelcomeEmail } from '../templates'
+import { getThemeStyles } from '../styles'
+import { WelcomeEmail } from '../templates'
 import { renderEmail } from './helper'
 
 interface WelcomeEmailData {
@@ -12,11 +13,8 @@ interface WelcomeEmailData {
 
 class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
   async render(data: WelcomeEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
-    const locale = userPreferences?.locale || 'en'
-    const content = getContent(locale).welcome
-
-    const theme = userPreferences?.theme || 'light'
-    const styles = { ...themeStyles, ...themeStyles.get(theme), color: themeStyles.color[theme] }
+    const content = getContent(userPreferences?.locale).welcome
+    const styles = getThemeStyles(userPreferences?.theme)
 
     const subject = content.subject
     const { html, text } = await renderEmail(WelcomeEmail, { data, content, styles, metadata })

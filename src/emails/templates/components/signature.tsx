@@ -2,13 +2,13 @@
 
 import { Text } from '@react-email/components'
 
-import { getThemeStyles } from '../styles'
+import { getThemeStyles } from '../../styles'
 
 interface Props {
   styles: any
   signature: {
     thanks: string
-  who: string
+    who: string
   }
 }
 
@@ -21,10 +21,10 @@ const Signature = ({ styles, signature: { thanks, who } }: Props): React.ReactEl
 )
 
 Signature.PreviewProps = {
-  styles: getThemeStyles('dark'),
+  styles: getThemeStyles('light'),
   signature: {
     thanks: 'Best regards,',
-    who: 'The Team'
+    who: 'The Team',
   },
 } as Props
 

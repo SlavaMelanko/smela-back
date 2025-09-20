@@ -3,10 +3,10 @@
 import type { Metadata } from '../../../types'
 
 import { config } from '../../../config'
+import { getThemeStyles } from '../../../styles'
 import Copyright from './copyright'
 import MetadataContainer from './metadata'
 import SocialMediaLinks from './social-media-links'
-import { getThemeStyles } from '../../styles'
 
 interface Props {
   styles: any
@@ -35,7 +35,7 @@ const Footer = ({
 )
 
 Footer.PreviewProps = {
-  styles: getThemeStyles('dark'),
+  styles: getThemeStyles('light'),
   companyName: 'Company Name',
   socialMediaLinks: {
     facebook: 'https://facebook.com/your-profile',

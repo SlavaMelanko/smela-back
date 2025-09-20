@@ -11,7 +11,7 @@ import {
 import type { Metadata } from '../../types'
 
 import { Footer, Header } from '.'
-import { getThemeStyles } from '../styles'
+import { getThemeStyles } from '../../styles'
 
 export interface Props {
   subject: string
@@ -64,7 +64,7 @@ export const BaseEmail = ({
 BaseEmail.PreviewProps = {
   subject: 'Email Subject',
   previewText: 'Email Preview Text',
-  styles: getThemeStyles('dark')
+  styles: getThemeStyles('light'),
 } as Props
 
 export default BaseEmail

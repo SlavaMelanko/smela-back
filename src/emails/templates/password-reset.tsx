@@ -9,9 +9,9 @@ import type { PasswordResetEmailContent } from '../content'
 import type { Metadata } from '../types'
 
 import getContent from '../content'
+import { getThemeStyles } from '../styles'
 import { Signature } from './components'
 import BaseEmail from './components/base-email'
-import { getThemeStyles } from './styles'
 
 interface Props {
   data: {

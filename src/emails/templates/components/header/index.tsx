@@ -6,7 +6,7 @@ import {
   Section,
 } from '@react-email/components'
 
-import { getThemeStyles } from '../../styles'
+import { getThemeStyles } from '../../../styles'
 import Logo from './logo'
 
 interface Props {
@@ -26,7 +26,7 @@ const Header = ({
       <Section style={{ width: '100%', marginTop: styles.spacing.md }}>
         <Row>
           <Column style={{ borderBottom: `1px solid ${styles.color.border}` }} />
-          <Column style={{ borderBottom: '1px solid #e66e5a', width: '220px' }} />
+          <Column style={{ borderBottom: `1px solid ${styles.color.orange}`, width: '220px' }} />
           <Column style={{ borderBottom: `1px solid ${styles.color.border}` }} />
         </Row>
       </Section>
@@ -35,7 +35,7 @@ const Header = ({
 )
 
 Header.PreviewProps = {
-  styles: getThemeStyles('dark'),
+  styles: getThemeStyles('light'),
   logoWidth: 200,
   showBorder: true,
 } as Props
