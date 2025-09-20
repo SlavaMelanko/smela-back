@@ -1,1 +1,5 @@
+#!/bin/sh
+set -e
+
+# Run all tests before push
 bun test
