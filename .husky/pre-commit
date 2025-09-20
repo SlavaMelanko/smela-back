@@ -1,1 +1,30 @@
+#!/bin/sh
+set -e
+
+# Get list of staged files for processing
+STAGED_FILES=$(git diff --name-only --cached)
+
+# Run linting and formatting on staged files
 bun run lint:fix
+
+# Run tests for staged TS files
+if [ -n "$STAGED_FILES" ]; then
+  STAGED_TS=$(echo "$STAGED_FILES" | grep -E '\.(ts|js)$' || true)
+  if [ -n "$STAGED_TS" ]; then
+    # Run tests for related files
+    bun test --bail $STAGED_TS
+  fi
+fi
+
+# Re-add files that were modified by linters
+for file in $STAGED_FILES; do
+  if [ -f "$file" ] && ! git diff --quiet "$file"; then
+    git add "$file"
+  fi
+  if [ ! -f "$file" ] && git ls-files --error-unmatch "$file" > /dev/null 2>&1; then
+    git rm --cached "$file"
+  fi
+  if [ -L "$file" ] && ! git diff --quiet "$file"; then
+    git add "$file"
+  fi
+done
