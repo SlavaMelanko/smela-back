@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+# Get the previous and current commit hashes
+PREV_HEAD=$1
+NEW_HEAD=$2
+BRANCH_CHECKOUT=$3
+
+# Skip during initial clone (when previous HEAD is all zeros)
+if [ "$PREV_HEAD" = "0000000000000000000000000000000000000000" ]; then
+  exit 0
+fi
+
+# Skip if this is a file checkout (not branch checkout)
+if [ "$BRANCH_CHECKOUT" != "1" ]; then
+  exit 0
+fi
+
+# Check if package.json changed between commits
+if git diff --name-only "$PREV_HEAD" "$NEW_HEAD" | grep -q "package.json"; then
+  if ! bun install; then
+    echo "Warning: Failed to install dependencies, please run 'bun install' manually"
+  fi
+fi
