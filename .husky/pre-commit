@@ -17,7 +17,7 @@ if [ -n "$STAGED_FILES" ]; then
 fi
 
 # Re-add files that were modified by linters
-for file in $STAGED_FILES; do
+echo "$STAGED_FILES" | while read -r file; do
   if [ -f "$file" ] && ! git diff --quiet "$file"; then
     git add "$file"
   fi
