@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { createCaptcha } from '@/services/captcha'
+import { createCaptcha } from '@/services'
 
 /**
  * CAPTCHA validation middleware for protecting auth endpoints from bot attacks.

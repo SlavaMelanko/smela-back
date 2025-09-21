@@ -7,10 +7,8 @@ import type { User } from '@/repositories/user/types'
  * @param user - The user object from the database
  * @returns The user object without sensitive fields
  */
-const normalizeUser = (user: User): Omit<User, 'tokenVersion'> => {
+export const normalizeUser = (user: User): Omit<User, 'tokenVersion'> => {
   const { tokenVersion, ...userWithoutSensitiveFields } = user
 
   return userWithoutSensitiveFields
 }
-
-export { normalizeUser }

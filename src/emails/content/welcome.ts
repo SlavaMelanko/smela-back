@@ -1,4 +1,4 @@
-interface WelcomeEmailContent {
+export default interface WelcomeEmailContent {
   subject: string
   previewText: string
   greeting: (firstName?: string) => string
@@ -10,5 +10,3 @@ interface WelcomeEmailContent {
     who: string
   }
 }
-
-export default WelcomeEmailContent

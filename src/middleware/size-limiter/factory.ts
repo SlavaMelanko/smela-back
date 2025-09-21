@@ -31,10 +31,10 @@ export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}
 
       // Validate that Content-Length matches actual size if header was provided.
       if (contentHeader && contentLength !== null && contentLength !== bodySize) {
-        logger.warn('Content-Length mismatch', {
+        logger.warn({
           declaredSize: contentLength,
           actualSize: bodySize,
-        })
+        }, 'Content-Length mismatch')
 
         throw new AppError(ErrorCode.ContentLengthMismatch)
       }
@@ -43,11 +43,11 @@ export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}
         throw error
       }
 
-      logger.error('Failed to validate request body size', {
+      logger.error({
         error,
         path: c.req.path,
         method: c.req.method,
-      })
+      }, 'Failed to validate request body size')
 
       throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }

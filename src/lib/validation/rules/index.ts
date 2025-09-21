@@ -1,10 +1,11 @@
 import { captchaRules, companyRules, coreRules, dbRules, emailRules, networkRules } from './env/index'
-import jwtRules from './jwt'
-import tokenRules from './token'
-import userRules from './user'
+
+export { default as jwtRules } from './jwt'
+export { default as tokenRules } from './token'
+export { default as userRules } from './user'
 
 // Combine all env rules for backward compatibility
-const envRules = {
+export const envRules = {
   ...coreRules,
   ...dbRules,
   ...networkRules,
@@ -13,5 +14,4 @@ const envRules = {
   ...captchaRules,
 }
 
-export { envRules, jwtRules, tokenRules, userRules }
 export { captchaRules, companyRules, coreRules, dbRules, emailRules, networkRules }

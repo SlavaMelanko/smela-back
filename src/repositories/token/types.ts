@@ -2,10 +2,10 @@ import type { tokensTable } from '@/db/schema'
 import type { Token, TokenStatus } from '@/types'
 
 // Database type
-type TokenRecord = typeof tokensTable.$inferSelect
+export type TokenRecord = typeof tokensTable.$inferSelect
 
 // Input types for create / update / delete / etc.
-interface CreateTokenInput {
+export interface CreateTokenInput {
   userId: number
   type: Token
   status?: TokenStatus
@@ -14,10 +14,8 @@ interface CreateTokenInput {
   metadata?: any
 }
 
-interface UpdateTokenInput {
+export interface UpdateTokenInput {
   status?: TokenStatus
   usedAt?: Date | null
   metadata?: any
 }
-
-export { CreateTokenInput, TokenRecord, UpdateTokenInput }

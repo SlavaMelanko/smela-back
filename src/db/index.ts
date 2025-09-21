@@ -1,4 +1,2 @@
-import db from './db'
-import { authTable, tokensTable, usersTable } from './schema'
-
-export { authTable, db as default, tokensTable, usersTable }
+export { default } from './db'
+export { authTable, tokensTable, usersTable } from './schema'

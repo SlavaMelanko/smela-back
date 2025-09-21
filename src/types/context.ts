@@ -1,6 +1,6 @@
 import type { Role, Status } from '@/types'
 
-interface UserPayload {
+export interface UserPayload {
   id: number
   email: string
   role: Role
@@ -9,12 +9,10 @@ interface UserPayload {
   exp: number
 }
 
-interface Variables {
+export interface Variables {
   user: UserPayload
 }
 
-interface AppContext {
+export interface AppContext {
   Variables: Variables
 }
-
-export { AppContext, UserPayload, Variables }

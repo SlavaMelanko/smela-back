@@ -7,7 +7,7 @@ import { TokenStatus } from '@/types'
 
 import type { CreateTokenInput, TokenRecord, UpdateTokenInput } from './types'
 
-const deprecateOldTokens = async (userId: number, token: Token) => {
+export const deprecateOldTokens = async (userId: number, token: Token) => {
   await db
     .update(tokensTable)
     .set({ status: TokenStatus.Deprecated })
@@ -21,7 +21,7 @@ const deprecateOldTokens = async (userId: number, token: Token) => {
     )
 }
 
-const createToken = async (token: CreateTokenInput): Promise<number> => {
+export const createToken = async (token: CreateTokenInput): Promise<number> => {
   const [createdToken] = await db
     .insert(tokensTable)
     .values({
@@ -33,7 +33,7 @@ const createToken = async (token: CreateTokenInput): Promise<number> => {
   return createdToken.id
 }
 
-const findByToken = async (token: string): Promise<TokenRecord | undefined> => {
+export const findByToken = async (token: string): Promise<TokenRecord | undefined> => {
   const [foundToken] = await db
     .select()
     .from(tokensTable)
@@ -44,7 +44,7 @@ const findByToken = async (token: string): Promise<TokenRecord | undefined> => {
   return foundToken
 }
 
-const updateToken = async (
+export const updateToken = async (
   tokenId: number,
   updates: UpdateTokenInput,
 ): Promise<void> => {
@@ -52,11 +52,4 @@ const updateToken = async (
     .update(tokensTable)
     .set(updates)
     .where(eq(tokensTable.id, tokenId))
-}
-
-export {
-  createToken,
-  deprecateOldTokens,
-  findByToken,
-  updateToken,
 }

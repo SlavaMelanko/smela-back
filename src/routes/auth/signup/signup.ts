@@ -10,7 +10,7 @@ import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Status, Token } from '@/types'
 
-interface SignupParams {
+export interface SignupParams {
   firstName: string
   lastName: string
   email: string

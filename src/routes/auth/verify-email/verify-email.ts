@@ -7,7 +7,7 @@ import { normalizeUser } from '@/lib/user'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token, TokenStatus } from '@/types'
 
-interface VerifyEmailResult {
+export interface VerifyEmailResult {
   user: ReturnType<typeof normalizeUser>
   token: string
 }
@@ -49,4 +49,4 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   return { user: normalizeUser(updatedUser), token: jwtToken }
 }
 
-export { verifyEmail as default, type VerifyEmailResult }
+export default verifyEmail

@@ -1,4 +1,2 @@
-import passwordReset from './password-reset'
-import welcome from './welcome'
-
-export { passwordReset, welcome }
+export { default as passwordReset } from './password-reset'
+export { default as welcome } from './welcome'

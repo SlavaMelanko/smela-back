@@ -6,12 +6,12 @@ import { getThemeStyles } from '../styles'
 import { WelcomeEmail } from '../templates'
 import { renderEmail } from './helper'
 
-interface WelcomeEmailData {
+export interface WelcomeEmailData {
   firstName: string
   verificationUrl: string
 }
 
-class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
+export default class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
   async render(data: WelcomeEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
     const content = getContent(userPreferences?.locale).welcome
     const styles = getThemeStyles(userPreferences?.theme)
@@ -26,5 +26,3 @@ class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
     }
   }
 }
-
-export { WelcomeEmailRenderer as default, type WelcomeEmailData }

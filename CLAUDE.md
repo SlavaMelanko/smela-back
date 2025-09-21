@@ -249,6 +249,12 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Code Style**: 2-space indentation, no semicolons, single quotes
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
+  - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
+  - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`
+  - Prefer `export default class MyClass` over `class MyClass` + `export { MyClass as default }`
+  - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
+  - ESLint rule enforces blank lines between export statements for readability
 
 #### Interface Implementation Naming Convention
 

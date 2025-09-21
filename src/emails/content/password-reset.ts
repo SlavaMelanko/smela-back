@@ -1,4 +1,4 @@
-interface PasswordResetEmailContent {
+export default interface PasswordResetEmailContent {
   subject: string
   previewText: string
   greeting: (firstName?: string) => string
@@ -11,5 +11,3 @@ interface PasswordResetEmailContent {
     who: string
   }
 }
-
-export default PasswordResetEmailContent
