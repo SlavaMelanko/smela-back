@@ -1,3 +1,5 @@
+import { env } from './env'
+
 interface EmailConfig {
   company: {
     name: string
@@ -8,13 +10,8 @@ interface EmailConfig {
 const createEmailConfig = (): EmailConfig => {
   return {
     company: {
-      name: 'SMELA',
-      socialMediaLinks: {
-        twitter: 'https://twitter.com',
-        facebook: 'https://facebook.com',
-        linkedin: 'https://linkedin.com',
-        github: 'https://github.com',
-      },
+      name: env.companyName,
+      socialMediaLinks: env.companySocialLinks,
     },
   }
 }
