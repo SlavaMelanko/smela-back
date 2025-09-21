@@ -17,7 +17,13 @@ describe('CORS Middleware', () => {
     delete require.cache[require.resolve('../env/test')]
     delete require.cache[require.resolve('../env/staging-and-prod')]
     delete require.cache[require.resolve('../env/fallback')]
-    delete require.cache[require.resolve('@/lib/env')]
+
+    // Clear all @/lib/env modules and validation
+    Object.keys(require.cache).forEach((key) => {
+      if (key.includes('@/lib/env') || key.includes('/lib/env') || key.includes('/lib/validation')) {
+        delete require.cache[key]
+      }
+    })
   })
 
   afterEach(() => {
@@ -36,7 +42,13 @@ describe('CORS Middleware', () => {
     delete require.cache[require.resolve('../env/test')]
     delete require.cache[require.resolve('../env/staging-and-prod')]
     delete require.cache[require.resolve('../env/fallback')]
-    delete require.cache[require.resolve('@/lib/env')]
+
+    // Clear all @/lib/env modules and validation
+    Object.keys(require.cache).forEach((key) => {
+      if (key.includes('@/lib/env') || key.includes('/lib/env') || key.includes('/lib/validation')) {
+        delete require.cache[key]
+      }
+    })
   })
 
   describe('Development Environment', () => {

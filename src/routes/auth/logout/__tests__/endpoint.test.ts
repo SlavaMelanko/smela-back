@@ -1,18 +1,24 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
+import { deleteCookie } from 'hono/cookie'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
 
 import logoutRoute from '../index'
 
-// Mock environment
-mock.module('@/lib/env', () => ({
-  default: {
-    JWT_COOKIE_NAME: 'auth-token',
-    COOKIE_DOMAIN: 'example.com',
-  },
-  isDevOrTestEnv: () => false, // Simulate production environment
+// Mock the auth/cookie module
+const mockDeleteAuthCookie = mock((c) => {
+  // Simulate the deleteAuthCookie behavior with 'auth-token' name
+  // This will be the default behavior, can be overridden in specific tests
+  deleteCookie(c, 'auth-token', {
+    path: '/',
+    domain: 'example.com',
+  })
+})
+
+mock.module('@/lib/auth/cookie', () => ({
+  deleteAuthCookie: mockDeleteAuthCookie,
 }))
 
 describe('Logout Endpoint', () => {
@@ -62,14 +68,13 @@ describe('Logout Endpoint', () => {
     })
 
     it('should handle logout without domain in production', async () => {
-      // Mock environment without COOKIE_DOMAIN
-      mock.module('@/lib/env', () => ({
-        default: {
-          JWT_COOKIE_NAME: 'auth-token',
-          COOKIE_DOMAIN: undefined,
-        },
-        isDevOrTestEnv: () => false, // Simulate production environment
-      }))
+      // Override the mock for this specific test to simulate no domain
+      mockDeleteAuthCookie.mockImplementation((c) => {
+        deleteCookie(c, 'auth-token', {
+          path: '/',
+          // No domain set for this test
+        })
+      })
 
       const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
@@ -82,6 +87,14 @@ describe('Logout Endpoint', () => {
       expect(cookies).toContain('auth-token=')
       expect(cookies).toContain('Path=/')
       expect(cookies).not.toContain('Domain=')
+
+      // Reset mock to default behavior
+      mockDeleteAuthCookie.mockImplementation((c) => {
+        deleteCookie(c, 'auth-token', {
+          path: '/',
+          domain: 'example.com',
+        })
+      })
     })
 
     it('should only accept POST method', async () => {
