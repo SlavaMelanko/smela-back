@@ -1,43 +1,40 @@
 import type { Context } from 'hono'
 
-import { deleteCookie as honoDeleteCookie, getCookie as honoGetCookie, setCookie } from 'hono/cookie'
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
-import env, { isDevOrTestEnv } from '@/lib/env'
+import { isDevOrTestEnv } from '@/lib/env'
 
-import { TOKEN_EXPIRATION_TIME } from './constants'
-
-/**
- * Gets authentication cookie value.
- * @param c - Hono context
- * @returns JWT token value or undefined
- */
-export const getAuthCookie = (c: Context): string | undefined => {
-  return honoGetCookie(c, env.JWT_COOKIE_NAME)
+export interface Options {
+  name: string
+  maxAge?: number
+  domain?: string
 }
 
-/**
- * Sets authentication cookie with JWT token.
- * @param c - Hono context
- * @param token - JWT token to set in cookie
- */
-export const setAuthCookie = (c: Context, token: string): void => {
-  setCookie(c, env.JWT_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: !isDevOrTestEnv(), // secure in production
-    sameSite: 'lax',
-    maxAge: TOKEN_EXPIRATION_TIME, // Use the constant instead of hardcoded value
-    path: '/',
-    ...(env.COOKIE_DOMAIN && !isDevOrTestEnv() && { domain: env.COOKIE_DOMAIN }),
-  })
-}
+export class Cookie {
+  constructor(
+    private readonly context: Context,
+    private readonly options: Options,
+  ) {}
 
-/**
- * Deletes authentication cookie.
- * @param c - Hono context
- */
-export const deleteAuthCookie = (c: Context): void => {
-  honoDeleteCookie(c, env.JWT_COOKIE_NAME, {
-    path: '/',
-    ...(env.COOKIE_DOMAIN && !isDevOrTestEnv() && { domain: env.COOKIE_DOMAIN }),
-  })
+  get(): string | undefined {
+    return getCookie(this.context, this.options.name)
+  }
+
+  set(token: string): void {
+    setCookie(this.context, this.options.name, token, {
+      httpOnly: true,
+      secure: !isDevOrTestEnv(),
+      sameSite: 'lax',
+      maxAge: this.options.maxAge,
+      path: '/',
+      ...(this.options.domain && !isDevOrTestEnv() && { domain: this.options.domain }),
+    })
+  }
+
+  delete(): void {
+    deleteCookie(this.context, this.options.name, {
+      path: '/',
+      ...(this.options.domain && !isDevOrTestEnv() && { domain: this.options.domain }),
+    })
+  }
 }
