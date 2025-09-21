@@ -2,9 +2,9 @@ import { describe, expect, it } from 'bun:test'
 
 import type { Metadata, UserPreferences } from '@/emails/types'
 
-import type { PasswordResetEmailData } from '../password-reset-email-renderer'
+import type { PasswordResetEmailData } from '../email-renderer-password-reset'
 
-import PasswordResetEmailRenderer from '../password-reset-email-renderer'
+import PasswordResetEmailRenderer from '../email-renderer-password-reset'
 
 describe('PasswordResetEmailRenderer', () => {
   const renderer = new PasswordResetEmailRenderer()

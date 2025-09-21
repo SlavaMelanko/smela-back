@@ -250,6 +250,46 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
 
+#### Interface Implementation Naming Convention
+
+When creating interfaces with multiple implementations, follow this naming pattern:
+
+**Interface Files:**
+
+- **Filename**: Use kebab-case ending with the interface concept (e.g., `email-renderer.ts`)
+- **Interface Name**: Use PascalCase matching the concept (e.g., `EmailRenderer`)
+
+**Implementation Files:**
+
+- **Filename**: Start with interface filename + implementation name (e.g., `email-renderer-password-reset.ts`, `email-renderer-welcome.ts`)
+- **Class Name**: Use PascalCase ending with interface name (e.g., `PasswordResetEmailRenderer`, `WelcomeEmailRenderer`)
+
+**Example Structures:**
+
+_Email Renderers (following new convention):_
+
+```text
+src/emails/renderers/
+├── email-renderer.ts                    # Interface: EmailRenderer
+├── email-renderer-password-reset.ts     # Class: PasswordResetEmailRenderer
+├── email-renderer-welcome.ts            # Class: WelcomeEmailRenderer
+└── helper.ts                            # Utilities
+```
+
+_Email Providers (existing pattern):_
+
+```text
+src/services/email/providers/
+├── provider.ts                          # Interface: EmailProvider
+├── provider-ethereal.ts                 # Class: EtherealEmailProvider
+├── provider-resend.ts                   # Class: ResendEmailProvider
+├── payload.ts                           # Supporting types
+├── factory.ts                           # Factory function
+└── index.ts                             # Public exports
+```
+
+This convention groups implementations together alphabetically and makes the relationship to the interface explicit.
+
 ### Environment Configuration
 
 **Bun Native Environment Loading:**

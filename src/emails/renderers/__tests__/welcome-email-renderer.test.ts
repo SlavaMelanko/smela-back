@@ -2,9 +2,9 @@ import { describe, expect, it } from 'bun:test'
 
 import type { Metadata, UserPreferences } from '@/emails/types'
 
-import type { WelcomeEmailData } from '../welcome-email-renderer'
+import type { WelcomeEmailData } from '../email-renderer-welcome'
 
-import WelcomeEmailRenderer from '../welcome-email-renderer'
+import WelcomeEmailRenderer from '../email-renderer-welcome'
 
 describe('WelcomeEmailRenderer', () => {
   const renderer = new WelcomeEmailRenderer()
