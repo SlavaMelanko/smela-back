@@ -2,8 +2,8 @@ import type { MiddlewareHandler } from 'hono'
 
 import { createMiddleware } from 'hono/factory'
 
+import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
-import type { AppContext } from '@/types/context'
 
 import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'

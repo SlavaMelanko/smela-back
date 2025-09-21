@@ -1,6 +1,6 @@
 import type { Hono } from 'hono'
 
-import type { AppContext } from '@/types/context'
+import type { AppContext } from '@/context'
 
 import {
   loginRoute,
