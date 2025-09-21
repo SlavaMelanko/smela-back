@@ -2,14 +2,13 @@ import type { Context } from 'hono'
 
 import env from '@/lib/env'
 
-import { TOKEN_EXPIRATION_TIME } from './constants'
 import { Cookie } from './cookie'
 
 export class AuthCookie extends Cookie {
   constructor(context: Context) {
     super(context, {
-      name: env.JWT_COOKIE_NAME,
-      maxAge: TOKEN_EXPIRATION_TIME,
+      name: env.COOKIE_NAME,
+      maxAge: env.COOKIE_EXPIRATION,
       domain: env.COOKIE_DOMAIN,
     })
   }

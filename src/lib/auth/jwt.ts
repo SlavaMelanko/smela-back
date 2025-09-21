@@ -7,10 +7,9 @@ import env from '@/lib/env'
 
 import type { JwtPayload } from './schema'
 
-import { TOKEN_EXPIRATION_TIME } from './constants'
 import { jwtPayloadSchema } from './schema'
 
-const getSecret = () => env.JWT_SECRET
+const getSecret = () => env.JWT_ACCESS_SECRET
 
 const signJwt = (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
   const payload = {
@@ -19,7 +18,7 @@ const signJwt = (id: number, email: string, role: Role, status: Status, tokenVer
     role,
     status,
     v: tokenVersion,
-    exp: Math.floor(Date.now() / 1000) + TOKEN_EXPIRATION_TIME,
+    exp: Math.floor(Date.now() / 1000) + env.JWT_ACCESS_EXPIRATION,
   }
 
   return sign(payload, getSecret())
