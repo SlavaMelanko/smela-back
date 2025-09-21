@@ -1,15 +1,15 @@
-import { envRules } from '../validation'
+import { emailRules } from '../validation'
 
 export const emailEnv = {
-  EMAIL_SENDER_PROFILES: envRules.emailSenderProfiles,
+  EMAIL_SENDER_PROFILES: emailRules.emailSenderProfiles,
 
   // 'ethereal' for development to avoid bloating inbox, otherwise - 'resend'.
-  EMAIL_PROVIDER: envRules.emailProvider,
+  EMAIL_PROVIDER: emailRules.emailProvider,
 
-  EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,
+  EMAIL_RESEND_API_KEY: emailRules.emailResendApiKey,
 
-  EMAIL_ETHEREAL_HOST: envRules.emailEtherealHost,
-  EMAIL_ETHEREAL_PORT: envRules.emailEtherealPort,
-  EMAIL_ETHEREAL_USERNAME: envRules.emailEtherealUsername,
-  EMAIL_ETHEREAL_PASSWORD: envRules.emailEtherealPassword,
+  EMAIL_ETHEREAL_HOST: emailRules.emailEtherealHost,
+  EMAIL_ETHEREAL_PORT: emailRules.emailEtherealPort,
+  EMAIL_ETHEREAL_USERNAME: emailRules.emailEtherealUsername,
+  EMAIL_ETHEREAL_PASSWORD: emailRules.emailEtherealPassword,
 }

@@ -1,15 +1,15 @@
-import { envRules } from '../validation'
+import { networkRules } from '../validation'
 
 export const networkEnv = {
   // JWT configuration.
-  JWT_SECRET: envRules.jwtSecret,
-  JWT_COOKIE_NAME: envRules.jwtCookieName,
+  JWT_SECRET: networkRules.jwtSecret,
+  JWT_COOKIE_NAME: networkRules.jwtCookieName,
 
   // CORS and domain configuration.
-  ALLOWED_ORIGINS: envRules.allowedOrigins,
-  COOKIE_DOMAIN: envRules.cookieDomain,
+  ALLOWED_ORIGINS: networkRules.allowedOrigins,
+  COOKIE_DOMAIN: networkRules.cookieDomain,
 
   // Base URLs.
-  BE_BASE_URL: envRules.beBaseUrl,
-  FE_BASE_URL: envRules.feBaseUrl,
+  BE_BASE_URL: networkRules.beBaseUrl,
+  FE_BASE_URL: networkRules.feBaseUrl,
 }

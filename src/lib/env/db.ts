@@ -1,5 +1,5 @@
-import { envRules } from '../validation'
+import { dbRules } from '../validation'
 
 export const dbEnv = {
-  DB_URL: envRules.dbUrl,
+  DB_URL: dbRules.dbUrl,
 }

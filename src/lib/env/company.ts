@@ -1,6 +1,6 @@
-import { envRules } from '../validation'
+import { companyRules } from '../validation'
 
 export const companyEnv = {
-  COMPANY_NAME: envRules.companyName,
-  COMPANY_SOCIAL_LINKS: envRules.companySocialLinks,
+  COMPANY_NAME: companyRules.companyName,
+  COMPANY_SOCIAL_LINKS: companyRules.companySocialLinks,
 }

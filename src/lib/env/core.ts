@@ -1,6 +1,6 @@
-import { envRules } from '../validation'
+import { coreRules } from '../validation'
 
 export const coreEnv = {
-  NODE_ENV: envRules.nodeEnv,
-  LOG_LEVEL: envRules.logLevel,
+  NODE_ENV: coreRules.nodeEnv,
+  LOG_LEVEL: coreRules.logLevel,
 }
