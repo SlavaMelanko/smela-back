@@ -24,17 +24,17 @@
     "bcrypt": "^6.0.0",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.7.11",
-    "hono-pino": "^0.8.0",
+    "hono-pino": "^0.10.2",
     "hono-rate-limiter": "^0.4.2",
     "http-status-codes": "^2.3.0",
     "nodemailer": "^7.0.6",
     "pino": "^9.7.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "resend": "^4.7.0"
+    "resend": "^6.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.14.1",
+    "@antfu/eslint-config": "^5.4.1",
     "@react-email/preview-server": "4.2.11",
     "@types/bcrypt": "6.0.0",
     "@types/bun": "latest",
