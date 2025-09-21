@@ -3,8 +3,7 @@ import { envRules } from '../validation'
 export const emailEnv = {
   EMAIL_SENDER_PROFILES: envRules.emailSenderProfiles,
 
-  // Email provider selection: 'ethereal' for development
-  // to avoid bloating inbox, 'resend' for production.
+  // 'ethereal' for development to avoid bloating inbox, otherwise - 'resend'.
   EMAIL_PROVIDER: envRules.emailProvider,
 
   EMAIL_RESEND_API_KEY: envRules.emailResendApiKey,

@@ -11,12 +11,12 @@ import { captchaEnv } from './services'
 const validate = () => {
   try {
     const envSchema = buildSchema({
-      ...captchaEnv,
-      ...companyEnv,
       ...coreEnv,
       ...dbEnv,
-      ...emailEnv,
       ...networkEnv,
+      ...emailEnv,
+      ...companyEnv,
+      ...captchaEnv,
     })
 
     // eslint-disable-next-line node/no-process-env

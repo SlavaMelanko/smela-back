@@ -1,6 +1,6 @@
 import { envRules } from '../validation'
 
 export const captchaEnv = {
-  // reCAPTCHA
+  // reCAPTCHA.
   CAPTCHA_SECRET_KEY: envRules.captchaSecretKey,
 }
