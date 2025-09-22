@@ -1,13 +1,4 @@
-import type { Role, Status } from '@/types'
-
-export interface UserPayload {
-  id: number
-  email: string
-  role: Role
-  status: Status
-  v: number
-  exp: number
-}
+import type { UserPayload } from '@/types'
 
 export interface Variables {
   user: UserPayload

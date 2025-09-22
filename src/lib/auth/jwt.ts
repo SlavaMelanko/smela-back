@@ -1,13 +1,11 @@
 import { sign, verify } from 'hono/jwt'
 
-import type { Role, Status } from '@/types'
+import type { Role, Status, UserPayload } from '@/types'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import env from '@/lib/env'
 
-import type { JwtPayload } from './schema'
-
-import { jwtPayloadSchema } from './schema'
+import { parsePayload } from './payload'
 
 const getSecret = () => env.JWT_ACCESS_SECRET
 
@@ -24,11 +22,11 @@ const signJwt = (id: number, email: string, role: Role, status: Status, tokenVer
   return sign(payload, getSecret())
 }
 
-const verifyJwt = async (token: string): Promise<JwtPayload> => {
+const verifyJwt = async (token: string): Promise<UserPayload> => {
   try {
     const payload = await verify(token, getSecret())
 
-    const validatedPayload = jwtPayloadSchema.parse(payload)
+    const validatedPayload = parsePayload(payload)
 
     return validatedPayload
   } catch (error) {
