@@ -4,7 +4,7 @@ import env from '@/lib/env'
 
 import { Cookie } from './cookie'
 
-export class AuthCookie extends Cookie {
+export class AccessCookie extends Cookie {
   constructor(context: Context) {
     super(context, {
       name: env.COOKIE_NAME,
@@ -14,14 +14,14 @@ export class AuthCookie extends Cookie {
   }
 }
 
-export const getAuthCookie = (c: Context): string | undefined => {
-  return new AuthCookie(c).get()
+export const getAccessCookie = (c: Context): string | undefined => {
+  return new AccessCookie(c).get()
 }
 
-export const setAuthCookie = (c: Context, token: string): void => {
-  new AuthCookie(c).set(token)
+export const setAccessCookie = (c: Context, token: string): void => {
+  new AccessCookie(c).set(token)
 }
 
-export const deleteAuthCookie = (c: Context): void => {
-  new AuthCookie(c).delete()
+export const deleteAccessCookie = (c: Context): void => {
+  new AccessCookie(c).delete()
 }

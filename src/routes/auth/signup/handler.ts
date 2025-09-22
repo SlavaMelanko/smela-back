@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { StatusCodes } from 'http-status-codes'
 
-import { setAuthCookie } from '@/lib/auth'
+import { setAccessCookie } from '@/lib/auth'
 
 import signUpWithEmail from './signup'
 
@@ -11,7 +11,7 @@ const signupHandler = async (c: Context) => {
 
   const result = await signUpWithEmail({ firstName, lastName, email, password, role })
 
-  setAuthCookie(c, result.token)
+  setAccessCookie(c, result.token)
 
   return c.json(result, StatusCodes.CREATED)
 }
