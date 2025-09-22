@@ -1,4 +1,5 @@
 import { sign, verify } from 'hono/jwt'
+import { ZodError } from 'zod'
 
 import type { Role, Status, UserPayload } from '@/types'
 
@@ -28,8 +29,7 @@ export const verifyJwt = async (token: string): Promise<UserPayload> => {
 
     return parsePayload(payload)
   } catch (error) {
-    // If it's a Zod validation error, throw a more specific error
-    if (error instanceof Error && error.name === 'ZodError') {
+    if (error instanceof ZodError) {
       throw new AppError(ErrorCode.Unauthorized, 'Invalid token payload structure')
     }
 
