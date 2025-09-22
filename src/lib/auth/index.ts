@@ -1,2 +1,2 @@
-export { deleteAccessCookie, getAccessCookie, setAccessCookie } from './cookie-access'
+export { deleteAccessCookie, getAccessCookie, setAccessCookie } from './access'
 export { default as jwt } from '@/lib/jwt'
