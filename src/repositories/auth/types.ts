@@ -3,6 +3,6 @@ import type { authTable } from '@/db/schema'
 // Database type
 export type AuthRecord = typeof authTable.$inferSelect
 
-// Input types for create / update / delete / etc.
+// Input types for create / update / delete / etc
 export type CreateAuthInput = typeof authTable.$inferInsert
 export type UpdateAuthInput = Partial<CreateAuthInput>

@@ -15,7 +15,7 @@ const captchaMiddleware = (): MiddlewareHandler => {
 
   return async (c, next) => {
     // At this point, the request has already been validated by requestValidator
-    // so we know captchaToken exists and is properly formatted.
+    // So we know captchaToken exists and is properly formatted
     const { captchaToken } = await c.req.json()
 
     await captcha.validate(captchaToken)

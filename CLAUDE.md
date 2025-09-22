@@ -256,6 +256,31 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
   - ESLint rule enforces blank lines between export statements for readability
 
+#### Comment Formatting Standards
+
+**Primary Rule**: Prefer descriptive and meaningful names for variables, functions, and classes instead of comments.
+
+**When comments are necessary:**
+
+- **Trailing Comments**: Keep short, no uppercase letter at beginning, no dot at end
+  ```typescript
+  const timeout = 5000 // milliseconds
+  const isValid = checkAuth() // validates JWT token
+  ```
+
+- **Full-Line Comments (Single Sentence)**: Start with uppercase letter, no dot at end
+  ```typescript
+  // Validate user permissions before processing request
+  const hasPermission = await checkUserRole(userId)
+  ```
+
+- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences
+  ```typescript
+  // Initialize database connection pool. This ensures optimal performance
+  // for concurrent requests. The pool size is configured via environment variables.
+  const pool = createConnectionPool()
+  ```
+
 #### Interface Implementation Naming Convention
 
 When creating interfaces with multiple implementations, follow this naming pattern:

@@ -56,7 +56,7 @@ export const updateUser = async (userId: number, updates: UpdateUserInput): Prom
   return toTypeSafeUser(updatedUser)
 }
 
-// Increment token version to invalidate all existing JWTs.
+// Increment token version to invalidate all existing JWTs
 export const incrementTokenVersion = async (userId: number): Promise<void> => {
   const user = await findUserById(userId)
 

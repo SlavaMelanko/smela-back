@@ -4,7 +4,7 @@ import type { Token, TokenStatus } from '@/types'
 // Database type
 export type TokenRecord = typeof tokensTable.$inferSelect
 
-// Input types for create / update / delete / etc.
+// Input types for create / update / delete / etc
 export interface CreateTokenInput {
   userId: number
   type: Token

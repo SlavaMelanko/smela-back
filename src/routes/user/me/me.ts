@@ -17,7 +17,7 @@ export const getUser = async (userId: number) => {
 
   if (!user) {
     // This represents a data inconsistency - user has valid JWT,
-    // but doesn't exist in DB.
+    // But doesn't exist in DB
     throw new AppError(ErrorCode.InternalError)
   }
 
