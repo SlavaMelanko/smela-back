@@ -33,7 +33,6 @@ export const verifyJwt = async (token: string): Promise<UserPayload> => {
       throw new AppError(ErrorCode.Unauthorized, 'Invalid token payload structure')
     }
 
-    // Re-throw other errors (like JWT verification errors)
-    throw error
+    throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
   }
 }

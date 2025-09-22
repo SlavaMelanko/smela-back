@@ -30,16 +30,16 @@ const createDualAuthMiddleware = (
     const payload = await jwt.verify(token)
 
     if (!statusValidator(payload.status)) {
-      throw new AppError(ErrorCode.Forbidden, 'Status validation failures')
+      throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
     }
 
     if (!roleValidator(payload.role)) {
-      throw new AppError(ErrorCode.Forbidden, 'Role validation failures')
+      throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
     }
 
     const user = await userRepo.findById(payload.id)
     if (!user || user.tokenVersion !== payload.v) {
-      throw new AppError(ErrorCode.Unauthorized, 'Token version mismatches')
+      throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
     }
 
     c.set('user', payload)
