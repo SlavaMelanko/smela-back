@@ -1,9 +1,9 @@
 import type { Role } from '@/types'
 
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
+import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'

@@ -53,8 +53,8 @@ describe('logInWithEmail', () => {
     }))
 
     // Mock JWT
-    mock.module('@/lib/auth', () => ({
-      jwt: {
+    mock.module('@/lib/jwt', () => ({
+      default: {
         sign: mock(() => Promise.resolve(mockToken)),
         verify: mock(() => Promise.resolve({ id: 1 })),
       },
@@ -86,7 +86,7 @@ describe('logInWithEmail', () => {
     })
 
     it('should call JWT sign with correct user data', async () => {
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       await logInWithEmail({
         email: mockUser.email,
         password: validPassword,
@@ -313,7 +313,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         activeUser.id,
         activeUser.email,
@@ -342,7 +342,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         adminUser.id,
         adminUser.email,
@@ -371,7 +371,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         userWithHighTokenVersion.id,
         userWithHighTokenVersion.email,
@@ -400,7 +400,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         userWithZeroTokenVersion.id,
         userWithZeroTokenVersion.email,
@@ -429,7 +429,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         userWithLargeTokenVersion.id,
         userWithLargeTokenVersion.email,
@@ -464,8 +464,8 @@ describe('logInWithEmail', () => {
         exp: Math.floor(Date.now() / 1000) + 3600,
       }
 
-      mock.module('@/lib/auth', () => ({
-        jwt: {
+      mock.module('@/lib/jwt', () => ({
+        default: {
           sign: mock(() => Promise.resolve(mockToken)),
           verify: mock(() => Promise.resolve(mockJwtPayload)),
         },
@@ -478,7 +478,7 @@ describe('logInWithEmail', () => {
 
       expect(result.token).toBe(mockToken)
 
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         userWithSpecificTokenVersion.id,
         userWithSpecificTokenVersion.email,
@@ -504,8 +504,8 @@ describe('logInWithEmail', () => {
       // Mock JWT with real-like behavior
       const mockJwtToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidG9rZW5WZXJzaW9uIjozfQ.signature'
 
-      mock.module('@/lib/auth', () => ({
-        jwt: {
+      mock.module('@/lib/jwt', () => ({
+        default: {
           sign: mock(() => Promise.resolve(mockJwtToken)),
           verify: mock(() => Promise.resolve({
             id: testUser.id,
@@ -527,7 +527,7 @@ describe('logInWithEmail', () => {
       expect(loginResult.token).toBe(mockJwtToken)
 
       // Step 2: Verify JWT contains correct tokenVersion
-      const { jwt } = await import('@/lib/auth')
+      const jwt = (await import('@/lib/jwt')).default
       expect(jwt.sign).toHaveBeenCalledWith(
         testUser.id,
         testUser.email,
@@ -622,8 +622,8 @@ describe('logInWithEmail', () => {
     })
 
     it('should propagate JWT signing errors', async () => {
-      mock.module('@/lib/auth', () => ({
-        jwt: {
+      mock.module('@/lib/jwt', () => ({
+        default: {
           sign: mock(() => Promise.reject(new Error('JWT signing failed'))),
           verify: mock(() => Promise.resolve({ id: 1 })),
         },

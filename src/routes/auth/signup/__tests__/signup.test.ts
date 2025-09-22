@@ -30,8 +30,8 @@ mock.module('@/lib/email-agent', () => ({
 }))
 
 // Mock JWT module
-mock.module('@/lib/auth', () => ({
-  jwt: {
+mock.module('@/lib/jwt', () => ({
+  default: {
     sign: mock(() => Promise.resolve('mock-jwt-token')),
   },
 }))

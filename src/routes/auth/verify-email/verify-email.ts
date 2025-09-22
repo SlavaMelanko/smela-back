@@ -1,7 +1,7 @@
 import type { User } from '@/repositories/user/types'
 
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
+import jwt from '@/lib/jwt'
 import { TokenValidator } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
 import { tokenRepo, userRepo } from '@/repositories'
