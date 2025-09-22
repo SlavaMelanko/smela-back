@@ -9,7 +9,7 @@ import { parsePayload } from './payload'
 
 const getSecret = () => env.JWT_ACCESS_SECRET
 
-const signJwt = (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
+export const signJwt = (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
   const payload = {
     id,
     email,
@@ -22,13 +22,11 @@ const signJwt = (id: number, email: string, role: Role, status: Status, tokenVer
   return sign(payload, getSecret())
 }
 
-const verifyJwt = async (token: string): Promise<UserPayload> => {
+export const verifyJwt = async (token: string): Promise<UserPayload> => {
   try {
     const payload = await verify(token, getSecret())
 
-    const validatedPayload = parsePayload(payload)
-
-    return validatedPayload
+    return parsePayload(payload)
   } catch (error) {
     // If it's a Zod validation error, throw a more specific error
     if (error instanceof Error && error.name === 'ZodError') {
@@ -39,10 +37,3 @@ const verifyJwt = async (token: string): Promise<UserPayload> => {
     throw error
   }
 }
-
-const jwt = {
-  sign: signJwt,
-  verify: verifyJwt,
-}
-
-export default jwt
