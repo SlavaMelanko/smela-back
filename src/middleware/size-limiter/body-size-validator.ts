@@ -10,7 +10,7 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
   const reader = request.body?.getReader()
 
   if (!reader) {
-    // No body to read.
+    // No body to read
     return { ok: true, bodySize: 0 }
   }
 
@@ -26,9 +26,9 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
 
       totalSize += value.byteLength
 
-      // Early termination if size exceeds limit.
+      // Early termination if size exceeds limit
       if (totalSize > maxSize) {
-        // Cancel the stream to stop reading.
+        // Cancel the stream to stop reading
         await reader.cancel()
 
         return { ok: false, bodySize: totalSize }
@@ -37,15 +37,14 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
 
     return { ok: true, bodySize: totalSize }
   } catch (error) {
-    // Stream error occurred.
     logger.error({ error }, 'Stream validation error')
     throw error
   } finally {
-    // Ensure reader is released.
+    // Ensure reader is released
     try {
       reader.releaseLock()
     } catch {
-      // Reader might already be released.
+      // Reader might already be released
     }
   }
 }
@@ -59,7 +58,7 @@ export const validateBodySize = async (
   maxSize: number,
   contentLength: number | null,
 ): Promise<number> => {
-  // Determine whether to use streaming based on Content-Length or max size.
+  // Determine whether to use streaming based on Content-Length or max size
   const shouldUseStreaming
     = (contentLength !== null && contentLength > DEFAULT_STREAMING_THRESHOLD)
       || (maxSize > DEFAULT_STREAMING_THRESHOLD)
@@ -67,7 +66,7 @@ export const validateBodySize = async (
   let actualSize: number = 0
 
   if (shouldUseStreaming) {
-    // Use streaming validation for large payloads.
+    // Use streaming validation for large payloads
     const { ok, bodySize } = await validateBodySizeStreaming(request, maxSize)
 
     if (!ok) {
@@ -82,7 +81,7 @@ export const validateBodySize = async (
 
     actualSize = bodySize
   } else {
-    // Use arrayBuffer for small payloads.
+    // Use arrayBuffer for small payloads
     const body = await request.arrayBuffer()
     actualSize = body.byteLength
 
