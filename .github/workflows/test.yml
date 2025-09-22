@@ -29,7 +29,7 @@ jobs:
         env:
           LOG_LEVEL: ${{ vars.LOG_LEVEL }}
           CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           DB_URL: ${{ secrets.DB_URL }}
           COMPANY_SOCIAL_LINKS: ${{ secrets.COMPANY_SOCIAL_LINKS }}
           EMAIL_SENDER_PROFILES: ${{ secrets.EMAIL_SENDER_PROFILES }}
