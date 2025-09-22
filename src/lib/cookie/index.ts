@@ -1,1 +1,1 @@
-export { deleteAccessCookie, getAccessCookie, setAccessCookie } from './access'
+export { deleteAccessCookie, getAccessCookie, setAccessCookie } from './access-cookie'
