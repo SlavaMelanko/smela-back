@@ -1,3 +1,1 @@
-import meRoute from './me'
-
-export { meRoute }
+export { default as meRoute } from './me'

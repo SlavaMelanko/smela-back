@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
-import type { AppContext } from '@/types/context'
+import type { AppContext } from '@/context'
 
 import securityHeadersMiddleware from '../security-headers'
 

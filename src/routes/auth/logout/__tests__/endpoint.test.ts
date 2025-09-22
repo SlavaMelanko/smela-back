@@ -8,8 +8,8 @@ import { onError } from '@/middleware'
 import logoutRoute from '../index'
 
 // Mock the auth/cookie module
-const mockDeleteAuthCookie = mock((c) => {
-  // Simulate the deleteAuthCookie behavior with 'auth-token' name
+const mockDeleteAccessCookie = mock((c) => {
+  // Simulate the deleteAccessCookie behavior with 'auth-token' name
   // This will be the default behavior, can be overridden in specific tests
   deleteCookie(c, 'auth-token', {
     path: '/',
@@ -17,8 +17,8 @@ const mockDeleteAuthCookie = mock((c) => {
   })
 })
 
-mock.module('@/lib/auth/cookie', () => ({
-  deleteAuthCookie: mockDeleteAuthCookie,
+mock.module('@/lib/cookie', () => ({
+  deleteAccessCookie: mockDeleteAccessCookie,
 }))
 
 describe('Logout Endpoint', () => {
@@ -69,7 +69,7 @@ describe('Logout Endpoint', () => {
 
     it('should handle logout without domain in production', async () => {
       // Override the mock for this specific test to simulate no domain
-      mockDeleteAuthCookie.mockImplementation((c) => {
+      mockDeleteAccessCookie.mockImplementation((c) => {
         deleteCookie(c, 'auth-token', {
           path: '/',
           // No domain set for this test
@@ -89,7 +89,7 @@ describe('Logout Endpoint', () => {
       expect(cookies).not.toContain('Domain=')
 
       // Reset mock to default behavior
-      mockDeleteAuthCookie.mockImplementation((c) => {
+      mockDeleteAccessCookie.mockImplementation((c) => {
         deleteCookie(c, 'auth-token', {
           path: '/',
           domain: 'example.com',

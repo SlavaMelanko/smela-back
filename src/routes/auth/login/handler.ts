@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { StatusCodes } from 'http-status-codes'
 
-import { setAuthCookie } from '@/lib/auth'
+import { setAccessCookie } from '@/lib/cookie'
 
 import logInWithEmail from './login'
 
@@ -12,7 +12,7 @@ const loginHandler = async (c: Context) => {
   const result = await logInWithEmail({ email, password })
 
   // Set cookie for web browser clients
-  setAuthCookie(c, result.token)
+  setAccessCookie(c, result.token)
 
   // Return user and token in response body for CLI/mobile clients (same as signup)
   return c.json(result, StatusCodes.OK)

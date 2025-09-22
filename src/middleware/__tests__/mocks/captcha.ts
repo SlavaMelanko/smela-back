@@ -17,7 +17,7 @@ export const INVALID_CAPTCHA_TOKENS = {
 }
 
 // Global mock to prevent any actual CAPTCHA service calls during tests
-mock.module('@/services/captcha', () => ({
+mock.module('@/services', () => ({
   createCaptcha: mock(() => ({
     validate: mock(() => Promise.resolve()), // Always resolves successfully
   })),
@@ -29,7 +29,7 @@ mock.module('@/services/captcha', () => ({
  */
 export const mockCaptchaService = () => {
   beforeEach(() => {
-    mock.module('@/services/captcha', () => ({
+    mock.module('@/services', () => ({
       createCaptcha: mock(() => ({
         validate: mock(() => Promise.resolve()), // Always resolves successfully
       })),
@@ -43,7 +43,7 @@ export const mockCaptchaService = () => {
  */
 export const mockCaptchaServiceFailure = (errorMessage = 'Invalid CAPTCHA token') => {
   beforeEach(() => {
-    mock.module('@/services/captcha', () => ({
+    mock.module('@/services', () => ({
       createCaptcha: mock(() => ({
         validate: mock(() => Promise.reject(new Error(errorMessage))),
       })),

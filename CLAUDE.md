@@ -249,91 +249,57 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Code Style**: 2-space indentation, no semicolons, single quotes
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
+  - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
+  - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`
+  - Prefer `export default class MyClass` over `class MyClass` + `export { MyClass as default }`
+  - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
+  - ESLint rule enforces blank lines between export statements for readability
+
+#### Interface Implementation Naming Convention
+
+When creating interfaces with multiple implementations, follow this naming pattern:
+
+**Interface Files:**
+
+- **Filename**: Use kebab-case ending with the interface concept (e.g., `email-renderer.ts`)
+- **Interface Name**: Use PascalCase matching the concept (e.g., `EmailRenderer`)
+
+**Implementation Files:**
+
+- **Filename**: Start with interface filename + implementation name (e.g., `email-renderer-password-reset.ts`, `email-renderer-welcome.ts`)
+- **Class Name**: Use PascalCase ending with interface name (e.g., `PasswordResetEmailRenderer`, `WelcomeEmailRenderer`)
+
+**Example Structures:**
+
+_Email Renderers (following new convention):_
+
+```text
+src/emails/renderers/
+├── email-renderer.ts                    # Interface: EmailRenderer
+├── email-renderer-password-reset.ts     # Class: PasswordResetEmailRenderer
+├── email-renderer-welcome.ts            # Class: WelcomeEmailRenderer
+└── helper.ts                            # Utilities
+```
+
+_Email Providers (existing pattern):_
+
+```text
+src/services/email/providers/
+├── provider.ts                          # Interface: EmailProvider
+├── provider-ethereal.ts                 # Class: EtherealEmailProvider
+├── provider-resend.ts                   # Class: ResendEmailProvider
+├── payload.ts                           # Supporting types
+├── factory.ts                           # Factory function
+└── index.ts                             # Public exports
+```
+
+This convention groups implementations together alphabetically and makes the relationship to the interface explicit.
 
 ### Environment Configuration
 
 **Bun Native Environment Loading:**
-Bun automatically loads environment files based on `NODE_ENV` without requiring the `dotenv` package. Files are loaded in this order:
-
-1. `.env` - Base configuration (always loaded first)
-2. `.env.{NODE_ENV}` - Environment-specific configuration (development/production/staging/test)
-3. `.env.local` - Local overrides (not committed to git)
-4. `.env.{NODE_ENV}.local` - Environment-specific local overrides (not committed to git)
-
-**Supported Environments:**
-
-- `development` - Local development with debug logging and Ethereal email
-- `production` - Production deployment with Resend email
-- `staging` - Staging environment (uses production-like settings with Resend email)
-- `test` - Test environment with minimal logging
-
-**Base `.env` file (sensitive/shared values):**
-
-- `JWT_SECRET` - Secret for JWT signing (required, sensitive)
-- `DB_URL` - PostgreSQL connection string (required, sensitive)
-- `EMAIL_RESEND_API_KEY` - Resend service API key (required for staging/production, sensitive)
-- `EMAIL_SENDER_PROFILES` - JSON object defining sender profiles (required)
-- `COMPANY_NAME` - Company name for emails (default: The Company)
-- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links
-
-**Environment-specific files (.env.development, .env.production, .env.staging, .env.test):**
-
-- `LOG_LEVEL` - Logging level (debug/info/error)
-- `BE_BASE_URL` - Backend base URL for API endpoints
-- `FE_BASE_URL` - Frontend base URL for email links
-- `PORT` - Server port (default: 3000, optional)
-
-**Development-specific (.env.development):**
-
-- `EMAIL_ETHEREAL_HOST` - Ethereal SMTP host (smtp.ethereal.email)
-- `EMAIL_ETHEREAL_PORT` - Ethereal SMTP port (587)
-- `EMAIL_ETHEREAL_USERNAME` - Ethereal account username
-- `EMAIL_ETHEREAL_PASSWORD` - Ethereal account password
-
-**Note:** The `NODE_ENV` variable is automatically set based on which environment file is being used and determines:
-
-- Which environment-specific `.env` file is loaded
-- Whether to show stack traces in errors (hidden in production/staging)
-- Logging configuration (pretty printing in development)
-- Email provider selection (Ethereal for development, Resend for staging/production)
-
-#### EMAIL_SENDER_PROFILES Format
-
-Required JSON structure for sender profiles (place in base `.env` file):
-
-```json
-{
-  "system": {
-    "email": "noreply@company.com",
-    "name": "Company Name"
-  },
-  "support": {
-    "email": "support@company.com",
-    "name": "Support Team"
-  },
-  "ceo": {
-    "email": "ceo@company.com",
-    "name": "CEO Name"
-  },
-  "marketing": {
-    "email": "marketing@company.com",
-    "name": "Marketing Team"
-  }
-}
-```
-
-#### Example Environment File Structure
-
-```
-project/
-├── .env                    # Sensitive values (JWT_SECRET, DB_URL, etc.)
-├── .env.development        # Development settings (LOG_LEVEL=debug, Ethereal email)
-├── .env.production        # Production settings (LOG_LEVEL=info, Resend email)
-├── .env.staging           # Staging settings (LOG_LEVEL=info, Resend email)
-├── .env.test              # Test settings (LOG_LEVEL=error)
-├── .env.local             # Local overrides (optional, not in git)
-└── .env.example           # Template for environment setup
-```
+Bun automatically loads environment files based on `NODE_ENV` without requiring the `dotenv` package. See `.env.example` for complete environment variable documentation, supported environments, and configuration examples.
 
 ### Email Configuration
 

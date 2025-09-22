@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { requestId } from 'hono/request-id'
 
-import type { AppContext } from '@/types/context'
+import type { AppContext } from '@/context'
 
 import {
   authRateLimiter,

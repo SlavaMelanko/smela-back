@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
+import jwt from '@/lib/jwt'
 import { userRepo } from '@/repositories'
 import { isActiveOnly, isEnterprise, Role, Status } from '@/types'
 
@@ -18,17 +18,17 @@ describe('Enterprise Authentication Middleware', () => {
       const payload = await jwt.verify(token)
 
       if (!statusValidator(payload.status as Status)) {
-        throw new AppError(ErrorCode.Forbidden, 'Status validation failures')
+        throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
       }
 
       if (!roleValidator(payload.role as Role)) {
-        throw new AppError(ErrorCode.Forbidden, 'Role validation failures')
+        throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
       }
 
       // Fetch current user to validate token version
       const user = await userRepo.findById(payload.id as number)
       if (!user || user.tokenVersion !== (payload.v as number)) {
-        throw new AppError(ErrorCode.Unauthorized, 'Token version mismatches')
+        throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
       }
 
       return { success: true, user: payload }
@@ -83,7 +83,7 @@ describe('Enterprise Authentication Middleware', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
-      expect((result.error as AppError).message).toBe('Status validation failures')
+      expect((result.error as AppError).message).toBe('Status validation failure')
     })
 
     it('should reject Enterprise with Trial status (requires fully active)', async () => {
@@ -101,7 +101,7 @@ describe('Enterprise Authentication Middleware', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
-      expect((result.error as AppError).message).toBe('Status validation failures')
+      expect((result.error as AppError).message).toBe('Status validation failure')
     })
 
     it('should reject User role even with Active status', async () => {
@@ -119,7 +119,7 @@ describe('Enterprise Authentication Middleware', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
-      expect((result.error as AppError).message).toBe('Role validation failures')
+      expect((result.error as AppError).message).toBe('Role validation failure')
     })
 
     it('should reject Admin role with Active status', async () => {
@@ -171,7 +171,7 @@ describe('Enterprise Authentication Middleware', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
-      expect((result.error as AppError).message).toBe('Status validation failures')
+      expect((result.error as AppError).message).toBe('Status validation failure')
     })
 
     it('should reject Enterprise with Suspended status', async () => {
@@ -235,7 +235,7 @@ describe('Enterprise Authentication Middleware', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(AppError)
       expect((result.error as AppError).code).toBe(ErrorCode.Forbidden)
-      expect((result.error as AppError).message).toBe('Role validation failures')
+      expect((result.error as AppError).message).toBe('Role validation failure')
     })
   })
 })

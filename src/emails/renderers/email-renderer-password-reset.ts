@@ -6,12 +6,12 @@ import { getThemeStyles } from '../styles'
 import { PasswordResetEmail } from '../templates'
 import { renderEmail } from './helper'
 
-interface PasswordResetEmailData {
+export interface PasswordResetEmailData {
   firstName: string
   resetUrl: string
 }
 
-class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData> {
+export default class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData> {
   async render(data: PasswordResetEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
     const content = getContent(userPreferences?.locale).passwordReset
     const styles = getThemeStyles(userPreferences?.theme)
@@ -26,5 +26,3 @@ class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData
     }
   }
 }
-
-export { PasswordResetEmailRenderer as default, type PasswordResetEmailData }

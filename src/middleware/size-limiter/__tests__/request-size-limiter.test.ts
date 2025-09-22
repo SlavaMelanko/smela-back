@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import type { AppContext } from '@/types/context'
+import type { AppContext } from '@/context'
 
 import onError from '../../on-error'
 import {

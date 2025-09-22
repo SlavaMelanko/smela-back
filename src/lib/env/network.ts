@@ -2,12 +2,14 @@ import { networkRules } from '../validation'
 
 export const networkEnv = {
   // JWT configuration.
-  JWT_SECRET: networkRules.jwtSecret,
-  JWT_COOKIE_NAME: networkRules.jwtCookieName,
+  JWT_ACCESS_SECRET: networkRules.jwtAccessSecret,
+  JWT_ACCESS_EXPIRATION: networkRules.jwtAccessExpiration,
 
   // CORS and domain configuration.
-  ALLOWED_ORIGINS: networkRules.allowedOrigins,
+  COOKIE_NAME: networkRules.cookieName,
+  COOKIE_EXPIRATION: networkRules.cookieExpiration,
   COOKIE_DOMAIN: networkRules.cookieDomain,
+  ALLOWED_ORIGINS: networkRules.allowedOrigins,
 
   // Base URLs.
   BE_BASE_URL: networkRules.beBaseUrl,

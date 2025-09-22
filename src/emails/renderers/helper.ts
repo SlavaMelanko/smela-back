@@ -4,7 +4,7 @@ import { render } from '@react-email/components'
 
 import type { Metadata } from '../types'
 
-const renderEmail = async <T>(
+export const renderEmail = async <T>(
   template: (props: { data: T, content: any, styles: any, metadata?: Metadata }) => ReactElement,
   props: { data: T, content: any, styles: any, metadata?: Metadata },
 ): Promise<{ html: string, text: string }> => {
@@ -17,5 +17,3 @@ const renderEmail = async <T>(
 
   return { html, text }
 }
-
-export { renderEmail }

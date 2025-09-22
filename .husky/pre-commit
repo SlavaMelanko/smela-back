@@ -7,12 +7,12 @@ STAGED_FILES=$(git diff --name-only --cached)
 # Run linting and formatting on staged files
 bun run lint:fix
 
-# Run tests for staged TS files
+# Run all tests if any TS/JS files are staged
 if [ -n "$STAGED_FILES" ]; then
   STAGED_TS=$(echo "$STAGED_FILES" | grep -E '\.(ts|js)$' || true)
   if [ -n "$STAGED_TS" ]; then
-    # Run tests for related files
-    bun test --bail "$STAGED_TS"
+    # Run all tests to catch any breaking changes
+    bun test --bail
   fi
 fi
 

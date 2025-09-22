@@ -8,12 +8,12 @@ enum Status {
   Pending = 'pending',
 }
 
-const isActive = (status: Status) => status === Status.Verified
+export const isActive = (status: Status) => status === Status.Verified
   || status === Status.Trial
   || status === Status.Active
 
-const isNewOrActive = (status: Status) => status === Status.New || isActive(status)
+export const isNewOrActive = (status: Status) => status === Status.New || isActive(status)
 
-const isActiveOnly = (status: Status) => status === Status.Active
+export const isActiveOnly = (status: Status) => status === Status.Active
 
-export { Status as default, isActive, isActiveOnly, isNewOrActive }
+export default Status

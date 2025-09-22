@@ -1,8 +1,13 @@
 import { z } from 'zod'
 
 const rules = {
-  jwtSecret: z.string().min(10),
-  jwtCookieName: z.string().default('auth-token'),
+  jwtAccessSecret: z.string().min(10),
+  jwtAccessExpiration: z.coerce.number().int().positive().default(3600),
+
+  cookieExpiration: z.coerce.number().int().positive().default(3600),
+  cookieName: z.string().default('access-token'),
+  cookieDomain: z.string().optional(), // domain for cookies in production
+
   // CORS: Required for staging/production, optional for dev/test
   allowedOrigins: z.string().optional().superRefine((val, ctx) => {
     // eslint-disable-next-line node/no-process-env
@@ -15,7 +20,7 @@ const rules = {
       })
     }
   }),
-  cookieDomain: z.string().optional(), // domain for cookies in production
+
   beBaseUrl: z.string().url().default('http://localhost:3000'),
   feBaseUrl: z.string().url().default('http://localhost:5173'),
 }
