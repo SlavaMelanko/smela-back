@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { StatusCodes } from 'http-status-codes'
 
-import { deleteAccessCookie } from '@/lib/auth'
+import { deleteAccessCookie } from '@/lib/cookie'
 
 const logoutHandler = async (c: Context) => {
   deleteAccessCookie(c)

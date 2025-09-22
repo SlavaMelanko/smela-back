@@ -17,7 +17,7 @@ const mockDeleteAccessCookie = mock((c) => {
   })
 })
 
-mock.module('@/lib/auth', () => ({
+mock.module('@/lib/cookie', () => ({
   deleteAccessCookie: mockDeleteAccessCookie,
 }))
 

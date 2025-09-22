@@ -38,7 +38,7 @@ mock.module('@/lib/env', () => ({
 }))
 
 // Mock auth library
-mock.module('@/lib/auth', () => ({
+mock.module('@/lib/cookie', () => ({
   setAccessCookie: mock(() => {}),
 }))
 
