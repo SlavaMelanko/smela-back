@@ -36,7 +36,7 @@ mock.module('@/lib/jwt', () => ({
   },
 }))
 
-describe.skip('signUpWithEmail', () => {
+describe('signUpWithEmail', () => {
   const mockSignupParams = {
     firstName: 'John',
     lastName: 'Doe',

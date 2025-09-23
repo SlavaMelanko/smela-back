@@ -6,7 +6,7 @@ import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
 
-describe.skip('resetPassword', () => {
+describe('resetPassword', () => {
   const mockToken = 'valid-reset-token-123456789012345678901234567890123456789012'
   const mockPassword = 'NewSecure@123'
   const mockHashedPassword = 'hashed-new-password'

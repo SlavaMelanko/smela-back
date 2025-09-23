@@ -7,7 +7,7 @@ import '@/middleware/__tests__/mocks/captcha' // Ensure CAPTCHA is mocked global
 
 import logInWithEmail from '../login'
 
-describe.skip('logInWithEmail', () => {
+describe('logInWithEmail', () => {
   const mockUser = {
     id: 1,
     firstName: 'John',
@@ -48,7 +48,7 @@ describe.skip('logInWithEmail', () => {
     mock.module('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         compare: mock(() => Promise.resolve(true)),
-        encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
+        hash: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
       })),
     }))
 
@@ -212,7 +212,7 @@ describe.skip('logInWithEmail', () => {
       mock.module('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.resolve(false)), // Password doesn't match
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
+          hash: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
         })),
       }))
     })
@@ -239,7 +239,7 @@ describe.skip('logInWithEmail', () => {
       mock.module('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.resolve(false)), // Empty values return false
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
+          hash: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
         })),
       }))
     })
@@ -602,7 +602,7 @@ describe.skip('logInWithEmail', () => {
       mock.module('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.reject(new Error('Crypto library error'))),
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
+          hash: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
         })),
       }))
 

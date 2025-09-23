@@ -22,8 +22,15 @@ const validate = () => {
     // eslint-disable-next-line node/no-process-env
     return envSchema.parse(process.env)
   } catch (e) {
-    const error = e as ZodError
-    console.error('❌ Invalid env:', error.flatten().fieldErrors)
+    if (e && typeof e === 'object' && 'flatten' in e && typeof e.flatten === 'function') {
+      // This is a ZodError
+      const error = e as ZodError
+      console.error('❌ Invalid env:', error.flatten().fieldErrors)
+    } else {
+      // This is some other error (e.g., missing files, syntax errors)
+      console.error('❌ Environment validation failed:', e)
+    }
+
     process.exit(1)
   }
 }
