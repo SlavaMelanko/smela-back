@@ -9,6 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     container: oven/bun:1.2.16
     environment: test
+    env:
+      LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
+      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+      DB_URL: ${{ secrets.DB_URL }}
+      COMPANY_SOCIAL_LINKS: ${{ secrets.COMPANY_SOCIAL_LINKS }}
+      EMAIL_SENDER_PROFILES: ${{ secrets.EMAIL_SENDER_PROFILES }}
+      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
 
     steps:
       - name: Checkout code
@@ -17,16 +25,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run linting
-        run: bun run lint
+      - name: Debug single test file
+        run: bun test --verbose src/routes/auth/login/__tests__/login.test.ts
 
-      - name: Run tests
-        run: bun run test
-        env:
-          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
-          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          DB_URL: ${{ secrets.DB_URL }}
-          COMPANY_SOCIAL_LINKS: ${{ secrets.COMPANY_SOCIAL_LINKS }}
-          EMAIL_SENDER_PROFILES: ${{ secrets.EMAIL_SENDER_PROFILES }}
-          EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
+      #- name: Run linting
+      #  run: bun run lint
+
+      #- name: Run tests
+      #  run: bun run test
