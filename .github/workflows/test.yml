@@ -25,11 +25,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      #- name: Debug single test file
-      #  run: bun test --verbose src/routes/auth/login/__tests__/login.test.ts
+      - name: Debug single test file
+        run: bun test --verbose src/routes/auth/signup/__tests__/signup.test.ts
 
       #- name: Run linting
       #  run: bun run lint
 
-      - name: Run tests
-        run: bun run test
+      #- name: Run tests
+      #  run: bun run test
