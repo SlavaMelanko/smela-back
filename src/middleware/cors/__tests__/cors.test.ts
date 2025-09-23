@@ -6,7 +6,7 @@ import { Hono } from 'hono'
 // Store original environment
 const originalEnv = { ...process.env }
 
-describe.skip('CORS Middleware', () => {
+describe('CORS Middleware', () => {
   let app: Hono
 
   beforeEach(() => {
