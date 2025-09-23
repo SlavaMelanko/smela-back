@@ -7,16 +7,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: oven/bun:1.2.16
     environment: test
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
 
       - name: Install dependencies
         run: bun install
