@@ -6,10 +6,10 @@ let _logger: pino.Logger | null = null
 const getLogger = (): pino.Logger => {
   if (!_logger) {
     try {
-      import('@/lib/env').then(({ default: env, isDevEnv }) => {
+      import('@/lib/env').then(({ default: env, isDevOrTestEnv }) => {
         _logger = pino({
           level: env.LOG_LEVEL,
-        }, isDevEnv() ? pretty() : undefined)
+        }, isDevOrTestEnv() ? pretty() : undefined)
       })
     } catch {
       // Fallback logger for test environment
