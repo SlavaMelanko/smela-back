@@ -29,9 +29,9 @@ mock.module('../signup', () => ({
 // Mock environment
 mock.module('@/lib/env', () => ({
   default: {
-    JWT_COOKIE_NAME: 'auth-token',
+    COOKIE_NAME: 'auth-token',
     COOKIE_DOMAIN: 'example.com',
-    JWT_SECRET: 'test-jwt-secret',
+    JWT_ACCESS_SECRET: 'test-jwt-secret',
   },
   isDevEnv: () => false,
   isDevOrTestEnv: () => false,
@@ -98,7 +98,7 @@ describe('Signup Handler', () => {
       // Mock dev environment
       mock.module('@/lib/env', () => ({
         default: {
-          JWT_COOKIE_NAME: 'auth-token',
+          COOKIE_NAME: 'auth-token',
           COOKIE_DOMAIN: undefined,
         },
         isDevEnv: () => true,

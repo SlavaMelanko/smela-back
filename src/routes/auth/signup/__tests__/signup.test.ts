@@ -17,8 +17,8 @@ mock.module('@/lib/env', () => ({
         name: 'Test System',
       },
     }),
-    JWT_SECRET: 'test-jwt-secret',
-    JWT_COOKIE_NAME: 'auth-token',
+    JWT_ACCESS_SECRET: 'test-jwt-secret',
+    COOKIE_NAME: 'auth-token',
   },
 }))
 
