@@ -7,7 +7,7 @@ import '@/middleware/__tests__/mocks/captcha' // Ensure CAPTCHA is mocked global
 
 import logInWithEmail from '../login'
 
-describe.skip('logInWithEmail', () => {
+describe('logInWithEmail', () => {
   const mockUser = {
     id: 1,
     firstName: 'John',
