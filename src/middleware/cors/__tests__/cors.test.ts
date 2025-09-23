@@ -6,24 +6,28 @@ import { Hono } from 'hono'
 // Store original environment
 const originalEnv = { ...process.env }
 
+// Helper function to clear environment-dependent modules
+const clearEnvironmentModules = () => {
+  delete require.cache[require.resolve('../index')]
+  delete require.cache[require.resolve('../env/index')]
+  delete require.cache[require.resolve('../env/dev')]
+  delete require.cache[require.resolve('../env/test')]
+  delete require.cache[require.resolve('../env/staging-and-prod')]
+  delete require.cache[require.resolve('../env/fallback')]
+
+  // Clear all @/lib/env modules and validation
+  Object.keys(require.cache).forEach((key) => {
+    if (key.includes('@/lib/env') || key.includes('/lib/env') || key.includes('/lib/validation')) {
+      delete require.cache[key]
+    }
+  })
+}
+
 describe('CORS Middleware', () => {
   let app: Hono
 
   beforeEach(() => {
-    // Reset modules to ensure fresh imports
-    delete require.cache[require.resolve('../index')]
-    delete require.cache[require.resolve('../env/index')]
-    delete require.cache[require.resolve('../env/dev')]
-    delete require.cache[require.resolve('../env/test')]
-    delete require.cache[require.resolve('../env/staging-and-prod')]
-    delete require.cache[require.resolve('../env/fallback')]
-
-    // Clear all @/lib/env modules and validation
-    Object.keys(require.cache).forEach((key) => {
-      if (key.includes('@/lib/env') || key.includes('/lib/env') || key.includes('/lib/validation')) {
-        delete require.cache[key]
-      }
-    })
+    clearEnvironmentModules()
   })
 
   afterEach(() => {
@@ -35,20 +39,7 @@ describe('CORS Middleware', () => {
     })
     Object.assign(process.env, originalEnv)
 
-    // Clear require cache again to ensure clean state for next test
-    delete require.cache[require.resolve('../index')]
-    delete require.cache[require.resolve('../env/index')]
-    delete require.cache[require.resolve('../env/dev')]
-    delete require.cache[require.resolve('../env/test')]
-    delete require.cache[require.resolve('../env/staging-and-prod')]
-    delete require.cache[require.resolve('../env/fallback')]
-
-    // Clear all @/lib/env modules and validation
-    Object.keys(require.cache).forEach((key) => {
-      if (key.includes('@/lib/env') || key.includes('/lib/env') || key.includes('/lib/validation')) {
-        delete require.cache[key]
-      }
-    })
+    clearEnvironmentModules()
   })
 
   describe('Development Environment', () => {
