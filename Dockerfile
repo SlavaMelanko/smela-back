@@ -1,31 +1,22 @@
-# Use latest Ubuntu as base image
-FROM ubuntu:latest
+# Use the official Bun image
+# https://bun.com/guides/ecosystem/docker
+FROM oven/bun:1.2.16 AS base
 
-# Set working directory
 WORKDIR /app
 
-# Install curl and unzip (required for Bun installation)
-RUN apt-get update && \
-    apt-get install -y curl unzip && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies into temp directory
+# This will cache them and speed up future builds
+FROM base AS install
+RUN mkdir -p /temp/test
+COPY package.json bun.lock /temp/test/
+RUN cd /temp/test && bun install --frozen-lockfile
 
-# Install Bun
-RUN curl -fsSL https://bun.com/install | bash
-
-# Add Bun to PATH
-ENV PATH="/root/.bun/bin:$PATH"
-
-# Copy package.json and bun.lock first for better Docker layer caching
-COPY package.json bun.lock* ./
-
-# Install dependencies
-RUN bun install --frozen-lockfile
-
-# Copy source code
+# Copy node_modules from temp directory
+# Then copy all (non-ignored) project files into the image
+FROM base AS test
+COPY --from=install /temp/test/node_modules ./node_modules
 COPY . .
 
-# Run linting
-RUN bun run lint
+RUN bun lint
 
-# Run tests
 CMD ["bun", "test"]
