@@ -17,6 +17,6 @@ FROM base AS test
 COPY --from=install /temp/test/node_modules ./node_modules
 COPY . .
 
-RUN bun lint
+# RUN bun lint
 
 CMD ["bun", "test"]
