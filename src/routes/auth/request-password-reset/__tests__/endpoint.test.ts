@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -6,21 +6,31 @@ import { onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
-import requestPasswordResetSchema from '../schema'
 
 describe('Request Password Reset Endpoint', () => {
   let app: Hono
+  let mockRequestPasswordReset: any
+
+  const createApp = () => {
+    app = new Hono()
+    app.onError(onError)
+    app.route('/api/v1/auth', requestPasswordResetRoute)
+  }
 
   beforeEach(() => {
     mockCaptchaSuccess()
 
-    app = new Hono()
-    app.onError(onError)
-    app.route('/api/v1/auth', requestPasswordResetRoute)
+    mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
+
+    mock.module('../request-password-reset', () => ({
+      default: mockRequestPasswordReset,
+    }))
+
+    createApp()
   })
 
   describe('POST /auth/request-password-reset', () => {
-    it('should return 200 when request is valid', async () => {
+    it('should return success response on valid request', async () => {
       const res = await app.request('/api/v1/auth/request-password-reset', {
         method: 'POST',
         headers: {
@@ -32,10 +42,13 @@ describe('Request Password Reset Endpoint', () => {
         }),
       })
 
-      // Note: This will fail in integration tests without mocks
-      // as it will try to access the real database
-      // For now, we're testing the endpoint structure
-      expect(res.status).toBeDefined()
+      expect(res.status).toBe(StatusCodes.ACCEPTED)
+
+      const data = await res.json()
+      expect(data).toEqual({ success: true })
+
+      expect(mockRequestPasswordReset).toHaveBeenCalledTimes(1)
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith('test@example.com')
     })
 
     it('should validate email format', async () => {
@@ -126,80 +139,28 @@ describe('Request Password Reset Endpoint', () => {
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
     })
-  })
 
-  describe('Validation Schema', () => {
-    it('should accept valid email addresses and captcha tokens', () => {
-      const validInputs = [
-        { email: 'user@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'john.doe@company.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'test+tag@email.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'user123@test-domain.com', captchaToken: VALID_CAPTCHA_TOKEN },
+    it('should handle different email formats gracefully', async () => {
+      const emailFormats = [
+        'user@example.com',
+        'test+tag@email.co.uk',
+        'user.name@company-domain.org',
       ]
 
-      for (const input of validInputs) {
-        const result = requestPasswordResetSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      }
-    })
-
-    it('should reject invalid email addresses', () => {
-      const invalidInputs = [
-        { email: '', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'user @example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'user@.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { email: 'user..name@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-      ]
-
-      for (const input of invalidInputs) {
-        const result = requestPasswordResetSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should reject invalid captcha tokens', () => {
-      const invalidInputs = [
-        { email: 'test@example.com' }, // Missing captcha token
-        { email: 'test@example.com', captchaToken: '' }, // Empty captcha token
-        { email: 'test@example.com', captchaToken: 'invalid' }, // Invalid captcha token
-      ]
-
-      for (const input of invalidInputs) {
-        const result = requestPasswordResetSchema.safeParse(input)
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should not accept extra fields', () => {
-      const result = requestPasswordResetSchema.safeParse({
-        email: 'test@example.com',
-        captchaToken: VALID_CAPTCHA_TOKEN,
-        extra: 'field',
-      })
-
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data).toEqual({
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
+      for (const email of emailFormats) {
+        const res = await app.request('/api/v1/auth/request-password-reset', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            captchaToken: VALID_CAPTCHA_TOKEN,
+          }),
         })
-        expect(result.data).not.toHaveProperty('extra')
-      }
-    })
 
-    it('should require both email and captcha token fields', () => {
-      const incompleteInputs = [
-        { email: 'test@example.com' }, // Missing captcha token
-        { captchaToken: VALID_CAPTCHA_TOKEN }, // Missing email
-        {}, // Missing both fields
-      ]
-
-      for (const input of incompleteInputs) {
-        const result = requestPasswordResetSchema.safeParse(input)
-        expect(result.success).toBe(false)
+        expect(res.status).toBe(StatusCodes.ACCEPTED)
+        expect(mockRequestPasswordReset).toHaveBeenCalledWith(email)
       }
     })
   })

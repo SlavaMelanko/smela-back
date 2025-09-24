@@ -6,33 +6,38 @@ import { Role, Status } from '@/types'
 import logInWithEmail from '../login'
 
 describe('Login with Email', () => {
-  const mockLoginParams = {
-    email: 'test@example.com',
-    password: 'ValidPass123!',
-  }
-
-  const mockUser = {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'test@example.com',
-    status: Status.Verified,
-    role: Role.User,
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  }
-
-  const mockAuth = {
-    userId: 1,
-    provider: 'local',
-    identifier: 'test@example.com',
-    passwordHash: '$2b$10$hashedPassword123',
-  }
-
-  const mockJwtToken = 'login-jwt-token-123'
+  let mockLoginParams: any
+  let mockUser: any
+  let mockAuth: any
+  let mockJwtToken: any
 
   beforeEach(() => {
+    mockLoginParams = {
+      email: 'test@example.com',
+      password: 'ValidPass123!',
+    }
+
+    mockUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'test@example.com',
+      status: Status.Verified,
+      role: Role.User,
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockAuth = {
+      userId: 1,
+      provider: 'local',
+      identifier: 'test@example.com',
+      passwordHash: '$2b$10$hashedPassword123',
+    }
+
+    mockJwtToken = 'login-jwt-token-123'
+
     mock.module('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),

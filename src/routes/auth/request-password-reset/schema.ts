@@ -5,4 +5,4 @@ const requestPasswordResetSchema = buildSchema({
   captchaToken: tokenRules.captchaToken,
 })
 
-export default requestPasswordResetSchema
+export default requestPasswordResetSchema.strict()
