@@ -17,6 +17,13 @@ describe('Request Password Reset Endpoint', () => {
     app.route('/api/v1/auth', requestPasswordResetRoute)
   }
 
+  const postRequest = (body: any, headers: Record<string, string> = { 'Content-Type': 'application/json' }, method = 'POST') =>
+    app.request('/api/v1/auth/request-password-reset', {
+      method,
+      headers,
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    })
+
   beforeEach(() => {
     mockCaptchaSuccess()
 
@@ -31,15 +38,9 @@ describe('Request Password Reset Endpoint', () => {
 
   describe('POST /auth/request-password-reset', () => {
     it('should return success response on valid request', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+      const res = await postRequest({
+        email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
       expect(res.status).toBe(StatusCodes.ACCEPTED)
@@ -61,13 +62,7 @@ describe('Request Password Reset Endpoint', () => {
       ]
 
       for (const body of invalidEmails) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        })
+        const res = await postRequest(body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -83,13 +78,7 @@ describe('Request Password Reset Endpoint', () => {
       ]
 
       for (const body of invalidCaptchaRequests) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        })
+        const res = await postRequest(body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -98,25 +87,16 @@ describe('Request Password Reset Endpoint', () => {
     })
 
     it('should require Content-Type header', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
-      })
+      const res = await postRequest({
+        email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
+      }, {})
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
     })
 
     it('should handle malformed JSON', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{ invalid json',
-      })
+      const res = await postRequest('{ invalid json', { 'Content-Type': 'application/json' })
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
     })
@@ -125,16 +105,10 @@ describe('Request Password Reset Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            captchaToken: VALID_CAPTCHA_TOKEN,
-          }),
-        })
+        const res = await postRequest({
+          email: 'test@example.com',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' }, method)
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
@@ -148,15 +122,9 @@ describe('Request Password Reset Endpoint', () => {
       ]
 
       for (const email of emailFormats) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            captchaToken: VALID_CAPTCHA_TOKEN,
-          }),
+        const res = await postRequest({
+          email,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         })
 
         expect(res.status).toBe(StatusCodes.ACCEPTED)

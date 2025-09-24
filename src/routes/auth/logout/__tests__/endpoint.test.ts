@@ -16,6 +16,13 @@ describe('Logout Endpoint', () => {
     app.route('/api/v1/auth', logoutRoute)
   }
 
+  const postRequest = (headers?: Record<string, string>, body?: string, method = 'POST') =>
+    app.request('/api/v1/auth/logout', {
+      method,
+      ...(headers && { headers }),
+      ...(body && { body }),
+    })
+
   beforeEach(() => {
     mockDeleteAccessCookie = mock(() => {})
 
@@ -34,11 +41,8 @@ describe('Logout Endpoint', () => {
 
   describe('POST /auth/logout', () => {
     it('should delete access cookie and return 204 No Content', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          Cookie: 'auth-token=existing-token',
-        },
+      const res = await postRequest({
+        Cookie: 'auth-token=existing-token',
       })
 
       expect(res.status).toBe(StatusCodes.NO_CONTENT)
@@ -57,9 +61,7 @@ describe('Logout Endpoint', () => {
     })
 
     it('should work without existing cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+      const res = await postRequest()
 
       expect(res.status).toBe(StatusCodes.NO_CONTENT)
       expect(await res.text()).toBe('')
@@ -73,13 +75,9 @@ describe('Logout Endpoint', () => {
     })
 
     it('should handle request with body (body is ignored)', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ someData: 'ignored' }),
-      })
+      const res = await postRequest({
+        'Content-Type': 'application/json',
+      }, JSON.stringify({ someData: 'ignored' }))
 
       expect(res.status).toBe(StatusCodes.NO_CONTENT)
       expect(await res.text()).toBe('')
@@ -94,14 +92,9 @@ describe('Logout Endpoint', () => {
     })
 
     it('should handle malformed JSON body gracefully', async () => {
-      // Since logout ignores body content, malformed JSON should still succeed
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{ invalid json',
-      })
+      const res = await postRequest({
+        'Content-Type': 'application/json',
+      }, '{ invalid json')
 
       expect(res.status).toBe(StatusCodes.NO_CONTENT)
       expect(await res.text()).toBe('')
@@ -117,9 +110,7 @@ describe('Logout Endpoint', () => {
         throw new Error('Cookie deletion failed')
       })
 
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+      const res = await postRequest()
 
       // Should return an error due to middleware handling
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -129,7 +120,7 @@ describe('Logout Endpoint', () => {
     })
 
     it('should handle various request configurations', async () => {
-      const requestConfigs = [
+      const requestConfigs: Array<{ name: string, headers?: Record<string, string>, expectStatus: number }> = [
         { name: 'minimal request', headers: undefined, expectStatus: StatusCodes.NO_CONTENT },
         { name: 'with user agent', headers: { 'User-Agent': 'Test Browser' }, expectStatus: StatusCodes.NO_CONTENT },
         { name: 'with accept header', headers: { Accept: 'application/json' }, expectStatus: StatusCodes.NO_CONTENT },
@@ -137,11 +128,7 @@ describe('Logout Endpoint', () => {
       ]
 
       for (const config of requestConfigs) {
-        const requestInit: any = { method: 'POST' }
-        if (config.headers) {
-          requestInit.headers = config.headers
-        }
-        const res = await app.request('/api/v1/auth/logout', requestInit)
+        const res = await postRequest(config.headers)
 
         expect(res.status).toBe(config.expectStatus)
         if (config.expectStatus === StatusCodes.NO_CONTENT) {
@@ -161,11 +148,8 @@ describe('Logout Endpoint', () => {
 
       // Simulate rapid consecutive logout button clicks
       for (let i = 0; i < numCalls; i++) {
-        const res = await app.request('/api/v1/auth/logout', {
-          method: 'POST',
-          headers: {
-            Cookie: 'auth-token=jwt-token-value',
-          },
+        const res = await postRequest({
+          Cookie: 'auth-token=jwt-token-value',
         })
 
         responses.push(res)
@@ -192,9 +176,7 @@ describe('Logout Endpoint', () => {
     const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
     for (const method of methods) {
-      const res = await app.request('/api/v1/auth/logout', {
-        method,
-      })
+      const res = await postRequest(undefined, undefined, method)
 
       expect(res.status).toBe(StatusCodes.NOT_FOUND)
       // Verify cookie deletion is NOT called for invalid methods
@@ -212,11 +194,7 @@ describe('Logout Endpoint', () => {
     ]
 
     for (const scenario of cookieScenarios) {
-      const requestInit: any = { method: 'POST' }
-      if (scenario.headers) {
-        requestInit.headers = scenario.headers
-      }
-      const res = await app.request('/api/v1/auth/logout', requestInit)
+      const res = await postRequest(scenario.headers)
 
       expect(res.status).toBe(StatusCodes.NO_CONTENT)
       expect(await res.text()).toBe('')

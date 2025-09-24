@@ -18,6 +18,13 @@ describe('Login Endpoint', () => {
     app.route('/api/v1/auth', loginRoute)
   }
 
+  const postRequest = (body: any, headers: Record<string, string> = { 'Content-Type': 'application/json' }, method = 'POST') =>
+    app.request('/api/v1/auth/login', {
+      method,
+      headers,
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    })
+
   beforeEach(() => {
     mockCaptchaSuccess()
 
@@ -66,16 +73,10 @@ describe('Login Endpoint', () => {
 
   describe('POST /auth/login', () => {
     it('should set cookie and return user/token on successful login', async () => {
-      const res = await app.request('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+      const res = await postRequest({
+        email: 'test@example.com',
+        password: 'ValidPass123!',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
       expect(res.status).toBe(StatusCodes.OK)
@@ -124,16 +125,10 @@ describe('Login Endpoint', () => {
         throw new Error('Login failed')
       })
 
-      const res = await app.request('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'WrongPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+      const res = await postRequest({
+        email: 'test@example.com',
+        password: 'WrongPass123!',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -167,13 +162,7 @@ describe('Login Endpoint', () => {
       ]
 
       for (const testCase of invalidRequests) {
-        const res = await app.request('/api/v1/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testCase.body),
-        })
+        const res = await postRequest(testCase.body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -184,18 +173,14 @@ describe('Login Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const malformedRequests = [
-        { name: 'missing Content-Type', headers: undefined, body: JSON.stringify({ email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN }) },
+      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: undefined },
       ]
 
       for (const testCase of malformedRequests) {
-        const res = await app.request('/api/v1/auth/login', {
-          method: 'POST',
-          ...(testCase.headers && { headers: testCase.headers }),
-          body: testCase.body,
-        })
+        const res = await postRequest(testCase.body, testCase.headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
@@ -207,17 +192,11 @@ describe('Login Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/api/v1/auth/login', {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            password: 'validPassword123',
-            captchaToken: VALID_CAPTCHA_TOKEN,
-          }),
-        })
+        const res = await postRequest({
+          email: 'test@example.com',
+          password: 'validPassword123',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' }, method)
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
@@ -228,16 +207,10 @@ describe('Login Endpoint', () => {
         throw new Error('User account is inactive')
       })
 
-      const res = await app.request('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'inactive@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+      const res = await postRequest({
+        email: 'inactive@example.com',
+        password: 'ValidPass123!',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -271,16 +244,10 @@ describe('Login Endpoint', () => {
 
       createApp()
 
-      const res = await app.request('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+      const res = await postRequest({
+        email: 'test@example.com',
+        password: 'ValidPass123!',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
       expect(res.status).toBe(StatusCodes.OK)
