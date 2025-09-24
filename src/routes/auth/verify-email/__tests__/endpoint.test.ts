@@ -182,14 +182,9 @@ describe('Verify Email Endpoint', () => {
           },
         })
 
-        // Invalid JSON string returns 500, others return 400
-        if (typeof body === 'string') {
-          expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-        } else {
-          expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-          const json = await res.json()
-          expect(json).toHaveProperty('error')
-        }
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        const json = await res.json()
+        expect(json).toHaveProperty('error')
       }
     })
   })

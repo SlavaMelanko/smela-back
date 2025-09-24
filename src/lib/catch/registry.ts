@@ -93,6 +93,10 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     status: StatusCodes.BAD_REQUEST,
     error: 'Content-Length header does not match actual body size.',
   },
+  [ErrorCode.BadRequest]: {
+    status: StatusCodes.BAD_REQUEST,
+    error: 'Bad request.',
+  },
 }
 
 export default ErrorRegistry

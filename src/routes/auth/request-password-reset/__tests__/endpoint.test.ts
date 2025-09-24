@@ -105,7 +105,7 @@ describe('Request Password Reset Endpoint', () => {
         body: '{ invalid json',
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
     })
 
     it('should only accept POST method', async () => {

@@ -228,7 +228,7 @@ describe('Reset Password Endpoint', () => {
           body: '{invalid json}',
         })
 
-        expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
       })
 
