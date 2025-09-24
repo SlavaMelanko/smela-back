@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -40,6 +40,10 @@ describe('Login Handler with Cookie', () => {
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', loginRoute)
+  })
+
+  afterAll(() => {
+    mock.restore()
   })
 
   describe('POST /auth/login - Cookie Setting', () => {

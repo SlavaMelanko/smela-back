@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
@@ -6,6 +6,10 @@ import { Role, Status } from '@/types'
 import logInWithEmail from '../login'
 
 describe('logInWithEmail', () => {
+  beforeAll(() => {
+    mock.restore()
+  })
+
   const mockLoginParams = {
     email: 'test@example.com',
     password: 'ValidPass123!',
@@ -376,5 +380,9 @@ describe('logInWithEmail', () => {
         // Test passes if no error is thrown
       }
     })
+  })
+
+  afterAll(() => {
+    mock.restore()
   })
 })
