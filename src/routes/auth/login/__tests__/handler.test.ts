@@ -7,42 +7,42 @@ import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/
 
 import loginRoute from '../index'
 
-// Mock the login function
-const mockLogInWithEmail = mock(() => Promise.resolve({
-  user: {
-    id: 1,
-    firstName: 'Test',
-    lastName: 'User',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  token: 'test-jwt-token',
-}))
-
-mock.module('../login', () => ({
-  default: mockLogInWithEmail,
-}))
-
-// Mock environment
-mock.module('@/lib/env', () => ({
-  default: {
-    COOKIE_NAME: 'auth-token',
-    COOKIE_DOMAIN: 'example.com',
-    JWT_ACCESS_SECRET: 'test-jwt-secret',
-  },
-  isDevEnv: () => false,
-  isDevOrTestEnv: () => false,
-}))
-
-// Mock auth library
-mock.module('@/lib/cookie', () => ({
-  setAccessCookie: mock(() => {}),
-}))
-
 describe('Login Handler with Cookie', () => {
+  // Mock the login function
+  const mockLogInWithEmail = mock(() => Promise.resolve({
+    user: {
+      id: 1,
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+      role: 'user',
+      status: 'active',
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    token: 'test-jwt-token',
+  }))
+
+  // Setup mocks inside describe block
+  mock.module('../login', () => ({
+    default: mockLogInWithEmail,
+  }))
+
+  // Mock environment
+  mock.module('@/lib/env', () => ({
+    default: {
+      COOKIE_NAME: 'auth-token',
+      COOKIE_DOMAIN: 'example.com',
+      JWT_ACCESS_SECRET: 'test-jwt-secret',
+    },
+    isDevEnv: () => false,
+    isDevOrTestEnv: () => false,
+  }))
+
+  // Mock auth library
+  mock.module('@/lib/cookie', () => ({
+    setAccessCookie: mock(() => {}),
+  }))
   let app: Hono
 
   // Mock CAPTCHA service to prevent actual service calls in tests
