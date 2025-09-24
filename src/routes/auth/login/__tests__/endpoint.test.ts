@@ -47,7 +47,6 @@ describe('Login Endpoint', () => {
       deleteCookie: mock(() => {}),
     }))
 
-    // Mock the access cookie module that the handler actually uses
     mock.module('@/lib/cookie/access-cookie', () => ({
       setAccessCookie: mock((c: any, token: string) => {
         mockSetCookie(c, 'auth-token-test', token, {
