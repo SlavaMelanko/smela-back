@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -8,54 +8,52 @@ import { Role } from '@/types'
 
 import signupRoute from '../index'
 
-// Mock the signup function
-const mockSignUpWithEmail = mock(() => Promise.resolve({
-  user: {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'test@example.com',
-    role: Role.User,
-    status: 'new',
-    createdAt: new Date(),
-  },
-  token: 'mock-jwt-token',
-}))
-
-mock.module('../signup', () => ({
-  default: mockSignUpWithEmail,
-}))
-
-// Mock environment
-mock.module('@/lib/env', () => ({
-  default: {
-    COOKIE_NAME: 'auth-token',
-    COOKIE_DOMAIN: 'example.com',
-    JWT_ACCESS_SECRET: 'test-jwt-secret',
-  },
-  isDevEnv: () => false,
-  isDevOrTestEnv: () => false,
-}))
-
-// Mock auth library
-mock.module('@/lib/cookie', () => ({
-  setAccessCookie: mock(() => {}),
-}))
-
-describe('Signup Handler', () => {
+describe('Signup Handler with Cookie', () => {
   let app: Hono
+  let mockSignUpWithEmail: any
+  let mockSetAccessCookie: any
+
+  beforeAll(() => {
+    mock.restore()
+  })
 
   beforeEach(() => {
-    mockCaptchaSuccess()
+    mockSignUpWithEmail = mock(() => Promise.resolve({
+      user: {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        role: Role.User,
+        status: 'new',
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+      token: 'signup-jwt-token',
+    }))
 
+    mockSetAccessCookie = mock(() => {})
+
+    mock.module('../signup', () => ({
+      default: mockSignUpWithEmail,
+    }))
+
+    mock.module('@/lib/cookie', () => ({
+      setAccessCookie: mockSetAccessCookie,
+    }))
+
+    mockCaptchaSuccess()
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', signupRoute)
-    mockSignUpWithEmail.mockClear()
   })
 
-  describe('POST /auth/signup', () => {
-    it('should return user data with token and set cookie on successful signup', async () => {
+  afterAll(() => {
+    mock.restore()
+  })
+
+  describe('POST /auth/signup - Cookie Setting', () => {
+    it('should set cookie with JWT token on successful signup', async () => {
       const res = await app.request('/api/v1/auth/signup', {
         method: 'POST',
         headers: {
@@ -73,16 +71,24 @@ describe('Signup Handler', () => {
 
       expect(res.status).toBe(StatusCodes.CREATED)
 
-      // Check response body
       const data = await res.json()
-      expect(data).toHaveProperty('user')
-      expect(data).toHaveProperty('token')
-      expect(data.token).toBe('mock-jwt-token')
-      expect(data.user.email).toBe('test@example.com')
+      expect(data).toEqual({
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+          role: Role.User,
+          status: 'new',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        token: 'signup-jwt-token',
+      })
 
-      // Note: Cookie setting is mocked so we don't check for actual cookie header
+      expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'signup-jwt-token')
 
-      // Verify signup function was called
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
       expect(mockSignUpWithEmail).toHaveBeenCalledWith({
         firstName: 'John',
@@ -93,13 +99,31 @@ describe('Signup Handler', () => {
       })
     })
 
-    it('should set cookie even in development', async () => {
-      // Mock dev environment
-      mock.module('@/lib/env', () => ({
-        default: {
-          COOKIE_NAME: 'auth-token',
-          COOKIE_DOMAIN: undefined,
+    it('should return user and token on successful signup', async () => {
+      const res = await app.request('/api/v1/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+          password: 'ValidPass123!',
+          role: Role.User,
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }),
+      })
+
+      expect(res.status).toBe(StatusCodes.CREATED)
+
+      const data = await res.json()
+      expect(data.token).toBe('signup-jwt-token')
+      expect(data.user).toHaveProperty('email', 'test@example.com')
+    })
+
+    it('should set cookie in development environment', async () => {
+      mock.module('@/lib/env', () => ({
         isDevEnv: () => true,
         isDevOrTestEnv: () => true,
       }))
@@ -121,14 +145,15 @@ describe('Signup Handler', () => {
 
       expect(res.status).toBe(StatusCodes.CREATED)
 
-      // Check response includes token
       const data = await res.json()
-      expect(data).toHaveProperty('token')
-      expect(data.token).toBe('mock-jwt-token')
+      expect(data.token).toBe('signup-jwt-token')
+      expect(data.user).toHaveProperty('email', 'test@example.com')
+
+      expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'signup-jwt-token')
     })
 
     it('should handle signup errors and not set cookie', async () => {
-      // Mock signup failure
       mockSignUpWithEmail.mockImplementationOnce(() => {
         throw new Error('Signup failed')
       })
@@ -150,48 +175,9 @@ describe('Signup Handler', () => {
 
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
-      // Check no cookie is set
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeNull()
+      expect(mockSetAccessCookie).not.toHaveBeenCalled()
 
-      // Verify signup function was called
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
-    })
-
-    it('should return only user data in response body', async () => {
-      const res = await app.request('/api/v1/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: 'Jane',
-          lastName: 'Smith',
-          email: 'jane@example.com',
-          password: 'AnotherPass123!',
-          role: Role.Admin,
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
-      })
-
-      expect(res.status).toBe(StatusCodes.CREATED)
-
-      const data = await res.json()
-      expect(data.user).toBeDefined()
-      expect(data.user.id).toBe(1)
-      expect(data.user.firstName).toBe('John') // From mock
-      expect(data.user.email).toBe('test@example.com') // From mock
-      expect(data).toHaveProperty('token')
-      expect(data.token).toBe('mock-jwt-token')
-
-      // Verify the function was called with correct params
-      expect(mockSignUpWithEmail).toHaveBeenCalledWith({
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane@example.com',
-        password: 'AnotherPass123!',
-        role: Role.Admin,
-      })
     })
   })
 })

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
@@ -7,36 +7,7 @@ import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
 
-// Mock environment first to prevent email provider initialization
-mock.module('@/lib/env', () => ({
-  default: {
-    EMAIL_RESEND_API_KEY: 'test-api-key',
-    EMAIL_SENDER_PROFILES: JSON.stringify({
-      system: {
-        email: 'noreply@test.com',
-        name: 'Test System',
-      },
-    }),
-    JWT_ACCESS_SECRET: 'test-jwt-secret',
-    COOKIE_NAME: 'auth-token',
-  },
-}))
-
-// Mock email agent to prevent actual email sending
-mock.module('@/lib/email-agent', () => ({
-  emailAgent: {
-    sendWelcomeEmail: mock(() => Promise.resolve()),
-  },
-}))
-
-// Mock JWT module
-mock.module('@/lib/jwt', () => ({
-  default: {
-    sign: mock(() => Promise.resolve('mock-jwt-token')),
-  },
-}))
-
-describe.skip('signUpWithEmail', () => {
+describe('signUpWithEmail', () => {
   const mockSignupParams = {
     firstName: 'John',
     lastName: 'Doe',
@@ -61,11 +32,14 @@ describe.skip('signUpWithEmail', () => {
   const mockToken = 'verification-token-123'
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
 
+  beforeAll(() => {
+    mock.restore()
+  })
+
   beforeEach(() => {
-    // Mock repository methods
     mock.module('@/repositories', () => ({
       userRepo: {
-        findByEmail: mock(() => Promise.resolve(null)), // No existing user by default
+        findByEmail: mock(() => Promise.resolve(null)),
         create: mock(() => Promise.resolve(mockNewUser)),
       },
       authRepo: {
@@ -77,7 +51,6 @@ describe.skip('signUpWithEmail', () => {
       },
     }))
 
-    // Mock crypto password encoder
     mock.module('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         hash: mock(() => Promise.resolve(mockHashedPassword)),
@@ -85,7 +58,6 @@ describe.skip('signUpWithEmail', () => {
       })),
     }))
 
-    // Mock token generation
     mock.module('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.EmailVerification,
@@ -95,12 +67,21 @@ describe.skip('signUpWithEmail', () => {
       EMAIL_VERIFICATION_EXPIRY_HOURS: 48,
     }))
 
-    // Mock email agent
     mock.module('@/lib/email-agent', () => ({
       emailAgent: {
         sendWelcomeEmail: mock(() => Promise.resolve()),
       },
     }))
+
+    mock.module('@/lib/jwt', () => ({
+      default: {
+        sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
+      },
+    }))
+  })
+
+  afterAll(() => {
+    mock.restore()
   })
 
   describe('when signup is successful', () => {
@@ -118,7 +99,7 @@ describe.skip('signUpWithEmail', () => {
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-jwt-token')
+      expect(result.token).toBe('mock-signup-jwt-token')
     })
 
     it('should create auth record with hashed password', async () => {
@@ -179,7 +160,7 @@ describe.skip('signUpWithEmail', () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-jwt-token')
+      expect(result.token).toBe('mock-signup-jwt-token')
       expect(result).toHaveProperty('user')
     })
 
