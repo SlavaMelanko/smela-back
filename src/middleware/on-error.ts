@@ -5,7 +5,7 @@ import { HTTPException } from 'hono/http-exception'
 import { getReasonPhrase, StatusCodes } from 'http-status-codes'
 
 import { ErrorCode, ErrorRegistry } from '@/lib/catch'
-import { isStagingOrProdEnv } from '@/lib/env'
+import { isDevEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
 const getErrorCode = (err: unknown): ErrorCode => {
@@ -36,7 +36,7 @@ const onError: ErrorHandler = (err, c) => {
   const status = error.status
   const message = err.message || error.error || getReasonPhrase(status)
   const name = err.name
-  const stack = isStagingOrProdEnv() ? undefined : err.stack
+  const stack = isDevEnv() ? err.stack : undefined
 
   return c.json(
     {
