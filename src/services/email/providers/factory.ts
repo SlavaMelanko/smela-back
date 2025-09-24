@@ -1,4 +1,4 @@
-import env, { isDevEnv } from '@/lib/env'
+import env, { isDevOrTestEnv } from '@/lib/env'
 import logger from '@/lib/logger'
 
 import type { EmailProvider } from './provider'
@@ -18,7 +18,7 @@ const getProviderType = (type?: EmailProviderType): EmailProviderType => {
     return envOverride
   }
 
-  return isDevEnv() ? 'ethereal' : 'resend'
+  return isDevOrTestEnv() ? 'ethereal' : 'resend'
 }
 
 export const createEmailProvider = (type?: EmailProviderType): EmailProvider => {
