@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
@@ -7,7 +7,7 @@ import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
 
-describe('signUpWithEmail', () => {
+describe('Signup with Email', () => {
   const mockSignupParams = {
     firstName: 'John',
     lastName: 'Doe',
@@ -31,10 +31,6 @@ describe('signUpWithEmail', () => {
   const mockHashedPassword = '$2b$10$hashedPassword123'
   const mockToken = 'verification-token-123'
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
-
-  beforeAll(() => {
-    mock.restore()
-  })
 
   beforeEach(() => {
     mock.module('@/repositories', () => ({
@@ -78,10 +74,6 @@ describe('signUpWithEmail', () => {
         sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
       },
     }))
-  })
-
-  afterAll(() => {
-    mock.restore()
   })
 
   describe('when signup is successful', () => {

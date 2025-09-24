@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
@@ -31,10 +31,6 @@ describe('Login with Email', () => {
   }
 
   const mockJwtToken = 'mock-jwt-token-123'
-
-  beforeAll(() => {
-    mock.restore()
-  })
 
   beforeEach(() => {
     // Mock repositories
@@ -69,10 +65,6 @@ describe('Login with Email', () => {
         return normalizedUser
       }),
     }))
-  })
-
-  afterAll(() => {
-    mock.restore()
   })
 
   describe('successful login', () => {
@@ -384,9 +376,5 @@ describe('Login with Email', () => {
         // Test passes if no error is thrown
       }
     })
-  })
-
-  afterAll(() => {
-    mock.restore()
   })
 })
