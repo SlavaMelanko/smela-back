@@ -3,56 +3,43 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
-import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
 
 describe('Login Handler with Cookie', () => {
-  // Mock the login function
-  const mockLogInWithEmail = mock(() => Promise.resolve({
-    user: {
-      id: 1,
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-      role: 'user',
-      status: 'active',
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    },
-    token: 'test-jwt-token',
-  }))
-
-  // Setup mocks inside describe block
-  mock.module('../login', () => ({
-    default: mockLogInWithEmail,
-  }))
-
-  // Mock environment
-  mock.module('@/lib/env', () => ({
-    default: {
-      COOKIE_NAME: 'auth-token',
-      COOKIE_DOMAIN: 'example.com',
-      JWT_ACCESS_SECRET: 'test-jwt-secret',
-    },
-    isDevEnv: () => false,
-    isDevOrTestEnv: () => false,
-  }))
-
-  // Mock auth library
-  mock.module('@/lib/cookie', () => ({
-    setAccessCookie: mock(() => {}),
-  }))
   let app: Hono
-
-  // Mock CAPTCHA service to prevent actual service calls in tests
-  mockCaptchaService()
+  let mockLogInWithEmail: any
+  let mockSetAccessCookie: any
 
   beforeEach(() => {
+    mockLogInWithEmail = mock(() => Promise.resolve({
+      user: {
+        id: 1,
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+      token: 'test-jwt-token',
+    }))
+
+    mockSetAccessCookie = mock(() => {})
+
+    mock.module('../login', () => ({
+      default: mockLogInWithEmail,
+    }))
+
+    mock.module('@/lib/cookie', () => ({
+      setAccessCookie: mockSetAccessCookie,
+    }))
+
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', loginRoute)
-    mockLogInWithEmail.mockClear()
   })
 
   describe('POST /auth/login - Cookie Setting', () => {
@@ -87,8 +74,9 @@ describe('Login Handler with Cookie', () => {
         token: 'test-jwt-token',
       })
 
-      // Note: Cookie setting is mocked so we don't check for actual cookie header
-      // The cookie functionality is tested in the auth library tests
+      // Verify cookie was set
+      expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'test-jwt-token')
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
@@ -98,13 +86,29 @@ describe('Login Handler with Cookie', () => {
       })
     })
 
-    it('should set cookie in development without secure flag', async () => {
-      // Mock dev environment
-      mock.module('@/lib/env', () => ({
-        default: {
-          COOKIE_NAME: 'auth-token',
-          COOKIE_DOMAIN: undefined,
+    it('should return user and token on successful login', async () => {
+      const res = await app.request('/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email: 'test@example.com',
+          password: 'ValidPass123!',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }),
+      })
+
+      expect(res.status).toBe(StatusCodes.OK)
+
+      const data = await res.json()
+      expect(data.token).toBe('test-jwt-token')
+      expect(data.user).toHaveProperty('email', 'test@example.com')
+    })
+
+    it('should set cookie in development environment', async () => {
+      // Mock only the environment helper functions
+      mock.module('@/lib/env', () => ({
         isDevEnv: () => true,
         isDevOrTestEnv: () => true,
       }))
@@ -123,10 +127,13 @@ describe('Login Handler with Cookie', () => {
 
       expect(res.status).toBe(StatusCodes.OK)
 
-      // Note: Cookie setting is mocked so we don't check for actual cookie header
-      // The cookie functionality is tested in the auth library tests
       const data = await res.json()
       expect(data.token).toBe('test-jwt-token')
+      expect(data.user).toHaveProperty('email', 'test@example.com')
+
+      // Verify cookie was set in development environment
+      expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'test-jwt-token')
     })
 
     it('should handle login errors and not set cookie', async () => {
@@ -149,9 +156,8 @@ describe('Login Handler with Cookie', () => {
 
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
-      // Check no cookie is set
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeNull()
+      // Verify cookie was NOT set due to error
+      expect(mockSetAccessCookie).not.toHaveBeenCalled()
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)

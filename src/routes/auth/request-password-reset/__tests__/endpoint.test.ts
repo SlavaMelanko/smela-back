@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { onError } from '@/middleware'
-import { mockCaptchaService, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
 import requestPasswordResetSchema from '../schema'
@@ -11,10 +11,9 @@ import requestPasswordResetSchema from '../schema'
 describe('Request Password Reset Endpoint', () => {
   let app: Hono
 
-  // Mock CAPTCHA service to prevent actual service calls in tests
-  mockCaptchaService()
-
   beforeEach(() => {
+    mockCaptchaSuccess()
+
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', requestPasswordResetRoute)
