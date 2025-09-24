@@ -102,6 +102,28 @@ Key tables:
 - Test files follow `*.test.ts` pattern in `__tests__` directories
 - Focus on unit tests for critical components (crypto, auth, rate limiting)
 
+#### Testing Philosophy
+
+**Coverage & Focus:**
+
+- Target 60-80% test coverage focusing on **edge cases** rather than 100% coverage
+- Prioritize testing error conditions, boundary inputs, and failure scenarios
+- Keep tests simple and working - avoid over-engineering test complexity
+
+**Environment Configuration:**
+
+- **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
+- **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
+- Only mock business logic dependencies (repositories, crypto, JWT, external services)
+- Use global mocks for services (like CAPTCHA) that are already mocked globally
+
+**Self-Contained Tests:**
+
+- Tests should work with `bun install` → set up `.env.test` → `bun test` with env vars
+- All required environment variables should be documented in `.env.test`
+- No external services or database connections required
+- Mock only what's necessary for isolating business logic
+
 ### Security Considerations
 
 - Passwords hashed with bcrypt (10 rounds)
@@ -263,18 +285,21 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 **When comments are necessary:**
 
 - **Trailing Comments**: Keep short, no uppercase letter at beginning, no dot at end
+
   ```typescript
   const timeout = 5000 // milliseconds
   const isValid = checkAuth() // validates JWT token
   ```
 
 - **Full-Line Comments (Single Sentence)**: Start with uppercase letter, no dot at end
+
   ```typescript
   // Validate user permissions before processing request
   const hasPermission = await checkUserRole(userId)
   ```
 
 - **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences
+
   ```typescript
   // Initialize database connection pool. This ensures optimal performance
   // for concurrent requests. The pool size is configured via environment variables.
