@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -11,6 +11,10 @@ describe('Login Handler with Cookie', () => {
   let app: Hono
   let mockLogInWithEmail: any
   let mockSetAccessCookie: any
+
+  beforeAll(() => {
+    mock.restore()
+  })
 
   beforeEach(() => {
     mockLogInWithEmail = mock(() => Promise.resolve({

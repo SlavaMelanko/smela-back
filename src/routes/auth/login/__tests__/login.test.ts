@@ -6,10 +6,6 @@ import { Role, Status } from '@/types'
 import logInWithEmail from '../login'
 
 describe('logInWithEmail', () => {
-  beforeAll(() => {
-    mock.restore()
-  })
-
   const mockLoginParams = {
     email: 'test@example.com',
     password: 'ValidPass123!',
@@ -35,6 +31,10 @@ describe('logInWithEmail', () => {
   }
 
   const mockJwtToken = 'mock-jwt-token-123'
+
+  beforeAll(() => {
+    mock.restore()
+  })
 
   beforeEach(() => {
     // Mock repositories
@@ -69,6 +69,10 @@ describe('logInWithEmail', () => {
         return normalizedUser
       }),
     }))
+  })
+
+  afterAll(() => {
+    mock.restore()
   })
 
   describe('successful login', () => {
