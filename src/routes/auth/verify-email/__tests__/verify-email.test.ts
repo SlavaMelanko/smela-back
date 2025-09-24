@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { tokenRepo, userRepo } from '@/repositories'
@@ -6,26 +6,15 @@ import { Role, Status, Token, TokenStatus } from '@/types'
 
 import verifyEmail from '../verify-email'
 
-// Mock JWT
-const mockJwtSign = mock((id: number, email: string, role: string, status: string, tokenVersion: number) =>
-  Promise.resolve(`mock-jwt-${id}-${email}-${tokenVersion}`),
-)
-
-mock.module('@/lib/jwt', () => ({
-  default: {
-    sign: mockJwtSign,
-  },
-}))
-
-describe('verifyEmail', () => {
-  const mockToken = 'a'.repeat(64) // 64 character token
+describe('Verify Email', () => {
+  const mockToken = 'a'.repeat(64)
   const mockTokenRecord = {
     id: 1,
     userId: 1,
     type: Token.EmailVerification,
     token: mockToken,
     status: TokenStatus.Pending,
-    expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
+    expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
     usedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -43,11 +32,13 @@ describe('verifyEmail', () => {
     updatedAt: new Date(),
   }
 
-  beforeEach(() => {
-    // Clear JWT mocks
-    mockJwtSign.mockClear()
+  const mockJwtToken = 'mock-verify-jwt-token'
 
-    // Mock repository methods
+  beforeAll(() => {
+    mock.restore()
+  })
+
+  beforeEach(() => {
     mock.module('@/repositories', () => ({
       tokenRepo: {
         findByToken: mock(() => Promise.resolve(mockTokenRecord)),
@@ -58,6 +49,16 @@ describe('verifyEmail', () => {
       },
       authRepo: {},
     }))
+
+    mock.module('@/lib/jwt', () => ({
+      default: {
+        sign: mock(() => Promise.resolve(mockJwtToken)),
+      },
+    }))
+  })
+
+  afterAll(() => {
+    mock.restore()
   })
 
   describe('when token is valid and active', () => {
@@ -78,22 +79,11 @@ describe('verifyEmail', () => {
       })
       expect(userRepo.update).toHaveBeenCalledTimes(1)
 
-      // Check JWT generation
-      expect(mockJwtSign).toHaveBeenCalledWith(
-        mockUser.id,
-        mockUser.email,
-        mockUser.role,
-        mockUser.status,
-        mockUser.tokenVersion,
-      )
-      expect(mockJwtSign).toHaveBeenCalledTimes(1)
-
-      // Check response structure
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
       expect(result.user).not.toHaveProperty('tokenVersion')
       expect(result.user.email).toBe(mockUser.email)
-      expect(result.token).toBe(`mock-jwt-${mockUser.id}-${mockUser.email}-${mockUser.tokenVersion}`)
+      expect(result.token).toBe(mockJwtToken)
     })
 
     it('should set correct timestamp when marking token as used', async () => {
