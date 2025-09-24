@@ -5,7 +5,7 @@ import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
 
-describe('logInWithEmail', () => {
+describe('Login with Email', () => {
   const mockLoginParams = {
     email: 'test@example.com',
     password: 'ValidPass123!',

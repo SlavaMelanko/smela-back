@@ -28,7 +28,7 @@ describe('Login Handler with Cookie', () => {
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01'),
       },
-      token: 'test-jwt-token',
+      token: 'login-jwt-token',
     }))
 
     mockSetAccessCookie = mock(() => {})
@@ -79,12 +79,12 @@ describe('Login Handler with Cookie', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'test-jwt-token',
+        token: 'login-jwt-token',
       })
 
       // Verify cookie was set
       expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'test-jwt-token')
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'login-jwt-token')
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
@@ -110,7 +110,7 @@ describe('Login Handler with Cookie', () => {
       expect(res.status).toBe(StatusCodes.OK)
 
       const data = await res.json()
-      expect(data.token).toBe('test-jwt-token')
+      expect(data.token).toBe('login-jwt-token')
       expect(data.user).toHaveProperty('email', 'test@example.com')
     })
 
@@ -136,12 +136,12 @@ describe('Login Handler with Cookie', () => {
       expect(res.status).toBe(StatusCodes.OK)
 
       const data = await res.json()
-      expect(data.token).toBe('test-jwt-token')
+      expect(data.token).toBe('login-jwt-token')
       expect(data.user).toHaveProperty('email', 'test@example.com')
 
       // Verify cookie was set in development environment
       expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'test-jwt-token')
+      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'login-jwt-token')
     })
 
     it('should handle login errors and not set cookie', async () => {
