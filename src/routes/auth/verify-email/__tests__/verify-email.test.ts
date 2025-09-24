@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { tokenRepo, userRepo } from '@/repositories'
@@ -34,10 +34,6 @@ describe('Verify Email', () => {
 
   const mockJwtToken = 'mock-verify-jwt-token'
 
-  beforeAll(() => {
-    mock.restore()
-  })
-
   beforeEach(() => {
     mock.module('@/repositories', () => ({
       tokenRepo: {
@@ -55,10 +51,6 @@ describe('Verify Email', () => {
         sign: mock(() => Promise.resolve(mockJwtToken)),
       },
     }))
-  })
-
-  afterAll(() => {
-    mock.restore()
   })
 
   describe('when token is valid and active', () => {

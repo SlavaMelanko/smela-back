@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -10,10 +10,6 @@ import verifyEmailRoute from '../index'
 describe('Verify Email Handler', () => {
   let app: Hono
   let mockVerifyEmail: any
-
-  beforeAll(() => {
-    mock.restore()
-  })
 
   beforeEach(() => {
     mockVerifyEmail = mock(() => Promise.resolve({
@@ -37,10 +33,6 @@ describe('Verify Email Handler', () => {
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', verifyEmailRoute)
-  })
-
-  afterAll(() => {
-    mock.restore()
   })
 
   describe('POST /auth/verify-email', () => {

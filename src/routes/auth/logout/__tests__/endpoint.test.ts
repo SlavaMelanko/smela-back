@@ -7,24 +7,22 @@ import { onError } from '@/middleware'
 
 import logoutRoute from '../index'
 
-// Mock the auth/cookie module
-const mockDeleteAccessCookie = mock((c) => {
-  // Simulate the deleteAccessCookie behavior with 'auth-token' name
-  // This will be the default behavior, can be overridden in specific tests
-  deleteCookie(c, 'auth-token', {
-    path: '/',
-    domain: 'example.com',
-  })
-})
-
-mock.module('@/lib/cookie', () => ({
-  deleteAccessCookie: mockDeleteAccessCookie,
-}))
-
 describe('Logout Endpoint', () => {
   let app: Hono
+  let mockDeleteAccessCookie: any
 
   beforeEach(() => {
+    mockDeleteAccessCookie = mock((c) => {
+      deleteCookie(c, 'auth-token', {
+        path: '/',
+        domain: 'example.com',
+      })
+    })
+
+    mock.module('@/lib/cookie', () => ({
+      deleteAccessCookie: mockDeleteAccessCookie,
+    }))
+
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', logoutRoute)
@@ -67,12 +65,10 @@ describe('Logout Endpoint', () => {
       expect(cookies).toContain('auth-token=')
     })
 
-    it('should handle logout without domain in production', async () => {
-      // Override the mock for this specific test to simulate no domain
-      mockDeleteAccessCookie.mockImplementation((c) => {
+    it('should handle logout without domain setting', async () => {
+      mockDeleteAccessCookie.mockImplementationOnce((c: any) => {
         deleteCookie(c, 'auth-token', {
           path: '/',
-          // No domain set for this test
         })
       })
 
@@ -87,14 +83,6 @@ describe('Logout Endpoint', () => {
       expect(cookies).toContain('auth-token=')
       expect(cookies).toContain('Path=/')
       expect(cookies).not.toContain('Domain=')
-
-      // Reset mock to default behavior
-      mockDeleteAccessCookie.mockImplementation((c) => {
-        deleteCookie(c, 'auth-token', {
-          path: '/',
-          domain: 'example.com',
-        })
-      })
     })
 
     it('should only accept POST method', async () => {
@@ -109,75 +97,32 @@ describe('Logout Endpoint', () => {
       }
     })
 
-    it('should not require authentication to logout', async () => {
-      // Test without any authentication headers/cookies
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+    it('should handle requests without authentication or body', async () => {
+      const testCases = [
+        { name: 'without auth or headers', headers: undefined, body: undefined },
+        { name: 'with ignored request body', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ someData: 'ignored' }) },
+      ]
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-    })
+      for (const testCase of testCases) {
+        const res = await app.request('/api/v1/auth/logout', {
+          method: 'POST',
+          ...(testCase.headers && { headers: testCase.headers }),
+          ...(testCase.body && { body: testCase.body }),
+        })
 
-    it('should not require Content-Type header', async () => {
-      // Logout doesn't need a request body
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
-
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-    })
-
-    it('should ignore request body if provided', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ someData: 'ignored' }),
-      })
-
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      // No content returned
+        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      }
     })
   })
 
   describe('Cookie Deletion Mechanics', () => {
-    it('should set Max-Age=0 to delete cookie', async () => {
+    it('should set correct cookie deletion attributes', async () => {
       const res = await app.request('/api/v1/auth/logout', {
         method: 'POST',
       })
 
       const cookies = res.headers.get('set-cookie')
       expect(cookies).toBeDefined()
-
-      // Max-Age=0 is the standard way to delete a cookie
-      expect(cookies).toMatch(/Max-Age=0/)
-    })
-
-    it('should match the same path as login cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
-
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('Path=/')
-    })
-
-    it('should handle domain setting based on environment', async () => {
-      // This test documents the behavior: domain is only set in production environments
-      // In test/dev environments (where isDevOrTestEnv() returns true), domain is not set
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
-
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-
-      // The actual behavior depends on the environment:
-      // - In dev/test: no Domain attribute (even if COOKIE_DOMAIN is set)
-      // - In production: Domain attribute is set if COOKIE_DOMAIN is configured
-      // Since we're running in a test environment, Domain should not be present
       expect(cookies).toContain('auth-token=')
       expect(cookies).toContain('Path=/')
       expect(cookies).toContain('Max-Age=0')
