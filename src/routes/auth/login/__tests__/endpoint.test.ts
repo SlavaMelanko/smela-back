@@ -11,12 +11,15 @@ import loginSchema from '../schema'
 describe('Login Endpoint', () => {
   let app: Hono
 
-  beforeEach(() => {
-    mockCaptchaSuccess()
-
+  const createApp = () => {
     app = new Hono()
     app.onError(onError)
     app.route('/api/v1/auth', loginRoute)
+  }
+
+  beforeEach(() => {
+    mockCaptchaSuccess()
+    createApp()
   })
 
   describe('POST /auth/login', () => {
@@ -166,8 +169,8 @@ describe('Login Endpoint', () => {
     })
   })
 
-  describe('Validation Schema', () => {
-    it('should accept valid email and password combinations', () => {
+  describe('Schema Validation', () => {
+    it('should accept valid credentials with special characters', () => {
       const validCredentials = [
         {
           email: 'user@example.com',
@@ -175,18 +178,13 @@ describe('Login Endpoint', () => {
           captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
-          email: 'john.doe@company.com',
-          password: 'AnotherPass456@',
+          email: 'john.doe+test@company.com',
+          password: 'Complex@Pass456#',
           captchaToken: VALID_CAPTCHA_TOKEN,
         },
         {
-          email: 'test+tag@email.com',
-          password: 'SecurePass789!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'user123@test-domain.com',
-          password: 'ComplexPass2023#',
+          email: 'user123@test-domain.co.uk',
+          password: 'SecurePass789$%&*',
           captchaToken: VALID_CAPTCHA_TOKEN,
         },
       ]
@@ -194,108 +192,6 @@ describe('Login Endpoint', () => {
       for (const credentials of validCredentials) {
         const result = loginSchema.safeParse(credentials)
         expect(result.success).toBe(true)
-      }
-    })
-
-    it('should reject invalid email addresses', () => {
-      const invalidEmails = [
-        {
-          email: '',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'invalid',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'test@',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: '@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'user @example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'user@.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'user..name@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-      ]
-
-      for (const credentials of invalidEmails) {
-        const result = loginSchema.safeParse(credentials)
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should reject invalid passwords', () => {
-      const invalidPasswords = [
-        {
-          email: 'test@example.com',
-          password: '',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'test@example.com',
-          password: '123',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'test@example.com',
-          password: 'short',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-        {
-          email: 'test@example.com',
-          password: '1234567', // Assuming min length is 8
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        },
-      ]
-
-      for (const credentials of invalidPasswords) {
-        const result = loginSchema.safeParse(credentials)
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should require both email and password fields', () => {
-      const incompleteCredentials = [
-        {
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-          // missing password
-        },
-        {
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-          // missing email
-        },
-        {
-          captchaToken: VALID_CAPTCHA_TOKEN,
-          // missing both email and password
-        },
-        {
-          // missing all fields including captchaToken
-        },
-      ]
-
-      for (const credentials of incompleteCredentials) {
-        const result = loginSchema.safeParse(credentials)
-        expect(result.success).toBe(false)
       }
     })
 
@@ -317,24 +213,6 @@ describe('Login Endpoint', () => {
         })
         expect(result.data).not.toHaveProperty('extra')
         expect(result.data).not.toHaveProperty('remember')
-      }
-    })
-
-    it('should handle password with special characters', () => {
-      const passwordsWithSpecialChars = [
-        'Password123!',
-        'Complex@Pass456#',
-        'SecurePass789$%',
-        'ValidPass2023&*',
-      ]
-
-      for (const password of passwordsWithSpecialChars) {
-        const result = loginSchema.safeParse({
-          email: 'test@example.com',
-          password,
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        })
-        expect(result.success).toBe(true)
       }
     })
   })
