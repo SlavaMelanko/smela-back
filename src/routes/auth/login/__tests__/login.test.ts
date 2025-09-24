@@ -30,10 +30,9 @@ describe('Login with Email', () => {
     passwordHash: '$2b$10$hashedPassword123',
   }
 
-  const mockJwtToken = 'mock-jwt-token-123'
+  const mockJwtToken = 'login-jwt-token-123'
 
   beforeEach(() => {
-    // Mock repositories
     mock.module('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),
@@ -43,21 +42,18 @@ describe('Login with Email', () => {
       },
     }))
 
-    // Mock crypto password encoder
     mock.module('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         compare: mock(() => Promise.resolve(true)),
       })),
     }))
 
-    // Mock JWT signing
     mock.module('@/lib/jwt', () => ({
       default: {
         sign: mock(() => Promise.resolve(mockJwtToken)),
       },
     }))
 
-    // Mock user normalization
     mock.module('@/lib/user', () => ({
       normalizeUser: mock((user) => {
         const { tokenVersion, ...normalizedUser } = user
