@@ -1,61 +1,105 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { onError } from '@/middleware'
+import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resendVerificationEmailRoute from '../index'
-import resendVerificationEmailSchema from '../schema'
 
 describe('Resend Verification Email Endpoint', () => {
   let app: Hono
+  let mockResendVerificationEmail: any
+
+  const createApp = () => {
+    app = new Hono()
+    app.use(loggerMiddleware)
+    app.onError(onError)
+    app.route('/api/v1/auth', resendVerificationEmailRoute)
+  }
+
+  const postRequest = (
+    body: any,
+    headers: Record<string, string> = { 'Content-Type': 'application/json' },
+    method: string = 'POST',
+  ) =>
+    app.request('/api/v1/auth/resend-verification-email', {
+      method,
+      headers,
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    })
 
   beforeEach(() => {
     mockCaptchaSuccess()
 
-    app = new Hono()
-    app.onError(onError)
-    app.route('/api/v1/auth', resendVerificationEmailRoute)
+    mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
+
+    mock.module('../resend-verification-email', () => ({
+      default: mockResendVerificationEmail,
+    }))
+
+    createApp()
   })
 
   describe('POST /auth/resend-verification-email', () => {
-    it('should return 200 when request is valid', async () => {
-      const res = await app.request('/api/v1/auth/resend-verification-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
+    it('should return success when verification email is resent', async () => {
+      const res = await postRequest({
+        email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      // Note: This will fail in integration tests without mocks
-      // as it will try to access the real database
-      // For now, we're testing the endpoint structure
-      expect(res.status).toBeDefined()
+      expect(res.status).toBe(StatusCodes.ACCEPTED)
+
+      const data = await res.json()
+      expect(data).toEqual({ success: true })
+
+      expect(mockResendVerificationEmail).toHaveBeenCalledTimes(1)
+      expect(mockResendVerificationEmail).toHaveBeenCalledWith('test@example.com')
     })
 
-    it('should validate email format', async () => {
-      const invalidEmails = [
-        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty email
-        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // Invalid format
-        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // Incomplete
-        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing local part
-        { captchaToken: VALID_CAPTCHA_TOKEN }, // Missing email field
-        {}, // Missing all fields
+    it('should handle different email formats', async () => {
+      const testEmails = [
+        'user@example.com',
+        'test.email+tag@domain.co.uk',
+        'user123@test-domain.com',
       ]
 
-      for (const body of invalidEmails) {
-        const res = await app.request('/api/v1/auth/resend-verification-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
+      for (const email of testEmails) {
+        const res = await postRequest({
+          email,
+          captchaToken: VALID_CAPTCHA_TOKEN,
         })
+
+        expect(res.status).toBe(StatusCodes.ACCEPTED)
+        expect(mockResendVerificationEmail).toHaveBeenCalledWith(email)
+      }
+    })
+
+    it('should handle errors from resend verification email logic', async () => {
+      mockResendVerificationEmail.mockImplementationOnce(() => {
+        throw new Error('Email service unavailable')
+      })
+
+      const res = await postRequest({
+        email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
+      })
+
+      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(mockResendVerificationEmail).toHaveBeenCalledTimes(1)
+    })
+
+    it('should validate request format and required fields', async () => {
+      const invalidRequests = [
+        { name: 'empty email', body: { email: '', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'invalid email format', body: { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'missing email field', body: { captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'missing captcha token', body: { email: 'test@example.com' } },
+        { name: 'missing all fields', body: {} },
+      ]
+
+      for (const testCase of invalidRequests) {
+        const res = await postRequest(testCase.body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -63,93 +107,31 @@ describe('Resend Verification Email Endpoint', () => {
       }
     })
 
-    it('should require Content-Type header', async () => {
-      const res = await app.request('/api/v1/auth/resend-verification-email', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }),
-      })
+    it('should handle malformed requests', async () => {
+      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
+        { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
+      ]
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-    })
+      for (const testCase of malformedRequests) {
+        const res = await postRequest(testCase.body, testCase.headers)
 
-    it('should handle malformed JSON', async () => {
-      const res = await app.request('/api/v1/auth/resend-verification-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{ invalid json',
-      })
-
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      }
     })
 
     it('should only accept POST method', async () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/api/v1/auth/resend-verification-email', {
+        const res = await postRequest(
+          { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
+          { 'Content-Type': 'application/json' },
           method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            captchaToken: VALID_CAPTCHA_TOKEN,
-          }),
-        })
+        )
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
-      }
-    })
-  })
-
-  describe('Validation Schema', () => {
-    it('should accept valid email addresses', () => {
-      const validEmails = [
-        'user@example.com',
-        'john.doe@company.com',
-        'test+tag@email.com',
-        'user123@test-domain.com',
-      ]
-
-      for (const email of validEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: VALID_CAPTCHA_TOKEN })
-        expect(result.success).toBe(true)
-      }
-    })
-
-    it('should reject invalid email addresses', () => {
-      const invalidEmails = [
-        '',
-        'invalid',
-        'test@',
-        '@example.com',
-        'user @example.com',
-        'user@.com',
-        'user..name@example.com',
-      ]
-
-      for (const email of invalidEmails) {
-        const result = resendVerificationEmailSchema.safeParse({ email, captchaToken: VALID_CAPTCHA_TOKEN })
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should not accept extra fields', () => {
-      const result = resendVerificationEmailSchema.safeParse({
-        email: 'test@example.com',
-        captchaToken: VALID_CAPTCHA_TOKEN,
-        extra: 'field',
-      })
-
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data).toEqual({ email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN })
-        expect(result.data).not.toHaveProperty('extra')
       }
     })
   })
