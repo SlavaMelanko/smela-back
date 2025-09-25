@@ -36,8 +36,8 @@ jobs:
       #- name: Run linting
       #  run: bun run lint
 
-      - name: Run tests 1
-        run: bun test src/routes/auth/login/__tests__/
-
-      - name: Run tests 2
+      - name: Signup
         run: bun test src/routes/auth/signup/__tests__/
+
+      - name: Login
+        run: bun test src/routes/auth/login/__tests__/
