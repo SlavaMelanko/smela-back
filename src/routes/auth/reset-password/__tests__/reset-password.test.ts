@@ -41,11 +41,9 @@ describe('resetPassword', () => {
   const mockCreatePasswordEncoder = mock(() => mockEncoder)
 
   beforeEach(() => {
-    // Clear all mocks
     mockHashFunction.mockClear()
     mockCreatePasswordEncoder.mockClear()
 
-    // Mock repositories
     mock.module('@/repositories', () => ({
       tokenRepo: {
         findByToken: mock(() => Promise.resolve(mockTokenRecord)),
@@ -59,14 +57,12 @@ describe('resetPassword', () => {
       },
     }))
 
-    // Mock TokenValidator
     mock.module('@/lib/token', () => ({
       TokenValidator: {
         validate: mock(() => mockValidatedToken),
       },
     }))
 
-    // Mock password encoder
     mock.module('@/lib/crypto', () => ({
       createPasswordEncoder: mockCreatePasswordEncoder,
     }))
@@ -119,7 +115,7 @@ describe('resetPassword', () => {
     it('should throw the validation error without updating anything', async () => {
       try {
         await resetPassword({ token: 'invalid-token', password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
@@ -144,7 +140,7 @@ describe('resetPassword', () => {
     it('should throw TokenExpired error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
@@ -169,7 +165,7 @@ describe('resetPassword', () => {
     it('should throw TokenAlreadyUsed error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
@@ -194,7 +190,7 @@ describe('resetPassword', () => {
     it('should throw TokenTypeMismatch error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
@@ -224,7 +220,7 @@ describe('resetPassword', () => {
     it('should throw the error and not update password', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -254,7 +250,7 @@ describe('resetPassword', () => {
     it('should throw the error after marking token as used', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Password update failed')
@@ -278,7 +274,7 @@ describe('resetPassword', () => {
     it('should throw the error after marking token as used', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Hashing failed')
@@ -293,7 +289,7 @@ describe('resetPassword', () => {
     it('should handle empty password', async () => {
       try {
         await resetPassword({ token: mockToken, password: '' })
-        expect(true).toBe(false) // Should not reach here due to validation
+        expect(true).toBe(false) // should not reach here due to validation
       } catch (error) {
         // This would be caught by the validation layer before reaching this function
         expect(error).toBeDefined()
@@ -301,7 +297,7 @@ describe('resetPassword', () => {
     })
 
     it('should handle very long passwords', async () => {
-      const longPassword = `A1@${'a'.repeat(1000)}` // Very long password
+      const longPassword = `A1@${'a'.repeat(1000)}` // very long password
 
       const result = await resetPassword({ token: mockToken, password: longPassword })
 
@@ -352,7 +348,7 @@ describe('resetPassword', () => {
 
         try {
           await resetPassword({ token: mockToken, password: mockPassword })
-          expect(true).toBe(false) // Should not reach here
+          expect(true).toBe(false) // should not reach here
         } catch (error) {
           expect(error).toBeInstanceOf(Error)
           expect((error as Error).message).toBe('TokenVersion update failed')

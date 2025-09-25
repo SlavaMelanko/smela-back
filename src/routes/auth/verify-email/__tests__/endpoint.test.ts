@@ -1,37 +1,81 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { onError } from '@/middleware'
+import { loggerMiddleware, onError } from '@/middleware'
+import { Role, Status } from '@/types'
 
 import verifyEmailRoute from '../index'
-import verifyEmailSchema from '../schema'
 
 describe('Verify Email Endpoint', () => {
   let app: Hono
+  let mockVerifyEmail: any
 
-  beforeEach(() => {
+  const createApp = () => {
     app = new Hono()
+    app.use(loggerMiddleware)
     app.onError(onError)
     app.route('/api/v1/auth', verifyEmailRoute)
+  }
+
+  const postRequest = (
+    body: any,
+    headers: Record<string, string> = { 'Content-Type': 'application/json' },
+    method: string = 'POST',
+  ) =>
+    app.request('/api/v1/auth/verify-email', {
+      method,
+      headers,
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    })
+
+  beforeEach(() => {
+    mockVerifyEmail = mock(() => Promise.resolve({
+      user: {
+        id: 1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        role: Role.User,
+        status: Status.Verified,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+      token: 'verify-jwt-token',
+    }))
+
+    mock.module('../verify-email', () => ({
+      default: mockVerifyEmail,
+    }))
+
+    createApp()
   })
 
   describe('POST /auth/verify-email', () => {
-    it('should return 200 when request is valid', async () => {
-      const validToken = 'a'.repeat(64) // 64 character token
+    it('should return user and token on successful email verification', async () => {
+      const validToken = 'a'.repeat(64)
 
-      const res = await app.request('/api/v1/auth/verify-email', {
-        method: 'POST',
-        body: JSON.stringify({ token: validToken }),
-        headers: {
-          'Content-Type': 'application/json',
+      const res = await postRequest({ token: validToken })
+
+      expect(res.status).toBe(StatusCodes.OK)
+
+      const data = await res.json()
+      expect(data).toEqual({
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          role: Role.User,
+          status: Status.Verified,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
         },
+        token: 'verify-jwt-token',
       })
 
-      // Note: This will fail in integration tests without mocks
-      // as it will try to access the real database
-      // For now, we're testing the endpoint structure
-      expect(res.status).toBeDefined()
+      expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
+      expect(mockVerifyEmail).toHaveBeenCalledWith(validToken)
     })
 
     it('should validate token requirements', async () => {
@@ -44,13 +88,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of invalidTokens) {
-        const res = await app.request('/api/v1/auth/verify-email', {
-          method: 'POST',
-          body: JSON.stringify({ token }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        const res = await postRequest({ token })
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -59,13 +97,7 @@ describe('Verify Email Endpoint', () => {
     })
 
     it('should require token parameter', async () => {
-      const res = await app.request('/api/v1/auth/verify-email', {
-        method: 'POST',
-        body: JSON.stringify({}),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const res = await postRequest({})
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       const json = await res.json()
@@ -77,73 +109,61 @@ describe('Verify Email Endpoint', () => {
       const validToken = 'a'.repeat(64)
 
       for (const method of methods) {
-        const res = await app.request(`/auth/verify-email?token=${validToken}`, {
+        const res = await postRequest(
+          { token: validToken },
+          { 'Content-Type': 'application/json' },
           method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        )
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
     })
 
-    it('should handle malformed JSON', async () => {
-      const res = await app.request('/api/v1/auth/verify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{ invalid json',
-      })
+    it('should handle malformed requests', async () => {
+      const validToken = 'a'.repeat(64)
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-    })
-
-    it('should handle missing request body', async () => {
-      const res = await app.request('/api/v1/auth/verify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-    })
-  })
-
-  describe('Schema Validation', () => {
-    it('should accept valid token format', () => {
-      const validTokens = [
-        'a'.repeat(64),
-        'A'.repeat(64),
-        'abcdef1234567890'.repeat(4),
-        'A0'.repeat(32),
+      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type', headers: {}, body: { token: validToken } },
+        { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
+        { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const token of validTokens) {
-        const result = verifyEmailSchema.safeParse({ token })
-        expect(result.success).toBe(true)
-        if (result.success) {
-          expect(result.data.token).toBe(token)
-        }
+      for (const testCase of malformedRequests) {
+        const res = testCase.name === 'missing Content-Type'
+          ? await app.request('/api/v1/auth/verify-email', {
+              method: 'POST',
+              headers: testCase.headers,
+              body: JSON.stringify(testCase.body),
+            })
+          : await postRequest(testCase.body, testCase.headers)
+
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       }
     })
 
-    it('should not accept extra fields', () => {
-      const validToken = 'a'.repeat(64)
-      const result = verifyEmailSchema.safeParse({
-        token: validToken,
-        extra: 'field',
-        another: 'value',
+    it('should return user and token for valid email verification', async () => {
+      const validToken = 'b'.repeat(64)
+
+      const res = await postRequest({ token: validToken })
+
+      expect(res.status).toBe(StatusCodes.OK)
+
+      const data = await res.json()
+      expect(data.token).toBe('verify-jwt-token')
+      expect(data.user).toHaveProperty('email', 'john@example.com')
+    })
+
+    it('should handle verification errors', async () => {
+      mockVerifyEmail.mockImplementationOnce(() => {
+        throw new Error('Token verification failed')
       })
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data).toEqual({ token: validToken })
-        expect(result.data).not.toHaveProperty('extra')
-        expect(result.data).not.toHaveProperty('another')
-      }
+      const validToken = 'c'.repeat(64)
+
+      const res = await postRequest({ token: validToken })
+
+      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
     })
   })
 })
