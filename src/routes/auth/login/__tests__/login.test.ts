@@ -1,9 +1,10 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
+import { ModuleMocker } from './module-mocker'
 
 describe('Login with Email', () => {
   let mockLoginParams: any
@@ -11,7 +12,9 @@ describe('Login with Email', () => {
   let mockAuth: any
   let mockJwtToken: any
 
-  beforeEach(() => {
+  const moduleMocker = new ModuleMocker()
+
+  beforeEach(async () => {
     mockLoginParams = {
       email: 'test@example.com',
       password: 'ValidPass123!',
@@ -38,7 +41,7 @@ describe('Login with Email', () => {
 
     mockJwtToken = 'login-jwt-token-123'
 
-    mock.module('@/repositories', () => ({
+    await moduleMocker.mock('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),
       },
@@ -47,25 +50,29 @@ describe('Login with Email', () => {
       },
     }))
 
-    mock.module('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         compare: mock(() => Promise.resolve(true)),
       })),
     }))
 
-    mock.module('@/lib/jwt', () => ({
+    await moduleMocker.mock('@/lib/jwt', () => ({
       default: {
         sign: mock(() => Promise.resolve(mockJwtToken)),
       },
     }))
 
-    mock.module('@/lib/user', () => ({
+    await moduleMocker.mock('@/lib/user', () => ({
       normalizeUser: mock((user) => {
         const { tokenVersion, ...normalizedUser } = user
 
         return normalizedUser
       }),
     }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('successful login', () => {
@@ -82,7 +89,7 @@ describe('Login with Email', () => {
     it('should handle different user roles correctly', async () => {
       const adminUser = { ...mockUser, role: Role.Admin }
 
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(adminUser)),
         },
@@ -98,7 +105,7 @@ describe('Login with Email', () => {
 
   describe('user not found scenarios', () => {
     it('should throw InvalidCredentials when user does not exist', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
         },
@@ -129,7 +136,7 @@ describe('Login with Email', () => {
 
   describe('auth record scenarios', () => {
     it('should throw InvalidCredentials when auth record not found', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -149,7 +156,7 @@ describe('Login with Email', () => {
     })
 
     it('should throw InvalidCredentials when auth record has no password hash', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -171,7 +178,7 @@ describe('Login with Email', () => {
 
   describe('password validation scenarios', () => {
     it('should throw BadCredentials for incorrect password', async () => {
-      mock.module('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.resolve(false)),
         })),
@@ -188,7 +195,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle empty password input', async () => {
-      mock.module('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.resolve(false)),
         })),
@@ -203,7 +210,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle password encoder creation failure', async () => {
-      mock.module('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => {
           throw new Error('Crypto library initialization failed')
         }),
@@ -215,7 +222,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle password comparison failure', async () => {
-      mock.module('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           compare: mock(() => Promise.reject(new Error('Bcrypt comparison failed'))),
         })),
@@ -229,7 +236,7 @@ describe('Login with Email', () => {
 
   describe('JWT generation scenarios', () => {
     it('should handle JWT signing failure', async () => {
-      mock.module('@/lib/jwt', () => ({
+      await moduleMocker.mock('@/lib/jwt', () => ({
         default: {
           sign: mock(() => Promise.reject(new Error('JWT signing failed'))),
         },
@@ -274,7 +281,7 @@ describe('Login with Email', () => {
 
   describe('repository error scenarios', () => {
     it('should handle user repository database failure', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.reject(new Error('Database connection failed'))),
         },
@@ -293,7 +300,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle auth repository database failure', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -312,7 +319,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle malformed auth data from database', async () => {
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -349,7 +356,7 @@ describe('Login with Email', () => {
 
       for (const role of roles) {
         const userWithRole = { ...mockUser, role }
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           userRepo: {
             findByEmail: mock(() => Promise.resolve(userWithRole)),
           },
@@ -368,7 +375,7 @@ describe('Login with Email', () => {
 
       for (const status of statuses) {
         const userWithStatus = { ...mockUser, status }
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           userRepo: {
             findByEmail: mock(() => Promise.resolve(userWithStatus)),
           },

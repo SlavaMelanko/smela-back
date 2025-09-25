@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
@@ -6,11 +6,14 @@ import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
+import { ModuleMocker } from './module-mocker'
 
 describe('Login Endpoint', () => {
   let app: Hono
   let mockLogInWithEmail: any
   let mockSetCookie: any
+
+  const moduleMocker = new ModuleMocker()
 
   const createApp = () => {
     app = new Hono()
@@ -26,7 +29,7 @@ describe('Login Endpoint', () => {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockLogInWithEmail = mock(() => Promise.resolve({
       user: {
         id: 1,
@@ -43,17 +46,17 @@ describe('Login Endpoint', () => {
 
     mockSetCookie = mock(() => {})
 
-    mock.module('../login', () => ({
+    await moduleMocker.mock('../login', () => ({
       default: mockLogInWithEmail,
     }))
 
-    mock.module('hono/cookie', () => ({
+    await moduleMocker.mock('hono/cookie', () => ({
       setCookie: mockSetCookie,
       getCookie: mock(() => undefined),
       deleteCookie: mock(() => {}),
     }))
 
-    mock.module('@/lib/cookie/access-cookie', () => ({
+    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
       setAccessCookie: mock((c: any, token: string) => {
         mockSetCookie(c, 'auth-token-test', token, {
           httpOnly: true,
@@ -69,6 +72,10 @@ describe('Login Endpoint', () => {
 
     mockCaptchaSuccess()
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/login', () => {
@@ -228,7 +235,7 @@ describe('Login Endpoint', () => {
 
     it('should set secure cookie in production environment', async () => {
       // Override the access cookie mock to simulate production environment
-      mock.module('@/lib/cookie/access-cookie', () => ({
+      await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
         setAccessCookie: mock((c: any, token: string) => {
           mockSetCookie(c, 'auth-token-test', token, {
             httpOnly: true,
