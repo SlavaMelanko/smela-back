@@ -26,14 +26,13 @@ describe('Request Password Reset Endpoint', () => {
     })
 
   beforeEach(() => {
-    mockCaptchaSuccess()
-
     mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
 
     mock.module('../request-password-reset', () => ({
       default: mockRequestPasswordReset,
     }))
 
+    mockCaptchaSuccess()
     createApp()
   })
 

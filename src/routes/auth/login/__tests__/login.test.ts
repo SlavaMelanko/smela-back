@@ -240,44 +240,35 @@ describe('Login with Email', () => {
   })
 
   describe('edge cases and boundary conditions', () => {
-    it('should handle very long email addresses', async () => {
-      const longEmail = `${'a'.repeat(100)}@example.com`
+    const testCases = [
+      {
+        name: 'very long email addresses',
+        params: { email: `${'a'.repeat(100)}@example.com` },
+      },
+      {
+        name: 'very long passwords',
+        params: { password: 'a'.repeat(1000) },
+      },
+      {
+        name: 'special characters in email',
+        params: { email: 'test+tag@example-domain.co.uk' },
+      },
+      {
+        name: 'special characters in password',
+        params: { password: '!@#$%^&*()_+-=[]{}|;:,.<>?' },
+      },
+      {
+        name: 'Unicode characters in password',
+        params: { password: '密码123é🔑' },
+      },
+    ]
 
-      const result = await logInWithEmail({ ...mockLoginParams, email: longEmail })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-    })
-
-    it('should handle very long passwords', async () => {
-      const longPassword = 'a'.repeat(1000)
-
-      const result = await logInWithEmail({ ...mockLoginParams, password: longPassword })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-    })
-
-    it('should handle special characters in email', async () => {
-      const specialEmail = 'test+tag@example-domain.co.uk'
-
-      const result = await logInWithEmail({ ...mockLoginParams, email: specialEmail })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-    })
-
-    it('should handle special characters in password', async () => {
-      const specialPassword = '!@#$%^&*()_+-=[]{}|;:,.<>?'
-
-      const result = await logInWithEmail({ ...mockLoginParams, password: specialPassword })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-    })
-
-    it('should handle Unicode characters in password', async () => {
-      const unicodePassword = '密码123é🔑'
-
-      const result = await logInWithEmail({ ...mockLoginParams, password: unicodePassword })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
+    testCases.forEach(({ name, params }) => {
+      it(`should handle ${name}`, async () => {
+        const result = await logInWithEmail({ ...mockLoginParams, ...params })
+        expect(result).toHaveProperty('user')
+        expect(result).toHaveProperty('token')
+      })
     })
   })
 
@@ -292,7 +283,13 @@ describe('Login with Email', () => {
         },
       }))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow('Database connection failed')
+      try {
+        await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Database connection failed')
+      }
     })
 
     it('should handle auth repository database failure', async () => {
@@ -305,7 +302,13 @@ describe('Login with Email', () => {
         },
       }))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow('Auth table query failed')
+      try {
+        await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        expect((error as Error).message).toBe('Auth table query failed')
+      }
     })
 
     it('should handle malformed auth data from database', async () => {
@@ -320,6 +323,7 @@ describe('Login with Email', () => {
 
       try {
         await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)

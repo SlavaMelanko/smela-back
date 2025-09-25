@@ -27,8 +27,6 @@ describe('Login Endpoint', () => {
     })
 
   beforeEach(() => {
-    mockCaptchaSuccess()
-
     mockLogInWithEmail = mock(() => Promise.resolve({
       user: {
         id: 1,
@@ -69,6 +67,7 @@ describe('Login Endpoint', () => {
       deleteAccessCookie: mock(() => {}),
     }))
 
+    mockCaptchaSuccess()
     createApp()
   })
 
