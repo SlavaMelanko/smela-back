@@ -46,7 +46,7 @@ describe('Login Endpoint', () => {
 
     mockSetCookie = mock(() => {})
 
-    await moduleMocker.mock('@/routes/auth/login/login', () => ({
+    await moduleMocker.mock('../login', () => ({
       default: mockLogInWithEmail,
     }))
 
