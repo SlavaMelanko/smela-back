@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { onError } from '@/middleware'
+import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
@@ -14,6 +14,7 @@ describe('Request Password Reset Endpoint', () => {
   const createApp = () => {
     app = new Hono()
     app.onError(onError)
+    app.use(loggerMiddleware)
     app.route('/api/v1/auth', requestPasswordResetRoute)
   }
 
@@ -54,11 +55,11 @@ describe('Request Password Reset Endpoint', () => {
 
     it('should validate email format', async () => {
       const invalidEmails = [
-        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // Empty email
-        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // Invalid format
-        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // Incomplete
-        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // Missing local part
-        { captchaToken: VALID_CAPTCHA_TOKEN }, // Missing email field
+        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // empty email
+        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // invalid format
+        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // incomplete
+        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // missing local part
+        { captchaToken: VALID_CAPTCHA_TOKEN }, // missing email field
       ]
 
       for (const body of invalidEmails) {
@@ -72,9 +73,9 @@ describe('Request Password Reset Endpoint', () => {
 
     it('should validate captcha token', async () => {
       const invalidCaptchaRequests = [
-        { email: 'test@example.com' }, // Missing captcha token
-        { email: 'test@example.com', captchaToken: '' }, // Empty captcha token
-        { email: 'test@example.com', captchaToken: 'invalid-token' }, // Invalid captcha token
+        { email: 'test@example.com' }, // missing captcha token
+        { email: 'test@example.com', captchaToken: '' }, // empty captcha token
+        { email: 'test@example.com', captchaToken: 'invalid-token' }, // invalid captcha token
       ]
 
       for (const body of invalidCaptchaRequests) {

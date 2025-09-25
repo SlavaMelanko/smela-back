@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { onError } from '@/middleware'
+import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
@@ -14,6 +14,7 @@ describe('Login Endpoint', () => {
 
   const createApp = () => {
     app = new Hono()
+    app.use(loggerMiddleware)
     app.onError(onError)
     app.route('/api/v1/auth', loginRoute)
   }

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { onError } from '@/middleware'
+import { loggerMiddleware, onError } from '@/middleware'
 
 import logoutRoute from '../index'
 
@@ -13,6 +13,7 @@ describe('Logout Endpoint', () => {
   const createApp = () => {
     app = new Hono()
     app.onError(onError)
+    app.use(loggerMiddleware)
     app.route('/api/v1/auth', logoutRoute)
   }
 
