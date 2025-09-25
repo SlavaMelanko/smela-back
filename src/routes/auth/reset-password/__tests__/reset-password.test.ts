@@ -1,15 +1,16 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/lib/catch'
+import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
 
-describe.skip('resetPassword', () => {
-  const mockToken = 'valid-reset-token-123456789012345678901234567890123456789012'
+describe('resetPassword', () => {
+  const mockToken = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
   const mockPassword = 'NewSecure@123'
-  const mockHashedPassword = 'hashed-new-password'
+  const mockHashedPassword = 'mock-hashed-new-password'
 
   const mockTokenRecord = {
     id: 1,
