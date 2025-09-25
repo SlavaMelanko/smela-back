@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resendVerificationEmailRoute from '../index'
 
 describe('Resend Verification Email Endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   let mockResendVerificationEmail: any
 
@@ -29,16 +32,19 @@ describe('Resend Verification Email Endpoint', () => {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     })
 
-  beforeEach(() => {
-    mockCaptchaSuccess()
-
+  beforeEach(async () => {
     mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
 
-    mock.module('../resend-verification-email', () => ({
+    await moduleMocker.mock('../resend-verification-email', () => ({
       default: mockResendVerificationEmail,
     }))
 
+    mockCaptchaSuccess()
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/resend-verification-email', () => {

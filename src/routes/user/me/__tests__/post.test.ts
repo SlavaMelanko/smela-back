@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { onError } from '@/middleware'
 
 import meRoute from '../index'
 
 describe('POST /me endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   const mockJwtPayload = {
     id: 1,
@@ -53,7 +56,7 @@ describe('POST /me endpoint', () => {
     updatedAt: new Date('2024-01-01'),
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = new Hono()
     app.onError(onError)
 
@@ -66,9 +69,13 @@ describe('POST /me endpoint', () => {
     app.route('/api/v1/protected', meRoute)
   })
 
+  afterEach(() => {
+    moduleMocker.clear()
+  })
+
   it('should update user profile successfully', async () => {
     // Mock the business logic functions
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
@@ -112,7 +119,7 @@ describe('POST /me endpoint', () => {
 
   it('should handle update failure', async () => {
     // Mock updateUser to throw error
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.'))),
     }))
@@ -150,7 +157,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should allow partial updates with only firstName', async () => {
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
@@ -178,7 +185,7 @@ describe('POST /me endpoint', () => {
 
   it('should handle valid names with minimum length', async () => {
     // Mock updateUser to return user with minimal names
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUserMinimal)),
     }))
@@ -220,7 +227,7 @@ describe('POST /me endpoint', () => {
       return Promise.resolve(mockUpdatedUser)
     })
 
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mockGetUser,
       updateUser: mockUpdateUser,
     }))
@@ -247,7 +254,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should handle null values properly', async () => {
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
@@ -272,7 +279,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should allow updating only lastName', async () => {
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))
@@ -335,7 +342,7 @@ describe('POST /me endpoint', () => {
       return Promise.resolve(mockUpdatedUser)
     })
 
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mockGetUser,
       updateUser: mockUpdateUser,
     }))
@@ -364,7 +371,7 @@ describe('POST /me endpoint', () => {
   })
 
   it('should trim valid strings before updating', async () => {
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockCurrentUser)),
       updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
     }))

@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { loggerMiddleware, onError } from '@/middleware'
 
 import resetPasswordRoute from '../index'
 
 describe('Reset Password Endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   let mockResetPassword: any
 
@@ -29,14 +32,18 @@ describe('Reset Password Endpoint', () => {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockResetPassword = mock(() => Promise.resolve({ success: true }))
 
-    mock.module('../reset-password', () => ({
+    await moduleMocker.mock('../reset-password', () => ({
       default: mockResetPassword,
     }))
 
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   const validPayload = {

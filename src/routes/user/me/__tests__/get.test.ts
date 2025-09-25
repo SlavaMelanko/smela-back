@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { onError } from '@/middleware'
 
 import meRoute from '../index'
 
 describe('GET /me endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   const mockJwtPayload = {
     id: 1,
@@ -29,7 +32,7 @@ describe('GET /me endpoint', () => {
     updatedAt: new Date('2024-01-01'),
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = new Hono()
     app.onError(onError)
 
@@ -42,10 +45,14 @@ describe('GET /me endpoint', () => {
     app.route('/api/v1/protected', meRoute)
 
     // Mock the business logic functions
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.resolve(mockFullUser)),
       updateUser: mock(() => Promise.resolve(mockFullUser)),
     }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   it('should return full user data without tokenVersion', async () => {
@@ -93,7 +100,7 @@ describe('GET /me endpoint', () => {
 
   it('should handle user not found as data inconsistency', async () => {
     // Mock getUser to throw internal error for data inconsistency
-    mock.module('../me', () => ({
+    await moduleMocker.mock('../me', () => ({
       getUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError))),
       updateUser: mock(() => Promise.resolve(null)),
     }))

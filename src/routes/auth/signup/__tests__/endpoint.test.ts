@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 import { Role } from '@/types'
@@ -9,6 +10,8 @@ import { Role } from '@/types'
 import signupRoute from '../index'
 
 describe('Signup Endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   let mockSignUpWithEmail: any
   let mockSetAccessCookie: any
@@ -31,7 +34,7 @@ describe('Signup Endpoint', () => {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockSignUpWithEmail = mock(() => Promise.resolve({
       user: {
         id: 1,
@@ -48,16 +51,20 @@ describe('Signup Endpoint', () => {
 
     mockSetAccessCookie = mock(() => {})
 
-    mock.module('../signup', () => ({
+    await moduleMocker.mock('../signup', () => ({
       default: mockSignUpWithEmail,
     }))
 
-    mock.module('@/lib/cookie', () => ({
+    await moduleMocker.mock('@/lib/cookie', () => ({
       setAccessCookie: mockSetAccessCookie,
     }))
 
     mockCaptchaSuccess()
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/signup', () => {

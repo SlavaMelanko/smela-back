@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { loggerMiddleware, onError } from '@/middleware'
 
 import logoutRoute from '../index'
@@ -9,6 +10,8 @@ import logoutRoute from '../index'
 describe('Logout Endpoint', () => {
   let app: Hono
   let mockDeleteAccessCookie: any
+
+  const moduleMocker = new ModuleMocker()
 
   const createApp = () => {
     app = new Hono()
@@ -24,20 +27,24 @@ describe('Logout Endpoint', () => {
       ...(body && { body }),
     })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockDeleteAccessCookie = mock(() => {})
 
-    mock.module('@/lib/cookie/access-cookie', () => ({
+    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
       deleteAccessCookie: mockDeleteAccessCookie,
       getAccessCookie: mock(() => undefined),
       setAccessCookie: mock(() => {}),
     }))
 
-    mock.module('@/lib/cookie', () => ({
+    await moduleMocker.mock('@/lib/cookie', () => ({
       deleteAccessCookie: mockDeleteAccessCookie,
     }))
 
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/logout', () => {

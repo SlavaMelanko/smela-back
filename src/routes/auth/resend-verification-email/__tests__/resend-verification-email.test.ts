@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { emailAgent } from '@/lib/email-agent'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token } from '@/types'
@@ -7,11 +8,13 @@ import { Role, Status, Token } from '@/types'
 import resendVerificationEmail from '../resend-verification-email'
 
 describe('resendVerificationEmail', () => {
+  const moduleMocker = new ModuleMocker()
+
   let mockUser: any
   let mockToken: string
   let mockExpiresAt: Date
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockUser = {
       id: 1,
       firstName: 'John',
@@ -26,7 +29,7 @@ describe('resendVerificationEmail', () => {
     mockToken = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-    mock.module('@/repositories', () => ({
+    await moduleMocker.mock('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),
       },
@@ -37,7 +40,7 @@ describe('resendVerificationEmail', () => {
       authRepo: {},
     }))
 
-    mock.module('@/lib/token', () => ({
+    await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.EmailVerification,
         token: mockToken,
@@ -46,11 +49,15 @@ describe('resendVerificationEmail', () => {
       EMAIL_VERIFICATION_EXPIRY_HOURS: 48,
     }))
 
-    mock.module('@/lib/email-agent', () => ({
+    await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: {
         sendWelcomeEmail: mock(() => Promise.resolve()),
       },
     }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('when user exists and is not verified', () => {
@@ -84,8 +91,8 @@ describe('resendVerificationEmail', () => {
   })
 
   describe('when user does not exist', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
         },
@@ -113,8 +120,8 @@ describe('resendVerificationEmail', () => {
       status: Status.Verified,
     }
 
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(verifiedUser)),
         },
@@ -142,8 +149,8 @@ describe('resendVerificationEmail', () => {
       status: Status.Suspended,
     }
 
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(suspendedUser)),
         },
@@ -166,8 +173,8 @@ describe('resendVerificationEmail', () => {
   })
 
   describe('when token creation fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -213,7 +220,7 @@ describe('resendVerificationEmail', () => {
       for (const status of ineligibleStatuses) {
         const userWithStatus = { ...mockUser, status }
 
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           userRepo: {
             findByEmail: mock(() => Promise.resolve(userWithStatus)),
           },
@@ -235,8 +242,8 @@ describe('resendVerificationEmail', () => {
   })
 
   describe('when email sending fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -247,7 +254,7 @@ describe('resendVerificationEmail', () => {
         authRepo: {},
       }))
 
-      mock.module('@/lib/email-agent', () => ({
+      await moduleMocker.mock('@/lib/email-agent', () => ({
         emailAgent: {
           sendWelcomeEmail: mock(() => Promise.reject(new Error('Email service unavailable'))),
         },
@@ -270,8 +277,8 @@ describe('resendVerificationEmail', () => {
   })
 
   describe('when deprecateOld fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },

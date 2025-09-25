@@ -1,10 +1,13 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { Role, Status, Token } from '@/types'
 
 import requestPasswordReset from '../request-password-reset'
 
 describe('Request Password Reset', () => {
+  const moduleMocker = new ModuleMocker()
+
   let mockUser: any
   let mockToken: string
   let mockExpiresAt: Date
@@ -12,7 +15,7 @@ describe('Request Password Reset', () => {
   let mockTokenRepo: any
   let mockUserRepo: any
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockUser = {
       id: 1,
       firstName: 'John',
@@ -41,13 +44,13 @@ describe('Request Password Reset', () => {
       sendResetPasswordEmail: mock(() => Promise.resolve()),
     }
 
-    mock.module('@/repositories', () => ({
+    await moduleMocker.mock('@/repositories', () => ({
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
       authRepo: {},
     }))
 
-    mock.module('@/lib/token', () => ({
+    await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.PasswordReset,
         token: mockToken,
@@ -55,9 +58,13 @@ describe('Request Password Reset', () => {
       })),
     }))
 
-    mock.module('@/lib/email-agent', () => ({
+    await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: mockEmailAgent,
     }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('successful password reset request', () => {
@@ -91,7 +98,7 @@ describe('Request Password Reset', () => {
   })
 
   describe('user not found scenarios', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
     })
 
@@ -110,7 +117,7 @@ describe('Request Password Reset', () => {
 
     inactiveStatuses.forEach((status) => {
       describe(`when user status is ${status}`, () => {
-        beforeEach(() => {
+        beforeEach(async () => {
           const inactiveUser = { ...mockUser, status }
           mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(inactiveUser))
         })
@@ -128,7 +135,7 @@ describe('Request Password Reset', () => {
   })
 
   describe('token creation failure scenarios', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(mockUser))
       mockTokenRepo.create.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
     })
@@ -176,7 +183,7 @@ describe('Request Password Reset', () => {
   })
 
   describe('email sending failure scenarios', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
     })
 
@@ -192,7 +199,7 @@ describe('Request Password Reset', () => {
   })
 
   describe('token deprecation failure scenarios', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(mockUser))
       mockTokenRepo.deprecateOld.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
     })

@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
 
 describe('Request Password Reset Endpoint', () => {
+  const moduleMocker = new ModuleMocker()
+
   let app: Hono
   let mockRequestPasswordReset: any
 
@@ -25,15 +28,19 @@ describe('Request Password Reset Endpoint', () => {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
 
-    mock.module('../request-password-reset', () => ({
+    await moduleMocker.mock('../request-password-reset', () => ({
       default: mockRequestPasswordReset,
     }))
 
     mockCaptchaSuccess()
     createApp()
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/request-password-reset', () => {
