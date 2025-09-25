@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
-import { ModuleMocker } from './module-mocker'
 
 describe('Login with Email', () => {
   let mockLoginParams: any

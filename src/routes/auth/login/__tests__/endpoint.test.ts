@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
-import { ModuleMocker } from './module-mocker'
 
 describe('Login Endpoint', () => {
   let app: Hono
@@ -46,7 +46,7 @@ describe('Login Endpoint', () => {
 
     mockSetCookie = mock(() => {})
 
-    await moduleMocker.mock('../login', () => ({
+    await moduleMocker.mock('@/routes/auth/login/login', () => ({
       default: mockLogInWithEmail,
     }))
 
