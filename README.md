@@ -14,6 +14,7 @@ Backend API with authentication, user management, and role-based access control.
 - **Security**: Rate limiting, CORS, CSP
 - **Testing**: Built-in test runner
 - **Code Quality**: ESLint & formatting
+- **CI/CD**: GitHub Actions pipeline
 
 ## 📋 Prerequisites
 
