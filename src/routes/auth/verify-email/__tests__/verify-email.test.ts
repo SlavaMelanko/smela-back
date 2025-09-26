@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
 import { AppError, ErrorCode } from '@/lib/catch'
+import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token, TokenStatus } from '@/types'
 
@@ -10,7 +11,7 @@ import verifyEmail from '../verify-email'
 describe('Verify Email', () => {
   const moduleMocker = new ModuleMocker()
 
-  const mockToken = 'a'.repeat(64)
+  const mockToken = 'a'.repeat(TOKEN_LENGTH)
   const mockTokenRecord = {
     id: 1,
     userId: 1,
@@ -52,6 +53,12 @@ describe('Verify Email', () => {
     await moduleMocker.mock('@/lib/jwt', () => ({
       default: {
         sign: mock(() => Promise.resolve(mockJwtToken)),
+      },
+    }))
+
+    await moduleMocker.mock('@/lib/token', () => ({
+      TokenValidator: {
+        validate: mock(() => mockTokenRecord),
       },
     }))
   })
@@ -110,12 +117,20 @@ describe('Verify Email', () => {
         },
         authRepo: {},
       }))
+
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenNotFound)
+          }),
+        },
+      }))
     })
 
     it('should throw TokenNotFound error', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
@@ -145,12 +160,20 @@ describe('Verify Email', () => {
         },
         authRepo: {},
       }))
+
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenAlreadyUsed)
+          }),
+        },
+      }))
     })
 
     it('should throw TokenAlreadyUsed error', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
@@ -179,12 +202,20 @@ describe('Verify Email', () => {
         },
         authRepo: {},
       }))
+
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenDeprecated)
+          }),
+        },
+      }))
     })
 
     it('should throw TokenDeprecated error', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenDeprecated)
@@ -213,12 +244,20 @@ describe('Verify Email', () => {
         },
         authRepo: {},
       }))
+
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenExpired)
+          }),
+        },
+      }))
     })
 
     it('should throw TokenExpired error', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
@@ -247,12 +286,20 @@ describe('Verify Email', () => {
         },
         authRepo: {},
       }))
+
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenTypeMismatch, `expected ${Token.EmailVerification}, got ${Token.PasswordReset}`)
+          }),
+        },
+      }))
     })
 
     it('should throw TokenTypeMismatch error', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
@@ -281,7 +328,7 @@ describe('Verify Email', () => {
 
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -306,7 +353,7 @@ describe('Verify Email', () => {
 
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token update failed')
@@ -331,7 +378,7 @@ describe('Verify Email', () => {
 
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('User update failed')
@@ -360,7 +407,7 @@ describe('Verify Email', () => {
     it('should throw error when user update returns null', async () => {
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.InternalError)
@@ -390,6 +437,12 @@ describe('Verify Email', () => {
         authRepo: {},
       }))
 
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => boundaryTokenRecord),
+        },
+      }))
+
       const result = await verifyEmail(mockToken)
 
       expect(result).toHaveProperty('user')
@@ -416,6 +469,12 @@ describe('Verify Email', () => {
         authRepo: {},
       }))
 
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => differentUserTokenRecord),
+        },
+      }))
+
       const result = await verifyEmail(mockToken)
 
       expect(result).toHaveProperty('user')
@@ -428,10 +487,10 @@ describe('Verify Email', () => {
 
     it('should handle various token string formats', async () => {
       const testTokens = [
-        'a'.repeat(64), // All same character
-        '1'.repeat(64), // All numbers
-        'abcdef1234567890'.repeat(4), // Mixed hex
-        'A'.repeat(32) + 'a'.repeat(32), // Mixed case
+        'a'.repeat(TOKEN_LENGTH), // all same character
+        '1'.repeat(TOKEN_LENGTH), // all numbers
+        'abcdef1234567890'.repeat(TOKEN_LENGTH / 16), // mixed hex
+        'A'.repeat(TOKEN_LENGTH / 2) + 'a'.repeat(TOKEN_LENGTH / 2), // mixed case
       ]
 
       for (const testToken of testTokens) {
@@ -446,6 +505,12 @@ describe('Verify Email', () => {
             update: mock(() => Promise.resolve(mockUser)),
           },
           authRepo: {},
+        }))
+
+        await moduleMocker.mock('@/lib/token', () => ({
+          TokenValidator: {
+            validate: mock(() => testTokenRecord),
+          },
         }))
 
         const result = await verifyEmail(testToken)
@@ -474,6 +539,12 @@ describe('Verify Email', () => {
         authRepo: {},
       }))
 
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => tokenWithNullUsedAt),
+        },
+      }))
+
       const result = await verifyEmail(mockToken)
 
       expect(result).toHaveProperty('user')
@@ -489,7 +560,7 @@ describe('Verify Email', () => {
       const inconsistentTokenRecord = {
         ...mockTokenRecord,
         status: TokenStatus.Pending,
-        usedAt: new Date(Date.now() - 60 * 60 * 1000), // Has usedAt but status is Active
+        usedAt: new Date(Date.now() - 60 * 60 * 1000), // has usedAt but status is Active
       }
 
       await moduleMocker.mock('@/repositories', () => ({
@@ -503,9 +574,17 @@ describe('Verify Email', () => {
         authRepo: {},
       }))
 
+      await moduleMocker.mock('@/lib/token', () => ({
+        TokenValidator: {
+          validate: mock(() => {
+            throw new AppError(ErrorCode.TokenAlreadyUsed)
+          }),
+        },
+      }))
+
       try {
         await verifyEmail(mockToken)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
