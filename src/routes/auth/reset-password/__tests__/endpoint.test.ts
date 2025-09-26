@@ -1,36 +1,20 @@
+import type { Hono } from 'hono'
+
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
-import { loggerMiddleware, onError } from '@/middleware'
 
 import resetPasswordRoute from '../index'
 
 describe('Reset Password Endpoint', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  const RESET_PASSWORD_URL = '/api/v1/auth/reset-password'
 
   let app: Hono
   let mockResetPassword: any
 
-  const createApp = () => {
-    app = new Hono()
-    app.use(loggerMiddleware)
-    app.onError(onError)
-    app.route('/api/v1/auth', resetPasswordRoute)
-  }
-
-  const postRequest = (
-    body: any,
-    headers: Record<string, string> = { 'Content-Type': 'application/json' },
-    method: string = 'POST',
-  ) =>
-    app.request('/api/v1/auth/reset-password', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockResetPassword = mock(() => Promise.resolve({ success: true }))
@@ -39,7 +23,7 @@ describe('Reset Password Endpoint', () => {
       default: mockResetPassword,
     }))
 
-    createApp()
+    app = createTestApp('/api/v1/auth', resetPasswordRoute)
   })
 
   afterEach(() => {
@@ -53,7 +37,7 @@ describe('Reset Password Endpoint', () => {
 
   describe('POST /auth/reset-password', () => {
     it('should reset password and return success', async () => {
-      const res = await postRequest(validPayload)
+      const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
       expect(res.status).toBe(StatusCodes.OK)
 
@@ -64,6 +48,17 @@ describe('Reset Password Endpoint', () => {
         token: validPayload.token,
         password: validPayload.password,
       })
+      expect(mockResetPassword).toHaveBeenCalledTimes(1)
+    })
+
+    it('should handle reset password errors', async () => {
+      mockResetPassword.mockImplementationOnce(() => {
+        throw new Error('Password reset failed')
+      })
+
+      const res = await post(app, RESET_PASSWORD_URL, validPayload)
+
+      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
 
@@ -82,7 +77,7 @@ describe('Reset Password Endpoint', () => {
           delete payload.token
         }
 
-        const res = await postRequest(payload)
+        const res = await post(app, RESET_PASSWORD_URL, payload)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
@@ -106,7 +101,7 @@ describe('Reset Password Endpoint', () => {
           delete payload.password
         }
 
-        const res = await postRequest(payload)
+        const res = await post(app, RESET_PASSWORD_URL, payload)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
@@ -114,20 +109,14 @@ describe('Reset Password Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
         { name: 'missing Content-Type', headers: {}, body: validPayload },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{invalid json}' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const testCase of malformedRequests) {
-        const res = testCase.name === 'missing Content-Type'
-          ? await app.request('/api/v1/auth/reset-password', {
-              method: 'POST',
-              headers: testCase.headers,
-              body: JSON.stringify(testCase.body),
-            })
-          : await postRequest(testCase.body, testCase.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, RESET_PASSWORD_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
@@ -138,36 +127,10 @@ describe('Reset Password Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await postRequest(validPayload, { 'Content-Type': 'application/json' }, method)
+        const res = await doRequest(app, RESET_PASSWORD_URL, method, validPayload, { 'Content-Type': 'application/json' })
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
-    })
-
-    it('should handle different valid password formats', async () => {
-      const testCases = [
-        { token: 'a'.repeat(TOKEN_LENGTH), password: 'SimplePass123!' },
-        { token: 'b'.repeat(TOKEN_LENGTH), password: 'Complex@Pass456#' },
-        { token: 'c'.repeat(TOKEN_LENGTH), password: 'Secure$Pass789&' },
-      ]
-
-      for (const testCase of testCases) {
-        const res = await postRequest(testCase)
-
-        expect(res.status).toBe(StatusCodes.OK)
-        expect(mockResetPassword).toHaveBeenCalledWith(testCase)
-      }
-    })
-
-    it('should handle reset password errors', async () => {
-      mockResetPassword.mockImplementationOnce(() => {
-        throw new Error('Password reset failed')
-      })
-
-      const res = await postRequest(validPayload)
-
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-      expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
   })
 })

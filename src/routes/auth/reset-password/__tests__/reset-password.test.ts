@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
@@ -338,7 +338,7 @@ describe('Reset Password', () => {
       })
     })
 
-    describe('Token Version Error Handling', () => {
+    describe('token version error handling', () => {
       it('should fail if tokenVersion increment fails', async () => {
         await moduleMocker.mock('@/repositories', () => ({
           tokenRepo: {
@@ -365,7 +365,7 @@ describe('Reset Password', () => {
       })
     })
 
-    describe('Complete Password Reset Flow', () => {
+    describe('complete password reset flow', () => {
       it('should complete full flow: password reset → tokenVersion increment → JWT invalidation', async () => {
         const userId = 123
 
