@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker } from '@/__tests__'
 import { Role, Status, Token } from '@/types'
 
 import requestPasswordReset from '../request-password-reset'

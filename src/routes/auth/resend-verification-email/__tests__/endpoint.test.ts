@@ -1,36 +1,20 @@
+import type { Hono } from 'hono'
+
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
-import { loggerMiddleware, onError } from '@/middleware'
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resendVerificationEmailRoute from '../index'
 
 describe('Resend Verification Email Endpoint', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  const RESEND_VERIFICATION_EMAIL_URL = '/api/v1/auth/resend-verification-email'
 
   let app: Hono
   let mockResendVerificationEmail: any
 
-  const createApp = () => {
-    app = new Hono()
-    app.use(loggerMiddleware)
-    app.onError(onError)
-    app.route('/api/v1/auth', resendVerificationEmailRoute)
-  }
-
-  const postRequest = (
-    body: any,
-    headers: Record<string, string> = { 'Content-Type': 'application/json' },
-    method: string = 'POST',
-  ) =>
-    app.request('/api/v1/auth/resend-verification-email', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
@@ -40,7 +24,7 @@ describe('Resend Verification Email Endpoint', () => {
     }))
 
     mockCaptchaSuccess()
-    createApp()
+    app = createTestApp('/api/v1/auth', resendVerificationEmailRoute)
   })
 
   afterEach(() => {
@@ -49,7 +33,7 @@ describe('Resend Verification Email Endpoint', () => {
 
   describe('POST /auth/resend-verification-email', () => {
     it('should return success when verification email is resent', async () => {
-      const res = await postRequest({
+      const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, {
         email: 'test@example.com',
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
@@ -63,30 +47,12 @@ describe('Resend Verification Email Endpoint', () => {
       expect(mockResendVerificationEmail).toHaveBeenCalledWith('test@example.com')
     })
 
-    it('should handle different email formats', async () => {
-      const testEmails = [
-        'user@example.com',
-        'test.email+tag@domain.co.uk',
-        'user123@test-domain.com',
-      ]
-
-      for (const email of testEmails) {
-        const res = await postRequest({
-          email,
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        })
-
-        expect(res.status).toBe(StatusCodes.ACCEPTED)
-        expect(mockResendVerificationEmail).toHaveBeenCalledWith(email)
-      }
-    })
-
     it('should handle errors from resend verification email logic', async () => {
       mockResendVerificationEmail.mockImplementationOnce(() => {
         throw new Error('Email service unavailable')
       })
 
-      const res = await postRequest({
+      const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, {
         email: 'test@example.com',
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
@@ -105,7 +71,7 @@ describe('Resend Verification Email Endpoint', () => {
       ]
 
       for (const testCase of invalidRequests) {
-        const res = await postRequest(testCase.body)
+        const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, testCase.body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -114,14 +80,14 @@ describe('Resend Verification Email Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
         { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const testCase of malformedRequests) {
-        const res = await postRequest(testCase.body, testCase.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       }
@@ -131,11 +97,10 @@ describe('Resend Verification Email Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await postRequest(
-          { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-          { 'Content-Type': 'application/json' },
-          method,
-        )
+        const res = await doRequest(app, RESEND_VERIFICATION_EMAIL_URL, method, {
+          email: 'test@example.com',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' })
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }

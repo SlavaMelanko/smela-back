@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker } from '@/__tests__'
 import { emailAgent } from '@/lib/email-agent'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
 
-describe('resendVerificationEmail', () => {
+describe('Resend Verification Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: any

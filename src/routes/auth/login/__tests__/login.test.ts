@@ -1,18 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
 
 describe('Login with Email', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   let mockLoginParams: any
   let mockUser: any
   let mockAuth: any
   let mockJwtToken: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockLoginParams = {

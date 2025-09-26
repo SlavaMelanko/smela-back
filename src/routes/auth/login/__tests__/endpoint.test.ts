@@ -1,10 +1,9 @@
+import type { Hono } from 'hono'
+
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
-import { doRequest, post } from '@/__tests__/request'
-import { loggerMiddleware, onError } from '@/middleware'
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
@@ -17,13 +16,6 @@ describe('Login Endpoint', () => {
   let mockSetCookie: any
 
   const moduleMocker = new ModuleMocker(import.meta.url)
-
-  const createApp = () => {
-    app = new Hono()
-    app.use(loggerMiddleware)
-    app.onError(onError)
-    app.route('/api/v1/auth', loginRoute)
-  }
 
   beforeEach(async () => {
     mockLogInWithEmail = mock(() => Promise.resolve({
@@ -67,7 +59,7 @@ describe('Login Endpoint', () => {
     }))
 
     mockCaptchaSuccess()
-    createApp()
+    app = createTestApp('/api/v1/auth', loginRoute)
   })
 
   afterEach(() => {
@@ -231,7 +223,7 @@ describe('Login Endpoint', () => {
         deleteAccessCookie: mock(() => {}),
       }))
 
-      createApp()
+      app = createTestApp('/api/v1/auth', loginRoute)
 
       const res = await post(app, LOGIN_URL, {
         email: 'test@example.com',
