@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: oven/bun:1.2.16
+    container: oven/bun:latest
     environment: test
     env:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}

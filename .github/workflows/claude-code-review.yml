@@ -34,7 +34,6 @@ jobs:
       - name: Run Claude Code Review
         id: claude-review
         if: |
-          !contains(github.event.pull_request.title, '[skip-review]') &&
           !contains(github.event.pull_request.title, '[WIP]')
         uses: anthropics/claude-code-action@beta
         with:
@@ -44,7 +43,7 @@ jobs:
           # model: "claude-opus-4-20250514"
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          use_sticky_comment: true
+          # use_sticky_comment: true
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
