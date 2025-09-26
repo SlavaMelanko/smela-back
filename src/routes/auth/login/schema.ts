@@ -6,4 +6,4 @@ const loginSchema = buildSchema({
   captchaToken: tokenRules.captchaToken,
 })
 
-export default loginSchema
+export default loginSchema.strict()

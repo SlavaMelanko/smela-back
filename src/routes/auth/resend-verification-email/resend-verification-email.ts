@@ -1,4 +1,5 @@
 import { emailAgent } from '@/lib/email-agent'
+import logger from '@/lib/logger'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token } from '@/types'
@@ -20,10 +21,12 @@ const resendVerificationEmail = async (email: string) => {
   if (user && user.status === Status.New) {
     const token = await createEmailVerificationToken(user.id)
 
-    await emailAgent.sendWelcomeEmail({
+    emailAgent.sendWelcomeEmail({
       firstName: user.firstName,
       email: user.email,
       token,
+    }).catch((error) => {
+      logger.error({ error }, `Failed to send email verification email to ${user.email}`)
     })
   }
 

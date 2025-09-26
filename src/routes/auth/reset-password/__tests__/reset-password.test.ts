@@ -1,15 +1,19 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
+import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
 
-describe('resetPassword', () => {
-  const mockToken = 'valid-reset-token-123456789012345678901234567890123456789012'
+describe('Reset Password', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  const mockToken = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
   const mockPassword = 'NewSecure@123'
-  const mockHashedPassword = 'hashed-new-password'
+  const mockHashedPassword = 'mock-hashed-new-password'
 
   const mockTokenRecord = {
     id: 1,
@@ -39,13 +43,11 @@ describe('resetPassword', () => {
   }
   const mockCreatePasswordEncoder = mock(() => mockEncoder)
 
-  beforeEach(() => {
-    // Clear all mocks
+  beforeEach(async () => {
     mockHashFunction.mockClear()
     mockCreatePasswordEncoder.mockClear()
 
-    // Mock repositories
-    mock.module('@/repositories', () => ({
+    await moduleMocker.mock('@/repositories', () => ({
       tokenRepo: {
         findByToken: mock(() => Promise.resolve(mockTokenRecord)),
         update: mock(() => Promise.resolve()),
@@ -58,17 +60,19 @@ describe('resetPassword', () => {
       },
     }))
 
-    // Mock TokenValidator
-    mock.module('@/lib/token', () => ({
+    await moduleMocker.mock('@/lib/token', () => ({
       TokenValidator: {
         validate: mock(() => mockValidatedToken),
       },
     }))
 
-    // Mock password encoder
-    mock.module('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/crypto', () => ({
       createPasswordEncoder: mockCreatePasswordEncoder,
     }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('when token is valid and active', () => {
@@ -105,8 +109,8 @@ describe('resetPassword', () => {
   })
 
   describe('when token validation fails', () => {
-    beforeEach(() => {
-      mock.module('@/lib/token', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/token', () => ({
         TokenValidator: {
           validate: mock(() => {
             throw new AppError(ErrorCode.TokenNotFound)
@@ -118,7 +122,7 @@ describe('resetPassword', () => {
     it('should throw the validation error without updating anything', async () => {
       try {
         await resetPassword({ token: 'invalid-token', password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
@@ -130,8 +134,8 @@ describe('resetPassword', () => {
   })
 
   describe('when token is expired', () => {
-    beforeEach(() => {
-      mock.module('@/lib/token', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/token', () => ({
         TokenValidator: {
           validate: mock(() => {
             throw new AppError(ErrorCode.TokenExpired)
@@ -143,7 +147,7 @@ describe('resetPassword', () => {
     it('should throw TokenExpired error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
@@ -155,8 +159,8 @@ describe('resetPassword', () => {
   })
 
   describe('when token is already used', () => {
-    beforeEach(() => {
-      mock.module('@/lib/token', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/token', () => ({
         TokenValidator: {
           validate: mock(() => {
             throw new AppError(ErrorCode.TokenAlreadyUsed)
@@ -168,7 +172,7 @@ describe('resetPassword', () => {
     it('should throw TokenAlreadyUsed error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
@@ -180,8 +184,8 @@ describe('resetPassword', () => {
   })
 
   describe('when token type is wrong', () => {
-    beforeEach(() => {
-      mock.module('@/lib/token', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/token', () => ({
         TokenValidator: {
           validate: mock(() => {
             throw new AppError(ErrorCode.TokenTypeMismatch)
@@ -193,7 +197,7 @@ describe('resetPassword', () => {
     it('should throw TokenTypeMismatch error', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
@@ -205,8 +209,8 @@ describe('resetPassword', () => {
   })
 
   describe('when token marking as used fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.reject(new Error('Database connection failed'))),
@@ -223,7 +227,7 @@ describe('resetPassword', () => {
     it('should throw the error and not update password', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -235,8 +239,8 @@ describe('resetPassword', () => {
   })
 
   describe('when password update fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -253,7 +257,7 @@ describe('resetPassword', () => {
     it('should throw the error after marking token as used', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Password update failed')
@@ -265,9 +269,9 @@ describe('resetPassword', () => {
   })
 
   describe('when password hashing fails', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const failingHashFunction = mock(() => Promise.reject(new Error('Hashing failed')))
-      mock.module('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           hash: failingHashFunction,
         })),
@@ -277,7 +281,7 @@ describe('resetPassword', () => {
     it('should throw the error after marking token as used', async () => {
       try {
         await resetPassword({ token: mockToken, password: mockPassword })
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Hashing failed')
@@ -292,7 +296,7 @@ describe('resetPassword', () => {
     it('should handle empty password', async () => {
       try {
         await resetPassword({ token: mockToken, password: '' })
-        expect(true).toBe(false) // Should not reach here due to validation
+        expect(true).toBe(false) // should not reach here due to validation
       } catch (error) {
         // This would be caught by the validation layer before reaching this function
         expect(error).toBeDefined()
@@ -300,7 +304,7 @@ describe('resetPassword', () => {
     })
 
     it('should handle very long passwords', async () => {
-      const longPassword = `A1@${'a'.repeat(1000)}` // Very long password
+      const longPassword = `A1@${'a'.repeat(1000)}` // very long password
 
       const result = await resetPassword({ token: mockToken, password: longPassword })
 
@@ -314,7 +318,7 @@ describe('resetPassword', () => {
   describe('Token Version Invalidation', () => {
     describe('when password reset is successful', () => {
       it('should increment user tokenVersion to invalidate existing JWTs', async () => {
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),
@@ -334,9 +338,9 @@ describe('resetPassword', () => {
       })
     })
 
-    describe('Token Version Error Handling', () => {
+    describe('token version error handling', () => {
       it('should fail if tokenVersion increment fails', async () => {
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),
@@ -351,7 +355,7 @@ describe('resetPassword', () => {
 
         try {
           await resetPassword({ token: mockToken, password: mockPassword })
-          expect(true).toBe(false) // Should not reach here
+          expect(true).toBe(false) // should not reach here
         } catch (error) {
           expect(error).toBeInstanceOf(Error)
           expect((error as Error).message).toBe('TokenVersion update failed')
@@ -361,11 +365,11 @@ describe('resetPassword', () => {
       })
     })
 
-    describe('Complete Password Reset Flow', () => {
+    describe('complete password reset flow', () => {
       it('should complete full flow: password reset → tokenVersion increment → JWT invalidation', async () => {
         const userId = 123
 
-        mock.module('@/repositories', () => ({
+        await moduleMocker.mock('@/repositories', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),

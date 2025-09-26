@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
@@ -7,36 +8,9 @@ import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
 
-// Mock environment first to prevent email provider initialization
-mock.module('@/lib/env', () => ({
-  default: {
-    EMAIL_RESEND_API_KEY: 'test-api-key',
-    EMAIL_SENDER_PROFILES: JSON.stringify({
-      system: {
-        email: 'noreply@test.com',
-        name: 'Test System',
-      },
-    }),
-    JWT_SECRET: 'test-jwt-secret',
-    JWT_COOKIE_NAME: 'auth-token',
-  },
-}))
+describe('Signup with Email', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
-// Mock email agent to prevent actual email sending
-mock.module('@/lib/email-agent', () => ({
-  emailAgent: {
-    sendWelcomeEmail: mock(() => Promise.resolve()),
-  },
-}))
-
-// Mock JWT module
-mock.module('@/lib/jwt', () => ({
-  default: {
-    sign: mock(() => Promise.resolve('mock-jwt-token')),
-  },
-}))
-
-describe('signUpWithEmail', () => {
   const mockSignupParams = {
     firstName: 'John',
     lastName: 'Doe',
@@ -61,11 +35,10 @@ describe('signUpWithEmail', () => {
   const mockToken = 'verification-token-123'
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
 
-  beforeEach(() => {
-    // Mock repository methods
-    mock.module('@/repositories', () => ({
+  beforeEach(async () => {
+    await moduleMocker.mock('@/repositories', () => ({
       userRepo: {
-        findByEmail: mock(() => Promise.resolve(null)), // No existing user by default
+        findByEmail: mock(() => Promise.resolve(null)),
         create: mock(() => Promise.resolve(mockNewUser)),
       },
       authRepo: {
@@ -77,16 +50,14 @@ describe('signUpWithEmail', () => {
       },
     }))
 
-    // Mock crypto password encoder
-    mock.module('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         hash: mock(() => Promise.resolve(mockHashedPassword)),
         compare: mock(() => Promise.resolve(true)),
       })),
     }))
 
-    // Mock token generation
-    mock.module('@/lib/token', () => ({
+    await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.EmailVerification,
         token: mockToken,
@@ -95,12 +66,21 @@ describe('signUpWithEmail', () => {
       EMAIL_VERIFICATION_EXPIRY_HOURS: 48,
     }))
 
-    // Mock email agent
-    mock.module('@/lib/email-agent', () => ({
+    await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: {
         sendWelcomeEmail: mock(() => Promise.resolve()),
       },
     }))
+
+    await moduleMocker.mock('@/lib/jwt', () => ({
+      default: {
+        sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
+      },
+    }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('when signup is successful', () => {
@@ -118,7 +98,7 @@ describe('signUpWithEmail', () => {
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-jwt-token')
+      expect(result.token).toBe('mock-signup-jwt-token')
     })
 
     it('should create auth record with hashed password', async () => {
@@ -179,7 +159,7 @@ describe('signUpWithEmail', () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-jwt-token')
+      expect(result.token).toBe('mock-signup-jwt-token')
       expect(result).toHaveProperty('user')
     })
 
@@ -210,7 +190,7 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when email is already in use', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const existingUser = {
         id: 2,
         firstName: 'Jane',
@@ -222,7 +202,7 @@ describe('signUpWithEmail', () => {
         updatedAt: new Date(),
       }
 
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(existingUser)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -240,7 +220,7 @@ describe('signUpWithEmail', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.EmailAlreadyInUse)
@@ -256,8 +236,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when user creation fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.reject(new Error('Database connection failed'))),
@@ -275,7 +255,7 @@ describe('signUpWithEmail', () => {
     it('should throw the error and not proceed with auth or token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -291,8 +271,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when auth creation fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -310,7 +290,7 @@ describe('signUpWithEmail', () => {
     it('should throw the error and not proceed with token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Auth table unavailable')
@@ -326,8 +306,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when token creation fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -345,7 +325,7 @@ describe('signUpWithEmail', () => {
     it('should throw the error and not send email', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token creation failed')
@@ -361,8 +341,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when email sending fails', () => {
-    beforeEach(() => {
-      mock.module('@/lib/email-agent', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/email-agent', () => ({
         emailAgent: {
           sendWelcomeEmail: mock(() => Promise.reject(new Error('Email service unavailable'))),
         },
@@ -416,7 +396,7 @@ describe('signUpWithEmail', () => {
       }
 
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(userWithShortNames)),
@@ -451,7 +431,7 @@ describe('signUpWithEmail', () => {
       const adminSignupParams = { ...mockSignupParams, role: Role.Admin }
       const adminUser = { ...mockNewUser, role: Role.Admin }
 
-      mock.module('@/repositories', () => ({
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(adminUser)),
@@ -523,8 +503,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when password hashing fails', () => {
-    beforeEach(() => {
-      mock.module('@/lib/crypto', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/lib/crypto', () => ({
         createPasswordEncoder: mock(() => ({
           hash: mock(() => Promise.reject(new Error('Crypto library error'))),
           compare: mock(() => Promise.resolve(true)),
@@ -535,7 +515,7 @@ describe('signUpWithEmail', () => {
     it('should throw the crypto error and not proceed with auth creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Crypto library error')
@@ -551,8 +531,8 @@ describe('signUpWithEmail', () => {
   })
 
   describe('when token deprecation fails', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
+    beforeEach(async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -570,7 +550,7 @@ describe('signUpWithEmail', () => {
     it('should throw the error and not proceed with new token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token deprecation failed')

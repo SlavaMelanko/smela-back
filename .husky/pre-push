@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
 
+# Backup environment files
+./scripts/backup-env.sh
+
 # Run all tests before push
 bun test
