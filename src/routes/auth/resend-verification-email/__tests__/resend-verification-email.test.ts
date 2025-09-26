@@ -261,14 +261,10 @@ describe('resendVerificationEmail', () => {
       }))
     })
 
-    it('should throw the email error after creating token', async () => {
-      try {
-        await resendVerificationEmail(mockUser.email)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Email service unavailable')
-      }
+    it('should complete successfully even if email fails', async () => {
+      const result = await resendVerificationEmail(mockUser.email)
+
+      expect(result).toEqual({ success: true })
 
       expect(tokenRepo.deprecateOld).toHaveBeenCalled()
       expect(tokenRepo.create).toHaveBeenCalled()

@@ -77,10 +77,7 @@ const signUpWithEmail = async (
     email: newUser.email,
     token: secureToken,
   }).catch((error) => {
-    logger.error({
-      msg: `Failed to send welcome email to ${newUser.email}`,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 
   const jwtToken = await jwt.sign(
