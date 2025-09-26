@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import resendVerificationEmail from './resend-verification-email'
 

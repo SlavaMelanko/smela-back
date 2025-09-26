@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import resetPassword from './reset-password'
 

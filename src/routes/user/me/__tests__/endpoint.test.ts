@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import meRoute from '../index'
 

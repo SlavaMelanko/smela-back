@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 
 import { setAccessCookie } from '@/lib/cookie'
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import signUpWithEmail from './signup'
 

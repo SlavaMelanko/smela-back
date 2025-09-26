@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import onError from '../../on-error'
 import {

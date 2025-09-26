@@ -1,19 +1,18 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import { createRateLimiter } from '..'
-
-// Mock environment to ensure test environment is recognized
-mock.module('@/lib/env', () => ({
-  isDevOrTestEnv: () => true,
-}))
 
 describe('Rate Limiter Core', () => {
   let app: Hono
 
   beforeEach(() => {
+    mock.module('@/lib/env', () => ({
+      isDevOrTestEnv: () => true,
+    }))
+
     app = new Hono()
   })
 

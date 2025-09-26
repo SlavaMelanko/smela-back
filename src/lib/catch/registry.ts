@@ -1,4 +1,4 @@
-import { HttpStatus } from '@/lib/http-status'
+import HttpStatus from '@/lib/http-status'
 
 import ErrorCode from './codes'
 

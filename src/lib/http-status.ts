@@ -1,1 +1,2 @@
-export { getReasonPhrase, StatusCodes as HttpStatus } from 'http-status-codes'
+export { getReasonPhrase } from 'http-status-codes'
+export { StatusCodes as default } from 'http-status-codes'
