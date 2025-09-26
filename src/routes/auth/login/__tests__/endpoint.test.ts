@@ -147,7 +147,7 @@ describe('Login Endpoint', () => {
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
     })
 
-    it('should validate request format and required fields', async () => {
+    it('should validate required fields', async () => {
       const invalidRequests = [
         // Email validation
         { name: 'empty email', body: { email: '', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
@@ -192,20 +192,6 @@ describe('Login Endpoint', () => {
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
         expect(mockSetCookie).not.toHaveBeenCalled()
-      }
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await postRequest({
-          email: 'test@example.com',
-          password: 'validPassword123',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' }, method)
-
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }
     })
 
@@ -277,6 +263,20 @@ describe('Login Endpoint', () => {
           path: '/',
         }),
       )
+    })
+
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
+
+      for (const method of methods) {
+        const res = await postRequest({
+          email: 'test@example.com',
+          password: 'validPassword123',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' }, method)
+
+        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+      }
     })
   })
 })

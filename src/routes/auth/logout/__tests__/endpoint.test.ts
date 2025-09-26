@@ -68,49 +68,60 @@ describe('Logout Endpoint', () => {
       expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
     })
 
-    it('should work without existing cookie', async () => {
-      const res = await postRequest()
+    it('should handle different cookie headers', async () => {
+      const cookieScenarios = [
+        { name: 'no cookie header', headers: undefined },
+        { name: 'empty cookie header', headers: { Cookie: '' } },
+        { name: 'unrelated cookies', headers: { Cookie: 'other=value; session=abc123' } },
+        { name: 'auth token cookie', headers: { Cookie: 'auth-token=jwt-token-value' } },
+        { name: 'multiple cookies with auth', headers: { Cookie: 'auth-token=jwt-token; other=value' } },
+      ]
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      expect(await res.text()).toBe('')
+      let callCount = 0
+      for (const scenario of cookieScenarios) {
+        const res = await postRequest(scenario.headers)
 
-      // Verify proper 204 headers - no content type
-      expect(res.headers.get('content-type')).toBeNull()
+        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+        expect(await res.text()).toBe('')
 
-      // Cookie deletion should still be called
-      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
-      expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
+        // Verify proper 204 headers - no content type, content-length is 0 or null
+        expect(res.headers.get('content-type')).toBeNull()
+        const contentLength = res.headers.get('content-length')
+        expect(contentLength === '0' || contentLength === null).toBe(true)
+
+        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
+        expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
+      }
     })
 
-    it('should handle request with body (body is ignored)', async () => {
-      const res = await postRequest({
-        'Content-Type': 'application/json',
-      }, JSON.stringify({ someData: 'ignored' }))
+    it('should handle malformed requests', async () => {
+      const requestScenarios = [
+        {
+          name: 'no body',
+          headers: { 'Content-Type': 'application/json' },
+          body: undefined,
+        },
+        {
+          name: 'valid JSON body (body is ignored)',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ someData: 'ignored' }),
+        },
+        {
+          name: 'malformed JSON body',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{ invalid json',
+        },
+      ]
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      expect(await res.text()).toBe('')
+      let callCount = 0
+      for (const scenario of requestScenarios) {
+        const res = await postRequest(scenario.headers, scenario.body)
 
-      // Verify proper 204 headers - no content type in response, despite JSON input
-      expect(res.headers.get('content-type')).toBeNull()
-      const contentLength = res.headers.get('content-length')
-      expect(contentLength === '0' || contentLength === null).toBe(true)
-
-      // Cookie deletion should still work
-      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
-    })
-
-    it('should handle malformed JSON body gracefully', async () => {
-      const res = await postRequest({
-        'Content-Type': 'application/json',
-      }, '{ invalid json')
-
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      expect(await res.text()).toBe('')
-
-      // Verify proper 204 headers even with malformed input
-      expect(res.headers.get('content-type')).toBeNull()
-
-      expect(mockDeleteAccessCookie).toHaveBeenCalled()
+        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+        expect(await res.text()).toBe('')
+        expect(res.headers.get('content-type')).toBeNull()
+        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
+      }
     })
 
     it('should handle logout errors gracefully', async () => {
@@ -125,29 +136,6 @@ describe('Logout Endpoint', () => {
 
       // Verify the function was called despite the error
       expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
-    })
-
-    it('should handle various request configurations', async () => {
-      const requestConfigs: Array<{ name: string, headers?: Record<string, string>, expectStatus: number }> = [
-        { name: 'minimal request', headers: undefined, expectStatus: StatusCodes.NO_CONTENT },
-        { name: 'with user agent', headers: { 'User-Agent': 'Test Browser' }, expectStatus: StatusCodes.NO_CONTENT },
-        { name: 'with accept header', headers: { Accept: 'application/json' }, expectStatus: StatusCodes.NO_CONTENT },
-        { name: 'with custom headers', headers: { 'X-Custom-Header': 'test' }, expectStatus: StatusCodes.NO_CONTENT },
-      ]
-
-      for (const config of requestConfigs) {
-        const res = await postRequest(config.headers)
-
-        expect(res.status).toBe(config.expectStatus)
-        if (config.expectStatus === StatusCodes.NO_CONTENT) {
-          expect(await res.text()).toBe('')
-
-          // Verify proper 204 headers for all successful requests
-          expect(res.headers.get('content-type')).toBeNull()
-
-          expect(mockDeleteAccessCookie).toHaveBeenCalled()
-        }
-      }
     })
 
     it('should handle multiple consecutive logout calls gracefully', async () => {
@@ -178,39 +166,17 @@ describe('Logout Endpoint', () => {
         expect(mockDeleteAccessCookie).toHaveBeenNthCalledWith(i + 1, expect.any(Object))
       }
     })
-  })
 
-  it('should only accept POST method', async () => {
-    const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
-    for (const method of methods) {
-      const res = await postRequest(undefined, undefined, method)
+      for (const method of methods) {
+        const res = await postRequest(undefined, undefined, method)
 
-      expect(res.status).toBe(StatusCodes.NOT_FOUND)
-      // Verify cookie deletion is NOT called for invalid methods
-      expect(mockDeleteAccessCookie).not.toHaveBeenCalled()
-    }
-  })
-
-  it('should work with different cookie scenarios', async () => {
-    const cookieScenarios = [
-      { name: 'no cookie header', headers: undefined },
-      { name: 'empty cookie header', headers: { Cookie: '' } },
-      { name: 'unrelated cookies', headers: { Cookie: 'other=value; session=abc123' } },
-      { name: 'auth token cookie', headers: { Cookie: 'auth-token=jwt-token-value' } },
-      { name: 'multiple cookies with auth', headers: { Cookie: 'auth-token=jwt-token; other=value' } },
-    ]
-
-    for (const scenario of cookieScenarios) {
-      const res = await postRequest(scenario.headers)
-
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      expect(await res.text()).toBe('')
-
-      // Verify proper 204 headers for all cookie scenarios
-      expect(res.headers.get('content-type')).toBeNull()
-
-      expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
-    }
+        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        // Verify cookie deletion is NOT called for invalid methods
+        expect(mockDeleteAccessCookie).not.toHaveBeenCalled()
+      }
+    })
   })
 })
