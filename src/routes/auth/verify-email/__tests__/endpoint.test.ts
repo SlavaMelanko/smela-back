@@ -1,9 +1,9 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { HttpStatus } from '@/lib/http-status'
 import { Role, Status } from '@/types'
 
 import verifyEmailRoute from '../index'
@@ -48,7 +48,7 @@ describe('Verify Email Endpoint', () => {
 
       const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({
@@ -72,7 +72,7 @@ describe('Verify Email Endpoint', () => {
     it('should require token parameter', async () => {
       const res = await post(app, VERIFY_EMAIL_URL, {})
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST)
       const json = await res.json()
       expect(json).toHaveProperty('error')
     })
@@ -89,7 +89,7 @@ describe('Verify Email Endpoint', () => {
       for (const token of invalidTokens) {
         const res = await post(app, VERIFY_EMAIL_URL, { token })
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
         expect(json).toHaveProperty('error')
       }
@@ -107,7 +107,7 @@ describe('Verify Email Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, VERIFY_EMAIL_URL, body, headers)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
       }
     })
 
@@ -120,7 +120,7 @@ describe('Verify Email Endpoint', () => {
 
       const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
     })
 
@@ -131,7 +131,7 @@ describe('Verify Email Endpoint', () => {
       for (const method of methods) {
         const res = await doRequest(app, VERIFY_EMAIL_URL, method, { token: validToken }, { 'Content-Type': 'application/json' })
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

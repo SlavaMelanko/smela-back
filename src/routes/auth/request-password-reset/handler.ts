@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { StatusCodes } from 'http-status-codes'
+import { HttpStatus } from '@/lib/http-status'
 
 import requestPasswordReset from './request-password-reset'
 
@@ -9,7 +9,7 @@ const requestPasswordResetHandler = async (c: Context) => {
 
   const result = await requestPasswordReset(email)
 
-  return c.json({ ...result }, StatusCodes.ACCEPTED)
+  return c.json({ ...result }, HttpStatus.ACCEPTED)
 }
 
 export default requestPasswordResetHandler

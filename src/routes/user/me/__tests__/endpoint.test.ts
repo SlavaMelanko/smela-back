@@ -1,10 +1,10 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
+import { HttpStatus } from '@/lib/http-status'
 
 import meRoute from '../index'
 
@@ -87,7 +87,7 @@ describe('Me Endpoint', () => {
         },
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({
@@ -136,7 +136,7 @@ describe('Me Endpoint', () => {
         },
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       const data = await res.json()
       expect(data.error).toBe('Internal server error.')
@@ -150,7 +150,7 @@ describe('Me Endpoint', () => {
         },
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
 
@@ -174,7 +174,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({
@@ -214,7 +214,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       const data = await res.json()
       expect(data.error).toBe('Failed to update user.')
@@ -226,7 +226,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST)
 
       const data = await res.json()
       expect(data.error).toBeDefined()
@@ -239,7 +239,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data.user.firstName).toBe('Jane')
@@ -263,7 +263,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data.user.firstName).toBe('Jo')
@@ -301,7 +301,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       // Should return current user data
@@ -319,7 +319,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       // Verify updateUser was called with both fields (validation layer handles null)
       const { updateUser } = await import('../me')
@@ -335,7 +335,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data.user.lastName).toBe('Smith')
@@ -353,7 +353,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST)
 
       const data = await res.json()
       expect(data.error).toBe('String must contain at least 2 character(s)')
@@ -390,7 +390,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       // Should update only lastName since firstName is whitespace-only
@@ -410,7 +410,7 @@ describe('Me Endpoint', () => {
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data.user.firstName).toBe('Jane')

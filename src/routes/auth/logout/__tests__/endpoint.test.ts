@@ -1,9 +1,9 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { HttpStatus } from '@/lib/http-status'
 
 import logoutRoute from '../index'
 
@@ -41,7 +41,7 @@ describe('Logout Endpoint', () => {
         Cookie: 'auth-token=existing-token',
       })
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      expect(res.status).toBe(HttpStatus.NO_CONTENT)
       expect(await res.text()).toBe('')
 
       // Verify proper 204 headers - no content type, content-length is 0 or null
@@ -69,7 +69,7 @@ describe('Logout Endpoint', () => {
       for (const scenario of cookieScenarios) {
         const res = await post(app, LOGOUT_URL, undefined, scenario.headers)
 
-        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
         expect(await res.text()).toBe('')
 
         // Verify proper 204 headers - no content type, content-length is 0 or null
@@ -93,7 +93,7 @@ describe('Logout Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, LOGOUT_URL, body, headers)
 
-        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
         expect(await res.text()).toBe('')
         expect(res.headers.get('content-type')).toBeNull()
         expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
@@ -108,7 +108,7 @@ describe('Logout Endpoint', () => {
       const res = await post(app, LOGOUT_URL)
 
       // Should return an error due to middleware handling
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       // Verify the function was called despite the error
       expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
@@ -126,7 +126,7 @@ describe('Logout Endpoint', () => {
 
         responses.push(res)
 
-        expect(res.status).toBe(StatusCodes.NO_CONTENT)
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
         expect(await res.text()).toBe('')
         expect(res.headers.get('content-type')).toBeNull()
 
@@ -149,7 +149,7 @@ describe('Logout Endpoint', () => {
       for (const method of methods) {
         const res = await doRequest(app, LOGOUT_URL, method)
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
         // Verify cookie deletion is NOT called for invalid methods
         expect(mockDeleteAccessCookie).not.toHaveBeenCalled()
       }
