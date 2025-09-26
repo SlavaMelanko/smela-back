@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { StatusCodes } from 'http-status-codes'
+import HttpStatus from '@/lib/http-status'
 
 import resetPassword from './reset-password'
 
@@ -9,7 +9,7 @@ const resetPasswordHandler = async (c: Context) => {
 
   const result = await resetPassword({ token, password })
 
-  return c.json(result, StatusCodes.OK)
+  return c.json(result, HttpStatus.OK)
 }
 
 export default resetPasswordHandler

@@ -1,9 +1,9 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 
 import resetPasswordRoute from '../index'
@@ -39,7 +39,7 @@ describe('Reset Password Endpoint', () => {
     it('should reset password and return success', async () => {
       const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({ success: true })
@@ -58,7 +58,7 @@ describe('Reset Password Endpoint', () => {
 
       const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
 
@@ -79,7 +79,7 @@ describe('Reset Password Endpoint', () => {
 
         const res = await post(app, RESET_PASSWORD_URL, payload)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
       }
     })
@@ -103,7 +103,7 @@ describe('Reset Password Endpoint', () => {
 
         const res = await post(app, RESET_PASSWORD_URL, payload)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
       }
     })
@@ -118,7 +118,7 @@ describe('Reset Password Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, RESET_PASSWORD_URL, body, headers)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
       }
     })
@@ -129,7 +129,7 @@ describe('Reset Password Endpoint', () => {
       for (const method of methods) {
         const res = await doRequest(app, RESET_PASSWORD_URL, method, validPayload, { 'Content-Type': 'application/json' })
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

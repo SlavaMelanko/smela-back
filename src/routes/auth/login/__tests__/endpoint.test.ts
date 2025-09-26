@@ -1,9 +1,9 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
@@ -74,7 +74,7 @@ describe('Login Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       // Check response body
       const data = await res.json()
@@ -126,7 +126,7 @@ describe('Login Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       // Verify cookie was NOT set due to error
       expect(mockSetCookie).not.toHaveBeenCalled()
@@ -159,7 +159,7 @@ describe('Login Endpoint', () => {
       for (const testCase of invalidRequests) {
         const res = await post(app, LOGIN_URL, testCase.body)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
         expect(json).toHaveProperty('error')
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
@@ -177,7 +177,7 @@ describe('Login Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, LOGIN_URL, body, headers)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
         expect(mockSetCookie).not.toHaveBeenCalled()
       }
@@ -194,7 +194,7 @@ describe('Login Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       // Verify cookie was NOT set for inactive users
       expect(mockSetCookie).not.toHaveBeenCalled()
@@ -231,7 +231,7 @@ describe('Login Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data.token).toBe('login-jwt-token')
@@ -263,7 +263,7 @@ describe('Login Endpoint', () => {
           captchaToken: VALID_CAPTCHA_TOKEN,
         }, { 'Content-Type': 'application/json' })
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

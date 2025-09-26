@@ -4,9 +4,6 @@ import { Hono } from 'hono'
 
 import { loggerMiddleware, onError } from '@/middleware'
 
-/**
- * Creates a test Hono app with middleware and routes configured
- */
 export const createTestApp = (
   basePath: string,
   route: any,

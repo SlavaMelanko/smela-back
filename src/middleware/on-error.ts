@@ -2,20 +2,20 @@ import type { ErrorHandler } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { HTTPException } from 'hono/http-exception'
-import { getReasonPhrase, StatusCodes } from 'http-status-codes'
 
 import { ErrorCode, ErrorRegistry } from '@/lib/catch'
 import { isDevEnv } from '@/lib/env'
+import HttpStatus, { getReasonPhrase } from '@/lib/http-status'
 import logger from '@/lib/logger'
 
 const getErrorCode = (err: unknown): ErrorCode => {
   if (err instanceof HTTPException) {
-    if (err.status >= StatusCodes.BAD_REQUEST
-      && err.status < StatusCodes.INTERNAL_SERVER_ERROR) {
+    if (err.status >= HttpStatus.BAD_REQUEST
+      && err.status < HttpStatus.INTERNAL_SERVER_ERROR) {
       return ErrorCode.BadRequest
     }
 
-    if (err.status >= StatusCodes.INTERNAL_SERVER_ERROR) {
+    if (err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       return ErrorCode.InternalError
     }
   }

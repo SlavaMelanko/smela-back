@@ -1,9 +1,9 @@
 import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { StatusCodes } from 'http-status-codes'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import resendVerificationEmailRoute from '../index'
@@ -38,7 +38,7 @@ describe('Resend Verification Email Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.ACCEPTED)
+      expect(res.status).toBe(HttpStatus.ACCEPTED)
 
       const data = await res.json()
       expect(data).toEqual({ success: true })
@@ -57,7 +57,7 @@ describe('Resend Verification Email Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockResendVerificationEmail).toHaveBeenCalledTimes(1)
     })
 
@@ -73,7 +73,7 @@ describe('Resend Verification Email Endpoint', () => {
       for (const testCase of invalidRequests) {
         const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, testCase.body)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
         expect(json).toHaveProperty('error')
       }
@@ -89,7 +89,7 @@ describe('Resend Verification Email Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, body, headers)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
       }
     })
 
@@ -102,7 +102,7 @@ describe('Resend Verification Email Endpoint', () => {
           captchaToken: VALID_CAPTCHA_TOKEN,
         }, { 'Content-Type': 'application/json' })
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })
