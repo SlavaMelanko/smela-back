@@ -1,36 +1,20 @@
+import type { Hono } from 'hono'
+
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
-import { loggerMiddleware, onError } from '@/middleware'
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import { Role, Status } from '@/types'
 
 import verifyEmailRoute from '../index'
 
 describe('Verify Email Endpoint', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  const VERIFY_EMAIL_URL = '/api/v1/auth/verify-email'
 
   let app: Hono
   let mockVerifyEmail: any
 
-  const createApp = () => {
-    app = new Hono()
-    app.use(loggerMiddleware)
-    app.onError(onError)
-    app.route('/api/v1/auth', verifyEmailRoute)
-  }
-
-  const postRequest = (
-    body: any,
-    headers: Record<string, string> = { 'Content-Type': 'application/json' },
-    method: string = 'POST',
-  ) =>
-    app.request('/api/v1/auth/verify-email', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockVerifyEmail = mock(() => Promise.resolve({
@@ -51,7 +35,7 @@ describe('Verify Email Endpoint', () => {
       default: mockVerifyEmail,
     }))
 
-    createApp()
+    app = createTestApp('/api/v1/auth', verifyEmailRoute)
   })
 
   afterEach(() => {
@@ -62,7 +46,7 @@ describe('Verify Email Endpoint', () => {
     it('should return user and token on successful email verification', async () => {
       const validToken = 'a'.repeat(64)
 
-      const res = await postRequest({ token: validToken })
+      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
       expect(res.status).toBe(StatusCodes.OK)
 
@@ -85,17 +69,25 @@ describe('Verify Email Endpoint', () => {
       expect(mockVerifyEmail).toHaveBeenCalledWith(validToken)
     })
 
+    it('should require token parameter', async () => {
+      const res = await post(app, VERIFY_EMAIL_URL, {})
+
+      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+      const json = await res.json()
+      expect(json).toHaveProperty('error')
+    })
+
     it('should validate token requirements', async () => {
       const invalidTokens = [
-        '',
-        'a'.repeat(32),
-        'a'.repeat(63),
-        'a'.repeat(65),
-        'a'.repeat(128),
+        '', // empty token
+        'a'.repeat(32), // token too short
+        'a'.repeat(63), // token too short by 1
+        'a'.repeat(65), // token too long by 1
+        'a'.repeat(128), // token too long
       ]
 
       for (const token of invalidTokens) {
-        const res = await postRequest({ token })
+        const res = await post(app, VERIFY_EMAIL_URL, { token })
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -103,61 +95,20 @@ describe('Verify Email Endpoint', () => {
       }
     })
 
-    it('should require token parameter', async () => {
-      const res = await postRequest({})
-
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-      const json = await res.json()
-      expect(json).toHaveProperty('error')
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-      const validToken = 'a'.repeat(64)
-
-      for (const method of methods) {
-        const res = await postRequest(
-          { token: validToken },
-          { 'Content-Type': 'application/json' },
-          method,
-        )
-
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
-      }
-    })
-
     it('should handle malformed requests', async () => {
       const validToken = 'a'.repeat(64)
 
-      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
         { name: 'missing Content-Type', headers: {}, body: { token: validToken } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const testCase of malformedRequests) {
-        const res = testCase.name === 'missing Content-Type'
-          ? await app.request('/api/v1/auth/verify-email', {
-              method: 'POST',
-              headers: testCase.headers,
-              body: JSON.stringify(testCase.body),
-            })
-          : await postRequest(testCase.body, testCase.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, VERIFY_EMAIL_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       }
-    })
-
-    it('should return user and token for valid email verification', async () => {
-      const validToken = 'b'.repeat(64)
-
-      const res = await postRequest({ token: validToken })
-
-      expect(res.status).toBe(StatusCodes.OK)
-
-      const data = await res.json()
-      expect(data.token).toBe('verify-jwt-token')
-      expect(data.user).toHaveProperty('email', 'john@example.com')
     })
 
     it('should handle verification errors', async () => {
@@ -167,10 +118,21 @@ describe('Verify Email Endpoint', () => {
 
       const validToken = 'c'.repeat(64)
 
-      const res = await postRequest({ token: validToken })
+      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
+    })
+
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
+      const validToken = 'a'.repeat(64)
+
+      for (const method of methods) {
+        const res = await doRequest(app, VERIFY_EMAIL_URL, method, { token: validToken }, { 'Content-Type': 'application/json' })
+
+        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+      }
     })
   })
 })

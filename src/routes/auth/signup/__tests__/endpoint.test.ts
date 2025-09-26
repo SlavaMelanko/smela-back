@@ -1,38 +1,22 @@
+import type { Hono } from 'hono'
+
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
-import { loggerMiddleware, onError } from '@/middleware'
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 import { Role } from '@/types'
 
 import signupRoute from '../index'
 
 describe('Signup Endpoint', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  const SIGNUP_URL = '/api/v1/auth/signup'
 
   let app: Hono
   let mockSignUpWithEmail: any
   let mockSetAccessCookie: any
 
-  const createApp = () => {
-    app = new Hono()
-    app.use(loggerMiddleware)
-    app.onError(onError)
-    app.route('/api/v1/auth', signupRoute)
-  }
-
-  const postRequest = (
-    body: any,
-    headers: Record<string, string> = { 'Content-Type': 'application/json' },
-    method: string = 'POST',
-  ) =>
-    app.request('/api/v1/auth/signup', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(() => Promise.resolve({
@@ -60,7 +44,8 @@ describe('Signup Endpoint', () => {
     }))
 
     mockCaptchaSuccess()
-    createApp()
+
+    app = createTestApp('/api/v1/auth', signupRoute)
   })
 
   afterEach(() => {
@@ -78,7 +63,7 @@ describe('Signup Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       }
 
-      const res = await postRequest(validPayload)
+      const res = await post(app, SIGNUP_URL, validPayload)
 
       expect(res.status).toBe(StatusCodes.CREATED)
 
@@ -112,16 +97,16 @@ describe('Signup Endpoint', () => {
 
     it('should validate required field formats', async () => {
       const invalidData = [
-        { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: '', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
+        { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // empty firstName
+        { firstName: 'John', lastName: '', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // empty lastName
+        { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // invalid email format
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // password too short
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // password missing numbers
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // password missing special chars
       ]
 
       for (const body of invalidData) {
-        const res = await postRequest(body)
+        const res = await post(app, SIGNUP_URL, body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -131,15 +116,15 @@ describe('Signup Endpoint', () => {
 
     it('should require all required fields', async () => {
       const incompleteRequests = [
-        { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN },
-        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN },
-        { captchaToken: VALID_CAPTCHA_TOKEN },
-        {},
+        { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // missing firstName
+        { firstName: 'John', password: 'ValidPass123!', role: Role.User, captchaToken: VALID_CAPTCHA_TOKEN }, // missing lastName and email
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // missing password and role
+        { captchaToken: VALID_CAPTCHA_TOKEN }, // only captchaToken provided
+        {}, // completely empty
       ]
 
       for (const body of incompleteRequests) {
-        const res = await postRequest(body)
+        const res = await post(app, SIGNUP_URL, body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -157,57 +142,17 @@ describe('Signup Endpoint', () => {
         captchaToken: VALID_CAPTCHA_TOKEN,
       }
 
-      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
         { name: 'missing Content-Type', headers: {}, body: validPayload },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const testCase of malformedRequests) {
-        const res = testCase.name === 'missing Content-Type'
-          ? await app.request('/api/v1/auth/signup', {
-              method: 'POST',
-              headers: testCase.headers,
-              body: JSON.stringify(testCase.body),
-            })
-          : await postRequest(testCase.body, testCase.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, SIGNUP_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       }
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await postRequest({
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-          role: Role.User,
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' }, method)
-
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
-      }
-    })
-
-    it('should return user and token on successful signup', async () => {
-      const res = await postRequest({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        role: Role.User,
-        captchaToken: VALID_CAPTCHA_TOKEN,
-      })
-
-      expect(res.status).toBe(StatusCodes.CREATED)
-
-      const data = await res.json()
-      expect(data.token).toBe('signup-jwt-token')
-      expect(data.user).toHaveProperty('email', 'test@example.com')
     })
 
     it('should handle signup errors and not set cookie', async () => {
@@ -215,7 +160,7 @@ describe('Signup Endpoint', () => {
         throw new Error('Signup failed')
       })
 
-      const res = await postRequest({
+      const res = await post(app, SIGNUP_URL, {
         firstName: 'John',
         lastName: 'Doe',
         email: 'test@example.com',
@@ -227,6 +172,23 @@ describe('Signup Endpoint', () => {
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
       expect(mockSetAccessCookie).not.toHaveBeenCalled()
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
+    })
+
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
+
+      for (const method of methods) {
+        const res = await doRequest(app, SIGNUP_URL, method, {
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+          password: 'ValidPass123!',
+          role: Role.User,
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' })
+
+        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+      }
     })
   })
 })
