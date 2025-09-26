@@ -12,7 +12,7 @@ describe('Login with Email', () => {
   let mockAuth: any
   let mockJwtToken: any
 
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockLoginParams = {

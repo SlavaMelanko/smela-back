@@ -9,7 +9,7 @@ import { loggerMiddleware, onError } from '@/middleware'
 import resetPasswordRoute from '../index'
 
 describe('Reset Password Endpoint', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let app: Hono
   let mockResetPassword: any

@@ -9,7 +9,7 @@ import { Role, Status, Token, TokenStatus } from '@/types'
 import verifyEmail from '../verify-email'
 
 describe('Verify Email', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const mockToken = 'a'.repeat(TOKEN_LENGTH)
   const mockTokenRecord = {

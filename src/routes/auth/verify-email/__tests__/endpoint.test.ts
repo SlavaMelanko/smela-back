@@ -9,7 +9,7 @@ import { Role, Status } from '@/types'
 import verifyEmailRoute from '../index'
 
 describe('Verify Email Endpoint', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let app: Hono
   let mockVerifyEmail: any

@@ -9,7 +9,7 @@ import { AuthProvider, Role, Status, Token } from '@/types'
 import signUpWithEmail from '../signup'
 
 describe('Signup with Email', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const mockSignupParams = {
     firstName: 'John',

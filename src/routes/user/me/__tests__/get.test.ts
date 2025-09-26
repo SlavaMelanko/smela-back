@@ -9,7 +9,7 @@ import { onError } from '@/middleware'
 import meRoute from '../index'
 
 describe('GET /me endpoint', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let app: Hono
   const mockJwtPayload = {

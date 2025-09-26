@@ -10,7 +10,7 @@ export interface MockResult {
  * after we're done. We do this by setting the mocked value to the original module.
  *
  * When setting up a test that will mock a module, the block should add this:
- * const moduleMocker = new ModuleMocker()
+ * const moduleMocker = new ModuleMocker(import.meta.url)
  *
  * afterEach(() => {
  *   moduleMocker.clear()
@@ -29,18 +29,9 @@ export class ModuleMocker {
   private mocks: MockResult[] = []
   private callerPath: string
 
-  constructor() {
-    // Capture caller's file path for relative path resolution
-    const stack = new Error('Error').stack
-    const callerLine = stack?.split('\n')[2] // Get caller's stack line
-    const match = callerLine?.match(/\((.*?):\d+:\d+\)$/) || callerLine?.match(/at (.*?):\d+:\d+$/)
-
-    if (match) {
-      this.callerPath = path.dirname(match[1])
-    } else {
-      // Fallback: assume caller is in a test directory
-      this.callerPath = process.cwd()
-    }
+  constructor(callerUrl: string) {
+    // Convert import.meta.url to file path and get directory
+    this.callerPath = path.dirname(new URL(callerUrl).pathname)
   }
 
   private resolveModulePath(modulePath: string): string {

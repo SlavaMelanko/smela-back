@@ -13,7 +13,7 @@ describe('Login Endpoint', () => {
   let mockLogInWithEmail: any
   let mockSetCookie: any
 
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const createApp = () => {
     app = new Hono()

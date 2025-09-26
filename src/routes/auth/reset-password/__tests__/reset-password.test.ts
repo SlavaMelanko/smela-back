@@ -9,7 +9,7 @@ import { Token, TokenStatus } from '@/types'
 import resetPassword from '../reset-password'
 
 describe('Reset Password', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const mockToken = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
   const mockPassword = 'NewSecure@123'

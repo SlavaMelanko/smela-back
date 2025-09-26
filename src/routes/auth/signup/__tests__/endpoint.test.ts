@@ -10,7 +10,7 @@ import { Role } from '@/types'
 import signupRoute from '../index'
 
 describe('Signup Endpoint', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let app: Hono
   let mockSignUpWithEmail: any

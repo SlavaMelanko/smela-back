@@ -11,7 +11,7 @@ describe('Logout Endpoint', () => {
   let app: Hono
   let mockDeleteAccessCookie: any
 
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const createApp = () => {
     app = new Hono()

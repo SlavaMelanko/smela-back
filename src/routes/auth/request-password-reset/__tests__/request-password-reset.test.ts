@@ -6,7 +6,7 @@ import { Role, Status, Token } from '@/types'
 import requestPasswordReset from '../request-password-reset'
 
 describe('Request Password Reset', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: any
   let mockToken: string

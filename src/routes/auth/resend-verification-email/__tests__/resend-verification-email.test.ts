@@ -8,7 +8,7 @@ import { Role, Status, Token } from '@/types'
 import resendVerificationEmail from '../resend-verification-email'
 
 describe('resendVerificationEmail', () => {
-  const moduleMocker = new ModuleMocker()
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: any
   let mockToken: string
