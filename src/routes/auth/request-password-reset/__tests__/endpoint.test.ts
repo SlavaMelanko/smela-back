@@ -3,16 +3,19 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
+import { doRequest, post } from '@/__tests__/request'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
 
 describe('Request Password Reset Endpoint', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  const REQUEST_PASSWORD_RESET_URL = '/api/v1/auth/request-password-reset'
 
   let app: Hono
   let mockRequestPasswordReset: any
+
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const createApp = () => {
     app = new Hono()
@@ -20,13 +23,6 @@ describe('Request Password Reset Endpoint', () => {
     app.use(loggerMiddleware)
     app.route('/api/v1/auth', requestPasswordResetRoute)
   }
-
-  const postRequest = (body: any, headers: Record<string, string> = { 'Content-Type': 'application/json' }, method = 'POST') =>
-    app.request('/api/v1/auth/request-password-reset', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
 
   beforeEach(async () => {
     mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
@@ -45,7 +41,7 @@ describe('Request Password Reset Endpoint', () => {
 
   describe('POST /auth/request-password-reset', () => {
     it('should return success response on valid request', async () => {
-      const res = await postRequest({
+      const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
         email: 'test@example.com',
         captchaToken: VALID_CAPTCHA_TOKEN,
       })
@@ -75,7 +71,7 @@ describe('Request Password Reset Endpoint', () => {
       ]
 
       for (const body of invalidRequests) {
-        const res = await postRequest(body)
+        const res = await post(app, REQUEST_PASSWORD_RESET_URL, body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -84,29 +80,15 @@ describe('Request Password Reset Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const malformedScenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        {
-          name: 'undefined body',
-          headers: { 'Content-Type': 'application/json' },
-          body: undefined,
-        },
-        {
-          name: 'missing Content-Type header',
-          headers: {},
-          body: {
-            email: 'test@example.com',
-            captchaToken: VALID_CAPTCHA_TOKEN,
-          },
-        },
-        {
-          name: 'malformed JSON body',
-          headers: { 'Content-Type': 'application/json' },
-          body: '{ invalid json',
-        },
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type header', headers: {}, body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'undefined body', headers: { 'Content-Type': 'application/json' }, body: undefined },
+        { name: 'empty body', headers: { 'Content-Type': 'application/json' }, body: {} },
+        { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
       ]
 
-      for (const scenario of malformedScenarios) {
-        const res = await postRequest(scenario.body, scenario.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, REQUEST_PASSWORD_RESET_URL, body, headers)
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
       }
     })
@@ -115,10 +97,10 @@ describe('Request Password Reset Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await postRequest({
+        const res = await doRequest(app, REQUEST_PASSWORD_RESET_URL, method, {
           email: 'test@example.com',
           captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' }, method)
+        }, { 'Content-Type': 'application/json' })
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }

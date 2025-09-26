@@ -3,12 +3,15 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
+import { doRequest, post } from '@/__tests__/request'
 import { loggerMiddleware, onError } from '@/middleware'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import loginRoute from '../index'
 
 describe('Login Endpoint', () => {
+  const LOGIN_URL = '/api/v1/auth/login'
+
   let app: Hono
   let mockLogInWithEmail: any
   let mockSetCookie: any
@@ -21,13 +24,6 @@ describe('Login Endpoint', () => {
     app.onError(onError)
     app.route('/api/v1/auth', loginRoute)
   }
-
-  const postRequest = (body: any, headers: Record<string, string> = { 'Content-Type': 'application/json' }, method = 'POST') =>
-    app.request('/api/v1/auth/login', {
-      method,
-      headers,
-      body: typeof body === 'string' ? body : JSON.stringify(body),
-    })
 
   beforeEach(async () => {
     mockLogInWithEmail = mock(() => Promise.resolve({
@@ -80,7 +76,7 @@ describe('Login Endpoint', () => {
 
   describe('POST /auth/login', () => {
     it('should set cookie and return user/token on successful login', async () => {
-      const res = await postRequest({
+      const res = await post(app, LOGIN_URL, {
         email: 'test@example.com',
         password: 'ValidPass123!',
         captchaToken: VALID_CAPTCHA_TOKEN,
@@ -132,7 +128,7 @@ describe('Login Endpoint', () => {
         throw new Error('Login failed')
       })
 
-      const res = await postRequest({
+      const res = await post(app, '/api/v1/auth/login', {
         email: 'test@example.com',
         password: 'WrongPass123!',
         captchaToken: VALID_CAPTCHA_TOKEN,
@@ -169,7 +165,7 @@ describe('Login Endpoint', () => {
       ]
 
       for (const testCase of invalidRequests) {
-        const res = await postRequest(testCase.body)
+        const res = await post(app, LOGIN_URL, testCase.body)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         const json = await res.json()
@@ -180,14 +176,14 @@ describe('Login Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const malformedRequests: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
         { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: undefined },
       ]
 
-      for (const testCase of malformedRequests) {
-        const res = await postRequest(testCase.body, testCase.headers)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, LOGIN_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST)
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
@@ -200,7 +196,7 @@ describe('Login Endpoint', () => {
         throw new Error('User account is inactive')
       })
 
-      const res = await postRequest({
+      const res = await post(app, '/api/v1/auth/login', {
         email: 'inactive@example.com',
         password: 'ValidPass123!',
         captchaToken: VALID_CAPTCHA_TOKEN,
@@ -237,7 +233,7 @@ describe('Login Endpoint', () => {
 
       createApp()
 
-      const res = await postRequest({
+      const res = await post(app, LOGIN_URL, {
         email: 'test@example.com',
         password: 'ValidPass123!',
         captchaToken: VALID_CAPTCHA_TOKEN,
@@ -269,11 +265,11 @@ describe('Login Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await postRequest({
+        const res = await doRequest(app, LOGIN_URL, method, {
           email: 'test@example.com',
           password: 'validPassword123',
           captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' }, method)
+        }, { 'Content-Type': 'application/json' })
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
       }

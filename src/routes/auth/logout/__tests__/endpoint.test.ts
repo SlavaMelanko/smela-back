@@ -3,11 +3,14 @@ import { Hono } from 'hono'
 import { StatusCodes } from 'http-status-codes'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
+import { doRequest, post } from '@/__tests__/request'
 import { loggerMiddleware, onError } from '@/middleware'
 
 import logoutRoute from '../index'
 
 describe('Logout Endpoint', () => {
+  const LOGOUT_URL = '/api/v1/auth/logout'
+
   let app: Hono
   let mockDeleteAccessCookie: any
 
@@ -19,13 +22,6 @@ describe('Logout Endpoint', () => {
     app.use(loggerMiddleware)
     app.route('/api/v1/auth', logoutRoute)
   }
-
-  const postRequest = (headers?: Record<string, string>, body?: string, method = 'POST') =>
-    app.request('/api/v1/auth/logout', {
-      method,
-      ...(headers && { headers }),
-      ...(body && { body }),
-    })
 
   beforeEach(async () => {
     mockDeleteAccessCookie = mock(() => {})
@@ -49,7 +45,7 @@ describe('Logout Endpoint', () => {
 
   describe('POST /auth/logout', () => {
     it('should delete access cookie and return 204 No Content', async () => {
-      const res = await postRequest({
+      const res = await post(app, LOGOUT_URL, undefined, {
         Cookie: 'auth-token=existing-token',
       })
 
@@ -79,7 +75,7 @@ describe('Logout Endpoint', () => {
 
       let callCount = 0
       for (const scenario of cookieScenarios) {
-        const res = await postRequest(scenario.headers)
+        const res = await post(app, LOGOUT_URL, undefined, scenario.headers)
 
         expect(res.status).toBe(StatusCodes.NO_CONTENT)
         expect(await res.text()).toBe('')
@@ -95,27 +91,15 @@ describe('Logout Endpoint', () => {
     })
 
     it('should handle malformed requests', async () => {
-      const requestScenarios = [
-        {
-          name: 'no body',
-          headers: { 'Content-Type': 'application/json' },
-          body: undefined,
-        },
-        {
-          name: 'valid JSON body (body is ignored)',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ someData: 'ignored' }),
-        },
-        {
-          name: 'malformed JSON body',
-          headers: { 'Content-Type': 'application/json' },
-          body: '{ invalid json',
-        },
+      const scenarios = [
+        { name: 'no body', headers: { 'Content-Type': 'application/json' }, body: undefined },
+        { name: 'valid JSON body (body is ignored)', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ someData: 'ignored' }) },
+        { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
       ]
 
       let callCount = 0
-      for (const scenario of requestScenarios) {
-        const res = await postRequest(scenario.headers, scenario.body)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, LOGOUT_URL, body, headers)
 
         expect(res.status).toBe(StatusCodes.NO_CONTENT)
         expect(await res.text()).toBe('')
@@ -129,7 +113,7 @@ describe('Logout Endpoint', () => {
         throw new Error('Cookie deletion failed')
       })
 
-      const res = await postRequest()
+      const res = await post(app, LOGOUT_URL)
 
       // Should return an error due to middleware handling
       expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -144,7 +128,7 @@ describe('Logout Endpoint', () => {
 
       // Simulate rapid consecutive logout button clicks
       for (let i = 0; i < numCalls; i++) {
-        const res = await postRequest({
+        const res = await post(app, LOGOUT_URL, undefined, {
           Cookie: 'auth-token=jwt-token-value',
         })
 
@@ -171,7 +155,7 @@ describe('Logout Endpoint', () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
       for (const method of methods) {
-        const res = await postRequest(undefined, undefined, method)
+        const res = await doRequest(app, LOGOUT_URL, method)
 
         expect(res.status).toBe(StatusCodes.NOT_FOUND)
         // Verify cookie deletion is NOT called for invalid methods
