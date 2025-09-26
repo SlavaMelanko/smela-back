@@ -12,7 +12,7 @@
     "db:seed": "bun run src/db/seed.ts",
     "db:setup": "bun run db:generate && bun run db:migrate && bun run db:seed",
     "db:studio": "drizzle-kit studio",
-    "test": "NODE_ENV=test bun test --preload ./src/__tests__/setup.ts",
+    "test": "NODE_ENV=test bun test",
     "lint": "bunx eslint ./src",
     "lint:fix": "bunx eslint --fix ./src",
     "email": "email dev --dir src/emails --port 3001",
