@@ -15,9 +15,6 @@ const rules = {
     }
   }),
 
-  // Email provider configuration
-  emailProvider: z.enum(['resend', 'ethereal']).optional(),
-
   emailResendApiKey: z.string().optional(),
 
   // Ethereal email configuration (for development)
