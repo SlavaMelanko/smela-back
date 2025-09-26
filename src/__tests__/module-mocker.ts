@@ -6,7 +6,7 @@ export interface MockResult {
 }
 
 /**
- * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules
+ * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823 and https://github.com/oven-sh/bun/issues/12823), we need to manually restore mocked modules
  * after we're done. We do this by setting the mocked value to the original module.
  *
  * When setting up a test that will mock a module, the block should add this:
