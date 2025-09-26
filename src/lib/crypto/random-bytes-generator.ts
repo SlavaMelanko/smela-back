@@ -1,5 +1,3 @@
-interface RandomBytesGenerator {
+export default interface RandomBytesGenerator {
   generate: (numberOfBytes: number) => string
 }
-
-export default RandomBytesGenerator

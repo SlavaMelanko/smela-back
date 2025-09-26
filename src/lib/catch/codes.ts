@@ -12,6 +12,9 @@ enum ErrorCode {
   TokenNotFound = 'token/not-found',
   TokenTypeMismatch = 'token/type-mismatch',
 
+  CaptchaInvalidToken = 'captcha/invalid-token',
+  CaptchaValidationFailed = 'captcha/validation-failed',
+
   InternalError = 'system/internal-error',
   NotFound = 'resource/not-found',
   ValidationError = 'validation/error',
@@ -19,6 +22,7 @@ enum ErrorCode {
   RequestTooLarge = 'request/too-large',
   InvalidContentLength = 'request/invalid-content-length',
   ContentLengthMismatch = 'request/content-length-mismatch',
+  BadRequest = 'request/bad',
 }
 
 export default ErrorCode

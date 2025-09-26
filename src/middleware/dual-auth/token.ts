@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { getAuthCookie } from '@/lib/auth'
+import { getAccessCookie } from '@/lib/cookie'
 
 /**
  * Extracts authentication token from either Authorization header or cookie.
@@ -8,7 +8,7 @@ import { getAuthCookie } from '@/lib/auth'
  * @returns The extracted token or null if not found.
  */
 const extractToken = (c: Context): string | null => {
-  // First, try to get token from Authorization header.
+  // First, try to get token from Authorization header
   const authHeader = c.req.header('Authorization')
   if (authHeader) {
     const parts = authHeader.split(' ')
@@ -17,8 +17,8 @@ const extractToken = (c: Context): string | null => {
     }
   }
 
-  // If no Authorization header, try to get token from cookie.
-  const cookieToken = getAuthCookie(c)
+  // If no Authorization header, try to get token from cookie
+  const cookieToken = getAccessCookie(c)
   if (cookieToken) {
     return cookieToken
   }

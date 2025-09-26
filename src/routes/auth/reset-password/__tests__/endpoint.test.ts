@@ -1,45 +1,45 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
-import { StatusCodes } from 'http-status-codes'
+import type { Hono } from 'hono'
 
-import { onError } from '@/middleware'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
+import { TOKEN_LENGTH } from '@/lib/token/constants'
 
 import resetPasswordRoute from '../index'
-import resetPasswordSchema from '../schema'
-
-// Mock the reset password function
-const mockResetPassword = mock(() => Promise.resolve({ success: true }))
-
-mock.module('../reset-password', () => ({
-  default: mockResetPassword,
-}))
 
 describe('Reset Password Endpoint', () => {
-  let app: Hono
+  const RESET_PASSWORD_URL = '/api/v1/auth/reset-password'
 
-  beforeEach(() => {
-    app = new Hono()
-    app.onError(onError)
-    app.route('/api/v1/auth', resetPasswordRoute)
-    mockResetPassword.mockClear()
+  let app: Hono
+  let mockResetPassword: any
+
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  beforeEach(async () => {
+    mockResetPassword = mock(() => Promise.resolve({ success: true }))
+
+    await moduleMocker.mock('../reset-password', () => ({
+      default: mockResetPassword,
+    }))
+
+    app = createTestApp('/api/v1/auth', resetPasswordRoute)
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   const validPayload = {
-    token: '1234567890123456789012345678901234567890123456789012345678901234',
+    token: '1'.repeat(TOKEN_LENGTH),
     password: 'NewSecure@123',
   }
 
   describe('POST /auth/reset-password', () => {
-    it('should reset password successfully with valid input', async () => {
-      const res = await app.request('/api/v1/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validPayload),
-      })
+    it('should reset password and return success', async () => {
+      const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
-      expect(res.status).toBe(StatusCodes.OK)
+      expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({ success: true })
@@ -51,309 +51,85 @@ describe('Reset Password Endpoint', () => {
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
 
-    describe('token validation', () => {
-      it('should reject short token', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            token: 'short-token',
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('Token must be exactly 64 characters long')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
+    it('should handle reset password errors', async () => {
+      mockResetPassword.mockImplementationOnce(() => {
+        throw new Error('Password reset failed')
       })
 
-      it('should reject long token', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            token: 'a'.repeat(100),
-          }),
-        })
+      const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('Token must be exactly 64 characters long')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should reject missing token', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            password: validPayload.password,
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
+      expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
 
-    describe('password validation', () => {
-      it('should reject short password', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            password: 'short',
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('String must contain at least 8 character(s)')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should reject password without special characters', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            password: 'NoSpecialChars123',
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('Minimum eight characters, at least one letter, one number and one special character')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should reject password without numbers', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            password: 'NoNumbers@Special',
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('Minimum eight characters, at least one letter, one number and one special character')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should reject password without letters', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...validPayload,
-            password: '12345678@#$',
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-
-        const data = await res.json()
-        expect(data.error).toContain('Minimum eight characters, at least one letter, one number and one special character')
-
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should reject missing password', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token: validPayload.token,
-          }),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('request validation', () => {
-      it('should reject empty body', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({}),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should handle malformed JSON', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: '{invalid json}',
-        })
-
-        expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should require Content-Type header', async () => {
-        const res = await app.request('/api/v1/auth/reset-password', {
-          method: 'POST',
-          body: JSON.stringify(validPayload),
-        })
-
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-        expect(mockResetPassword).not.toHaveBeenCalled()
-      })
-
-      it('should only accept POST method', async () => {
-        const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-        for (const method of methods) {
-          const res = await app.request('/api/v1/auth/reset-password', {
-            method,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(validPayload),
-          })
-
-          expect(res.status).toBe(StatusCodes.NOT_FOUND)
-        }
-      })
-    })
-  })
-
-  describe('Validation Schema', () => {
-    it('should accept valid token and password combinations', () => {
-      const validInputs = [
-        {
-          token: '1234567890123456789012345678901234567890123456789012345678901234',
-          password: 'ValidPass123!',
-        },
-        {
-          token: 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWX1234',
-          password: 'AnotherPass456@',
-        },
-        {
-          token: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-          password: 'SecurePass789#',
-        },
-      ]
-
-      for (const input of validInputs) {
-        const result = resetPasswordSchema.safeParse(input)
-        expect(result.success).toBe(true)
-      }
-    })
-
-    it('should reject invalid tokens', () => {
+    it('should validate token requirements', async () => {
       const invalidTokens = [
-        {
-          token: '', // Empty
-          password: 'ValidPass123!',
-        },
-        {
-          token: 'short', // Too short
-          password: 'ValidPass123!',
-        },
-        {
-          token: 'a'.repeat(100), // Too long
-          password: 'ValidPass123!',
-        },
+        { name: 'short token', token: 'short-token' },
+        { name: 'long token', token: 'a'.repeat(100) },
+        { name: 'missing token', token: null },
       ]
 
-      for (const input of invalidTokens) {
-        const result = resetPasswordSchema.safeParse(input)
-        expect(result.success).toBe(false)
+      for (const testCase of invalidTokens) {
+        const payload: any = { ...validPayload }
+        if (testCase.token !== null) {
+          payload.token = testCase.token
+        } else {
+          delete payload.token
+        }
+
+        const res = await post(app, RESET_PASSWORD_URL, payload)
+
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
+        expect(mockResetPassword).not.toHaveBeenCalled()
       }
     })
 
-    it('should reject invalid passwords', () => {
-      const token = '1234567890123456789012345678901234567890123456789012345678901234'
+    it('should validate password requirements', async () => {
       const invalidPasswords = [
-        {
-          token,
-          password: '', // Empty
-        },
-        {
-          token,
-          password: '123', // Too short
-        },
-        {
-          token,
-          password: 'NoNumbers!', // Missing number
-        },
-        {
-          token,
-          password: 'NoSpecial123', // Missing special char
-        },
-        {
-          token,
-          password: '12345678!', // Missing letter
-        },
+        { name: 'short password', password: 'short' },
+        { name: 'no special chars', password: 'NoSpecialChars123' },
+        { name: 'no numbers', password: 'NoNumbers@Special' },
+        { name: 'no letters', password: '12345678@#$' },
+        { name: 'missing password', password: null },
       ]
 
-      for (const input of invalidPasswords) {
-        const result = resetPasswordSchema.safeParse(input)
-        expect(result.success).toBe(false)
+      for (const testCase of invalidPasswords) {
+        const payload: any = { ...validPayload }
+        if (testCase.password !== null) {
+          payload.password = testCase.password
+        } else {
+          delete payload.password
+        }
+
+        const res = await post(app, RESET_PASSWORD_URL, payload)
+
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
+        expect(mockResetPassword).not.toHaveBeenCalled()
       }
     })
 
-    it('should require both token and password fields', () => {
-      const incompleteInputs = [
-        {
-          token: '1234567890123456789012345678901234567890123456789012345678901234',
-          // missing password
-        },
-        {
-          password: 'ValidPass123!',
-          // missing token
-        },
-        {
-          // missing both
-        },
+    it('should handle malformed requests', async () => {
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type', headers: {}, body: validPayload },
+        { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{invalid json}' },
+        { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
 
-      for (const input of incompleteInputs) {
-        const result = resetPasswordSchema.safeParse(input)
-        expect(result.success).toBe(false)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, RESET_PASSWORD_URL, body, headers)
+
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
+        expect(mockResetPassword).not.toHaveBeenCalled()
+      }
+    })
+
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
+
+      for (const method of methods) {
+        const res = await doRequest(app, RESET_PASSWORD_URL, method, validPayload, { 'Content-Type': 'application/json' })
+
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

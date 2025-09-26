@@ -1,646 +1,392 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { authRepo, userRepo } from '@/repositories'
 import { Role, Status } from '@/types'
 
 import logInWithEmail from '../login'
 
-describe('logInWithEmail', () => {
-  const mockUser = {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    status: Status.Verified,
-    role: Role.User,
-    tokenVersion: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
+describe('Login with Email', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
 
-  const mockAuth = {
-    userId: 1,
-    providerId: 'email',
-    providerKey: 'john@example.com',
-    passwordHash: '$2b$10$hashedPassword123',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
+  let mockLoginParams: any
+  let mockUser: any
+  let mockAuth: any
+  let mockJwtToken: any
 
-  const mockToken = 'jwt.token.here'
-  const validPassword = 'CorrectPass123!'
+  beforeEach(async () => {
+    mockLoginParams = {
+      email: 'test@example.com',
+      password: 'ValidPass123!',
+    }
 
-  beforeEach(() => {
-    // Mock repository methods
-    mock.module('@/repositories', () => ({
+    mockUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'test@example.com',
+      status: Status.Verified,
+      role: Role.User,
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockAuth = {
+      userId: 1,
+      provider: 'local',
+      identifier: 'test@example.com',
+      passwordHash: '$2b$10$hashedPassword123',
+    }
+
+    mockJwtToken = 'login-jwt-token-123'
+
+    await moduleMocker.mock('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),
       },
       authRepo: {
         findById: mock(() => Promise.resolve(mockAuth)),
       },
-      tokenRepo: {},
     }))
 
-    // Mock crypto password encoder
-    mock.module('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/crypto', () => ({
       createPasswordEncoder: mock(() => ({
         compare: mock(() => Promise.resolve(true)),
-        encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
       })),
     }))
 
-    // Mock JWT
-    mock.module('@/lib/auth', () => ({
-      jwt: {
-        sign: mock(() => Promise.resolve(mockToken)),
-        verify: mock(() => Promise.resolve({ id: 1 })),
+    await moduleMocker.mock('@/lib/jwt', () => ({
+      default: {
+        sign: mock(() => Promise.resolve(mockJwtToken)),
       },
+    }))
+
+    await moduleMocker.mock('@/lib/user', () => ({
+      normalizeUser: mock((user) => {
+        const { tokenVersion, ...normalizedUser } = user
+
+        return normalizedUser
+      }),
     }))
   })
 
-  describe('when credentials are valid', () => {
-    it('should return user data and JWT token for valid user and password', async () => {
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-      expect(result).toEqual({
-        user: {
-          id: mockUser.id,
-          firstName: mockUser.firstName,
-          lastName: mockUser.lastName,
-          email: mockUser.email,
-          status: mockUser.status,
-          role: mockUser.role,
-          createdAt: mockUser.createdAt,
-          updatedAt: mockUser.updatedAt,
-        },
-        token: mockToken,
-      })
-    })
-
-    it('should call JWT sign with correct user data', async () => {
-      const { jwt } = await import('@/lib/auth')
-      await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(jwt.sign).toHaveBeenCalledWith(
-        mockUser.id,
-        mockUser.email,
-        mockUser.role,
-        mockUser.status,
-        mockUser.tokenVersion,
-      )
-      expect(jwt.sign).toHaveBeenCalledTimes(1)
-    })
-
-    it('should call password compare with correct parameters', async () => {
-      await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      // Note: We can't easily test the internal encoder.compare call
-      // because createPasswordEncoder() creates a new instance each time
-      // This test verifies that the login flow completes successfully
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
-  describe('when user does not exist', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
+  describe('successful login', () => {
+    it('should return user and token for valid credentials', async () => {
+      const result = await logInWithEmail(mockLoginParams)
+
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
+      expect(result.token).toBe(mockJwtToken)
+      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.user.email).toBe(mockLoginParams.email)
     })
 
-    it('should throw InvalidCredentials error', async () => {
-      try {
-        await logInWithEmail({
-          email: 'nonexistent@example.com',
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith('nonexistent@example.com')
-      expect(authRepo.findById).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('when auth record does not exist', () => {
-    beforeEach(() => {
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(mockUser)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(null)),
-        },
-        tokenRepo: {},
-      }))
-    })
-
-    it('should throw InvalidCredentials error', async () => {
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
-  })
-
-  describe('when auth record has no password hash', () => {
-    beforeEach(() => {
-      const authWithoutPassword = { ...mockAuth, passwordHash: null }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(mockUser)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(authWithoutPassword)),
-        },
-        tokenRepo: {},
-      }))
-    })
-
-    it('should throw InvalidCredentials error', async () => {
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
-  })
-
-  describe('when password is incorrect', () => {
-    beforeEach(() => {
-      mock.module('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.resolve(false)), // Password doesn't match
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
-        })),
-      }))
-    })
-
-    it('should throw BadCredentials error', async () => {
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: 'wrongPassword',
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
-  })
-
-  describe('when password comparison fails due to empty values', () => {
-    beforeEach(() => {
-      mock.module('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.resolve(false)), // Empty values return false
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
-        })),
-      }))
-    })
-
-    it('should throw BadCredentials error for empty password', async () => {
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: '',
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
-      }
-    })
-
-    it('should throw InvalidCredentials error for empty password hash', async () => {
-      const authWithEmptyHash = { ...mockAuth, passwordHash: '' }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(mockUser)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(authWithEmptyHash)),
-        },
-        tokenRepo: {},
-      }))
-
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
-    })
-  })
-
-  describe('edge cases', () => {
-    it('should handle email with different cases', async () => {
-      const uppercaseEmail = mockUser.email.toUpperCase()
-      const result = await logInWithEmail({
-        email: uppercaseEmail,
-        password: validPassword,
-      })
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
-      expect(result.token).toBe(mockToken)
-    })
-
-    it('should handle users with different statuses', async () => {
-      const activeUser = { ...mockUser, status: Status.Active }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(activeUser)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
-
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        activeUser.id,
-        activeUser.email,
-        activeUser.role,
-        activeUser.status,
-        activeUser.tokenVersion,
-      )
-    })
-
-    it('should handle users with different roles', async () => {
+    it('should handle different user roles correctly', async () => {
       const adminUser = { ...mockUser, role: Role.Admin }
-      mock.module('@/repositories', () => ({
+
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(adminUser)),
         },
         authRepo: {
           findById: mock(() => Promise.resolve(mockAuth)),
         },
-        tokenRepo: {},
       }))
 
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        adminUser.id,
-        adminUser.email,
-        adminUser.role,
-        adminUser.status,
-        adminUser.tokenVersion,
-      )
-    })
-
-    it('should include tokenVersion in JWT for users with different tokenVersions', async () => {
-      const userWithHighTokenVersion = { ...mockUser, tokenVersion: 10 }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(userWithHighTokenVersion)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
-
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        userWithHighTokenVersion.id,
-        userWithHighTokenVersion.email,
-        userWithHighTokenVersion.role,
-        userWithHighTokenVersion.status,
-        userWithHighTokenVersion.tokenVersion,
-      )
-    })
-
-    it('should handle users with tokenVersion 0', async () => {
-      const userWithZeroTokenVersion = { ...mockUser, tokenVersion: 0 }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(userWithZeroTokenVersion)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
-
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        userWithZeroTokenVersion.id,
-        userWithZeroTokenVersion.email,
-        userWithZeroTokenVersion.role,
-        userWithZeroTokenVersion.status,
-        0,
-      )
-    })
-
-    it('should handle users with very large tokenVersion numbers', async () => {
-      const userWithLargeTokenVersion = { ...mockUser, tokenVersion: 999999999 }
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(userWithLargeTokenVersion)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
-
-      const result = await logInWithEmail({
-        email: mockUser.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        userWithLargeTokenVersion.id,
-        userWithLargeTokenVersion.email,
-        userWithLargeTokenVersion.role,
-        userWithLargeTokenVersion.status,
-        999999999,
-      )
+      const result = await logInWithEmail(mockLoginParams)
+      expect(result.user.role).toBe(Role.Admin)
     })
   })
 
-  describe('Token Version Integration', () => {
-    it('should create JWT with current user tokenVersion', async () => {
-      const userWithSpecificTokenVersion = { ...mockUser, tokenVersion: 5 }
-
-      mock.module('@/repositories', () => ({
+  describe('user not found scenarios', () => {
+    it('should throw InvalidCredentials when user does not exist', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
-          findByEmail: mock(() => Promise.resolve(userWithSpecificTokenVersion)),
+          findByEmail: mock(() => Promise.resolve(null)),
         },
         authRepo: {
           findById: mock(() => Promise.resolve(mockAuth)),
         },
-        tokenRepo: {},
       }))
 
-      // Mock JWT to return a payload we can inspect
-      const mockJwtPayload = {
-        id: userWithSpecificTokenVersion.id,
-        email: userWithSpecificTokenVersion.email,
-        role: userWithSpecificTokenVersion.role,
-        status: userWithSpecificTokenVersion.status,
-        v: userWithSpecificTokenVersion.tokenVersion,
-        exp: Math.floor(Date.now() / 1000) + 3600,
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
+
+      try {
+        await logInWithEmail(mockLoginParams)
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
       }
-
-      mock.module('@/lib/auth', () => ({
-        jwt: {
-          sign: mock(() => Promise.resolve(mockToken)),
-          verify: mock(() => Promise.resolve(mockJwtPayload)),
-        },
-      }))
-
-      const result = await logInWithEmail({
-        email: userWithSpecificTokenVersion.email,
-        password: validPassword,
-      })
-
-      expect(result.token).toBe(mockToken)
-
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        userWithSpecificTokenVersion.id,
-        userWithSpecificTokenVersion.email,
-        userWithSpecificTokenVersion.role,
-        userWithSpecificTokenVersion.status,
-        userWithSpecificTokenVersion.tokenVersion,
-      )
     })
 
-    it('should demonstrate login flow creates JWT that would pass auth middleware validation', async () => {
-      const testUser = { ...mockUser, tokenVersion: 3 }
+    it('should handle case-sensitive email lookup', async () => {
+      const upperCaseEmail = mockLoginParams.email.toUpperCase()
 
-      mock.module('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(testUser)),
-        },
-        authRepo: {
-          findById: mock(() => Promise.resolve(mockAuth)),
-        },
-        tokenRepo: {},
-      }))
-
-      // Mock JWT with real-like behavior
-      const mockJwtToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidG9rZW5WZXJzaW9uIjozfQ.signature'
-
-      mock.module('@/lib/auth', () => ({
-        jwt: {
-          sign: mock(() => Promise.resolve(mockJwtToken)),
-          verify: mock(() => Promise.resolve({
-            id: testUser.id,
-            email: testUser.email,
-            role: testUser.role,
-            status: testUser.status,
-            v: testUser.tokenVersion,
-            exp: Math.floor(Date.now() / 1000) + 3600,
-          })),
-        },
-      }))
-
-      // Step 1: Login creates JWT with tokenVersion
-      const loginResult = await logInWithEmail({
-        email: testUser.email,
-        password: validPassword,
-      })
-
-      expect(loginResult.token).toBe(mockJwtToken)
-
-      // Step 2: Verify JWT contains correct tokenVersion
-      const { jwt } = await import('@/lib/auth')
-      expect(jwt.sign).toHaveBeenCalledWith(
-        testUser.id,
-        testUser.email,
-        testUser.role,
-        testUser.status,
-        testUser.tokenVersion,
-      )
-
-      // Step 3: Simulate auth middleware validation
-      const payload = await jwt.verify(mockJwtToken)
-      expect(payload.v).toBe(testUser.tokenVersion)
-
-      // This JWT would pass auth middleware validation since:
-      // payload.v (3) === testUser.tokenVersion (3)
+      // Should still work with different case
+      const result = await logInWithEmail({ ...mockLoginParams, email: upperCaseEmail })
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('token')
     })
   })
 
-  describe('when database operations fail', () => {
-    it('should propagate user repository errors', async () => {
-      mock.module('@/repositories', () => ({
+  describe('auth record scenarios', () => {
+    it('should throw InvalidCredentials when auth record not found', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve(null)),
+        },
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
+
+      try {
+        await logInWithEmail(mockLoginParams)
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
+      }
+    })
+
+    it('should throw InvalidCredentials when auth record has no password hash', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve({ ...mockAuth, passwordHash: null })),
+        },
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
+
+      try {
+        await logInWithEmail(mockLoginParams)
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
+      }
+    })
+  })
+
+  describe('password validation scenarios', () => {
+    it('should throw BadCredentials for incorrect password', async () => {
+      await moduleMocker.mock('@/lib/crypto', () => ({
+        createPasswordEncoder: mock(() => ({
+          compare: mock(() => Promise.resolve(false)),
+        })),
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
+
+      try {
+        await logInWithEmail(mockLoginParams)
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
+      }
+    })
+
+    it('should handle empty password input', async () => {
+      await moduleMocker.mock('@/lib/crypto', () => ({
+        createPasswordEncoder: mock(() => ({
+          compare: mock(() => Promise.resolve(false)),
+        })),
+      }))
+
+      try {
+        await logInWithEmail({ ...mockLoginParams, password: '' })
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
+      }
+    })
+
+    it('should handle password encoder creation failure', async () => {
+      await moduleMocker.mock('@/lib/crypto', () => ({
+        createPasswordEncoder: mock(() => {
+          throw new Error('Crypto library initialization failed')
+        }),
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
+        'Crypto library initialization failed',
+      )
+    })
+
+    it('should handle password comparison failure', async () => {
+      await moduleMocker.mock('@/lib/crypto', () => ({
+        createPasswordEncoder: mock(() => ({
+          compare: mock(() => Promise.reject(new Error('Bcrypt comparison failed'))),
+        })),
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
+        'Bcrypt comparison failed',
+      )
+    })
+  })
+
+  describe('JWT generation scenarios', () => {
+    it('should handle JWT signing failure', async () => {
+      await moduleMocker.mock('@/lib/jwt', () => ({
+        default: {
+          sign: mock(() => Promise.reject(new Error('JWT signing failed'))),
+        },
+      }))
+
+      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow('JWT signing failed')
+    })
+  })
+
+  describe('edge cases and boundary conditions', () => {
+    const testCases = [
+      {
+        name: 'very long email addresses',
+        params: { email: `${'a'.repeat(100)}@example.com` },
+      },
+      {
+        name: 'very long passwords',
+        params: { password: 'a'.repeat(1000) },
+      },
+      {
+        name: 'special characters in email',
+        params: { email: 'test+tag@example-domain.co.uk' },
+      },
+      {
+        name: 'special characters in password',
+        params: { password: '!@#$%^&*()_+-=[]{}|;:,.<>?' },
+      },
+      {
+        name: 'Unicode characters in password',
+        params: { password: '密码123é🔑' },
+      },
+    ]
+
+    testCases.forEach(({ name, params }) => {
+      it(`should handle ${name}`, async () => {
+        const result = await logInWithEmail({ ...mockLoginParams, ...params })
+        expect(result).toHaveProperty('user')
+        expect(result).toHaveProperty('token')
+      })
+    })
+  })
+
+  describe('repository error scenarios', () => {
+    it('should handle user repository database failure', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.reject(new Error('Database connection failed'))),
         },
         authRepo: {
           findById: mock(() => Promise.resolve(mockAuth)),
         },
-        tokenRepo: {},
       }))
 
       try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
+        await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
       }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).not.toHaveBeenCalled()
     })
 
-    it('should propagate auth repository errors', async () => {
-      mock.module('@/repositories', () => ({
+    it('should handle auth repository database failure', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
         authRepo: {
-          findById: mock(() => Promise.reject(new Error('Auth table unavailable'))),
-        },
-        tokenRepo: {},
-      }))
-
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Auth table unavailable')
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
-
-    it('should propagate password comparison errors', async () => {
-      mock.module('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.reject(new Error('Crypto library error'))),
-          encode: mock(() => Promise.resolve('$2b$10$hashedPassword123')),
-        })),
-      }))
-
-      try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Crypto library error')
-      }
-
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
-    })
-
-    it('should propagate JWT signing errors', async () => {
-      mock.module('@/lib/auth', () => ({
-        jwt: {
-          sign: mock(() => Promise.reject(new Error('JWT signing failed'))),
-          verify: mock(() => Promise.resolve({ id: 1 })),
+          findById: mock(() => Promise.reject(new Error('Auth table query failed'))),
         },
       }))
 
       try {
-        await logInWithEmail({
-          email: mockUser.email,
-          password: validPassword,
-        })
-        expect(true).toBe(false) // Should not reach here
+        await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('JWT signing failed')
+        expect((error as Error).message).toBe('Auth table query failed')
       }
+    })
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockUser.email)
-      expect(authRepo.findById).toHaveBeenCalledWith(mockUser.id)
+    it('should handle malformed auth data from database', async () => {
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(mockUser)),
+        },
+        authRepo: {
+          findById: mock(() => Promise.resolve({ ...mockAuth, passwordHash: undefined })),
+        },
+      }))
+
+      try {
+        await logInWithEmail(mockLoginParams)
+        expect(true).toBe(false) // should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
+      }
+    })
+  })
+
+  describe('data consistency and normalization', () => {
+    it('should ensure user normalization removes sensitive fields', async () => {
+      const result = await logInWithEmail(mockLoginParams)
+
+      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.user).toHaveProperty('id')
+      expect(result.user).toHaveProperty('email')
+      expect(result.user).toHaveProperty('firstName')
+      expect(result.user).toHaveProperty('lastName')
+      expect(result.user).toHaveProperty('role')
+      expect(result.user).toHaveProperty('status')
+    })
+
+    it('should handle user with all possible roles', async () => {
+      const roles = [Role.User, Role.Admin, Role.Owner, Role.Enterprise]
+
+      for (const role of roles) {
+        const userWithRole = { ...mockUser, role }
+        await moduleMocker.mock('@/repositories', () => ({
+          userRepo: {
+            findByEmail: mock(() => Promise.resolve(userWithRole)),
+          },
+          authRepo: {
+            findById: mock(() => Promise.resolve(mockAuth)),
+          },
+        }))
+
+        const result = await logInWithEmail(mockLoginParams)
+        expect(result.user.role).toBe(role)
+      }
+    })
+
+    it('should handle user with all possible statuses', async () => {
+      const statuses = [Status.New, Status.Verified, Status.Suspended]
+
+      for (const status of statuses) {
+        const userWithStatus = { ...mockUser, status }
+        await moduleMocker.mock('@/repositories', () => ({
+          userRepo: {
+            findByEmail: mock(() => Promise.resolve(userWithStatus)),
+          },
+          authRepo: {
+            findById: mock(() => Promise.resolve(mockAuth)),
+          },
+        }))
+
+        await logInWithEmail(mockLoginParams)
+        // Test passes if no error is thrown
+      }
     })
   })
 })

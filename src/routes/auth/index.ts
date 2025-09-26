@@ -1,17 +1,7 @@
-import loginRoute from './login'
-import logoutRoute from './logout'
-import requestPasswordResetRoute from './request-password-reset'
-import resendVerificationEmailRoute from './resend-verification-email'
-import resetPasswordRoute from './reset-password'
-import signupRoute from './signup'
-import verifyEmailRoute from './verify-email'
-
-export {
-  loginRoute,
-  logoutRoute,
-  requestPasswordResetRoute,
-  resendVerificationEmailRoute,
-  resetPasswordRoute,
-  signupRoute,
-  verifyEmailRoute,
-}
+export { default as loginRoute } from './login'
+export { default as logoutRoute } from './logout'
+export { default as requestPasswordResetRoute } from './request-password-reset'
+export { default as resendVerificationEmailRoute } from './resend-verification-email'
+export { default as resetPasswordRoute } from './reset-password'
+export { default as signupRoute } from './signup'
+export { default as verifyEmailRoute } from './verify-email'

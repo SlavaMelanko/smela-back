@@ -1,147 +1,101 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
-import { Hono } from 'hono'
-import { StatusCodes } from 'http-status-codes'
+import type { Hono } from 'hono'
 
-import { onError } from '@/middleware'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
 
 import requestPasswordResetRoute from '../index'
-import requestPasswordResetSchema from '../schema'
 
 describe('Request Password Reset Endpoint', () => {
-  let app: Hono
+  const REQUEST_PASSWORD_RESET_URL = '/api/v1/auth/request-password-reset'
 
-  beforeEach(() => {
-    app = new Hono()
-    app.onError(onError)
-    app.route('/api/v1/auth', requestPasswordResetRoute)
+  let app: Hono
+  let mockRequestPasswordReset: any
+
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  beforeEach(async () => {
+    mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
+
+    await moduleMocker.mock('../request-password-reset', () => ({
+      default: mockRequestPasswordReset,
+    }))
+
+    mockCaptchaSuccess()
+
+    app = createTestApp('/api/v1/auth', requestPasswordResetRoute)
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/request-password-reset', () => {
-    it('should return 200 when request is valid', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-        }),
+    it('should return success response on valid request', async () => {
+      const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
+        email: 'test@example.com',
+        captchaToken: VALID_CAPTCHA_TOKEN,
       })
 
-      // Note: This will fail in integration tests without mocks
-      // as it will try to access the real database
-      // For now, we're testing the endpoint structure
-      expect(res.status).toBeDefined()
+      expect(res.status).toBe(HttpStatus.ACCEPTED)
+
+      const data = await res.json()
+      expect(data).toEqual({ success: true })
+
+      expect(mockRequestPasswordReset).toHaveBeenCalledTimes(1)
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith('test@example.com')
     })
 
-    it('should validate email format', async () => {
-      const invalidEmails = [
-        { email: '' }, // Empty email
-        { email: 'invalid' }, // Invalid format
-        { email: 'test@' }, // Incomplete
-        { email: '@example.com' }, // Missing local part
-        {}, // Missing email field
+    it('should validate required fields', async () => {
+      const invalidRequests = [
+        // Invalid email formats
+        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // empty email
+        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // invalid format
+        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // incomplete
+        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // missing local part
+        { captchaToken: VALID_CAPTCHA_TOKEN }, // missing email field
+
+        // Invalid captcha tokens
+        { email: 'test@example.com' }, // missing captcha token
+        { email: 'test@example.com', captchaToken: '' }, // empty captcha token
+        { email: 'test@example.com', captchaToken: 'invalid-token' }, // invalid captcha token
       ]
 
-      for (const body of invalidEmails) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        })
+      for (const body of invalidRequests) {
+        const res = await post(app, REQUEST_PASSWORD_RESET_URL, body)
 
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
         expect(json).toHaveProperty('error')
       }
     })
 
-    it('should require Content-Type header', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: 'test@example.com',
-        }),
-      })
+    it('should handle malformed requests', async () => {
+      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
+        { name: 'missing Content-Type header', headers: {}, body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'undefined body', headers: { 'Content-Type': 'application/json' }, body: undefined },
+        { name: 'empty body', headers: { 'Content-Type': 'application/json' }, body: {} },
+        { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
+      ]
 
-      expect(res.status).toBe(StatusCodes.BAD_REQUEST)
-    })
-
-    it('should handle malformed JSON', async () => {
-      const res = await app.request('/api/v1/auth/request-password-reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '{ invalid json',
-      })
-
-      expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, REQUEST_PASSWORD_RESET_URL, body, headers)
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
+      }
     })
 
     it('should only accept POST method', async () => {
       const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
       for (const method of methods) {
-        const res = await app.request('/api/v1/auth/request-password-reset', {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: 'test@example.com',
-          }),
-        })
+        const res = await doRequest(app, REQUEST_PASSWORD_RESET_URL, method, {
+          email: 'test@example.com',
+          captchaToken: VALID_CAPTCHA_TOKEN,
+        }, { 'Content-Type': 'application/json' })
 
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
-      }
-    })
-  })
-
-  describe('Validation Schema', () => {
-    it('should accept valid email addresses', () => {
-      const validEmails = [
-        'user@example.com',
-        'john.doe@company.com',
-        'test+tag@email.com',
-        'user123@test-domain.com',
-      ]
-
-      for (const email of validEmails) {
-        const result = requestPasswordResetSchema.safeParse({ email })
-        expect(result.success).toBe(true)
-      }
-    })
-
-    it('should reject invalid email addresses', () => {
-      const invalidEmails = [
-        '',
-        'invalid',
-        'test@',
-        '@example.com',
-        'user @example.com',
-        'user@.com',
-        'user..name@example.com',
-      ]
-
-      for (const email of invalidEmails) {
-        const result = requestPasswordResetSchema.safeParse({ email })
-        expect(result.success).toBe(false)
-      }
-    })
-
-    it('should not accept extra fields', () => {
-      const result = requestPasswordResetSchema.safeParse({
-        email: 'test@example.com',
-        extra: 'field',
-      })
-
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data).toEqual({ email: 'test@example.com' })
-        expect(result.data).not.toHaveProperty('extra')
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

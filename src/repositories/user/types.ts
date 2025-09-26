@@ -4,7 +4,7 @@ import type { Role, Status } from '@/types'
 // Database type
 type UserRecord = typeof usersTable.$inferSelect
 
-// Input types for create / update / delete / etc.
+// Input types for create / update / delete / etc
 type CreateUserInput = typeof usersTable.$inferInsert
 type UpdateUserInput = Partial<CreateUserInput>
 

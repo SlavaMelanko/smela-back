@@ -12,19 +12,19 @@ const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   return validUpdates
 }
 
-const getUser = async (userId: number) => {
+export const getUser = async (userId: number) => {
   const user = await userRepo.findById(userId)
 
   if (!user) {
     // This represents a data inconsistency - user has valid JWT,
-    // but doesn't exist in DB.
+    // But doesn't exist in DB
     throw new AppError(ErrorCode.InternalError)
   }
 
   return user
 }
 
-const updateUser = async (userId: number, updates: UpdateUserInput) => {
+export const updateUser = async (userId: number, updates: UpdateUserInput) => {
   const validUpdates = prepareValidUpdates(updates)
 
   if (Object.keys(validUpdates).length === 0) {
@@ -42,5 +42,3 @@ const updateUser = async (userId: number, updates: UpdateUserInput) => {
 
   return updatedUser
 }
-
-export { getUser, updateUser }

@@ -2,7 +2,7 @@
 
 Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
 
-## 🛠️ Technology Stack
+## 📦 Technology Stack
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
@@ -76,6 +76,7 @@ See [src/routes/README.md](src/routes/README.md) for detailed API endpoint docum
 - Request size limits: 10KB (auth), 100KB (general), 5MB (uploads)
 - CORS with environment-specific origin validation
 - Input validation using Zod schemas
+- CAPTCHA protection: Google reCAPTCHA v2 (invisible) on auth endpoints
 
 ### Security Headers
 

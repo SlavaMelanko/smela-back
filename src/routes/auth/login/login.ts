@@ -1,8 +1,6 @@
-import type { Role, Status } from '@/types'
-
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
+import jwt from '@/lib/jwt'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, userRepo } from '@/repositories'
 
@@ -40,7 +38,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  const token = await jwt.sign(user.id, user.email, user.role as Role, user.status as Status, user.tokenVersion)
+  const token = await jwt.sign(user.id, user.email, user.role, user.status, user.tokenVersion)
 
   return { user: normalizeUser(user), token }
 }

@@ -1,7 +1,7 @@
 import env from '@/lib/env'
 import { buildEmailRegistry, createEmailProvider, EmailService, EmailType } from '@/services/email'
 
-class EmailAgent {
+export class EmailAgent {
   private static instance: EmailAgent | null = null
   private service: EmailService
 
@@ -56,7 +56,5 @@ class EmailAgent {
 }
 
 const emailAgent = EmailAgent.getInstance()
-
-export type { EmailAgent }
 
 export { emailAgent }

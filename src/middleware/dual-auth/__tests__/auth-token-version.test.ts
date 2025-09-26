@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { jwt } from '@/lib/auth'
 import { AppError, ErrorCode } from '@/lib/catch'
+import jwt from '@/lib/jwt'
 import { userRepo } from '@/repositories'
-import { Role, Status } from '@/types'
-import { isActive } from '@/types'
+import { isActive, Role, Status } from '@/types'
 
 describe('Auth Middleware Logic - Token Version Validation', () => {
   const mockUserId = 123

@@ -1,26 +1,8 @@
-import corsMiddleware from './cors'
-import { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
-import loggerMiddleware from './logger'
-import onError from './on-error'
-import rateLimiterMiddleware, { authRateLimiter, generalRateLimiter } from './rate-limiter'
-import securityHeadersMiddleware from './security-headers'
-import { authRequestSizeLimiter, createRequestSizeLimiter, fileUploadSizeLimiter, generalRequestSizeLimiter } from './size-limiter'
-
-export {
-  adminAuthMiddleware,
-  authRateLimiter,
-  authRequestSizeLimiter,
-  corsMiddleware,
-  createRequestSizeLimiter,
-  enterpriseStrictAuthMiddleware,
-  fileUploadSizeLimiter,
-  generalRateLimiter,
-  generalRequestSizeLimiter,
-  loggerMiddleware,
-  onError,
-  ownerAuthMiddleware,
-  rateLimiterMiddleware,
-  securityHeadersMiddleware,
-  userRelaxedAuthMiddleware,
-  userStrictAuthMiddleware,
-}
+export { default as captchaMiddleware } from './captcha'
+export { default as corsMiddleware } from './cors'
+export { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
+export { default as loggerMiddleware } from './logger'
+export { default as onError } from './on-error'
+export { authRateLimiter, generalRateLimiter, default as rateLimiterMiddleware } from './rate-limiter'
+export { default as securityHeadersMiddleware } from './security-headers'
+export { authRequestSizeLimiter, createRequestSizeLimiter, fileUploadSizeLimiter, generalRequestSizeLimiter } from './size-limiter'

@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { StatusCodes } from 'http-status-codes'
+import HttpStatus from '@/lib/http-status'
 
 import resendVerificationEmail from './resend-verification-email'
 
@@ -9,7 +9,7 @@ const resendVerificationEmailHandler = async (c: Context) => {
 
   const result = await resendVerificationEmail(email)
 
-  return c.json(result, StatusCodes.ACCEPTED)
+  return c.json(result, HttpStatus.ACCEPTED)
 }
 
 export default resendVerificationEmailHandler

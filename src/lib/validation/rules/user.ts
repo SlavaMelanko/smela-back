@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { Role } from '@/types'
+
 import { withVariants } from '../with-variants'
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Z\d@$!%*#?&]{8,}$/i
@@ -24,6 +26,7 @@ const rules = {
       }),
   ),
   name: withVariants(z.string().min(2).max(50)),
+  role: z.nativeEnum(Role),
 }
 
 export default rules

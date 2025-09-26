@@ -1,13 +1,25 @@
 import type { ErrorHandler } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
-import { getReasonPhrase } from 'http-status-codes'
+import { HTTPException } from 'hono/http-exception'
 
 import { ErrorCode, ErrorRegistry } from '@/lib/catch'
-import { isStagingOrProdEnv } from '@/lib/env'
+import { isDevEnv } from '@/lib/env'
+import HttpStatus, { getReasonPhrase } from '@/lib/http-status'
 import logger from '@/lib/logger'
 
 const getErrorCode = (err: unknown): ErrorCode => {
+  if (err instanceof HTTPException) {
+    if (err.status >= HttpStatus.BAD_REQUEST
+      && err.status < HttpStatus.INTERNAL_SERVER_ERROR) {
+      return ErrorCode.BadRequest
+    }
+
+    if (err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      return ErrorCode.InternalError
+    }
+  }
+
   if (err && typeof err === 'object' && 'code' in err) {
     return err.code as ErrorCode
   }
@@ -24,7 +36,7 @@ const onError: ErrorHandler = (err, c) => {
   const status = error.status
   const message = err.message || error.error || getReasonPhrase(status)
   const name = err.name
-  const stack = isStagingOrProdEnv() ? undefined : err.stack
+  const stack = isDevEnv() ? err.stack : undefined
 
   return c.json(
     {

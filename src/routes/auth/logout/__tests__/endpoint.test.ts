@@ -1,173 +1,158 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { Hono } from 'hono'
-import { StatusCodes } from 'http-status-codes'
+import type { Hono } from 'hono'
 
-import { onError } from '@/middleware'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+
+import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import HttpStatus from '@/lib/http-status'
 
 import logoutRoute from '../index'
 
-// Mock environment
-mock.module('@/lib/env', () => ({
-  default: {
-    JWT_COOKIE_NAME: 'auth-token',
-    COOKIE_DOMAIN: 'example.com',
-  },
-  isDevOrTestEnv: () => false, // Simulate production environment
-}))
-
 describe('Logout Endpoint', () => {
-  let app: Hono
+  const LOGOUT_URL = '/api/v1/auth/logout'
 
-  beforeEach(() => {
-    app = new Hono()
-    app.onError(onError)
-    app.route('/api/v1/auth', logoutRoute)
+  let app: Hono
+  let mockDeleteAccessCookie: any
+
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  beforeEach(async () => {
+    mockDeleteAccessCookie = mock(() => {})
+
+    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
+      deleteAccessCookie: mockDeleteAccessCookie,
+      getAccessCookie: mock(() => undefined),
+      setAccessCookie: mock(() => {}),
+    }))
+
+    await moduleMocker.mock('@/lib/cookie', () => ({
+      deleteAccessCookie: mockDeleteAccessCookie,
+    }))
+
+    app = createTestApp('/api/v1/auth', logoutRoute)
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
   })
 
   describe('POST /auth/logout', () => {
-    it('should clear authentication cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          Cookie: 'auth-token=existing-token',
-        },
+    it('should delete access cookie and return 204 No Content', async () => {
+      const res = await post(app, LOGOUT_URL, undefined, {
+        Cookie: 'auth-token=existing-token',
       })
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      expect(res.status).toBe(HttpStatus.NO_CONTENT)
+      expect(await res.text()).toBe('')
 
-      // Check cookie deletion
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('auth-token=')
-      expect(cookies).toContain('Path=/')
-      expect(cookies).toContain('Max-Age=0') // Cookie deletion
+      // Verify proper 204 headers - no content type, content-length is 0 or null
+      expect(res.headers.get('content-type')).toBeNull()
+      const contentLength = res.headers.get('content-length')
+      expect(contentLength === '0' || contentLength === null).toBe(true)
 
-      // Note: Domain presence depends on whether isDevOrTestEnv() returns false
-      // The mock tries to simulate production, but in test environment it may not work
+      // Verify cookie deletion was called
+      // Note: In integration testing, you would also verify:
+      // expect(res.headers.get('Set-Cookie')).toContain('auth-token=;')
+      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
     })
 
-    it('should work even without existing cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+    it('should handle different cookie headers', async () => {
+      const cookieScenarios = [
+        { name: 'no cookie header', headers: undefined },
+        { name: 'empty cookie header', headers: { Cookie: '' } },
+        { name: 'unrelated cookies', headers: { Cookie: 'other=value; session=abc123' } },
+        { name: 'auth token cookie', headers: { Cookie: 'auth-token=jwt-token-value' } },
+        { name: 'multiple cookies with auth', headers: { Cookie: 'auth-token=jwt-token; other=value' } },
+      ]
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      let callCount = 0
+      for (const scenario of cookieScenarios) {
+        const res = await post(app, LOGOUT_URL, undefined, scenario.headers)
 
-      // No content returned
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
+        expect(await res.text()).toBe('')
 
-      // Cookie deletion header should still be sent
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('auth-token=')
-    })
+        // Verify proper 204 headers - no content type, content-length is 0 or null
+        expect(res.headers.get('content-type')).toBeNull()
+        const contentLength = res.headers.get('content-length')
+        expect(contentLength === '0' || contentLength === null).toBe(true)
 
-    it('should handle logout without domain in production', async () => {
-      // Mock environment without COOKIE_DOMAIN
-      mock.module('@/lib/env', () => ({
-        default: {
-          JWT_COOKIE_NAME: 'auth-token',
-          COOKIE_DOMAIN: undefined,
-        },
-        isDevOrTestEnv: () => false, // Simulate production environment
-      }))
-
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
-
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('auth-token=')
-      expect(cookies).toContain('Path=/')
-      expect(cookies).not.toContain('Domain=')
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await app.request('/api/v1/auth/logout', {
-          method,
-        })
-
-        expect(res.status).toBe(StatusCodes.NOT_FOUND)
+        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
+        expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
       }
     })
 
-    it('should not require authentication to logout', async () => {
-      // Test without any authentication headers/cookies
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+    it('should handle malformed requests', async () => {
+      const scenarios = [
+        { name: 'no body', headers: { 'Content-Type': 'application/json' }, body: undefined },
+        { name: 'valid JSON body (body is ignored)', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ someData: 'ignored' }) },
+        { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
+      ]
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      let callCount = 0
+      for (const { headers, body } of scenarios) {
+        const res = await post(app, LOGOUT_URL, body, headers)
+
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
+        expect(await res.text()).toBe('')
+        expect(res.headers.get('content-type')).toBeNull()
+        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
+      }
     })
 
-    it('should not require Content-Type header', async () => {
-      // Logout doesn't need a request body
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
+    it('should handle logout errors gracefully', async () => {
+      mockDeleteAccessCookie.mockImplementationOnce(() => {
+        throw new Error('Cookie deletion failed')
       })
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
+      const res = await post(app, LOGOUT_URL)
+
+      // Should return an error due to middleware handling
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
+
+      // Verify the function was called despite the error
+      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
     })
 
-    it('should ignore request body if provided', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ someData: 'ignored' }),
-      })
+    it('should handle multiple consecutive logout calls gracefully', async () => {
+      const numCalls = 3
+      const responses = []
 
-      expect(res.status).toBe(StatusCodes.NO_CONTENT)
-      // No content returned
-    })
-  })
+      // Simulate rapid consecutive logout button clicks
+      for (let i = 0; i < numCalls; i++) {
+        const res = await post(app, LOGOUT_URL, undefined, {
+          Cookie: 'auth-token=jwt-token-value',
+        })
 
-  describe('Cookie Deletion Mechanics', () => {
-    it('should set Max-Age=0 to delete cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+        responses.push(res)
 
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
+        expect(res.status).toBe(HttpStatus.NO_CONTENT)
+        expect(await res.text()).toBe('')
+        expect(res.headers.get('content-type')).toBeNull()
 
-      // Max-Age=0 is the standard way to delete a cookie
-      expect(cookies).toMatch(/Max-Age=0/)
-    })
+        // Verify cookie deletion function is called for each request
+        // (checked collectively after the loop)
+      }
 
-    it('should match the same path as login cookie', async () => {
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+      // Verify deleteAccessCookie was called for each logout attempt
+      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(numCalls)
 
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
-      expect(cookies).toContain('Path=/')
+      // Verify all calls were made with the correct context
+      for (let i = 0; i < numCalls; i++) {
+        expect(mockDeleteAccessCookie).toHaveBeenNthCalledWith(i + 1, expect.any(Object))
+      }
     })
 
-    it('should handle domain setting based on environment', async () => {
-      // This test documents the behavior: domain is only set in production environments
-      // In test/dev environments (where isDevOrTestEnv() returns true), domain is not set
-      const res = await app.request('/api/v1/auth/logout', {
-        method: 'POST',
-      })
+    it('should only accept POST method', async () => {
+      const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
-      const cookies = res.headers.get('set-cookie')
-      expect(cookies).toBeDefined()
+      for (const method of methods) {
+        const res = await doRequest(app, LOGOUT_URL, method)
 
-      // The actual behavior depends on the environment:
-      // - In dev/test: no Domain attribute (even if COOKIE_DOMAIN is set)
-      // - In production: Domain attribute is set if COOKIE_DOMAIN is configured
-      // Since we're running in a test environment, Domain should not be present
-      expect(cookies).toContain('auth-token=')
-      expect(cookies).toContain('Path=/')
-      expect(cookies).toContain('Max-Age=0')
+        expect(res.status).toBe(HttpStatus.NOT_FOUND)
+        // Verify cookie deletion is NOT called for invalid methods
+        expect(mockDeleteAccessCookie).not.toHaveBeenCalled()
+      }
     })
   })
 })

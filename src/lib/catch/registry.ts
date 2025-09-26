@@ -1,87 +1,101 @@
-import { StatusCodes } from 'http-status-codes'
+import HttpStatus from '@/lib/http-status'
 
 import ErrorCode from './codes'
 
 interface ErrorDetails {
-  status: StatusCodes
+  status: HttpStatus
   error: string
 }
 
 const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   // Auth errors
   [ErrorCode.AlreadyVerified]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'User is already verified.',
   },
   [ErrorCode.BadCredentials]: {
-    status: StatusCodes.UNAUTHORIZED,
+    status: HttpStatus.UNAUTHORIZED,
     error: 'Invalid email or password.',
   },
   [ErrorCode.EmailAlreadyInUse]: {
-    status: StatusCodes.CONFLICT,
+    status: HttpStatus.CONFLICT,
     error: 'Email is already in use.',
   },
   [ErrorCode.Forbidden]: {
-    status: StatusCodes.FORBIDDEN,
+    status: HttpStatus.FORBIDDEN,
     error: 'Unverified account.',
   },
   [ErrorCode.InvalidCredentials]: {
-    status: StatusCodes.UNAUTHORIZED,
+    status: HttpStatus.UNAUTHORIZED,
     error: 'Invalid credentials.',
   },
   [ErrorCode.Unauthorized]: {
-    status: StatusCodes.UNAUTHORIZED,
+    status: HttpStatus.UNAUTHORIZED,
     error: 'Unauthorized access.',
   },
 
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Token has already been used.',
   },
   [ErrorCode.TokenDeprecated]: {
-    status: StatusCodes.GONE,
+    status: HttpStatus.GONE,
     error: 'Token has been deprecated.',
   },
   [ErrorCode.TokenExpired]: {
-    status: StatusCodes.UNAUTHORIZED,
+    status: HttpStatus.UNAUTHORIZED,
     error: 'Token has expired.',
   },
   [ErrorCode.TokenNotFound]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Token not found.',
   },
   [ErrorCode.TokenTypeMismatch]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Token type mismatch.',
+  },
+
+  // Captcha errors
+  [ErrorCode.CaptchaInvalidToken]: {
+    status: HttpStatus.BAD_REQUEST,
+    error: 'Invalid reCAPTCHA token.',
+  },
+  [ErrorCode.CaptchaValidationFailed]: {
+    status: HttpStatus.BAD_REQUEST,
+    error: 'reCAPTCHA token validation failed.',
   },
 
   // System errors
   [ErrorCode.InternalError]: {
-    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
     error: 'Internal server error.',
   },
   [ErrorCode.NotFound]: {
-    status: StatusCodes.NOT_FOUND,
+    status: HttpStatus.NOT_FOUND,
     error: 'Resource not found.',
   },
   [ErrorCode.ValidationError]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Validation error.',
   },
 
   // Request errors
   [ErrorCode.RequestTooLarge]: {
-    status: StatusCodes.REQUEST_TOO_LONG,
+    status: HttpStatus.REQUEST_TOO_LONG,
     error: 'Request body too large.',
   },
   [ErrorCode.InvalidContentLength]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Invalid Content-Length header.',
   },
   [ErrorCode.ContentLengthMismatch]: {
-    status: StatusCodes.BAD_REQUEST,
+    status: HttpStatus.BAD_REQUEST,
     error: 'Content-Length header does not match actual body size.',
+  },
+  [ErrorCode.BadRequest]: {
+    status: HttpStatus.BAD_REQUEST,
+    error: 'Bad request.',
   },
 }
 

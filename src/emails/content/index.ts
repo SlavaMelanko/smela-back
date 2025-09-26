@@ -1,21 +1,24 @@
-import type { EmailContent, SupportedLocale } from './types'
+import type { SupportedLocale } from '../types'
 
 import * as en from './en'
 import * as uk from './uk'
 
-const content: Record<SupportedLocale, EmailContent> = {
+export type { default as PasswordResetEmailContent } from './password-reset'
+export type { default as WelcomeEmailContent } from './welcome'
+
+const content: Record<SupportedLocale, any> = {
   en,
   uk,
 }
 
-export const getContent = (locale: SupportedLocale = 'en') => {
-  if (locale in content) {
-    return content[locale]
+export const getContent = (locale?: SupportedLocale) => {
+  const l = locale || 'en'
+
+  if (l in content) {
+    return content[l]
   }
 
   return content.en
 }
-
-export type { SupportedLocale }
 
 export default getContent

@@ -1,4 +1,4 @@
-import type { WelcomeEmailContent } from '../types'
+import type WelcomeEmailContent from '../welcome'
 
 import { config } from '../../config'
 
@@ -11,7 +11,7 @@ export const content: WelcomeEmailContent = {
   disclaimer: 'If you didn\'t create an account, you can safely ignore this email.',
   signature: {
     thanks: 'Thanks,',
-    who: `${config.company.name} Team ❤️`,
+    who: `The ${config.company.name} team`,
   },
 }
 

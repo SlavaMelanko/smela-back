@@ -26,10 +26,7 @@ const requestPasswordReset = async (email: string) => {
       email: user.email,
       token,
     }).catch((error) => {
-      logger.error({
-        msg: `Failed to send password reset email to ${user.email}`,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      })
+      logger.error({ error }, `Failed to send password reset email to ${user.email}`)
     })
   }
 

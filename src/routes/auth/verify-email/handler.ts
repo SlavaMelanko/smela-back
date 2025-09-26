@@ -1,8 +1,7 @@
 import type { Context } from 'hono'
 
-import { StatusCodes } from 'http-status-codes'
-
-import { setAuthCookie } from '@/lib/auth'
+import { setAccessCookie } from '@/lib/cookie'
+import HttpStatus from '@/lib/http-status'
 
 import verifyEmail from './verify-email'
 
@@ -11,9 +10,9 @@ const verifyEmailHandler = async (c: Context) => {
 
   const result = await verifyEmail(token)
 
-  setAuthCookie(c, result.token)
+  setAccessCookie(c, result.token)
 
-  return c.json(result, StatusCodes.OK)
+  return c.json(result, HttpStatus.OK)
 }
 
 export default verifyEmailHandler

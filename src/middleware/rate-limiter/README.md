@@ -239,19 +239,6 @@ bun test src/middleware/rate-limiter/__tests__/presets.test.ts
 bun test src/middleware/rate-limiter/__tests__/utils.test.ts
 ```
 
-## Migration from Single File
-
-If migrating from the previous single-file implementation, the API remains the same:
-
-```typescript
-// Old import
-import rateLimiter, { authRateLimiter } from '@/middleware/rate-limiter'
-// New import (same API)
-import rateLimiter, { authRateLimiter } from '@/middleware/rate-limiter'
-```
-
-All existing imports continue to work without changes.
-
 ## Module Structure
 
 ```

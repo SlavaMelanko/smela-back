@@ -19,7 +19,7 @@ const toTypeSafeUser = (user: UserRecord): User | undefined => {
   }
 }
 
-const createUser = async (user: CreateUserInput): Promise<User | undefined> => {
+export const createUser = async (user: CreateUserInput): Promise<User | undefined> => {
   const [createdUser] = await db
     .insert(usersTable)
     .values(user)
@@ -28,7 +28,7 @@ const createUser = async (user: CreateUserInput): Promise<User | undefined> => {
   return toTypeSafeUser(createdUser)
 }
 
-const findUserById = async (userId: number): Promise<User | undefined> => {
+export const findUserById = async (userId: number): Promise<User | undefined> => {
   const [foundUser] = await db
     .select()
     .from(usersTable)
@@ -37,7 +37,7 @@ const findUserById = async (userId: number): Promise<User | undefined> => {
   return toTypeSafeUser(foundUser)
 }
 
-const findUserByEmail = async (email: string): Promise<User | undefined> => {
+export const findUserByEmail = async (email: string): Promise<User | undefined> => {
   const [foundUser] = await db
     .select()
     .from(usersTable)
@@ -46,7 +46,7 @@ const findUserByEmail = async (email: string): Promise<User | undefined> => {
   return toTypeSafeUser(foundUser)
 }
 
-const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User | undefined> => {
+export const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User | undefined> => {
   const [updatedUser] = await db
     .update(usersTable)
     .set({ ...updates, updatedAt: new Date() })
@@ -56,8 +56,8 @@ const updateUser = async (userId: number, updates: UpdateUserInput): Promise<Use
   return toTypeSafeUser(updatedUser)
 }
 
-// Increment token version to invalidate all existing JWTs.
-const incrementTokenVersion = async (userId: number): Promise<void> => {
+// Increment token version to invalidate all existing JWTs
+export const incrementTokenVersion = async (userId: number): Promise<void> => {
   const user = await findUserById(userId)
 
   if (!user) {
@@ -72,5 +72,3 @@ const incrementTokenVersion = async (userId: number): Promise<void> => {
     throw new AppError(ErrorCode.InternalError)
   }
 }
-
-export { createUser, findUserByEmail, findUserById, incrementTokenVersion, updateUser }

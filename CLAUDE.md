@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
+TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
 
 - **Runtime:** Bun
 - **Framework:** Hono
@@ -20,8 +20,11 @@ Portal Backend V2 is a TypeScript backend API built with Bun runtime and Hono fr
 ### Development
 
 - `bun run dev` - Start development server with hot reload on port 3000
+- `bun run start` - Start production server (NODE_ENV=production)
+- `bun run staging` - Start staging server (NODE_ENV=staging)
 - `bun test` - Run all tests using Bun's built-in test runner
-- `bun test [file]` - Run a specific test file
+- `bun test [file]` - Run a specific test file (e.g., `bun test src/routes/auth/login/__tests__/login.test.ts`)
+- `bun run email` - Start React Email dev server on port 3001 for email template development
 
 ### Database Operations
 
@@ -99,6 +102,28 @@ Key tables:
 - Test files follow `*.test.ts` pattern in `__tests__` directories
 - Focus on unit tests for critical components (crypto, auth, rate limiting)
 
+#### Testing Philosophy
+
+**Coverage & Focus:**
+
+- Target 60-80% test coverage focusing on **edge cases** rather than 100% coverage
+- Prioritize testing error conditions, boundary inputs, and failure scenarios
+- Keep tests simple and working - avoid over-engineering test complexity
+
+**Environment Configuration:**
+
+- **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
+- **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
+- Only mock business logic dependencies (repositories, crypto, JWT, external services)
+- Use global mocks for services (like CAPTCHA) that are already mocked globally
+
+**Self-Contained Tests:**
+
+- Tests should work with `bun install` → set up `.env.test` → `bun test` with env vars
+- All required environment variables should be documented in `.env.test`
+- No external services or database connections required
+- Mock only what's necessary for isolating business logic
+
 ### Security Considerations
 
 - Passwords hashed with bcrypt (10 rounds)
@@ -117,90 +142,214 @@ Key tables:
 - Structured error handling with custom error classes
 - Comprehensive logging with Pino
 
-### Environment Configuration
+### Service Architecture Patterns
 
-**Bun Native Environment Loading:**
-Bun automatically loads environment files based on `NODE_ENV` without requiring the `dotenv` package. Files are loaded in this order:
+**Modular Service Design Pattern** - Use this pattern for external service integrations (CAPTCHA, payment, SMS, file storage, etc.):
 
-1. `.env` - Base configuration (always loaded first)
-2. `.env.{NODE_ENV}` - Environment-specific configuration (development/production/staging/test)
-3. `.env.local` - Local overrides (not committed to git)
-4. `.env.{NODE_ENV}.local` - Environment-specific local overrides (not committed to git)
+#### 1. Feature Isolation
 
-**Supported Environments:**
+Create isolated service modules under `/src/services/[service-name]/`:
 
-- `development` - Local development with debug logging and Ethereal email
-- `production` - Production deployment with Resend email
-- `staging` - Staging environment (uses production-like settings with Resend email)
-- `test` - Test environment with minimal logging
+```text
+src/services/captcha/
+├── index.ts           # Public API exports only
+├── captcha.ts         # Generic interface
+├── factory.ts         # Factory method
+├── config.ts          # General configuration interface
+└── [provider]/        # Provider-specific implementation
+    ├── index.ts       # Provider exports
+    ├── [provider].ts  # Concrete implementation
+    ├── config.ts      # Provider-specific config
+    └── [types].ts     # Provider-specific types
+```
 
-**Base `.env` file (sensitive/shared values):**
+#### 2. Interface Abstraction
 
-- `JWT_SECRET` - Secret for JWT signing (required, sensitive)
-- `DB_URL` - PostgreSQL connection string (required, sensitive)
-- `EMAIL_RESEND_API_KEY` - Resend service API key (required for staging/production, sensitive)
-- `EMAIL_SENDER_PROFILES` - JSON object defining sender profiles (required)
-- `COMPANY_NAME` - Company name for emails (default: The Company)
-- `COMPANY_SOCIAL_LINKS` - JSON object containing social media links
+Define generic interfaces that support multiple implementations:
 
-**Environment-specific files (.env.development, .env.production, .env.staging, .env.test):**
+```typescript
+// captcha.ts - Generic interface
+export interface Captcha {
+  validate: (token: string) => Promise<void>
+}
 
-- `LOG_LEVEL` - Logging level (debug/info/error)
-- `BE_BASE_URL` - Backend base URL for API endpoints
-- `FE_BASE_URL` - Frontend base URL for email links
-- `PORT` - Server port (default: 3000, optional)
+// config.ts - General configuration
+export interface Config {
+  baseUrl: string
+  path: string
+  headers: Record<string, string>
+  secret: string
+}
+```
 
-**Development-specific (.env.development):**
+#### 3. Helper Interfaces
 
-- `EMAIL_ETHEREAL_HOST` - Ethereal SMTP host (smtp.ethereal.email)
-- `EMAIL_ETHEREAL_PORT` - Ethereal SMTP port (587)
-- `EMAIL_ETHEREAL_USERNAME` - Ethereal account username
-- `EMAIL_ETHEREAL_PASSWORD` - Ethereal account password
+Create supporting interfaces for data types and configurations:
 
-**Note:** The `NODE_ENV` variable is automatically set based on which environment file is being used and determines:
+```typescript
+// Provider-specific types
+export interface Result {
+  'success': boolean
+  'challenge_ts'?: string
+  'hostname'?: string
+  'error-codes'?: string[]
+}
+```
 
-- Which environment-specific `.env` file is loaded
-- Whether to show stack traces in errors (hidden in production/staging)
-- Logging configuration (pretty printing in development)
-- Email provider selection (Ethereal for development, Resend for staging/production)
+#### 4. Concrete Implementation
 
-#### EMAIL_SENDER_PROFILES Format
+Implement the generic interface with provider-specific logic:
 
-Required JSON structure for sender profiles (place in base `.env` file):
+```typescript
+// recaptcha/recaptcha.ts
+export class Recaptcha implements Captcha {
+  constructor(private config: Config) {}
 
-```json
-{
-  "system": {
-    "email": "noreply@company.com",
-    "name": "Company Name"
-  },
-  "support": {
-    "email": "support@company.com",
-    "name": "Support Team"
-  },
-  "ceo": {
-    "email": "ceo@company.com",
-    "name": "CEO Name"
-  },
-  "marketing": {
-    "email": "marketing@company.com",
-    "name": "Marketing Team"
+  async validate(token: string): Promise<void> {
+    // Provider-specific implementation
   }
 }
 ```
 
-#### Example Environment File Structure
+#### 5. Factory Pattern
 
+Provide factory method for service creation:
+
+```typescript
+// factory.ts
+export const createCaptcha = (): Captcha => {
+  return new Recaptcha(recaptchaConfig)
+}
 ```
-project/
-├── .env                    # Sensitive values (JWT_SECRET, DB_URL, etc.)
-├── .env.development        # Development settings (LOG_LEVEL=debug, Ethereal email)
-├── .env.production        # Production settings (LOG_LEVEL=info, Resend email)
-├── .env.staging           # Staging settings (LOG_LEVEL=info, Resend email)
-├── .env.test              # Test settings (LOG_LEVEL=error)
-├── .env.local             # Local overrides (optional, not in git)
-└── .env.example           # Template for environment setup
+
+#### 6. Encapsulation Strategy
+
+Export only public API via index.ts:
+
+```typescript
+// index.ts - Public API only
+export type { Captcha } from './captcha'
+export { createCaptcha } from './factory'
+// Implementation details (Recaptcha class) NOT exported
 ```
+
+#### 7. Usage Pattern
+
+Services should be consumed via factory methods and generic interfaces:
+
+```typescript
+// middleware/captcha.ts
+import { createCaptcha } from '@/services/captcha'
+
+export const captchaMiddleware = (): MiddlewareHandler => {
+  const captcha = createCaptcha() // Single instance for performance
+
+  return async (c, next) => {
+    const { captchaToken } = await c.req.json()
+    await captcha.validate(captchaToken)
+    await next()
+  }
+}
+```
+
+**Benefits:**
+
+- **Extensibility**: Easy to add new providers (hCaptcha, Turnstile)
+- **Testability**: Mock interfaces for testing
+- **Maintainability**: Clear separation of concerns
+- **Performance**: Reusable service instances via closure pattern
+- **Type Safety**: Full TypeScript support with proper abstractions
+
+**Use this pattern for:** Payment processors, Email providers, SMS services, File storage, Analytics services, etc.
+
+### Coding Standards
+
+- **ESLint Configuration**: Using @antfu/eslint-config with strict rules
+- **File Naming**: Kebab-case for all files (except README.md, CLAUDE.md)
+- **Import Style**: Path aliases using `@/` for src directory imports
+- **Function Style**: Arrow functions preferred (`const funcName = () => {}`)
+- **Code Style**: 2-space indentation, no semicolons, single quotes
+- **Curly Braces**: Always required, even for single-line blocks
+- **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
+  - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
+  - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`
+  - Prefer `export default class MyClass` over `class MyClass` + `export { MyClass as default }`
+  - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
+  - ESLint rule enforces blank lines between export statements for readability
+
+#### Comment Formatting Standards
+
+**Primary Rule**: Prefer descriptive and meaningful names for variables, functions, and classes instead of comments.
+
+**When comments are necessary:**
+
+- **Trailing Comments**: Keep short, no uppercase letter at beginning, no dot at end
+
+  ```typescript
+  const timeout = 5000 // milliseconds
+  const isValid = checkAuth() // validates JWT token
+  ```
+
+- **Full-Line Comments (Single Sentence)**: Start with uppercase letter, no dot at end
+
+  ```typescript
+  // Validate user permissions before processing request
+  const hasPermission = await checkUserRole(userId)
+  ```
+
+- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences
+
+  ```typescript
+  // Initialize database connection pool. This ensures optimal performance
+  // for concurrent requests. The pool size is configured via environment variables.
+  const pool = createConnectionPool()
+  ```
+
+#### Interface Implementation Naming Convention
+
+When creating interfaces with multiple implementations, follow this naming pattern:
+
+**Interface Files:**
+
+- **Filename**: Use kebab-case ending with the interface concept (e.g., `email-renderer.ts`)
+- **Interface Name**: Use PascalCase matching the concept (e.g., `EmailRenderer`)
+
+**Implementation Files:**
+
+- **Filename**: Start with interface filename + implementation name (e.g., `email-renderer-password-reset.ts`, `email-renderer-welcome.ts`)
+- **Class Name**: Use PascalCase ending with interface name (e.g., `PasswordResetEmailRenderer`, `WelcomeEmailRenderer`)
+
+**Example Structures:**
+
+_Email Renderers (following new convention):_
+
+```text
+src/emails/renderers/
+├── email-renderer.ts                    # Interface: EmailRenderer
+├── email-renderer-password-reset.ts     # Class: PasswordResetEmailRenderer
+├── email-renderer-welcome.ts            # Class: WelcomeEmailRenderer
+└── helper.ts                            # Utilities
+```
+
+_Email Providers (existing pattern):_
+
+```text
+src/services/email/providers/
+├── provider.ts                          # Interface: EmailProvider
+├── provider-ethereal.ts                 # Class: EtherealEmailProvider
+├── provider-resend.ts                   # Class: ResendEmailProvider
+├── payload.ts                           # Supporting types
+├── factory.ts                           # Factory function
+└── index.ts                             # Public exports
+```
+
+This convention groups implementations together alphabetically and makes the relationship to the interface explicit.
+
+### Environment Configuration
+
+**Bun Native Environment Loading:**
+Bun automatically loads environment files based on `NODE_ENV` without requiring the `dotenv` package. See `.env.example` for complete environment variable documentation, supported environments, and configuration examples.
 
 ### Email Configuration
 
@@ -229,3 +378,33 @@ project/
 - Files located in `./static/` directory
 - Includes proper MIME type detection and caching headers
 - CORS configured per environment with appropriate origins
+
+### Middleware Stack Order
+
+Middleware is applied in this specific order in `server.ts`:
+
+1. **Security Headers** - CSP, HSTS, X-Frame-Options, etc.
+2. **CORS** - Cross-origin resource sharing configuration
+3. **Request ID** - Unique ID generation for request tracking
+4. **Logger** - Pino request/response logging
+5. **General Size Limiter** - 100KB default request size limit
+6. **General Rate Limiter** - 100 requests per 15 minutes
+7. **Auth-specific middleware** (for `/api/v1/auth/*`):
+   - Size Limiter: 10KB for auth endpoints
+   - Rate Limiter: 5 attempts per 15 minutes
+8. **Protected route auth** (for `/api/v1/protected/*`): JWT validation, allows new users
+9. **Private route auth** (for `/api/v1/private/*`): JWT validation, requires verified users
+
+### CORS Configuration
+
+- **Development**: Automatically allows all localhost ports (`http://localhost:*`, `http://127.0.0.1:*`)
+- **Test**: All origins allowed with credentials disabled
+- **Staging/Production**: Strict validation requiring `ALLOWED_ORIGINS` environment variable
+- **Important**: In production/staging, `ALLOWED_ORIGINS` must be a comma-separated list of allowed frontend URLs
+
+## Important Instruction Reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.

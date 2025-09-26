@@ -31,6 +31,6 @@ export const createRateLimiter = (config: RateLimiterConfig = {}): MiddlewareHan
     statusCode,
     keyGenerator,
     skip,
-    standardHeaders: 'draft-6', // Add standard rate limit headers
+    standardHeaders: 'draft-6', // add standard rate limit headers
   })
 }
