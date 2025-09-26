@@ -143,7 +143,7 @@ describe('Request Password Reset', () => {
     it('should throw the error and not send email', async () => {
       try {
         await requestPasswordReset(mockUser.email)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -207,7 +207,7 @@ describe('Request Password Reset', () => {
     it('should throw the error and not proceed with token creation or email', async () => {
       try {
         await requestPasswordReset(mockUser.email)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')

@@ -220,7 +220,7 @@ describe('Signup with Email', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.EmailAlreadyInUse)
@@ -255,7 +255,7 @@ describe('Signup with Email', () => {
     it('should throw the error and not proceed with auth or token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -290,7 +290,7 @@ describe('Signup with Email', () => {
     it('should throw the error and not proceed with token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Auth table unavailable')
@@ -325,7 +325,7 @@ describe('Signup with Email', () => {
     it('should throw the error and not send email', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token creation failed')
@@ -515,7 +515,7 @@ describe('Signup with Email', () => {
     it('should throw the crypto error and not proceed with auth creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Crypto library error')
@@ -550,7 +550,7 @@ describe('Signup with Email', () => {
     it('should throw the error and not proceed with new token creation', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // Should not reach here
+        expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token deprecation failed')
