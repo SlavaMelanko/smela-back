@@ -24,6 +24,14 @@ const setVerifiedStatus = async (userId: number): Promise<User> => {
   return updatedUser
 }
 
+const signJwt = async (user: User) => jwt.sign(
+  user.id,
+  user.email,
+  user.role,
+  user.status,
+  user.tokenVersion,
+)
+
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
@@ -33,13 +41,7 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
 
   const updatedUser = await setVerifiedStatus(validatedToken.userId)
 
-  const jwtToken = await jwt.sign(
-    updatedUser.id,
-    updatedUser.email,
-    updatedUser.role,
-    updatedUser.status,
-    updatedUser.tokenVersion,
-  )
+  const jwtToken = await signJwt(updatedUser)
 
   return { user: normalizeUser(updatedUser), token: jwtToken }
 }

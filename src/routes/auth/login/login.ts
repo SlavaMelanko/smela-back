@@ -1,3 +1,5 @@
+import type { User } from '@/repositories'
+
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import jwt from '@/lib/jwt'
@@ -19,6 +21,14 @@ const comparePasswords = async (password: string, hashedPassword: string) => {
   return await encoder.compare(password, hashedPassword)
 }
 
+const signJwt = async (user: User) => jwt.sign(
+  user.id,
+  user.email,
+  user.role,
+  user.status,
+  user.tokenVersion,
+)
+
 const logInWithEmail = async ({ email, password }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
@@ -38,7 +48,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  const token = await jwt.sign(user.id, user.email, user.role, user.status, user.tokenVersion)
+  const token = await signJwt(user)
 
   return { user: normalizeUser(user), token }
 }
