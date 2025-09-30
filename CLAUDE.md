@@ -81,6 +81,45 @@ Key tables:
 - `permissions` - Role-based access control
 - `tokens` - Email verification and password reset tokens
 
+### Database Connection
+
+The project uses **Neon serverless PostgreSQL** with the **WebSocket driver** (`drizzle-orm/neon-serverless`) for full transaction support:
+
+```typescript
+import { Pool } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-serverless'
+
+const pool = new Pool({
+  connectionString: env.DB_URL,
+  max: env.DB_MAX_CONNECTIONS, // 2 for dev/test, 10 for staging/prod
+})
+const db = drizzle(pool, { schema, logger: isDevEnv() })
+```
+
+**Connection Pool Configuration:**
+
+- **Development/Test**: 2 connections (minimal resource usage, single-user pattern)
+- **Staging/Production**: 10 connections (higher throughput for concurrent users)
+- Configured via `DB_MAX_CONNECTIONS` environment variable
+
+**Transaction Support:**
+
+```typescript
+// Example: Atomic user signup with auth record
+await db.transaction(async (tx) => {
+  const [user] = await tx.insert(usersTable).values(userData).returning()
+  await tx.insert(authTable).values({ userId: user.id, ...authData })
+  await tx.insert(tokensTable).values({ userId: user.id, ...tokenData })
+})
+```
+
+**Important:** The WebSocket driver supports:
+
+- ✅ Interactive transactions
+- ✅ Connection pooling with configurable size
+- ✅ Prepared statements
+- ✅ Session management
+
 ### Authentication Flow
 
 1. Signup creates user + auth record + verification token
