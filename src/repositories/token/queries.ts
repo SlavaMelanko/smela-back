@@ -1,5 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
 import type { Token } from '@/types'
 
 import db, { tokensTable } from '@/db'
@@ -7,8 +8,10 @@ import { TokenStatus } from '@/types'
 
 import type { CreateTokenInput, TokenRecord, UpdateTokenInput } from './types'
 
-export const deprecateOldTokens = async (userId: number, token: Token) => {
-  await db
+export const deprecateOldTokens = async (userId: number, token: Token, tx?: Transaction) => {
+  const executor = tx || db
+
+  await executor
     .update(tokensTable)
     .set({ status: TokenStatus.Deprecated })
     .where(
@@ -21,8 +24,9 @@ export const deprecateOldTokens = async (userId: number, token: Token) => {
     )
 }
 
-export const createToken = async (token: CreateTokenInput): Promise<number> => {
-  const [createdToken] = await db
+export const createToken = async (token: CreateTokenInput, tx?: Transaction): Promise<number> => {
+  const executor = tx || db
+  const [createdToken] = await executor
     .insert(tokensTable)
     .values({
       ...token,

@@ -1,11 +1,15 @@
 import { eq } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
+
 import db, { authTable } from '@/db'
 
 import type { AuthRecord, CreateAuthInput, UpdateAuthInput } from './types'
 
-export const createAuth = async (auth: CreateAuthInput): Promise<number> => {
-  const [createdAuth] = await db
+export const createAuth = async (auth: CreateAuthInput, tx?: Transaction): Promise<number> => {
+  const executor = tx || db
+
+  const [createdAuth] = await executor
     .insert(authTable)
     .values(auth)
     .returning({ id: authTable.id })

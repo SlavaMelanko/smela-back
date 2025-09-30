@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
 import type { Role, Status } from '@/types'
 
 import db, { usersTable } from '@/db'
@@ -19,8 +20,10 @@ const toTypeSafeUser = (user: UserRecord): User | undefined => {
   }
 }
 
-export const createUser = async (user: CreateUserInput): Promise<User> => {
-  const [createdUser] = await db
+export const createUser = async (user: CreateUserInput, tx?: Transaction): Promise<User> => {
+  const executor = tx || db
+
+  const [createdUser] = await executor
     .insert(usersTable)
     .values(user)
     .returning()
