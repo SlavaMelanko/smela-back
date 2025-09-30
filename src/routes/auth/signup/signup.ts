@@ -24,10 +24,6 @@ const createUser = async ({ firstName, lastName, email, password }: SignupParams
     status: Status.New,
   })
 
-  if (!newUser) {
-    throw new AppError(ErrorCode.InternalError)
-  }
-
   const encoder = createPasswordEncoder()
   const hashedPassword = await encoder.hash(password)
 

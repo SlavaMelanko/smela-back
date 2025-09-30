@@ -19,13 +19,17 @@ const toTypeSafeUser = (user: UserRecord): User | undefined => {
   }
 }
 
-export const createUser = async (user: CreateUserInput): Promise<User | undefined> => {
+export const createUser = async (user: CreateUserInput): Promise<User> => {
   const [createdUser] = await db
     .insert(usersTable)
     .values(user)
     .returning()
 
-  return toTypeSafeUser(createdUser)
+  if (!createdUser) {
+    throw new AppError(ErrorCode.InternalError, 'Failed to create user')
+  }
+
+  return toTypeSafeUser(createdUser) as User
 }
 
 export const findUserById = async (userId: number): Promise<User | undefined> => {
@@ -46,14 +50,18 @@ export const findUserByEmail = async (email: string): Promise<User | undefined> 
   return toTypeSafeUser(foundUser)
 }
 
-export const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User | undefined> => {
+export const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User> => {
   const [updatedUser] = await db
     .update(usersTable)
     .set({ ...updates, updatedAt: new Date() })
     .where(eq(usersTable.id, userId))
     .returning()
 
-  return toTypeSafeUser(updatedUser)
+  if (!updatedUser) {
+    throw new AppError(ErrorCode.InternalError, 'Failed to update user')
+  }
+
+  return toTypeSafeUser(updatedUser) as User
 }
 
 // Increment token version to invalidate all existing JWTs
@@ -64,11 +72,7 @@ export const incrementTokenVersion = async (userId: number): Promise<void> => {
     throw new AppError(ErrorCode.NotFound, 'User not found')
   }
 
-  const updatedUser = await updateUser(userId, {
+  await updateUser(userId, {
     tokenVersion: user.tokenVersion + 1,
   })
-
-  if (!updatedUser) {
-    throw new AppError(ErrorCode.InternalError)
-  }
 }

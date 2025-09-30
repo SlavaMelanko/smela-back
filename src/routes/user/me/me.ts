@@ -36,9 +36,5 @@ export const updateUser = async (userId: number, updates: UpdateUserInput) => {
     updatedAt: new Date(),
   })
 
-  if (!updatedUser) {
-    throw new AppError(ErrorCode.InternalError, 'Failed to update user.')
-  }
-
   return updatedUser
 }

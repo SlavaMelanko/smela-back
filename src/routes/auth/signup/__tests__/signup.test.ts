@@ -90,7 +90,7 @@ describe('Signup with Email', () => {
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: mockSignupParams.email,
-        role: 'user',
+        role: Role.User,
         status: Status.New,
       })
       expect(userRepo.create).toHaveBeenCalledTimes(1)
@@ -380,7 +380,7 @@ describe('Signup with Email', () => {
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: uppercaseEmail,
-        role: 'user',
+        role: Role.User,
         status: Status.New,
       })
       const { tokenVersion, ...expectedUser } = mockNewUser
@@ -415,7 +415,7 @@ describe('Signup with Email', () => {
         firstName: 'Al',
         lastName: 'Bo',
         email: mockSignupParams.email,
-        role: 'user',
+        role: Role.User,
         status: Status.New,
       })
 
@@ -433,7 +433,7 @@ describe('Signup with Email', () => {
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: mockSignupParams.email,
-        role: 'user',
+        role: Role.User,
         status: Status.New,
       })
       const { tokenVersion: _, ...expectedUser } = mockNewUser
@@ -473,7 +473,7 @@ describe('Signup with Email', () => {
         firstName: longFirstName,
         lastName: longLastName,
         email: mockSignupParams.email,
-        role: 'user',
+        role: Role.User,
         status: Status.New,
       })
     })

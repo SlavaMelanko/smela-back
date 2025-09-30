@@ -390,7 +390,7 @@ describe('Verify Email', () => {
     })
   })
 
-  describe('when user update returns null', () => {
+  describe('when user update fails', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/repositories', () => ({
         tokenRepo: {
@@ -398,13 +398,13 @@ describe('Verify Email', () => {
           update: mock(() => Promise.resolve()),
         },
         userRepo: {
-          update: mock(() => Promise.resolve(null)),
+          update: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user'))),
         },
         authRepo: {},
       }))
     })
 
-    it('should throw error when user update returns null', async () => {
+    it('should throw error when user update fails', async () => {
       try {
         await verifyEmail(mockToken)
         expect(true).toBe(false) // should not reach here

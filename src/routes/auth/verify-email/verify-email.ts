@@ -1,6 +1,5 @@
 import type { User } from '@/repositories/user/types'
 
-import { AppError, ErrorCode } from '@/lib/catch'
 import jwt from '@/lib/jwt'
 import { TokenValidator } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
@@ -21,10 +20,6 @@ const markTokenAsUsed = async (tokenId: number): Promise<void> => {
 
 const setVerifiedStatus = async (userId: number): Promise<User> => {
   const updatedUser = await userRepo.update(userId, { status: Status.Verified })
-
-  if (!updatedUser) {
-    throw new AppError(ErrorCode.InternalError)
-  }
 
   return updatedUser
 }
