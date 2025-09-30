@@ -7,8 +7,7 @@ import { Status, Token } from '@/types'
 const createEmailVerificationToken = async (userId: number) => {
   const { type, token, expiresAt } = generateToken(Token.EmailVerification)
 
-  await tokenRepo.deprecateOld(userId, type)
-  await tokenRepo.create({ userId, type, token, expiresAt })
+  await tokenRepo.replace(userId, { userId, type, token, expiresAt })
 
   return token
 }

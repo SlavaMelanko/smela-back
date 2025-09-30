@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import db from '@/db'
 import { Role, Status, Token } from '@/types'
 
 import requestPasswordReset from '../request-password-reset'
@@ -37,8 +36,7 @@ describe('Request Password Reset', () => {
     }
 
     mockTokenRepo = {
-      deprecateOld: mock(() => Promise.resolve()),
-      create: mock(() => Promise.resolve()),
+      replace: mock(() => Promise.resolve()),
     }
 
     mockEmailAgent = {
@@ -49,14 +47,6 @@ describe('Request Password Reset', () => {
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
       authRepo: {},
-    }))
-
-    await moduleMocker.mock('@/db', () => ({
-      default: {
-        transaction: mock(async (callback: any) => {
-          return await callback({})
-        }),
-      },
     }))
 
     await moduleMocker.mock('@/lib/token', () => ({
@@ -77,24 +67,17 @@ describe('Request Password Reset', () => {
   })
 
   describe('successful password reset request', () => {
-    it('should deprecate old tokens, create new token, and send reset email', async () => {
+    it('should replace token and send reset email', async () => {
       const result = await requestPasswordReset(mockUser.email)
 
-      // Transaction should be called
-      expect(db.transaction).toHaveBeenCalledTimes(1)
-
-      // Deprecate old tokens with transaction parameter
-      expect(mockTokenRepo.deprecateOld).toHaveBeenCalledWith(mockUser.id, Token.PasswordReset, {})
-      expect(mockTokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-
-      // Create new token with transaction parameter
-      expect(mockTokenRepo.create).toHaveBeenCalledWith({
+      // Replace token should be called
+      expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.PasswordReset,
         token: mockToken,
         expiresAt: mockExpiresAt,
-      }, {})
-      expect(mockTokenRepo.create).toHaveBeenCalledTimes(1)
+      })
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
       // Send reset email
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith({
@@ -113,9 +96,7 @@ describe('Request Password Reset', () => {
       const result = await requestPasswordReset('nonexistent@example.com')
 
       expect(result).toEqual({ success: true })
-      expect(db.transaction).not.toHaveBeenCalled()
-      expect(mockTokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(mockTokenRepo.create).not.toHaveBeenCalled()
+      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
     })
   })
@@ -131,18 +112,16 @@ describe('Request Password Reset', () => {
         const result = await requestPasswordReset(mockUser.email)
 
         expect(result).toEqual({ success: true })
-        expect(db.transaction).not.toHaveBeenCalled()
-        expect(mockTokenRepo.deprecateOld).not.toHaveBeenCalled()
-        expect(mockTokenRepo.create).not.toHaveBeenCalled()
+        expect(mockTokenRepo.replace).not.toHaveBeenCalled()
         expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
       })
     })
   })
 
   describe('token operation failure scenarios', () => {
-    it('should throw error when token deprecation fails and not proceed', async () => {
+    it('should throw error when token replacement fails and not send email', async () => {
       mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(mockUser))
-      mockTokenRepo.deprecateOld.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
 
       try {
         await requestPasswordReset(mockUser.email)
@@ -152,27 +131,7 @@ describe('Request Password Reset', () => {
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.create).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
-    })
-
-    it('should throw error when token creation fails and not send email', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(mockUser))
-      mockTokenRepo.create.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
-
-      try {
-        await requestPasswordReset(mockUser.email)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Database connection failed')
-      }
-
-      expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
       expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
     })
   })
@@ -187,9 +146,7 @@ describe('Request Password Reset', () => {
 
       expect(result).toEqual({ success: true })
 
-      expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
     })
   })

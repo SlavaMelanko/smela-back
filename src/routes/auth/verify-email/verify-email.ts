@@ -1,5 +1,6 @@
 import type { User } from '@/repositories/user/types'
 
+import db from '@/db'
 import jwt from '@/lib/jwt'
 import { TokenValidator } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
@@ -11,17 +12,10 @@ export interface VerifyEmailResult {
   token: string
 }
 
-const markTokenAsUsed = async (tokenId: number): Promise<void> => {
-  await tokenRepo.update(tokenId, {
-    status: TokenStatus.Used,
-    usedAt: new Date(),
-  })
-}
+const validateToken = async (token: string) => {
+  const tokenRecord = await tokenRepo.findByToken(token)
 
-const setVerifiedStatus = async (userId: number): Promise<User> => {
-  const updatedUser = await userRepo.update(userId, { status: Status.Verified })
-
-  return updatedUser
+  return TokenValidator.validate(tokenRecord, Token.EmailVerification)
 }
 
 const signJwt = async (user: User) => jwt.sign(
@@ -33,13 +27,18 @@ const signJwt = async (user: User) => jwt.sign(
 )
 
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
-  const tokenRecord = await tokenRepo.findByToken(token)
+  const validatedToken = await validateToken(token)
 
-  const validatedToken = TokenValidator.validate(tokenRecord, Token.EmailVerification)
+  const updatedUser = await db.transaction(async (tx) => {
+    // Mark token as used
+    await tokenRepo.update(validatedToken.id, {
+      status: TokenStatus.Used,
+      usedAt: new Date(),
+    }, tx)
 
-  await markTokenAsUsed(validatedToken.id)
-
-  const updatedUser = await setVerifiedStatus(validatedToken.userId)
+    // Update user status
+    return userRepo.update(validatedToken.userId, { status: Status.Verified }, tx)
+  })
 
   const jwtToken = await signJwt(updatedUser)
 

@@ -34,8 +34,7 @@ describe('Resend Verification Email', () => {
         findByEmail: mock(() => Promise.resolve(mockUser)),
       },
       tokenRepo: {
-        deprecateOld: mock(() => Promise.resolve()),
-        create: mock(() => Promise.resolve()),
+        replace: mock(() => Promise.resolve()),
       },
       authRepo: {},
     }))
@@ -60,19 +59,16 @@ describe('Resend Verification Email', () => {
   })
 
   describe('when user exists and is not verified', () => {
-    it('should deprecate old tokens and create a new verification token', async () => {
+    it('should replace token with new verification token', async () => {
       const result = await resendVerificationEmail(mockUser.email)
 
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledWith(mockUser.id, Token.EmailVerification)
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-
-      expect(tokenRepo.create).toHaveBeenCalledWith({
+      expect(tokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.EmailVerification,
         token: mockToken,
         expiresAt: mockExpiresAt,
       })
-      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ success: true })
     })
@@ -96,8 +92,7 @@ describe('Resend Verification Email', () => {
           findByEmail: mock(() => Promise.resolve(null)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve()),
+          replace: mock(() => Promise.resolve()),
         },
         authRepo: {},
       }))
@@ -107,8 +102,7 @@ describe('Resend Verification Email', () => {
       const result = await resendVerificationEmail('nonexistent@example.com')
 
       expect(result).toEqual({ success: true })
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -125,8 +119,7 @@ describe('Resend Verification Email', () => {
           findByEmail: mock(() => Promise.resolve(verifiedUser)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve()),
+          replace: mock(() => Promise.resolve()),
         },
         authRepo: {},
       }))
@@ -136,8 +129,7 @@ describe('Resend Verification Email', () => {
       const result = await resendVerificationEmail(verifiedUser.email)
 
       expect(result).toEqual({ success: true })
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -154,8 +146,7 @@ describe('Resend Verification Email', () => {
           findByEmail: mock(() => Promise.resolve(suspendedUser)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve()),
+          replace: mock(() => Promise.resolve()),
         },
         authRepo: {},
       }))
@@ -165,21 +156,19 @@ describe('Resend Verification Email', () => {
       const result = await resendVerificationEmail(suspendedUser.email)
 
       expect(result).toEqual({ success: true })
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
-  describe('when token creation fails', () => {
+  describe('when token replacement fails', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.reject(new Error('Database error'))),
+          replace: mock(() => Promise.reject(new Error('Database error'))),
         },
         authRepo: {},
       }))
@@ -194,7 +183,7 @@ describe('Resend Verification Email', () => {
         expect((error as Error).message).toBe('Database error')
       }
 
-      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
+      expect(tokenRepo.replace).toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -224,8 +213,7 @@ describe('Resend Verification Email', () => {
             findByEmail: mock(() => Promise.resolve(userWithStatus)),
           },
           tokenRepo: {
-            deprecateOld: mock(() => Promise.resolve()),
-            create: mock(() => Promise.resolve()),
+            replace: mock(() => Promise.resolve()),
           },
           authRepo: {},
         }))
@@ -233,8 +221,7 @@ describe('Resend Verification Email', () => {
         const result = await resendVerificationEmail(userWithStatus.email)
 
         expect(result).toEqual({ success: true })
-        expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-        expect(tokenRepo.create).not.toHaveBeenCalled()
+        expect(tokenRepo.replace).not.toHaveBeenCalled()
         expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
       }
     })
@@ -247,8 +234,7 @@ describe('Resend Verification Email', () => {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve()),
+          replace: mock(() => Promise.resolve()),
         },
         authRepo: {},
       }))
@@ -265,27 +251,25 @@ describe('Resend Verification Email', () => {
 
       expect(result).toEqual({ success: true })
 
-      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
-      expect(tokenRepo.create).toHaveBeenCalled()
+      expect(tokenRepo.replace).toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalled()
     })
   })
 
-  describe('when deprecateOld fails', () => {
+  describe('when replace fails due to transaction error', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.reject(new Error('Database connection failed'))),
-          create: mock(() => Promise.resolve()),
+          replace: mock(() => Promise.reject(new Error('Database connection failed'))),
         },
         authRepo: {},
       }))
     })
 
-    it('should throw the error and not proceed with token creation or email', async () => {
+    it('should throw the error and not send email', async () => {
       try {
         await resendVerificationEmail(mockUser.email)
         expect(true).toBe(false) // should not reach here
@@ -294,8 +278,7 @@ describe('Resend Verification Email', () => {
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(tokenRepo.deprecateOld).toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })

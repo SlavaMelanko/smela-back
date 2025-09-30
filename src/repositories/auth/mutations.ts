@@ -17,8 +17,9 @@ export const createAuth = async (auth: CreateAuthInput, tx?: Transaction): Promi
   return createdAuth.id
 }
 
-export const updateAuth = async (userId: number, updates: UpdateAuthInput): Promise<void> => {
-  await db
+export const updateAuth = async (userId: number, updates: UpdateAuthInput, tx?: Transaction): Promise<void> => {
+  const executor = tx || db
+  await executor
     .update(authTable)
     .set({ ...updates, updatedAt: new Date() })
     .where(eq(authTable.userId, userId))

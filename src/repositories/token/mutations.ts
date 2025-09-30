@@ -37,11 +37,29 @@ export const createToken = async (token: CreateTokenInput, tx?: Transaction): Pr
   return createdToken.id
 }
 
+export const replaceToken = async (
+  userId: number,
+  token: CreateTokenInput,
+  tx?: Transaction,
+): Promise<void> => {
+  if (tx) {
+    await deprecateOldTokens(userId, token.type, tx)
+    await createToken(token, tx)
+  } else {
+    await db.transaction(async (tx) => {
+      await deprecateOldTokens(userId, token.type, tx)
+      await createToken(token, tx)
+    })
+  }
+}
+
 export const updateToken = async (
   tokenId: number,
   updates: UpdateTokenInput,
+  tx?: Transaction,
 ): Promise<void> => {
-  await db
+  const executor = tx || db
+  await executor
     .update(tokensTable)
     .set(updates)
     .where(eq(tokensTable.id, tokenId))

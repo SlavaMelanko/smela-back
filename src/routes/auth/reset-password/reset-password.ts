@@ -1,3 +1,4 @@
+import db from '@/db'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { TokenValidator } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
@@ -8,30 +9,35 @@ interface ResetPasswordParams {
   password: string
 }
 
-const markTokenAsUsed = async (tokenId: number): Promise<void> => {
-  await tokenRepo.update(tokenId, {
-    status: TokenStatus.Used,
-    usedAt: new Date(),
-  })
+const validateToken = async (token: string) => {
+  const tokenRecord = await tokenRepo.findByToken(token)
+
+  return TokenValidator.validate(tokenRecord, Token.PasswordReset)
 }
 
-const updatePassword = async (userId: number, newPassword: string): Promise<void> => {
+const hashPassword = async (password: string) => {
   const encoder = createPasswordEncoder()
-  const passwordHash = await encoder.hash(newPassword)
 
-  await authRepo.update(userId, { passwordHash })
+  return encoder.hash(password)
 }
 
 const resetPassword = async ({ token, password }: ResetPasswordParams): Promise<{ success: boolean }> => {
-  const tokenRecord = await tokenRepo.findByToken(token)
+  const validatedToken = await validateToken(token)
 
-  const validatedToken = TokenValidator.validate(tokenRecord, Token.PasswordReset)
+  await db.transaction(async (tx) => {
+    // Mark token as used
+    await tokenRepo.update(validatedToken.id, {
+      status: TokenStatus.Used,
+      usedAt: new Date(),
+    }, tx)
 
-  await markTokenAsUsed(validatedToken.id)
+    // Update user's password
+    const passwordHash = await hashPassword(password)
+    await authRepo.update(validatedToken.userId, { passwordHash }, tx)
 
-  await updatePassword(validatedToken.userId, password)
-
-  await userRepo.incrementTokenVersion(validatedToken.userId)
+    // Invalidate all existing sessions by incrementing token version
+    await userRepo.incrementTokenVersion(validatedToken.userId, tx)
+  })
 
   return { success: true }
 }

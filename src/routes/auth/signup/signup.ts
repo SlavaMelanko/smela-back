@@ -45,9 +45,7 @@ const createNewUser = async ({ firstName, lastName, email, password }: SignupPar
       passwordHash: hashedPassword,
     }, tx)
 
-    await tokenRepo.deprecateOld(newUser.id, type, tx)
-
-    await tokenRepo.create({
+    await tokenRepo.replace(newUser.id, {
       userId: newUser.id,
       type,
       token: verificationToken,

@@ -45,8 +45,7 @@ describe('Signup with Email', () => {
         create: mock(() => Promise.resolve(1)),
       },
       tokenRepo: {
-        deprecateOld: mock(() => Promise.resolve()),
-        create: mock(() => Promise.resolve(1)),
+        replace: mock(() => Promise.resolve()),
       },
     }))
 
@@ -157,14 +156,8 @@ describe('Signup with Email', () => {
     it('should create email verification token', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledWith(
+      expect(tokenRepo.replace).toHaveBeenCalledWith(
         mockNewUser.id,
-        Token.EmailVerification,
-        expect.anything(),
-      )
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-
-      expect(tokenRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           type: Token.EmailVerification,
@@ -173,7 +166,7 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
     })
 
     it('should send welcome email with verification token', async () => {
@@ -243,8 +236,7 @@ describe('Signup with Email', () => {
           create: mock(() => Promise.resolve(1)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve(1)),
+          replace: mock(() => Promise.resolve()),
         },
       }))
     })
@@ -262,8 +254,8 @@ describe('Signup with Email', () => {
       expect(db.transaction).not.toHaveBeenCalled()
       expect(userRepo.create).not.toHaveBeenCalled()
       expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -291,8 +283,8 @@ describe('Signup with Email', () => {
       expect(db.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -323,13 +315,13 @@ describe('Signup with Email', () => {
       expect(db.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
-  describe('when token creation fails', () => {
+  describe('when token replacement fails', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
@@ -340,8 +332,7 @@ describe('Signup with Email', () => {
           create: mock(() => Promise.resolve(1)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.reject(new Error('Token creation failed'))),
+          replace: mock(() => Promise.reject(new Error('Token replacement failed'))),
         },
       }))
     })
@@ -352,15 +343,15 @@ describe('Signup with Email', () => {
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Token creation failed')
+        expect((error as Error).message).toBe('Token replacement failed')
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -386,8 +377,8 @@ describe('Signup with Email', () => {
       expect(db.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
   })
@@ -532,13 +523,13 @@ describe('Signup with Email', () => {
       expect(db.transaction).not.toHaveBeenCalled()
       expect(userRepo.create).not.toHaveBeenCalled()
       expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).not.toHaveBeenCalled()
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
-  describe('when token deprecation fails', () => {
+  describe('when token replacement fails', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
@@ -549,8 +540,7 @@ describe('Signup with Email', () => {
           create: mock(() => Promise.resolve(1)),
         },
         tokenRepo: {
-          deprecateOld: mock(() => Promise.reject(new Error('Token deprecation failed'))),
-          create: mock(() => Promise.resolve(1)),
+          replace: mock(() => Promise.reject(new Error('Token replacement failed'))),
         },
       }))
     })
@@ -561,15 +551,15 @@ describe('Signup with Email', () => {
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Token deprecation failed')
+        expect((error as Error).message).toBe('Token replacement failed')
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })

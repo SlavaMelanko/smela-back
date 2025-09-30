@@ -24,8 +24,9 @@ export const createUser = async (user: CreateUserInput, tx?: Transaction): Promi
   return toTypeSafeUser(createdUser) as User
 }
 
-export const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User> => {
-  const [updatedUser] = await db
+export const updateUser = async (userId: number, updates: UpdateUserInput, tx?: Transaction): Promise<User> => {
+  const executor = tx || db
+  const [updatedUser] = await executor
     .update(usersTable)
     .set({ ...updates, updatedAt: new Date() })
     .where(eq(usersTable.id, userId))
@@ -38,7 +39,7 @@ export const updateUser = async (userId: number, updates: UpdateUserInput): Prom
   return toTypeSafeUser(updatedUser) as User
 }
 
-export const incrementTokenVersion = async (userId: number): Promise<void> => {
+export const incrementTokenVersion = async (userId: number, tx?: Transaction): Promise<void> => {
   const user = await findUserById(userId)
 
   if (!user) {
@@ -47,5 +48,5 @@ export const incrementTokenVersion = async (userId: number): Promise<void> => {
 
   await updateUser(userId, {
     tokenVersion: user.tokenVersion + 1,
-  })
+  }, tx)
 }
