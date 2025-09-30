@@ -82,7 +82,6 @@ describe('Signup with Email', () => {
         token: mockToken,
         expiresAt: mockExpiresAt,
       })),
-      EMAIL_VERIFICATION_EXPIRY_HOURS: 48,
     }))
 
     await moduleMocker.mock('@/lib/email-agent', () => ({

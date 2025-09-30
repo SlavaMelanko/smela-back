@@ -6,7 +6,7 @@ import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
-import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
+import { generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
@@ -27,7 +27,7 @@ const hashPassword = async (password: string) => {
 const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
   const hashedPassword = await hashPassword(password)
 
-  const { type, token: verificationToken, expiresAt } = generateToken(Token.EmailVerification, { expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS })
+  const { type, token: verificationToken, expiresAt } = generateToken(Token.EmailVerification)
 
   const newUser = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({
