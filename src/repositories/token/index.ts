@@ -1,9 +1,5 @@
-import {
-  createToken,
-  deprecateOldTokens,
-  findByToken,
-  updateToken,
-} from './queries'
+import { createToken, deprecateOldTokens, updateToken } from './mutations'
+import { findByToken } from './queries'
 
 export * from './types'
 
