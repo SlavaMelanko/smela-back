@@ -16,7 +16,6 @@ describe('Signup with Email', () => {
     lastName: 'Doe',
     email: 'john@example.com',
     password: 'ValidPass123!',
-    role: Role.User,
   }
 
   const mockNewUser = {
@@ -91,7 +90,7 @@ describe('Signup with Email', () => {
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: mockSignupParams.email,
-        role: mockSignupParams.role,
+        role: Role.User,
         status: Status.New,
       })
       expect(userRepo.create).toHaveBeenCalledTimes(1)
@@ -381,7 +380,7 @@ describe('Signup with Email', () => {
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: uppercaseEmail,
-        role: mockSignupParams.role,
+        role: Role.User,
         status: Status.New,
       })
       const { tokenVersion, ...expectedUser } = mockNewUser
@@ -416,7 +415,7 @@ describe('Signup with Email', () => {
         firstName: 'Al',
         lastName: 'Bo',
         email: mockSignupParams.email,
-        role: mockSignupParams.role,
+        role: Role.User,
         status: Status.New,
       })
 
@@ -427,41 +426,19 @@ describe('Signup with Email', () => {
       })
     })
 
-    it('should handle different user roles', async () => {
-      const adminSignupParams = { ...mockSignupParams, role: Role.Admin }
-      const adminUser = { ...mockNewUser, role: Role.Admin }
-
-      await moduleMocker.mock('@/repositories', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.resolve(adminUser)),
-        },
-        authRepo: {
-          create: mock(() => Promise.resolve()),
-        },
-        tokenRepo: {
-          deprecateOld: mock(() => Promise.resolve()),
-          create: mock(() => Promise.resolve()),
-        },
-      }))
-
-      const result = await signUpWithEmail(adminSignupParams)
+    it('should always assign user role regardless of input', async () => {
+      const result = await signUpWithEmail(mockSignupParams)
 
       expect(userRepo.create).toHaveBeenCalledWith({
         firstName: mockSignupParams.firstName,
         lastName: mockSignupParams.lastName,
         email: mockSignupParams.email,
-        role: Role.Admin,
+        role: Role.User,
         status: Status.New,
       })
-      const { tokenVersion: _, ...expectedAdminUser } = adminUser
-      expect(result.user).toEqual(expectedAdminUser)
-
-      // Also verify no sensitive fields for admin users
-      expect(result.user).not.toHaveProperty('tokenVersion')
-      // createdAt and updatedAt are now included in the response
-      expect(result.user).toHaveProperty('createdAt')
-      expect(result.user).toHaveProperty('updatedAt')
+      const { tokenVersion: _, ...expectedUser } = mockNewUser
+      expect(result.user).toEqual(expectedUser)
+      expect(result.user.role).toBe(Role.User)
     })
 
     it('should handle complex passwords', async () => {
@@ -496,7 +473,7 @@ describe('Signup with Email', () => {
         firstName: longFirstName,
         lastName: longLastName,
         email: mockSignupParams.email,
-        role: mockSignupParams.role,
+        role: Role.User,
         status: Status.New,
       })
     })

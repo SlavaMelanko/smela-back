@@ -5,7 +5,6 @@ const signupSchema = buildSchema({
   lastName: userRules.name.opt,
   email: userRules.email,
   password: userRules.password,
-  role: userRules.role,
   captchaToken: tokenRules.captchaToken,
 })
 
