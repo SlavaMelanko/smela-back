@@ -310,6 +310,10 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Code Style**: 2-space indentation, no semicolons, single quotes
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Variable Naming Conventions**:
+  - **camelCase**: Objects, arrays, and complex data structures (e.g., `tokenTypeOptions`, `userConfig`)
+  - **SCREAMING_SNAKE_CASE**: Primitives and simple constants (e.g., `MAX_RETRY_COUNT`, `API_TIMEOUT`)
+  - **PascalCase**: Classes, types, interfaces, and enums (e.g., `UserService`, `Status`, `EmailRenderer`)
 - **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
   - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
   - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`

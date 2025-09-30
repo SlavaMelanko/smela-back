@@ -15,7 +15,7 @@ interface GeneratedToken {
   expiresAt: Date
 }
 
-const TOKEN_TYPE_OPTIONS: Record<Token, Required<Options>> = {
+const tokenTypeOptions: Record<Token, Required<Options>> = {
   [Token.EmailVerification]: {
     expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS,
     tokenLength: TOKEN_LENGTH,
@@ -27,7 +27,7 @@ const TOKEN_TYPE_OPTIONS: Record<Token, Required<Options>> = {
 }
 
 export const generateToken = (type: Token, options?: Options): GeneratedToken => {
-  const defaultOptions = TOKEN_TYPE_OPTIONS[type]
+  const defaultOptions = tokenTypeOptions[type]
   const tokenGenerator = new CryptoTokenGenerator({ ...defaultOptions, ...options })
   const { token, expiresAt } = tokenGenerator.generateWithExpiry()
 
