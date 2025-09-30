@@ -1,3 +1,4 @@
+import db from '@/db'
 import { emailAgent } from '@/lib/email-agent'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
@@ -7,8 +8,10 @@ import { isActive, Token } from '@/types'
 const createPasswordResetToken = async (userId: number) => {
   const { type, token, expiresAt } = generateToken(Token.PasswordReset)
 
-  await tokenRepo.deprecateOld(userId, type)
-  await tokenRepo.create({ userId, type, token, expiresAt })
+  await db.transaction(async (tx) => {
+    await tokenRepo.deprecateOld(userId, type, tx)
+    await tokenRepo.create({ userId, type, token, expiresAt }, tx)
+  })
 
   return token
 }
