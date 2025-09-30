@@ -4,10 +4,7 @@ import { ModuleMocker } from '@/__tests__/module-mocker'
 import db from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
-import { userRepo } from '@/repositories'
-import { createAuth } from '@/repositories/auth/queries'
-import { createToken, deprecateOldTokens } from '@/repositories/token/queries'
-import { createUser } from '@/repositories/user/queries'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
@@ -42,14 +39,20 @@ describe('Signup with Email', () => {
     await moduleMocker.mock('@/repositories', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(null)),
+        create: mock(() => Promise.resolve(mockNewUser)),
+      },
+      authRepo: {
+        create: mock(() => Promise.resolve(1)),
+      },
+      tokenRepo: {
+        deprecateOld: mock(() => Promise.resolve()),
+        create: mock(() => Promise.resolve(1)),
       },
     }))
 
-    // Mock the db.transaction method
     await moduleMocker.mock('@/db', () => ({
       default: {
         transaction: mock(async (callback: any) => {
-          // Execute the callback with a mock transaction object
           return await callback({
             insert: mock(() => ({
               values: mock(() => ({
@@ -64,20 +67,6 @@ describe('Signup with Email', () => {
           })
         }),
       },
-    }))
-
-    await moduleMocker.mock('@/repositories/user/queries', () => ({
-      createUser: mock(() => Promise.resolve(mockNewUser)),
-      findUserByEmail: mock(() => Promise.resolve(null)),
-    }))
-
-    await moduleMocker.mock('@/repositories/auth/queries', () => ({
-      createAuth: mock(() => Promise.resolve(1)),
-    }))
-
-    await moduleMocker.mock('@/repositories/token/queries', () => ({
-      deprecateOldTokens: mock(() => Promise.resolve()),
-      createToken: mock(() => Promise.resolve(1)),
     }))
 
     await moduleMocker.mock('@/lib/crypto', () => ({
@@ -118,7 +107,7 @@ describe('Signup with Email', () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -126,9 +115,9 @@ describe('Signup with Email', () => {
           role: Role.User,
           status: Status.New,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
-      expect(createUser).toHaveBeenCalledTimes(1)
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
@@ -138,57 +127,54 @@ describe('Signup with Email', () => {
     it('should create auth record with hashed password', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(createAuth).toHaveBeenCalledWith(
+      expect(authRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
           identifier: mockSignupParams.email,
           passwordHash: mockHashedPassword,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
-      expect(createAuth).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledTimes(1)
     })
 
     it('should hash the password correctly', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      // Note: We can't easily test the internal encoder.hash call
-      // because createPasswordEncoder() creates a new instance each time
-      // This test verifies that the signup flow completes successfully
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
           identifier: mockSignupParams.email,
           passwordHash: mockHashedPassword,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
     })
 
     it('should create email verification token', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(deprecateOldTokens).toHaveBeenCalledWith(
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledWith(
         mockNewUser.id,
         Token.EmailVerification,
-        expect.anything(), // transaction object
+        expect.anything(),
       )
-      expect(deprecateOldTokens).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
 
-      expect(createToken).toHaveBeenCalledWith(
+      expect(tokenRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           type: Token.EmailVerification,
           token: mockToken,
           expiresAt: mockExpiresAt,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
-      expect(createToken).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
     })
 
     it('should send welcome email with verification token', async () => {
@@ -252,6 +238,14 @@ describe('Signup with Email', () => {
       await moduleMocker.mock('@/repositories', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(existingUser)),
+          create: mock(() => Promise.resolve(mockNewUser)),
+        },
+        authRepo: {
+          create: mock(() => Promise.resolve(1)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.resolve(1)),
         },
       }))
     })
@@ -259,7 +253,7 @@ describe('Signup with Email', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // should not reach here
+        expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.EmailAlreadyInUse)
@@ -267,26 +261,28 @@ describe('Signup with Email', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).not.toHaveBeenCalled()
-      expect(createUser).not.toHaveBeenCalled()
-      expect(createAuth).not.toHaveBeenCalled()
-      expect(deprecateOldTokens).not.toHaveBeenCalled()
-      expect(createToken).not.toHaveBeenCalled()
+      expect(userRepo.create).not.toHaveBeenCalled()
+      expect(authRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when user creation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories/user/queries', () => ({
-        createUser: mock(() => Promise.reject(new Error('Database connection failed'))),
-        findUserByEmail: mock(() => Promise.resolve(null)),
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+          create: mock(() => Promise.reject(new Error('Database connection failed'))),
+        },
       }))
     })
 
     it('should throw the error and rollback transaction', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // should not reach here
+        expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
@@ -294,26 +290,31 @@ describe('Signup with Email', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      // Transaction rolled back, so auth and token operations won't be called
-      expect(createAuth).not.toHaveBeenCalled()
-      expect(deprecateOldTokens).not.toHaveBeenCalled()
-      expect(createToken).not.toHaveBeenCalled()
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when auth creation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories/auth/queries', () => ({
-        createAuth: mock(() => Promise.reject(new Error('Auth table unavailable'))),
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+          create: mock(() => Promise.resolve(mockNewUser)),
+        },
+        authRepo: {
+          create: mock(() => Promise.reject(new Error('Auth table unavailable'))),
+        },
       }))
     })
 
     it('should throw the error and rollback transaction', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // should not reach here
+        expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Auth table unavailable')
@@ -321,27 +322,35 @@ describe('Signup with Email', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledTimes(1)
-      // Transaction rolled back, so token operations won't be called
-      expect(deprecateOldTokens).not.toHaveBeenCalled()
-      expect(createToken).not.toHaveBeenCalled()
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when token creation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories/token/queries', () => ({
-        deprecateOldTokens: mock(() => Promise.resolve()),
-        createToken: mock(() => Promise.reject(new Error('Token creation failed'))),
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+          create: mock(() => Promise.resolve(mockNewUser)),
+        },
+        authRepo: {
+          create: mock(() => Promise.resolve(1)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.resolve()),
+          create: mock(() => Promise.reject(new Error('Token creation failed'))),
+        },
       }))
     })
 
     it('should throw the error and rollback transaction', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // should not reach here
+        expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token creation failed')
@@ -349,10 +358,10 @@ describe('Signup with Email', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledTimes(1)
-      expect(deprecateOldTokens).toHaveBeenCalledTimes(1)
-      expect(createToken).toHaveBeenCalledTimes(1)
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
@@ -367,22 +376,19 @@ describe('Signup with Email', () => {
     })
 
     it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
-      // Email sending is now fire-and-forget, so signup should succeed even if email fails
       const result = await signUpWithEmail(mockSignupParams)
 
-      // Signup should complete successfully
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
 
-      // All operations should have been called
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledTimes(1)
-      expect(deprecateOldTokens).toHaveBeenCalledTimes(1)
-      expect(createToken).toHaveBeenCalledTimes(1)
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.create).toHaveBeenCalledTimes(1)
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
   })
@@ -395,7 +401,7 @@ describe('Signup with Email', () => {
       const result = await signUpWithEmail(paramsWithUppercaseEmail)
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
-      expect(createUser).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -403,7 +409,7 @@ describe('Signup with Email', () => {
           role: Role.User,
           status: Status.New,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
@@ -417,13 +423,16 @@ describe('Signup with Email', () => {
       }
 
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
-      await moduleMocker.mock('@/repositories/user/queries', () => ({
-        createUser: mock(() => Promise.resolve(userWithShortNames)),
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+          create: mock(() => Promise.resolve(userWithShortNames)),
+        },
       }))
 
       await signUpWithEmail(paramsWithShortNames)
 
-      expect(createUser).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: 'Al',
           lastName: 'Bo',
@@ -431,7 +440,7 @@ describe('Signup with Email', () => {
           role: Role.User,
           status: Status.New,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
 
       expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
@@ -444,7 +453,7 @@ describe('Signup with Email', () => {
     it('should always assign user role regardless of input', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(createUser).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -452,7 +461,7 @@ describe('Signup with Email', () => {
           role: Role.User,
           status: Status.New,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
       const { tokenVersion: _, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
@@ -465,17 +474,15 @@ describe('Signup with Email', () => {
 
       await signUpWithEmail(paramsWithComplexPassword)
 
-      // Note: We can't easily test the internal encoder.hash call
-      // This test verifies that complex passwords are handled correctly
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
           identifier: mockSignupParams.email,
           passwordHash: mockHashedPassword,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
     })
 
@@ -490,7 +497,7 @@ describe('Signup with Email', () => {
 
       await signUpWithEmail(paramsWithLongNames)
 
-      expect(createUser).toHaveBeenCalledWith(
+      expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: longFirstName,
           lastName: longLastName,
@@ -498,7 +505,7 @@ describe('Signup with Email', () => {
           role: Role.User,
           status: Status.New,
         },
-        expect.anything(), // transaction object
+        expect.anything(),
       )
     })
   })
@@ -523,28 +530,36 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      // Password hashing happens before transaction, so transaction is never started
       expect(db.transaction).not.toHaveBeenCalled()
-      expect(createUser).not.toHaveBeenCalled()
-      expect(createAuth).not.toHaveBeenCalled()
-      expect(deprecateOldTokens).not.toHaveBeenCalled()
-      expect(createToken).not.toHaveBeenCalled()
+      expect(userRepo.create).not.toHaveBeenCalled()
+      expect(authRepo.create).not.toHaveBeenCalled()
+      expect(tokenRepo.deprecateOld).not.toHaveBeenCalled()
+      expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when token deprecation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories/token/queries', () => ({
-        deprecateOldTokens: mock(() => Promise.reject(new Error('Token deprecation failed'))),
-        createToken: mock(() => Promise.resolve(1)),
+      await moduleMocker.mock('@/repositories', () => ({
+        userRepo: {
+          findByEmail: mock(() => Promise.resolve(null)),
+          create: mock(() => Promise.resolve(mockNewUser)),
+        },
+        authRepo: {
+          create: mock(() => Promise.resolve(1)),
+        },
+        tokenRepo: {
+          deprecateOld: mock(() => Promise.reject(new Error('Token deprecation failed'))),
+          create: mock(() => Promise.resolve(1)),
+        },
       }))
     })
 
     it('should throw the error and rollback transaction', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
-        expect(true).toBe(false) // should not reach here
+        expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token deprecation failed')
@@ -552,11 +567,10 @@ describe('Signup with Email', () => {
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(db.transaction).toHaveBeenCalledTimes(1)
-      expect(createUser).toHaveBeenCalledTimes(1)
-      expect(createAuth).toHaveBeenCalledTimes(1)
-      expect(deprecateOldTokens).toHaveBeenCalledTimes(1)
-      // Transaction rolled back, so new token creation won't be called
-      expect(createToken).not.toHaveBeenCalled()
+      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(authRepo.create).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.deprecateOld).toHaveBeenCalledTimes(1)
+      expect(tokenRepo.create).not.toHaveBeenCalled()
       expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })

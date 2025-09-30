@@ -8,10 +8,7 @@ import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
-import { userRepo } from '@/repositories'
-import { createAuth } from '@/repositories/auth/queries'
-import { createToken, deprecateOldTokens } from '@/repositories/token/queries'
-import { createUser } from '@/repositories/user/queries'
+import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 export interface SignupParams {
@@ -33,7 +30,7 @@ const createNewUser = async ({ firstName, lastName, email, password }: SignupPar
   const { type, token: verificationToken, expiresAt } = generateToken(Token.EmailVerification, { expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS })
 
   const newUser = await db.transaction(async (tx) => {
-    const newUser = await createUser({
+    const newUser = await userRepo.create({
       firstName,
       lastName,
       email,
@@ -41,16 +38,16 @@ const createNewUser = async ({ firstName, lastName, email, password }: SignupPar
       status: Status.New,
     }, tx)
 
-    await createAuth({
+    await authRepo.create({
       userId: newUser.id,
       provider: AuthProvider.Local,
       identifier: email,
       passwordHash: hashedPassword,
     }, tx)
 
-    await deprecateOldTokens(newUser.id, type, tx)
+    await tokenRepo.deprecateOld(newUser.id, type, tx)
 
-    await createToken({
+    await tokenRepo.create({
       userId: newUser.id,
       type,
       token: verificationToken,
