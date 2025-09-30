@@ -6,9 +6,9 @@ import HttpStatus from '@/lib/http-status'
 import signUpWithEmail from './signup'
 
 const signupHandler = async (c: Context) => {
-  const { firstName, lastName, email, password, role } = await c.req.json()
+  const { firstName, lastName, email, password } = await c.req.json()
 
-  const result = await signUpWithEmail({ firstName, lastName, email, password, role })
+  const result = await signUpWithEmail({ firstName, lastName, email, password })
 
   setAccessCookie(c, result.token)
 

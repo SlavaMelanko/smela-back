@@ -1,5 +1,3 @@
-import type { Role } from '@/types'
-
 import { AppError, ErrorCode } from '@/lib/catch'
 import { createPasswordEncoder } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
@@ -8,22 +6,21 @@ import logger from '@/lib/logger'
 import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
-import { AuthProvider, Status, Token } from '@/types'
+import { AuthProvider, Role, Status, Token } from '@/types'
 
 export interface SignupParams {
   firstName: string
   lastName: string
   email: string
   password: string
-  role: Role
 }
 
-const createUser = async ({ firstName, lastName, email, password, role }: SignupParams) => {
+const createUser = async ({ firstName, lastName, email, password }: SignupParams) => {
   const newUser = await userRepo.create({
     firstName,
     lastName,
     email,
-    role,
+    role: Role.User,
     status: Status.New,
   })
 
@@ -54,7 +51,7 @@ const createEmailVerificationToken = async (userId: number) => {
 }
 
 const signUpWithEmail = async (
-  { firstName, lastName, email, password, role }: SignupParams,
+  { firstName, lastName, email, password }: SignupParams,
 ) => {
   const existingUser = await userRepo.findByEmail(email)
 
@@ -67,7 +64,6 @@ const signUpWithEmail = async (
     lastName,
     email,
     password,
-    role,
   })
 
   const secureToken = await createEmailVerificationToken(newUser.id)
