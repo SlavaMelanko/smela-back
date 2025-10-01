@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
+import db from '@/db'
 import { emailAgent } from '@/lib/email-agent'
 import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token } from '@/types'
@@ -52,6 +53,8 @@ describe('Resend Verification Email', () => {
         sendWelcomeEmail: mock(() => Promise.resolve()),
       },
     }))
+
+    db.transaction = mock(async (callback: any) => callback({}))
   })
 
   afterEach(() => {
@@ -62,12 +65,14 @@ describe('Resend Verification Email', () => {
     it('should replace token with new verification token', async () => {
       const result = await resendVerificationEmail(mockUser.email)
 
+      expect(db.transaction).toHaveBeenCalledTimes(1)
+
       expect(tokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.EmailVerification,
         token: mockToken,
         expiresAt: mockExpiresAt,
-      })
+      }, {})
       expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ success: true })

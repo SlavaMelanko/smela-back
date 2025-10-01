@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
+import db from '@/db'
 import { Role, Status, Token } from '@/types'
 
 import requestPasswordReset from '../request-password-reset'
@@ -60,6 +61,8 @@ describe('Request Password Reset', () => {
     await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: mockEmailAgent,
     }))
+
+    db.transaction = mock(async (callback: any) => callback({}))
   })
 
   afterEach(() => {
@@ -70,13 +73,15 @@ describe('Request Password Reset', () => {
     it('should replace token and send reset email', async () => {
       const result = await requestPasswordReset(mockUser.email)
 
+      expect(db.transaction).toHaveBeenCalledTimes(1)
+
       // Replace token should be called
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.PasswordReset,
         token: mockToken,
         expiresAt: mockExpiresAt,
-      })
+      }, {})
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
       // Send reset email

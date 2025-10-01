@@ -26,6 +26,7 @@ export const deprecateOldTokens = async (userId: number, token: Token, tx?: Tran
 
 export const createToken = async (token: CreateTokenInput, tx?: Transaction): Promise<number> => {
   const executor = tx || db
+
   const [createdToken] = await executor
     .insert(tokensTable)
     .values({
@@ -42,15 +43,8 @@ export const replaceToken = async (
   token: CreateTokenInput,
   tx?: Transaction,
 ): Promise<void> => {
-  if (tx) {
-    await deprecateOldTokens(userId, token.type, tx)
-    await createToken(token, tx)
-  } else {
-    await db.transaction(async (tx) => {
-      await deprecateOldTokens(userId, token.type, tx)
-      await createToken(token, tx)
-    })
-  }
+  await deprecateOldTokens(userId, token.type, tx)
+  await createToken(token, tx)
 }
 
 export const updateToken = async (
@@ -59,6 +53,7 @@ export const updateToken = async (
   tx?: Transaction,
 ): Promise<void> => {
   const executor = tx || db
+
   await executor
     .update(tokensTable)
     .set(updates)
