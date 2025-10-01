@@ -50,7 +50,7 @@ describe('Login with Email', () => {
       },
     }))
 
-    await moduleMocker.mock('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/cipher', () => ({
       comparePasswords: mock(() => Promise.resolve(true)),
     }))
 
@@ -176,7 +176,7 @@ describe('Login with Email', () => {
 
   describe('password validation scenarios', () => {
     it('should throw BadCredentials for incorrect password', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/cipher', () => ({
         comparePasswords: mock(() => Promise.resolve(false)),
       }))
 
@@ -191,7 +191,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle empty password input', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/cipher', () => ({
         comparePasswords: mock(() => Promise.resolve(false)),
       }))
 
@@ -204,7 +204,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle password comparison failure', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/cipher', () => ({
         comparePasswords: mock(() => Promise.reject(new Error('Password comparison failed'))),
       }))
 

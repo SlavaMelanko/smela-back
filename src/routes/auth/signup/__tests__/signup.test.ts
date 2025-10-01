@@ -68,7 +68,7 @@ describe('Signup with Email', () => {
       },
     }))
 
-    await moduleMocker.mock('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/cipher', () => ({
       hashPassword: mock(() => Promise.resolve(mockHashedPassword)),
     }))
 
@@ -499,12 +499,12 @@ describe('Signup with Email', () => {
 
   describe('when password hashing fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/cipher', () => ({
         hashPassword: mock(() => Promise.reject(new Error('Password hashing failed'))),
       }))
     })
 
-    it('should throw the crypto error and not proceed with transaction', async () => {
+    it('should throw the cipher error and not proceed with transaction', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false) // should not reach here

@@ -6,7 +6,7 @@ import type { PasswordResetEmailData } from '../email-renderer-password-reset'
 
 import PasswordResetEmailRenderer from '../email-renderer-password-reset'
 
-describe('PasswordResetEmailRenderer', () => {
+describe('Password Reset Email Renderer', () => {
   const renderer = new PasswordResetEmailRenderer()
 
   const mockData: PasswordResetEmailData = {

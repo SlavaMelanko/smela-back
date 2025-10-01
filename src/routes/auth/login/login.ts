@@ -1,7 +1,7 @@
 import type { User } from '@/repositories'
 
 import { AppError, ErrorCode } from '@/lib/catch'
-import { comparePasswords } from '@/lib/crypto'
+import { comparePasswords } from '@/lib/cipher'
 import jwt from '@/lib/jwt'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, userRepo } from '@/repositories'

@@ -1,5 +1,5 @@
 import db from '@/db'
-import { hashPassword } from '@/lib/crypto'
+import { hashPassword } from '@/lib/cipher'
 import { TokenValidator } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'

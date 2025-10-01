@@ -2,7 +2,7 @@ import type { User } from '@/repositories'
 
 import db from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { hashPassword } from '@/lib/crypto'
+import { hashPassword } from '@/lib/cipher'
 import { emailAgent } from '@/lib/email-agent'
 import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'

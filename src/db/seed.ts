@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import { hashPassword } from '@/lib/crypto'
+import { hashPassword } from '@/lib/cipher'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import db from './db'

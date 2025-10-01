@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { createRandomBytesGenerator } from '../factory'
 import CryptoRandomBytesGenerator from '../random-bytes-generator-crypto'
 
-describe('random bytes generator', () => {
+describe('Random Bytes Generator', () => {
   let generator: CryptoRandomBytesGenerator
 
   beforeEach(() => {

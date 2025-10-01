@@ -70,7 +70,7 @@ describe('Reset Password', () => {
       },
     }))
 
-    await moduleMocker.mock('@/lib/crypto', () => ({
+    await moduleMocker.mock('@/lib/cipher', () => ({
       hashPassword: mockHashPassword,
     }))
   })
@@ -277,7 +277,7 @@ describe('Reset Password', () => {
 
   describe('when password hashing fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
+      await moduleMocker.mock('@/lib/cipher', () => ({
         hashPassword: mock(() => Promise.reject(new Error('Password hashing failed'))),
       }))
     })

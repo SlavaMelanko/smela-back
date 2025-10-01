@@ -46,7 +46,7 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 - `/src/app.ts` - Application entry point
 - `/src/server.ts` - Server configuration with middleware setup
 - `/src/db/` - Database layer (schema, migrations, seed data)
-- `/src/lib/` - Core utilities (crypto, validation, JWT, errors)
+- `/src/lib/` - Core utilities (cipher, validation, JWT, errors)
 - `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
 - `/src/repositories/` - Data access layer following repository pattern
 - `/src/routes/` - API endpoint handlers organized by domain
@@ -139,7 +139,7 @@ await db.transaction(async (tx) => {
 
 - Tests use `bun:test` framework
 - Test files follow `*.test.ts` pattern in `__tests__` directories
-- Focus on unit tests for critical components (crypto, auth, rate limiting)
+- Focus on unit tests for critical components (cipher, auth, rate limiting)
 
 #### Testing Philosophy
 
@@ -153,7 +153,7 @@ await db.transaction(async (tx) => {
 
 - **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
 - **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
-- Only mock business logic dependencies (repositories, crypto, JWT, external services)
+- Only mock business logic dependencies (repositories, cipher, JWT, external services)
 - Use global mocks for services (like CAPTCHA) that are already mocked globally
 
 **Self-Contained Tests:**
