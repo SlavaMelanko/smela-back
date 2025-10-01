@@ -1,4 +1,5 @@
-import { createAuth, findByUserId, updateAuth } from './queries'
+import { createAuth, updateAuth } from './mutations'
+import { findByUserId } from './queries'
 
 export * from './types'
 

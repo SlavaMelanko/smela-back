@@ -1,9 +1,12 @@
+import type { User } from '@/repositories'
+
+import db from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { createPasswordEncoder } from '@/lib/crypto'
+import { hashPassword } from '@/lib/cipher'
 import { emailAgent } from '@/lib/email-agent'
 import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
-import { EMAIL_VERIFICATION_EXPIRY_HOURS, generateToken } from '@/lib/token'
+import { generateToken } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
@@ -15,70 +18,76 @@ export interface SignupParams {
   password: string
 }
 
-const createUser = async ({ firstName, lastName, email, password }: SignupParams) => {
-  const newUser = await userRepo.create({
-    firstName,
-    lastName,
-    email,
-    role: Role.User,
-    status: Status.New,
+const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
+  const hashedPassword = await hashPassword(password)
+
+  const { type, token: verificationToken, expiresAt } = generateToken(Token.EmailVerification)
+
+  const newUser = await db.transaction(async (tx) => {
+    const newUser = await userRepo.create({
+      firstName,
+      lastName,
+      email,
+      role: Role.User,
+      status: Status.New,
+    }, tx)
+
+    await authRepo.create({
+      userId: newUser.id,
+      provider: AuthProvider.Local,
+      identifier: email,
+      passwordHash: hashedPassword,
+    }, tx)
+
+    await tokenRepo.replace(newUser.id, {
+      userId: newUser.id,
+      type,
+      token: verificationToken,
+      expiresAt,
+    }, tx)
+
+    return newUser
   })
 
-  const encoder = createPasswordEncoder()
-  const hashedPassword = await encoder.hash(password)
-
-  await authRepo.create({
-    userId: newUser.id,
-    provider: AuthProvider.Local,
-    identifier: email,
-    passwordHash: hashedPassword,
-  })
-
-  return newUser
+  return { newUser, verificationToken }
 }
 
-const createEmailVerificationToken = async (userId: number) => {
-  const { type, token, expiresAt } = generateToken(Token.EmailVerification, { expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS })
-
-  await tokenRepo.deprecateOld(userId, type)
-  await tokenRepo.create({ userId, type, token, expiresAt })
-
-  return token
-}
+const signJwt = async (user: User) => jwt.sign(
+  user.id,
+  user.email,
+  user.role,
+  user.status,
+  user.tokenVersion,
+)
 
 const signUpWithEmail = async (
   { firstName, lastName, email, password }: SignupParams,
 ) => {
+  // Check if user exists (outside transaction for fast fail)
   const existingUser = await userRepo.findByEmail(email)
 
   if (existingUser) {
     throw new AppError(ErrorCode.EmailAlreadyInUse)
   }
 
-  const newUser = await createUser({
+  // Create new user, verification token, etc. in a single transaction
+  const { newUser, verificationToken } = await createNewUser({
     firstName,
     lastName,
     email,
     password,
   })
 
-  const secureToken = await createEmailVerificationToken(newUser.id)
-
+  // Send welcome email (fire-and-forget, outside transaction)
   emailAgent.sendWelcomeEmail({
     firstName: newUser.firstName,
     email: newUser.email,
-    token: secureToken,
+    token: verificationToken,
   }).catch((error) => {
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 
-  const jwtToken = await jwt.sign(
-    newUser.id,
-    newUser.email,
-    newUser.role,
-    newUser.status,
-    newUser.tokenVersion,
-  )
+  const jwtToken = await signJwt(newUser)
 
   return { user: normalizeUser(newUser), token: jwtToken }
 }

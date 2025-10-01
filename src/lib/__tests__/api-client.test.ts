@@ -11,7 +11,7 @@ const mockFetch = mock(() => Promise.resolve({
 // Store original fetch to restore later
 const originalFetch = globalThis.fetch
 
-describe('ApiClient', () => {
+describe('API Client', () => {
   beforeEach(() => {
     // Replace global fetch with mock
     globalThis.fetch = mockFetch as any

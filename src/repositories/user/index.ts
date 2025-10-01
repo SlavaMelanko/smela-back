@@ -1,4 +1,5 @@
-import { createUser, findUserByEmail, findUserById, incrementTokenVersion, updateUser } from './queries'
+import { createUser, incrementTokenVersion, updateUser } from './mutations'
+import { findUserByEmail, findUserById } from './queries'
 
 export * from './types'
 

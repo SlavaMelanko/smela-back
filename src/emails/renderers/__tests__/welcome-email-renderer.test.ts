@@ -6,7 +6,7 @@ import type { WelcomeEmailData } from '../email-renderer-welcome'
 
 import WelcomeEmailRenderer from '../email-renderer-welcome'
 
-describe('WelcomeEmailRenderer', () => {
+describe('Welcome Email Renderer', () => {
   const renderer = new WelcomeEmailRenderer()
 
   const mockData: WelcomeEmailData = {

@@ -46,7 +46,7 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 - `/src/app.ts` - Application entry point
 - `/src/server.ts` - Server configuration with middleware setup
 - `/src/db/` - Database layer (schema, migrations, seed data)
-- `/src/lib/` - Core utilities (crypto, validation, JWT, errors)
+- `/src/lib/` - Core utilities (cipher, validation, JWT, errors)
 - `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
 - `/src/repositories/` - Data access layer following repository pattern
 - `/src/routes/` - API endpoint handlers organized by domain
@@ -81,6 +81,45 @@ Key tables:
 - `permissions` - Role-based access control
 - `tokens` - Email verification and password reset tokens
 
+### Database Connection
+
+The project uses **Neon serverless PostgreSQL** with the **WebSocket driver** (`drizzle-orm/neon-serverless`) for full transaction support:
+
+```typescript
+import { Pool } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-serverless'
+
+const pool = new Pool({
+  connectionString: env.DB_URL,
+  max: env.DB_MAX_CONNECTIONS, // 2 for dev/test, 10 for staging/prod
+})
+const db = drizzle(pool, { schema, logger: isDevEnv() })
+```
+
+**Connection Pool Configuration:**
+
+- **Development/Test**: 2 connections (minimal resource usage, single-user pattern)
+- **Staging/Production**: 10 connections (higher throughput for concurrent users)
+- Configured via `DB_MAX_CONNECTIONS` environment variable
+
+**Transaction Support:**
+
+```typescript
+// Example: Atomic user signup with auth record
+await db.transaction(async (tx) => {
+  const [user] = await tx.insert(usersTable).values(userData).returning()
+  await tx.insert(authTable).values({ userId: user.id, ...authData })
+  await tx.insert(tokensTable).values({ userId: user.id, ...tokenData })
+})
+```
+
+**Important:** The WebSocket driver supports:
+
+- ✅ Interactive transactions
+- ✅ Connection pooling with configurable size
+- ✅ Prepared statements
+- ✅ Session management
+
 ### Authentication Flow
 
 1. Signup creates user + auth record + verification token
@@ -100,7 +139,7 @@ Key tables:
 
 - Tests use `bun:test` framework
 - Test files follow `*.test.ts` pattern in `__tests__` directories
-- Focus on unit tests for critical components (crypto, auth, rate limiting)
+- Focus on unit tests for critical components (cipher, auth, rate limiting)
 
 #### Testing Philosophy
 
@@ -114,7 +153,7 @@ Key tables:
 
 - **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
 - **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
-- Only mock business logic dependencies (repositories, crypto, JWT, external services)
+- Only mock business logic dependencies (repositories, cipher, JWT, external services)
 - Use global mocks for services (like CAPTCHA) that are already mocked globally
 
 **Self-Contained Tests:**
@@ -271,6 +310,10 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Code Style**: 2-space indentation, no semicolons, single quotes
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Variable Naming Conventions**:
+  - **camelCase**: Objects, arrays, and complex data structures (e.g., `tokenTypeOptions`, `userConfig`)
+  - **SCREAMING_SNAKE_CASE**: Primitives and simple constants (e.g., `MAX_RETRY_COUNT`, `API_TIMEOUT`)
+  - **PascalCase**: Classes, types, interfaces, and enums (e.g., `UserService`, `Status`, `EmailRenderer`)
 - **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
   - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
   - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`

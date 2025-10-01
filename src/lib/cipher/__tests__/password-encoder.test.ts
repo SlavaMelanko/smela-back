@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 
 import BcryptPasswordEncoder from '../password-encoder-bcrypt'
 
-describe('password encoder', () => {
+describe('Password Encoder', () => {
   let encoder: BcryptPasswordEncoder
 
   beforeEach(() => {

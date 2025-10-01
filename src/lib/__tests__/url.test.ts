@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import { isHttps, isLocalhost, isValidOrigin, makeUrl, normalizeOrigin, parseOrigin, removeTrailingSlash } from '@/lib/url'
 
-describe('URL utilities', () => {
+describe('URL Utilities', () => {
   describe('isLocalhost', () => {
     test('should return true for localhost addresses', () => {
       expect(isLocalhost('http://localhost')).toBe(true)

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import { createPasswordEncoder } from '@/lib/crypto'
+import { hashPassword } from '@/lib/cipher'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import db from './db'
@@ -121,8 +121,7 @@ const seedAdmins = async () => {
       .where(eq(usersTable.email, admin.email))
 
     if (!existingUser) {
-      const encoder = createPasswordEncoder()
-      const hashedPassword = await encoder.hash(admin.password)
+      const hashedPassword = await hashPassword(admin.password)
 
       // 1. Create user
       const [createdUser] = await db

@@ -1,13 +1,13 @@
 import { eq } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
 import type { Role, Status } from '@/types'
 
 import db, { usersTable } from '@/db'
-import { AppError, ErrorCode } from '@/lib/catch'
 
-import type { CreateUserInput, UpdateUserInput, User, UserRecord } from './types'
+import type { User, UserRecord } from './types'
 
-const toTypeSafeUser = (user: UserRecord): User | undefined => {
+export const toTypeSafeUser = (user: UserRecord): User | undefined => {
   if (!user) {
     return undefined
   }
@@ -19,21 +19,13 @@ const toTypeSafeUser = (user: UserRecord): User | undefined => {
   }
 }
 
-export const createUser = async (user: CreateUserInput): Promise<User> => {
-  const [createdUser] = await db
-    .insert(usersTable)
-    .values(user)
-    .returning()
+export const findUserById = async (
+  userId: number,
+  tx?: Transaction,
+): Promise<User | undefined> => {
+  const executor = tx || db
 
-  if (!createdUser) {
-    throw new AppError(ErrorCode.InternalError, 'Failed to create user')
-  }
-
-  return toTypeSafeUser(createdUser) as User
-}
-
-export const findUserById = async (userId: number): Promise<User | undefined> => {
-  const [foundUser] = await db
+  const [foundUser] = await executor
     .select()
     .from(usersTable)
     .where(eq(usersTable.id, userId))
@@ -41,38 +33,16 @@ export const findUserById = async (userId: number): Promise<User | undefined> =>
   return toTypeSafeUser(foundUser)
 }
 
-export const findUserByEmail = async (email: string): Promise<User | undefined> => {
-  const [foundUser] = await db
+export const findUserByEmail = async (
+  email: string,
+  tx?: Transaction,
+): Promise<User | undefined> => {
+  const executor = tx || db
+
+  const [foundUser] = await executor
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email))
 
   return toTypeSafeUser(foundUser)
-}
-
-export const updateUser = async (userId: number, updates: UpdateUserInput): Promise<User> => {
-  const [updatedUser] = await db
-    .update(usersTable)
-    .set({ ...updates, updatedAt: new Date() })
-    .where(eq(usersTable.id, userId))
-    .returning()
-
-  if (!updatedUser) {
-    throw new AppError(ErrorCode.InternalError, 'Failed to update user')
-  }
-
-  return toTypeSafeUser(updatedUser) as User
-}
-
-// Increment token version to invalidate all existing JWTs
-export const incrementTokenVersion = async (userId: number): Promise<void> => {
-  const user = await findUserById(userId)
-
-  if (!user) {
-    throw new AppError(ErrorCode.NotFound, 'User not found')
-  }
-
-  await updateUser(userId, {
-    tokenVersion: user.tokenVersion + 1,
-  })
 }

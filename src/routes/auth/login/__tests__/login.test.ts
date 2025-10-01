@@ -50,10 +50,8 @@ describe('Login with Email', () => {
       },
     }))
 
-    await moduleMocker.mock('@/lib/crypto', () => ({
-      createPasswordEncoder: mock(() => ({
-        compare: mock(() => Promise.resolve(true)),
-      })),
+    await moduleMocker.mock('@/lib/cipher', () => ({
+      comparePasswords: mock(() => Promise.resolve(true)),
     }))
 
     await moduleMocker.mock('@/lib/jwt', () => ({
@@ -178,10 +176,8 @@ describe('Login with Email', () => {
 
   describe('password validation scenarios', () => {
     it('should throw BadCredentials for incorrect password', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.resolve(false)),
-        })),
+      await moduleMocker.mock('@/lib/cipher', () => ({
+        comparePasswords: mock(() => Promise.resolve(false)),
       }))
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
@@ -195,10 +191,8 @@ describe('Login with Email', () => {
     })
 
     it('should handle empty password input', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.resolve(false)),
-        })),
+      await moduleMocker.mock('@/lib/cipher', () => ({
+        comparePasswords: mock(() => Promise.resolve(false)),
       }))
 
       try {
@@ -209,27 +203,13 @@ describe('Login with Email', () => {
       }
     })
 
-    it('should handle password encoder creation failure', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => {
-          throw new Error('Crypto library initialization failed')
-        }),
-      }))
-
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
-        'Crypto library initialization failed',
-      )
-    })
-
     it('should handle password comparison failure', async () => {
-      await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          compare: mock(() => Promise.reject(new Error('Bcrypt comparison failed'))),
-        })),
+      await moduleMocker.mock('@/lib/cipher', () => ({
+        comparePasswords: mock(() => Promise.reject(new Error('Password comparison failed'))),
       }))
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
-        'Bcrypt comparison failed',
+        'Password comparison failed',
       )
     })
   })

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 
 import CryptoTokenGenerator from '../token-generator-crypto'
 
-describe('token generator', () => {
+describe('Token Generator', () => {
   let generator: CryptoTokenGenerator
 
   beforeEach(() => {

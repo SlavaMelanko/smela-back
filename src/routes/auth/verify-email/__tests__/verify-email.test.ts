@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
+import db from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { tokenRepo, userRepo } from '@/repositories'
@@ -61,6 +62,8 @@ describe('Verify Email', () => {
         validate: mock(() => mockTokenRecord),
       },
     }))
+
+    db.transaction = mock(async (callback: any) => callback({}))
   })
 
   afterEach(() => {
@@ -74,15 +77,17 @@ describe('Verify Email', () => {
       expect(tokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
       expect(tokenRepo.findByToken).toHaveBeenCalledTimes(1)
 
+      expect(db.transaction).toHaveBeenCalledTimes(1)
+
       expect(tokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),
-      })
+      }, {})
       expect(tokenRepo.update).toHaveBeenCalledTimes(1)
 
       expect(userRepo.update).toHaveBeenCalledWith(mockTokenRecord.userId, {
         status: Status.Verified,
-      })
+      }, {})
       expect(userRepo.update).toHaveBeenCalledTimes(1)
 
       expect(result).toHaveProperty('user')
@@ -482,7 +487,7 @@ describe('Verify Email', () => {
       expect(result.user.email).toBe(mockUser.email)
       expect(userRepo.update).toHaveBeenCalledWith(999, {
         status: Status.Verified,
-      })
+      }, {})
     })
 
     it('should handle various token string formats', async () => {
@@ -553,7 +558,7 @@ describe('Verify Email', () => {
       expect(tokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),
-      })
+      }, {})
     })
 
     it('should handle token that has usedAt but status is still Active', async () => {

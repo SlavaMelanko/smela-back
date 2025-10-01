@@ -1,15 +1,22 @@
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import type { NeonDatabase } from 'drizzle-orm/neon-serverless'
+
+import { Pool } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-serverless'
 
 import env, { isDevEnv } from '@/lib/env'
 
 import * as schema from './schema'
 
-const client = neon(env.DB_URL)
+export type Transaction = NeonDatabase<typeof schema>
 
-const db = drizzle(client, {
-  schema, // enables type safety and autocompletion
-  logger: isDevEnv(), // enable SQL query logging during development only
+const pool = new Pool({
+  connectionString: env.DB_URL,
+  max: env.DB_MAX_CONNECTIONS,
+})
+
+const db = drizzle(pool, {
+  schema,
+  logger: isDevEnv(),
 })
 
 export default db

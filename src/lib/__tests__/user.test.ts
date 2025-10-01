@@ -6,7 +6,7 @@ import { Role, Status } from '@/types'
 
 import { normalizeUser } from '../user'
 
-describe('normalizeUser', () => {
+describe('Normalize User', () => {
   const mockUser: User = {
     id: 1,
     firstName: 'John',
