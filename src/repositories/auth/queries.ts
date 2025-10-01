@@ -1,11 +1,15 @@
 import { eq } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
+
 import db, { authTable } from '@/db'
 
 import type { AuthRecord } from './types'
 
-export const findByUserId = async (userId: number): Promise<AuthRecord | undefined> => {
-  const [foundAuth] = await db
+export const findByUserId = async (userId: number, tx?: Transaction): Promise<AuthRecord | undefined> => {
+  const executor = tx || db
+
+  const [foundAuth] = await executor
     .select()
     .from(authTable)
     .where(eq(authTable.userId, userId))

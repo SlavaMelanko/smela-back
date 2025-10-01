@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 
+import type { Transaction } from '@/db'
 import type { Role, Status } from '@/types'
 
 import db, { usersTable } from '@/db'
@@ -18,8 +19,13 @@ export const toTypeSafeUser = (user: UserRecord): User | undefined => {
   }
 }
 
-export const findUserById = async (userId: number): Promise<User | undefined> => {
-  const [foundUser] = await db
+export const findUserById = async (
+  userId: number,
+  tx?: Transaction,
+): Promise<User | undefined> => {
+  const executor = tx || db
+
+  const [foundUser] = await executor
     .select()
     .from(usersTable)
     .where(eq(usersTable.id, userId))
@@ -27,8 +33,13 @@ export const findUserById = async (userId: number): Promise<User | undefined> =>
   return toTypeSafeUser(foundUser)
 }
 
-export const findUserByEmail = async (email: string): Promise<User | undefined> => {
-  const [foundUser] = await db
+export const findUserByEmail = async (
+  email: string,
+  tx?: Transaction,
+): Promise<User | undefined> => {
+  const executor = tx || db
+
+  const [foundUser] = await executor
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email))

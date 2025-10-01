@@ -40,7 +40,7 @@ export const updateUser = async (userId: number, updates: UpdateUserInput, tx?: 
 }
 
 export const incrementTokenVersion = async (userId: number, tx?: Transaction): Promise<void> => {
-  const user = await findUserById(userId)
+  const user = await findUserById(userId, tx)
 
   if (!user) {
     throw new AppError(ErrorCode.NotFound, 'User not found')
