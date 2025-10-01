@@ -38,15 +38,10 @@ describe('Reset Password', () => {
     usedAt: null,
   }
 
-  const mockHashFunction = mock(() => Promise.resolve(mockHashedPassword))
-  const mockEncoder = {
-    hash: mockHashFunction,
-  }
-  const mockCreatePasswordEncoder = mock(() => mockEncoder)
+  const mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
 
   beforeEach(async () => {
-    mockHashFunction.mockClear()
-    mockCreatePasswordEncoder.mockClear()
+    mockHashPassword.mockClear()
 
     await moduleMocker.mock('@/repositories', () => ({
       tokenRepo: {
@@ -76,7 +71,7 @@ describe('Reset Password', () => {
     }))
 
     await moduleMocker.mock('@/lib/crypto', () => ({
-      createPasswordEncoder: mockCreatePasswordEncoder,
+      hashPassword: mockHashPassword,
     }))
   })
 
@@ -93,9 +88,8 @@ describe('Reset Password', () => {
 
       expect(db.transaction).toHaveBeenCalledTimes(1)
 
-      expect(mockCreatePasswordEncoder).toHaveBeenCalledTimes(1)
-      expect(mockHashFunction).toHaveBeenCalledWith(mockPassword)
-      expect(mockHashFunction).toHaveBeenCalledTimes(1)
+      expect(mockHashPassword).toHaveBeenCalledWith(mockPassword)
+      expect(mockHashPassword).toHaveBeenCalledTimes(1)
 
       expect(tokenRepo.update).toHaveBeenCalledWith(mockValidatedToken.id, {
         status: TokenStatus.Used,
@@ -283,11 +277,8 @@ describe('Reset Password', () => {
 
   describe('when password hashing fails', () => {
     beforeEach(async () => {
-      const failingHashFunction = mock(() => Promise.reject(new Error('Hashing failed')))
       await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          hash: failingHashFunction,
-        })),
+        hashPassword: mock(() => Promise.reject(new Error('Password hashing failed'))),
       }))
     })
 
@@ -297,7 +288,7 @@ describe('Reset Password', () => {
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Hashing failed')
+        expect((error as Error).message).toBe('Password hashing failed')
       }
 
       expect(db.transaction).toHaveBeenCalledTimes(1)
@@ -324,8 +315,8 @@ describe('Reset Password', () => {
 
       expect(result).toEqual({ success: true })
 
-      expect(mockCreatePasswordEncoder).toHaveBeenCalled()
-      expect(mockHashFunction).toHaveBeenCalledWith(longPassword)
+      expect(mockHashPassword).toHaveBeenCalledWith(longPassword)
+      expect(mockHashPassword).toHaveBeenCalledTimes(1)
     })
   })
 

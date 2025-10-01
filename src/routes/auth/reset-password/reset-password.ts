@@ -1,5 +1,5 @@
 import db from '@/db'
-import { createPasswordEncoder } from '@/lib/crypto'
+import { hashPassword } from '@/lib/crypto'
 import { TokenValidator } from '@/lib/token'
 import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
@@ -13,12 +13,6 @@ const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
   return TokenValidator.validate(tokenRecord, Token.PasswordReset)
-}
-
-const hashPassword = async (password: string) => {
-  const encoder = createPasswordEncoder()
-
-  return encoder.hash(password)
 }
 
 const resetPassword = async ({ token, password }: ResetPasswordParams): Promise<{ success: boolean }> => {

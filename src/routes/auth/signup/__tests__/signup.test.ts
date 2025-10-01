@@ -69,10 +69,7 @@ describe('Signup with Email', () => {
     }))
 
     await moduleMocker.mock('@/lib/crypto', () => ({
-      createPasswordEncoder: mock(() => ({
-        hash: mock(() => Promise.resolve(mockHashedPassword)),
-        compare: mock(() => Promise.resolve(true)),
-      })),
+      hashPassword: mock(() => Promise.resolve(mockHashedPassword)),
     }))
 
     await moduleMocker.mock('@/lib/token', () => ({
@@ -503,10 +500,7 @@ describe('Signup with Email', () => {
   describe('when password hashing fails', () => {
     beforeEach(async () => {
       await moduleMocker.mock('@/lib/crypto', () => ({
-        createPasswordEncoder: mock(() => ({
-          hash: mock(() => Promise.reject(new Error('Crypto library error'))),
-          compare: mock(() => Promise.resolve(true)),
-        })),
+        hashPassword: mock(() => Promise.reject(new Error('Password hashing failed'))),
       }))
     })
 
@@ -516,7 +510,7 @@ describe('Signup with Email', () => {
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Crypto library error')
+        expect((error as Error).message).toBe('Password hashing failed')
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)

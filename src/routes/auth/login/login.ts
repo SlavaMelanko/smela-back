@@ -1,7 +1,7 @@
 import type { User } from '@/repositories'
 
 import { AppError, ErrorCode } from '@/lib/catch'
-import { createPasswordEncoder } from '@/lib/crypto'
+import { comparePasswords } from '@/lib/crypto'
 import jwt from '@/lib/jwt'
 import { normalizeUser } from '@/lib/user'
 import { authRepo, userRepo } from '@/repositories'
@@ -9,16 +9,6 @@ import { authRepo, userRepo } from '@/repositories'
 interface LoginParams {
   email: string
   password: string
-}
-
-const comparePasswords = async (password: string, hashedPassword: string) => {
-  if (!password || !hashedPassword) {
-    return false
-  }
-
-  const encoder = createPasswordEncoder()
-
-  return await encoder.compare(password, hashedPassword)
 }
 
 const signJwt = async (user: User) => jwt.sign(

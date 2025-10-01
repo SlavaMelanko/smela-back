@@ -2,7 +2,7 @@ import type { User } from '@/repositories'
 
 import db from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { createPasswordEncoder } from '@/lib/crypto'
+import { hashPassword } from '@/lib/crypto'
 import { emailAgent } from '@/lib/email-agent'
 import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
@@ -16,12 +16,6 @@ export interface SignupParams {
   lastName: string
   email: string
   password: string
-}
-
-const hashPassword = async (password: string) => {
-  const encoder = createPasswordEncoder()
-
-  return encoder.hash(password)
 }
 
 const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
