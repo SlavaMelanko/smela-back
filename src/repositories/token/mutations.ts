@@ -41,7 +41,7 @@ export const createToken = async (token: CreateTokenInput, tx?: Transaction): Pr
 export const replaceToken = async (
   userId: number,
   token: CreateTokenInput,
-  tx?: Transaction,
+  tx: Transaction,
 ): Promise<void> => {
   await deprecateOldTokens(userId, token.type, tx)
   await createToken(token, tx)
