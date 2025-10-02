@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import secureHeadersMiddleware from '../secure-headers'
+import secureHeadersMiddleware from '../index'
 
 describe('Secure Headers Middleware', () => {
   let app: Hono<AppContext>
