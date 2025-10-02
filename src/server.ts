@@ -4,7 +4,7 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/context'
 
-import { onError } from '@/handlers'
+import { notFound, onError } from '@/handlers'
 import {
   authRateLimiter,
   authRequestSizeLimiter,
@@ -58,6 +58,7 @@ class Server {
   }
 
   private setupHandlers() {
+    this.app.notFound(notFound)
     this.app.onError(onError)
   }
 
