@@ -2,13 +2,18 @@
 
 Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
 
+|                                                                            |                                                              Latest Release                                                               | Build Status | Code Quality | Test Coverage |
+| :------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :----------: | :----------: | :-----------: |
+|  ![dev](https://img.shields.io/badge/%2F_dev-blue?style=flat&logo=GitHub)  | [![GitHub release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back)](https://github.com/SlavaMelanko/smela-back/releases) |              |              |               |
+| ![main](https://img.shields.io/badge/%2F_main-blue?style=flat&logo=GitHub) | [![GitHub release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back)](https://github.com/SlavaMelanko/smela-back/releases) |              |              |               |
+
 ## 📦 Technology Stack
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
 - **Database**: PostgreSQL (serverless)
 - **ORM**: Drizzle for type-safe queries
-- **Authentication**: JWT & bcrypt
+- **Authentication**: JWT
 - **Email**: Transactional email support
 - **Validation**: Schema-based validation
 - **Security**: Rate limiting, CORS, CSP
