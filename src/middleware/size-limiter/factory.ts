@@ -1,5 +1,9 @@
 import type { MiddlewareHandler } from 'hono'
 
+import { createMiddleware } from 'hono/factory'
+
+import type { AppContext } from '@/context'
+
 import { AppError, ErrorCode } from '@/lib/catch'
 import logger from '@/lib/logger'
 
@@ -11,12 +15,12 @@ export interface RequestSizeLimiterOptions {
   maxSize?: number
 }
 
-export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): MiddlewareHandler => {
+export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): MiddlewareHandler<AppContext> => {
   const {
     maxSize = DEFAULT_MAX_SIZE,
   } = options
 
-  return async (c, next) => {
+  return createMiddleware<AppContext>(async (c, next) => {
     // Skip validation for methods that typically don't have a body.
     if (['GET', 'HEAD', 'DELETE', 'OPTIONS'].includes(c.req.method)) {
       return next()
@@ -53,5 +57,5 @@ export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}
     }
 
     await next()
-  }
+  })
 }

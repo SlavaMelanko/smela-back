@@ -43,8 +43,6 @@ const createDualAuthMiddleware = (
     }
 
     c.set('user', payload)
-
-    await next()
   } catch (error) {
     if (error instanceof AppError) {
       throw error
@@ -52,6 +50,8 @@ const createDualAuthMiddleware = (
 
     throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
   }
+
+  await next()
 })
 
 export default createDualAuthMiddleware
