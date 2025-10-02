@@ -3,18 +3,18 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import securityHeadersMiddleware from '../security-headers'
+import secureHeadersMiddleware from '../secure-headers'
 
-describe('Security Headers Middleware', () => {
+describe('Secure Headers Middleware', () => {
   let app: Hono<AppContext>
 
   beforeEach(() => {
     app = new Hono<AppContext>()
-    app.use('*', securityHeadersMiddleware)
+    app.use('*', secureHeadersMiddleware)
     app.get('/test', c => c.json({ success: true }))
   })
 
-  describe('Basic Security Headers', () => {
+  describe('Basic Secure Headers', () => {
     it('should set X-Content-Type-Options header', async () => {
       const res = await app.request('/test')
 
@@ -90,7 +90,7 @@ describe('Security Headers Middleware', () => {
     describe('Environment Detection (Unit Tests)', () => {
       it('should correctly identify environment functions are imported', () => {
         // Just verify the functions are imported and used
-        expect(typeof securityHeadersMiddleware).toBe('function')
+        expect(typeof secureHeadersMiddleware).toBe('function')
       })
 
       it('verifies CSP is configured properly in current environment', async () => {
@@ -246,7 +246,7 @@ describe('Security Headers Middleware', () => {
       expect(htmlXssProtection === null || htmlXssProtection === '0').toBe(true)
     })
 
-    it('should not override existing security headers', async () => {
+    it('should not override existing secure headers', async () => {
       app.get('/custom', (c) => {
         c.header('X-Custom-Header', 'custom-value')
 
@@ -258,7 +258,7 @@ describe('Security Headers Middleware', () => {
       // Custom header should be preserved
       expect(res.headers.get('X-Custom-Header')).toBe('custom-value')
 
-      // Security headers should still be added
+      // Secure headers should still be added
       expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
       expect(res.headers.get('X-Frame-Options')).toBe('DENY')
     })

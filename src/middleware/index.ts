@@ -4,5 +4,5 @@ export { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddlewar
 export { default as loggerMiddleware } from './logger'
 export { default as onError } from './on-error'
 export { authRateLimiter, generalRateLimiter, default as rateLimiterMiddleware } from './rate-limiter'
-export { default as securityHeadersMiddleware } from './security-headers'
+export { default as secureHeadersMiddleware } from './secure-headers'
 export { authRequestSizeLimiter, createRequestSizeLimiter, fileUploadSizeLimiter, generalRequestSizeLimiter } from './size-limiter'

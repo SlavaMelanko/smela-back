@@ -12,7 +12,7 @@ import {
   generalRequestSizeLimiter,
   loggerMiddleware,
   onError,
-  securityHeadersMiddleware,
+  secureHeadersMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
@@ -30,7 +30,7 @@ class Server {
 
   private setupMiddleware() {
     this.app
-      .use(securityHeadersMiddleware)
+      .use(secureHeadersMiddleware)
       .use(corsMiddleware)
       .use(requestId())
       .use(loggerMiddleware)

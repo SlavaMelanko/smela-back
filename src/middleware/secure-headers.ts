@@ -1,10 +1,10 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { secureHeaders } from 'hono/secure-headers'
+import { secureHeaders as honoSecureHeaders } from 'hono/secure-headers'
 
 import { isDevOrTestEnv, isStagingOrProdEnv } from '@/lib/env'
 
-const getSecurityHeadersConfig = () => {
+const createConfig = () => {
   const commonCsp = {
     defaultSrc: ['\'self\''],
     fontSrc: ['\'self\''],
@@ -32,7 +32,7 @@ const getSecurityHeadersConfig = () => {
     upgradeInsecureRequests: [],
   }
 
-  const config: Parameters<typeof secureHeaders>[0] = {
+  const config: Parameters<typeof honoSecureHeaders>[0] = {
     xContentTypeOptions: 'nosniff',
     xFrameOptions: 'DENY',
     referrerPolicy: 'strict-origin-when-cross-origin',
@@ -47,7 +47,7 @@ const getSecurityHeadersConfig = () => {
       gyroscope: [],
       accelerometer: [],
     },
-    // Add Strict-Transport-Security for production/staging.
+    // Add Strict-Transport-Security for production/staging
     strictTransportSecurity: isStagingOrProdEnv()
       ? 'max-age=31536000; includeSubDomains; preload'
       : undefined,
@@ -56,6 +56,6 @@ const getSecurityHeadersConfig = () => {
   return config
 }
 
-const securityHeadersMiddleware: MiddlewareHandler = secureHeaders(getSecurityHeadersConfig())
+const secureHeadersMiddleware: MiddlewareHandler = honoSecureHeaders(createConfig())
 
-export default securityHeadersMiddleware
+export default secureHeadersMiddleware
