@@ -45,7 +45,7 @@ const onError: ErrorHandler = (err, c) => {
       name,
       stack,
     },
-    <ContentfulStatusCode>status,
+    status as ContentfulStatusCode,
   )
 }
 

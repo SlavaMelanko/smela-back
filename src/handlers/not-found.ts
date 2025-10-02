@@ -1,4 +1,5 @@
 import type { NotFoundHandler } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import type { AppContext } from '@/context'
 
@@ -15,7 +16,7 @@ const notFound: NotFoundHandler<AppContext> = (c) => {
       code,
       path: c.req.path,
     },
-    status as any,
+    status as ContentfulStatusCode,
   )
 }
 
