@@ -12,6 +12,17 @@ on:
       - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - '**.json'
+      - '**.yml'
+      - '!.github/workflows/test.yml'
+      - '**.yaml'
+      - 'LICENSE'
+      - '.gitignore'
 
 jobs:
   test:
