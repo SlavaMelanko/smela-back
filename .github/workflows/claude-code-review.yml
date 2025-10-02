@@ -3,12 +3,14 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+      - '**.txt'
+      - '**.json'
+      - 'LICENSE'
+      - '.gitignore'
 
 jobs:
   claude-review:
@@ -63,6 +65,31 @@ jobs:
             - Test coverage and quality
 
             Be constructive and provide specific examples in your feedback.
+
+            ---
+
+            ## Overall Quality Assessment
+
+            At the end of your review, provide a quality assessment score (1-10) for each of these criteria:
+
+            - **Architecture** (1-10): System design, modularity, separation of concerns, scalability
+            - **Security** (1-10): Vulnerability prevention, input validation, authentication/authorization, data protection
+            - **Testing** (1-10): Test coverage, test quality, edge cases, maintainability of tests
+            - **Performance** (1-10): Efficiency, resource usage, scalability, optimization opportunities
+            - **Code Quality** (1-10): Readability, maintainability, adherence to standards, documentation
+
+            Format the assessment as:
+            ```
+            📊 Quality Assessment:
+            - Architecture: X/10
+            - Security: X/10
+            - Testing: X/10
+            - Performance: X/10
+            - Code Quality: X/10
+            Overall: X/10 (average)
+            ```
+
+            Provide a brief justification for each score.
 
           # Optional: Different prompts for different authors
           # direct_prompt: |
