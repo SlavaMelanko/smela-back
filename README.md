@@ -2,13 +2,18 @@
 
 Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
 
+|                                                                            |                                                              Latest Release                                                               |                                                                                                    Build Status                                                                                                    | Code Quality | Test Coverage |
+| :------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------: | :-----------: |
+|  ![dev](https://img.shields.io/badge/%2F_dev-blue?style=flat&logo=GitHub)  | [![GitHub release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back)](https://github.com/SlavaMelanko/smela-back/releases) | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=dev&label=Ubuntu&logo=linux)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml)  |              |               |
+| ![main](https://img.shields.io/badge/%2F_main-blue?style=flat&logo=GitHub) | [![GitHub release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back)](https://github.com/SlavaMelanko/smela-back/releases) | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=main&label=Ubuntu&logo=linux)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml) |              |               |
+
 ## 📦 Technology Stack
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
 - **Database**: PostgreSQL (serverless)
 - **ORM**: Drizzle for type-safe queries
-- **Authentication**: JWT & bcrypt
+- **Authentication**: JWT
 - **Email**: Transactional email support
 - **Validation**: Schema-based validation
 - **Security**: Rate limiting, CORS, CSP
@@ -32,21 +37,21 @@ bun install
 
 ### 2. Environment Setup
 
-See [`.env.example`](.env.example) for required variables, configuration examples, and CORS setup instructions.
+See [`.env.example`](.env.example) to configure required variables.
 
 ### 3. Database Setup
 
 ```bash
-# Generate migration files from schema.
+# Generate migration files from schema
 bun db:generate
 
-# Apply migrations to database.
+# Apply migrations to database
 bun db:migrate
 
-# Seed database with initial data.
+# Seed database with initial data
 bun db:seed
 
-# Or run all database setup steps at once.
+# Or run all database setup steps at once
 bun db:setup
 ```
 

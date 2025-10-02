@@ -1,4 +1,4 @@
-name: Tests
+name: Ubuntu
 
 on:
   pull_request:
@@ -8,13 +8,24 @@ on:
       - '**.txt'
       - '**.json'
       - '**.yml'
-      - '!.github/workflows/test.yml'
+      - '!.github/workflows/ubuntu.yml'
+      - '**.yaml'
+      - 'LICENSE'
+      - '.gitignore'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - '**.json'
+      - '**.yml'
+      - '!.github/workflows/ubuntu.yml'
       - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
     container: oven/bun:latest
     environment: test
@@ -47,3 +58,18 @@ jobs:
 
       - name: Run tests
         run: bun test
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   container: oven/bun:latest
+  #   needs: tests
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Install dependencies
+  #       run: bun install
+
+  #     - name: Build project
+  #       run: bun run build
