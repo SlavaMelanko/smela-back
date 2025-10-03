@@ -15,57 +15,65 @@ describe('Me Endpoint', () => {
 
   let app: Hono
 
-  const mockJwtPayload = {
-    id: 1,
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    v: 1, // token version in JWT
-  }
+  let mockJwtPayload: any
+  let mockFullUser: any
+  let mockUpdatedUser: any
+  let mockUpdatedUserMinimal: any
 
-  const mockFullUser = {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  }
-
-  const mockUpdatedUser = {
-    id: 1,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  }
-
-  const mockUpdatedUserMinimal = {
-    id: 1,
-    firstName: 'Jo',
-    lastName: 'Do',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  }
+  let mockGetUser: any
+  let mockUpdateUser: any
 
   beforeEach(async () => {
+    mockUpdatedUserMinimal = {
+      id: 1,
+      firstName: 'Jo',
+      lastName: 'Do',
+      email: 'test@example.com',
+      role: 'user',
+      status: 'active',
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
+    }
+
+    mockFullUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'test@example.com',
+      role: 'user',
+      status: 'active',
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+    mockGetUser = mock(() => Promise.resolve(mockFullUser))
+    mockUpdatedUser = {
+      id: 1,
+      firstName: 'Jane',
+      lastName: 'Smith',
+      email: 'test@example.com',
+      role: 'user',
+      status: 'active',
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
+    }
+    mockUpdateUser = mock(() => Promise.resolve(mockUpdatedUser))
+
     await moduleMocker.mock('../me', () => ({
-      getUser: mock(() => Promise.resolve(mockFullUser)),
-      updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
+      getUser: mockGetUser,
+      updateUser: mockUpdateUser,
     }))
 
-    // Create middleware that sets user from JWT
+    mockJwtPayload = {
+      id: 1,
+      email: 'test@example.com',
+      role: 'user',
+      status: 'active',
+      v: 1,
+    }
+
     const userMiddleware: any = async (c: any, next: any) => {
       c.set('user', mockJwtPayload)
       await next()
@@ -123,11 +131,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle user not found as data inconsistency', async () => {
-      // Mock getUser to throw internal error for data inconsistency
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Internal server error.'))),
-        updateUser: mock(() => Promise.resolve(null)),
-      }))
+      mockGetUser.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Internal server error.')))
 
       const res = await app.request(ME_URL, {
         method: 'GET',
@@ -203,11 +207,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle update failure', async () => {
-      // Mock updateUser to throw error
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.resolve(mockFullUser)),
-        updateUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.'))),
-      }))
+      mockUpdateUser.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.')))
 
       const res = await post(app, ME_URL, { firstName: 'Jane', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
@@ -252,13 +252,9 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle valid names with minimum length', async () => {
-      // Mock updateUser to return user with minimal names
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.resolve(mockFullUser)),
-        updateUser: mock(() => Promise.resolve(mockUpdatedUserMinimal)),
-      }))
+      mockUpdateUser.mockImplementation(() => Promise.resolve(mockUpdatedUserMinimal))
 
-      const res = await post(app, ME_URL, { firstName: 'Jo', lastName: 'Do' }, { // minimum valid length
+      const res = await post(app, ME_URL, { firstName: 'Jo', lastName: 'Do' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -271,10 +267,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle empty body (no updates)', async () => {
-      // Mock to simulate the actual implementation behavior
-      const mockGetUser = mock(() => Promise.resolve(mockFullUser))
-      const mockUpdateUser = mock((_userId: number, updates: any) => {
-        // Simulate prepareValidUpdates behavior
+      mockUpdateUser.mockImplementation((_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -283,7 +276,6 @@ describe('Me Endpoint', () => {
           validUpdates.lastName = updates.lastName.trim()
         }
 
-        // If no valid updates, return current user (simulating getUser call)
         if (Object.keys(validUpdates).length === 0) {
           return mockGetUser()
         }
@@ -291,12 +283,7 @@ describe('Me Endpoint', () => {
         return Promise.resolve(mockUpdatedUser)
       })
 
-      await moduleMocker.mock('../me', () => ({
-        getUser: mockGetUser,
-        updateUser: mockUpdateUser,
-      }))
-
-      const res = await post(app, ME_URL, {}, { // no fields to update
+      const res = await post(app, ME_URL, {}, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -360,10 +347,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle whitespace-only strings as empty', async () => {
-      // Mock to simulate the actual implementation behavior
-      const mockGetUser = mock(() => Promise.resolve(mockFullUser))
-      const mockUpdateUser = mock((_userId: number, updates: any) => {
-        // Simulate prepareValidUpdates behavior
+      mockUpdateUser.mockImplementation((_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -372,7 +356,6 @@ describe('Me Endpoint', () => {
           validUpdates.lastName = updates.lastName.trim()
         }
 
-        // If no valid updates, return current user
         if (Object.keys(validUpdates).length === 0) {
           return mockGetUser()
         }
@@ -380,12 +363,7 @@ describe('Me Endpoint', () => {
         return Promise.resolve(mockUpdatedUser)
       })
 
-      await moduleMocker.mock('../me', () => ({
-        getUser: mockGetUser,
-        updateUser: mockUpdateUser,
-      }))
-
-      const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, { // whitespace-only firstName
+      const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
