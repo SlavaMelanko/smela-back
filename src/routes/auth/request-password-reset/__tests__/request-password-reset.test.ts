@@ -145,11 +145,9 @@ describe('Request Password Reset', () => {
   })
 
   describe('email sending failure scenarios', () => {
-    beforeEach(async () => {
-      mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
-    })
-
     it('should complete successfully even if email fails', async () => {
+      mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+
       const result = await requestPasswordReset(mockUser.email)
 
       expect(result).toEqual({ success: true })

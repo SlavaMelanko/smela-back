@@ -9,12 +9,12 @@ import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/
 import resendVerificationEmailRoute from '../index'
 
 describe('Resend Verification Email Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const RESEND_VERIFICATION_EMAIL_URL = '/api/v1/auth/resend-verification-email'
 
   let app: Hono
   let mockResendVerificationEmail: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
@@ -24,6 +24,7 @@ describe('Resend Verification Email Endpoint', () => {
     }))
 
     mockCaptchaSuccess()
+
     app = createTestApp('/api/v1/auth', resendVerificationEmailRoute)
   })
 
