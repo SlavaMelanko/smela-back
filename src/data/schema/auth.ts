@@ -9,8 +9,8 @@ import {
 
 import { AuthProvider } from '@/types'
 
+import { createPgEnum } from '../utils'
 import { usersTable } from './users'
-import { createPgEnum } from './utils'
 
 export const authProviderEnum = createPgEnum('auth_provider', AuthProvider)
 

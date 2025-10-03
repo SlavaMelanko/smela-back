@@ -9,7 +9,7 @@ import {
 
 import { Role, Status } from '@/types'
 
-import { createPgEnum } from './utils'
+import { createPgEnum } from '../utils'
 
 export const statusEnum = createPgEnum('status', Status)
 export const roleEnum = createPgEnum('role', Role)

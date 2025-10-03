@@ -11,8 +11,8 @@ import {
 
 import { Token, TokenStatus } from '@/types'
 
+import { createPgEnum } from '../utils'
 import { usersTable } from './users'
-import { createPgEnum } from './utils'
 
 export const tokenEnum = createPgEnum('token', Token)
 export const tokenStatusEnum = createPgEnum('token_status', TokenStatus)

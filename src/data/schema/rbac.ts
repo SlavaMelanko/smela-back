@@ -7,8 +7,8 @@ import {
 
 import { Action, Resource } from '@/types'
 
+import { createPgEnum } from '../utils'
 import { roleEnum } from './users'
-import { createPgEnum } from './utils'
 
 export const actionEnum = createPgEnum('action', Action)
 export const resourceEnum = createPgEnum('resource', Resource)
