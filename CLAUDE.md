@@ -225,24 +225,82 @@ describe('Test Suite Name', () => {
 
 **Mocking Best Practices:**
 
-1. **Variable Declaration Order**:
+1. **Variable Declaration Order & Grouping**:
    - First: `moduleMocker` instance (if needed)
-   - Second: Blank line, then primitive constants (strings, numbers, dates)
-   - Third: Blank line, then all mock objects and variables
+   - Then: Group variables by module/domain with blank lines between groups
+   - Order groups to match their initialization order in `beforeEach`
+   - Within each group, order variables by their dependency chain (small → large)
+
+   Example:
+   ```typescript
+   const moduleMocker = new ModuleMocker(import.meta.url)
+
+   let mockSignupParams: any  // Test data group
+
+   let mockNewUser: any       // @/data module group
+   let mockDb: any
+   let mockUserRepo: any
+   let mockAuthRepo: any
+
+   let mockHashedPassword: string  // @/lib/cipher module group
+   let mockHashPassword: any
+
+   let mockToken: string      // @/lib/token module group
+   let mockExpiresAt: Date
+   let mockGenerateToken: any
+
+   let mockEmailAgent: any    // @/lib/email-agent module group
+   ```
 
 2. **Initial Mock Setup in `beforeEach`**:
-   - **Step 1**: Initialize primitive constants (strings, numbers, dates)
-   - **Step 2**: Initialize base data objects (mockUser, mockAuth, mockToken, etc.)
-   - **Step 3**: Initialize repository/service mocks that depend on data objects
-   - **Step 4**: Call `moduleMocker.mock()` for modules using the repository mocks
-   - **Step 5**: Repeat for each module: create mock object → call `moduleMocker.mock()`
-   - **Pattern**: Always define the smaller/simpler mock first, then use it in larger/complex mocks
-   - **Goal**: Create a clear dependency chain that's easy to read and understand
+   - **Core Principle**: Define each variable immediately before its first usage
+   - **Pattern**: Follow small → large dependency chain within each module group
+   - **Goal**: Create a clear, readable flow where dependencies are obvious
+
+   Setup sequence:
+   - **Step 1**: Initialize test data and primitive constants
+   - **Step 2**: Initialize base data objects that will be used by mocks
+   - **Step 3**: Initialize mock objects that depend on the data
+   - **Step 4**: Call `moduleMocker.mock()` immediately after defining related mocks
+   - **Step 5**: Repeat for each module: primitives → mock objects → `moduleMocker.mock()`
+
+   Example:
+   ```typescript
+   beforeEach(async () => {
+     // Test data
+     mockSignupParams = { firstName: 'John', ... }
+
+     // @/data module group
+     mockNewUser = { id: 1, ... }
+     mockUserRepo = { findByEmail: mock(() => ...) }
+     mockAuthRepo = { create: mock(() => ...) }
+     await moduleMocker.mock('@/data', () => ({
+       userRepo: mockUserRepo,
+       authRepo: mockAuthRepo,
+     }))
+
+     // @/lib/cipher module group
+     mockHashedPassword = '$2b$10$hash123'
+     mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+     await moduleMocker.mock('@/lib/cipher', () => ({
+       hashPassword: mockHashPassword,
+     }))
+
+     // @/lib/token module group
+     mockToken = 'token-123'
+     mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
+     mockGenerateToken = mock(() => ({ token: mockToken, expiresAt: mockExpiresAt }))
+     await moduleMocker.mock('@/lib/token', () => ({
+       generateToken: mockGenerateToken,
+     }))
+   })
+   ```
 
 3. **Module Mocking Rules**:
    - Use `moduleMocker.mock()` ONLY in `beforeEach` for initial module mocking
    - Never use `moduleMocker.mock()` in individual test cases
    - Always define the mock object variable before calling `moduleMocker.mock()` with it
+   - Call `moduleMocker.mock()` immediately after defining all related mock objects
    - **Don't mock encapsulated dependencies**: Only mock the public API/wrapper, not the underlying implementation details
      - Example: If you have a wrapper `@/lib/cookie/access-cookie` that uses `hono/cookie`, only mock the wrapper, not `hono/cookie`
      - This prevents tight coupling to implementation details and makes tests more maintainable
