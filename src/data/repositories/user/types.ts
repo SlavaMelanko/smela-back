@@ -1,4 +1,4 @@
-import type { usersTable } from '@/db/schema'
+import type { usersTable } from '@/data/schema'
 import type { Role, Status } from '@/types'
 
 // Database type

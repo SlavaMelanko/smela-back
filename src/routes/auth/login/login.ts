@@ -1,10 +1,10 @@
-import type { User } from '@/repositories'
+import type { User } from '@/data'
 
+import { authRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { comparePasswords } from '@/lib/cipher'
 import jwt from '@/lib/jwt'
 import { normalizeUser } from '@/lib/user'
-import { authRepo, userRepo } from '@/repositories'
 
 interface LoginParams {
   email: string

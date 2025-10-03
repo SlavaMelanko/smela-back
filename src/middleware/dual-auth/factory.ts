@@ -5,9 +5,9 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
 
+import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import jwt from '@/lib/jwt'
-import { userRepo } from '@/repositories'
 
 import extractToken from './token'
 

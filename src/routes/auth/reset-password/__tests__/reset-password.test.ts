@@ -1,10 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import db from '@/db'
+import { authRepo, db, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
-import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
@@ -43,7 +42,7 @@ describe('Reset Password', () => {
   beforeEach(async () => {
     mockHashPassword.mockClear()
 
-    await moduleMocker.mock('@/repositories', () => ({
+    await moduleMocker.mock('@/data', () => ({
       tokenRepo: {
         findByToken: mock(() => Promise.resolve(mockTokenRecord)),
         update: mock(() => Promise.resolve()),
@@ -54,10 +53,7 @@ describe('Reset Password', () => {
       userRepo: {
         incrementTokenVersion: mock(() => Promise.resolve()),
       },
-    }))
-
-    await moduleMocker.mock('@/db', () => ({
-      default: {
+      db: {
         transaction: mock(async (callback: any) => {
           return await callback({})
         }),
@@ -215,7 +211,7 @@ describe('Reset Password', () => {
 
   describe('when token marking as used fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.reject(new Error('Database connection failed'))),
@@ -246,7 +242,7 @@ describe('Reset Password', () => {
 
   describe('when password update fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -323,7 +319,7 @@ describe('Reset Password', () => {
   describe('Token Version Invalidation', () => {
     describe('when password reset is successful', () => {
       it('should increment user tokenVersion to invalidate existing JWTs', async () => {
-        await moduleMocker.mock('@/repositories', () => ({
+        await moduleMocker.mock('@/data', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),
@@ -346,7 +342,7 @@ describe('Reset Password', () => {
 
     describe('token version error handling', () => {
       it('should fail if tokenVersion increment fails', async () => {
-        await moduleMocker.mock('@/repositories', () => ({
+        await moduleMocker.mock('@/data', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),
@@ -376,7 +372,7 @@ describe('Reset Password', () => {
       it('should complete full flow: password reset → tokenVersion increment → JWT invalidation', async () => {
         const userId = 123
 
-        await moduleMocker.mock('@/repositories', () => ({
+        await moduleMocker.mock('@/data', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(mockTokenRecord)),
             update: mock(() => Promise.resolve()),

@@ -1,4 +1,4 @@
-import type { authTable } from '@/db/schema'
+import type { authTable } from '@/data/schema'
 
 // Database type
 export type AuthRecord = typeof authTable.$inferSelect

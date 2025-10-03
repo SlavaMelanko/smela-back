@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
+import type { Transaction } from '@/data'
 
-import db, { tokensTable } from '@/db'
+import { db, tokensTable } from '@/data'
 
 import type { TokenRecord } from './types'
 

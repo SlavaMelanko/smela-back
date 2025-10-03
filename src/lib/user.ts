@@ -1,4 +1,4 @@
-import type { User } from '@/repositories/user/types'
+import type { User } from '@/data'
 
 /**
  * Removes sensitive fields from a user object before sending to the client.

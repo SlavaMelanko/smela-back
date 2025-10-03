@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
+import type { Transaction } from '@/data'
 
-import db, { usersTable } from '@/db'
+import { db, usersTable } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 
 import type { CreateUserInput, UpdateUserInput, User } from './types'

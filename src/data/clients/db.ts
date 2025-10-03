@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/neon-serverless'
 
 import env, { isDevEnv } from '@/lib/env'
 
-import * as schema from './schema'
+import * as schema from '../schema'
 
 export type Transaction = NeonDatabase<typeof schema>
 

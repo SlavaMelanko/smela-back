@@ -1,4 +1,4 @@
-import type { TokenRecord } from '@/repositories/token'
+import type { TokenRecord } from '@/data'
 import type { Token } from '@/types'
 
 import { TokenStatus } from '@/types'

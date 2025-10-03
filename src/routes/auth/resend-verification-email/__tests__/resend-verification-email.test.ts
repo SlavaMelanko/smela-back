@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import db from '@/db'
+import { db, tokenRepo, userRepo } from '@/data'
 import { emailAgent } from '@/lib/email-agent'
-import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
@@ -30,7 +29,7 @@ describe('Resend Verification Email', () => {
     mockToken = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-    await moduleMocker.mock('@/repositories', () => ({
+    await moduleMocker.mock('@/data', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(mockUser)),
       },
@@ -92,7 +91,7 @@ describe('Resend Verification Email', () => {
 
   describe('when user does not exist', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
         },
@@ -119,7 +118,7 @@ describe('Resend Verification Email', () => {
     }
 
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(verifiedUser)),
         },
@@ -146,7 +145,7 @@ describe('Resend Verification Email', () => {
     }
 
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(suspendedUser)),
         },
@@ -168,7 +167,7 @@ describe('Resend Verification Email', () => {
 
   describe('when token replacement fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -213,7 +212,7 @@ describe('Resend Verification Email', () => {
       for (const status of ineligibleStatuses) {
         const userWithStatus = { ...mockUser, status }
 
-        await moduleMocker.mock('@/repositories', () => ({
+        await moduleMocker.mock('@/data', () => ({
           userRepo: {
             findByEmail: mock(() => Promise.resolve(userWithStatus)),
           },
@@ -234,7 +233,7 @@ describe('Resend Verification Email', () => {
 
   describe('when email sending fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },
@@ -263,7 +262,7 @@ describe('Resend Verification Email', () => {
 
   describe('when replace fails due to transaction error', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(mockUser)),
         },

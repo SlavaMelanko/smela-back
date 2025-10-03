@@ -1,4 +1,4 @@
-import type { tokensTable } from '@/db/schema'
+import type { tokensTable } from '@/data/schema'
 import type { Token, TokenStatus } from '@/types'
 
 // Database type

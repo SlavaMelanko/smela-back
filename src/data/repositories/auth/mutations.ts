@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
+import type { Transaction } from '@/data'
 
-import db, { authTable } from '@/db'
+import { authTable, db } from '@/data'
 
 import type { CreateAuthInput, UpdateAuthInput } from './types'
 

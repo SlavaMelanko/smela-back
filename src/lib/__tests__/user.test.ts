@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 
-import type { User } from '@/repositories/user/types'
+import type { User } from '@/data/user/types'
 
 import { Role, Status } from '@/types'
 

@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
+import type { Transaction } from '@/data'
 import type { Role, Status } from '@/types'
 
-import db, { usersTable } from '@/db'
+import { db, usersTable } from '@/data'
 
 import type { User, UserRecord } from './types'
 

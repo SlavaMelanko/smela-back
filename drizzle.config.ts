@@ -3,8 +3,8 @@
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
-  schema: './src/db/schema.ts',
-  out: './src/db/migrations',
+  schema: './src/data/schema',
+  out: './src/data/migrations',
   dialect: 'postgresql',
   dbCredentials: {
     // eslint-disable-next-line node/no-process-env
