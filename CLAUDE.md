@@ -167,6 +167,68 @@ await db.transaction(async (tx) => {
 - No external services or database connections required
 - Mock only what's necessary for isolating business logic
 
+**Test Structure & Mocking Conventions:**
+
+Follow this variable declaration order in test `describe` blocks:
+
+```typescript
+describe('Test Suite Name', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockPrimitiveConstant: string
+  let mockAnotherPrimitive: Date
+
+  let mockUser: any
+  let mockUserRepo: any
+  let mockTokenRepo: any
+  let mockDb: any
+  let mockEmailAgent: any
+
+  beforeEach(async () => {
+    // Initialize primitive constants
+    mockPrimitiveConstant = 'value'
+    mockAnotherPrimitive = new Date()
+
+    // Initialize mock objects
+    mockUser = { /* ... */ }
+    mockUserRepo = {
+      findByEmail: mock(() => Promise.resolve(mockUser)),
+    }
+
+    // Setup module mocks using moduleMocker.mock() ONLY in beforeEach
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: mockUserRepo,
+      tokenRepo: mockTokenRepo,
+    }))
+  })
+
+  afterEach(() => {
+    moduleMocker.clear()
+  })
+
+  it('should update mock behavior', async () => {
+    // Update mocks using mockImplementation, NOT moduleMocker.mock()
+    mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
+  })
+})
+```
+
+**Mocking Best Practices:**
+
+1. **Variable Declaration Order**:
+   - First: `moduleMocker` instance (if needed)
+   - Second: Blank line, then primitive constants (strings, numbers, dates)
+   - Third: Blank line, then all mock objects and variables
+
+2. **Initial Mock Setup**:
+   - Use `moduleMocker.mock()` ONLY in `beforeEach` for initial module mocking
+   - Never use `moduleMocker.mock()` in individual test cases
+
+3. **Updating Mock Behavior**:
+   - Use `mockImplementation()` to update mock behavior in individual tests
+   - Use other mock utilities (`mockReturnValue`, `mockResolvedValue`, etc.) as needed
+   - This keeps tests clean and prevents mock setup duplication
+
 ### Security Considerations
 
 - Passwords hashed with bcrypt (10 rounds)
