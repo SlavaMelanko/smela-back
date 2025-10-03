@@ -185,21 +185,31 @@ describe('Test Suite Name', () => {
   let mockEmailAgent: any
 
   beforeEach(async () => {
-    // Initialize primitive constants
+    // Step 1: Initialize primitive constants and base mock data
     mockPrimitiveConstant = 'value'
     mockAnotherPrimitive = new Date()
 
-    // Initialize mock objects
+    // Step 2: Initialize data objects (used by repositories)
     mockUser = { /* ... */ }
+
+    // Step 3: Initialize repository mocks (depend on data objects)
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
 
-    // Setup module mocks using moduleMocker.mock() ONLY in beforeEach
+    // Step 4: Setup module mocks (depend on repository mocks)
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
     }))
+
+    // Step 5: Initialize service mocks (small to large)
+    mockCipher = {
+      comparePasswords: mock(() => Promise.resolve(true)),
+    }
+
+    // Step 6: Setup service module mocks
+    await moduleMocker.mock('@/lib/cipher', () => mockCipher)
   })
 
   afterEach(() => {
@@ -220,14 +230,40 @@ describe('Test Suite Name', () => {
    - Second: Blank line, then primitive constants (strings, numbers, dates)
    - Third: Blank line, then all mock objects and variables
 
-2. **Initial Mock Setup**:
+2. **Initial Mock Setup in `beforeEach`**:
+   - **Step 1**: Initialize primitive constants (strings, numbers, dates)
+   - **Step 2**: Initialize base data objects (mockUser, mockAuth, mockToken, etc.)
+   - **Step 3**: Initialize repository/service mocks that depend on data objects
+   - **Step 4**: Call `moduleMocker.mock()` for modules using the repository mocks
+   - **Step 5**: Repeat for each module: create mock object → call `moduleMocker.mock()`
+   - **Pattern**: Always define the smaller/simpler mock first, then use it in larger/complex mocks
+   - **Goal**: Create a clear dependency chain that's easy to read and understand
+
+3. **Module Mocking Rules**:
    - Use `moduleMocker.mock()` ONLY in `beforeEach` for initial module mocking
    - Never use `moduleMocker.mock()` in individual test cases
+   - Always define the mock object variable before calling `moduleMocker.mock()` with it
+   - **Don't mock encapsulated dependencies**: Only mock the public API/wrapper, not the underlying implementation details
+     - Example: If you have a wrapper `@/lib/cookie/access-cookie` that uses `hono/cookie`, only mock the wrapper, not `hono/cookie`
+     - This prevents tight coupling to implementation details and makes tests more maintainable
 
-3. **Updating Mock Behavior**:
+4. **Updating Mock Behavior**:
    - Use `mockImplementation()` to update mock behavior in individual tests
    - Use other mock utilities (`mockReturnValue`, `mockResolvedValue`, etc.) as needed
    - This keeps tests clean and prevents mock setup duplication
+
+**Example Dependency Chain**:
+
+```typescript
+// Good: Clear dependency chain from small to large
+mockUser = { id: 1, email: 'test@example.com' }
+mockUserRepo = { findByEmail: mock(() => Promise.resolve(mockUser)) }
+await moduleMocker.mock('@/data', () => ({ userRepo: mockUserRepo }))
+
+mockJwtToken = 'token-123'
+mockJwt = { default: { sign: mock(() => Promise.resolve(mockJwtToken)) } }
+await moduleMocker.mock('@/lib/jwt', () => mockJwt)
+```
 
 ### Security Considerations
 
