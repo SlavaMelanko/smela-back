@@ -30,7 +30,6 @@ describe('Request Password Reset', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }

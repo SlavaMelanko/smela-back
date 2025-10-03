@@ -47,20 +47,16 @@ describe('Signup with Email', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(null)),
       create: mock(() => Promise.resolve(mockNewUser)),
     }
-
     mockAuthRepo = {
       create: mock(() => Promise.resolve(1)),
     }
-
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
-
     mockDb = {
       transaction: mock(async (callback: any) => {
         return await callback({
@@ -87,6 +83,7 @@ describe('Signup with Email', () => {
 
     mockHashedPassword = '$2b$10$hashedPassword123'
     mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+
     await moduleMocker.mock('@/lib/cipher', () => ({
       hashPassword: mockHashPassword,
     }))

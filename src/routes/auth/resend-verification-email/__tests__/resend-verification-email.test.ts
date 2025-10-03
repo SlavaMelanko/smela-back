@@ -34,7 +34,6 @@ describe('Resend Verification Email', () => {
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
-
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
@@ -45,9 +44,10 @@ describe('Resend Verification Email', () => {
       authRepo: {},
     }))
 
+    db.transaction = mock(async (callback: any) => callback({}))
+
     mockToken = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
     mockGenerateToken = mock(() => ({
       type: Token.EmailVerification,
       token: mockToken,
@@ -65,8 +65,6 @@ describe('Resend Verification Email', () => {
     await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: mockEmailAgent,
     }))
-
-    db.transaction = mock(async (callback: any) => callback({}))
   })
 
   afterEach(() => {

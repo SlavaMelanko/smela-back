@@ -30,7 +30,6 @@ describe('Reset Password', () => {
     mockPassword = 'NewSecure@123'
 
     mockToken = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
-
     mockTokenRecord = {
       id: 1,
       userId: 123,
@@ -41,20 +40,16 @@ describe('Reset Password', () => {
       createdAt: new Date(),
       usedAt: null,
     }
-
     mockTokenRepo = {
       findByToken: mock(() => Promise.resolve(mockTokenRecord)),
       update: mock(() => Promise.resolve()),
     }
-
     mockAuthRepo = {
       update: mock(() => Promise.resolve()),
     }
-
     mockUserRepo = {
       incrementTokenVersion: mock(() => Promise.resolve()),
     }
-
     mockDb = {
       transaction: mock(async (callback: any) => {
         return await callback({})
@@ -80,7 +75,6 @@ describe('Reset Password', () => {
       createdAt: new Date(),
       usedAt: null,
     }
-
     mockTokenValidator = {
       validate: mock(() => mockValidatedToken),
     }
@@ -90,7 +84,6 @@ describe('Reset Password', () => {
     }))
 
     mockHashedPassword = 'mock-hashed-new-password'
-
     mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
 
     await moduleMocker.mock('@/lib/cipher', () => ({

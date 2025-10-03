@@ -39,18 +39,15 @@ describe('Login with Email', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
-
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
-
     mockAuth = {
       userId: 1,
       provider: 'local',
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',
     }
-
     mockAuthRepo = {
       findById: mock(() => Promise.resolve(mockAuth)),
     }
@@ -67,7 +64,6 @@ describe('Login with Email', () => {
     await moduleMocker.mock('@/lib/cipher', () => mockCipher)
 
     mockJwtToken = 'login-jwt-token-123'
-
     mockJwt = {
       default: {
         sign: mock(() => Promise.resolve(mockJwtToken)),
