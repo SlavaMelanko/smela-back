@@ -9,11 +9,11 @@ import HttpStatus from '@/lib/http-status'
 import meRoute from '../index'
 
 describe('Me Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const ME_URL = '/api/v1/protected/me'
 
   let app: Hono
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   const mockJwtPayload = {
     id: 1,
