@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
-
-import db, { authTable } from '@/db'
-
+import type { Transaction } from '../../clients'
 import type { CreateAuthInput, UpdateAuthInput } from './types'
+
+import { db } from '../../clients'
+import { authTable } from '../../schema'
 
 export const createAuth = async (auth: CreateAuthInput, tx?: Transaction): Promise<number> => {
   const executor = tx || db

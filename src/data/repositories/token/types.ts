@@ -1,5 +1,6 @@
-import type { tokensTable } from '@/db/schema'
 import type { Token, TokenStatus } from '@/types'
+
+import type { tokensTable } from '../../schema'
 
 // Database type
 export type TokenRecord = typeof tokensTable.$inferSelect

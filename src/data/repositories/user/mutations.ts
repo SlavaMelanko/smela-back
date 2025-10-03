@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
-
-import db, { usersTable } from '@/db'
 import { AppError, ErrorCode } from '@/lib/catch'
 
+import type { Transaction } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
+import { db } from '../../clients'
+import { usersTable } from '../../schema'
 import { findUserById, toTypeSafeUser } from './queries'
 
 export const createUser = async (user: CreateUserInput, tx?: Transaction): Promise<User> => {

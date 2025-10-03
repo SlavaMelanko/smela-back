@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
-import db from '@/db'
+import { authRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { emailAgent } from '@/lib/email-agent'
-import { authRepo, tokenRepo, userRepo } from '@/repositories'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
 
 describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockDb: any
 
   const mockSignupParams = {
     firstName: 'John',
@@ -36,7 +37,24 @@ describe('Signup with Email', () => {
   const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
 
   beforeEach(async () => {
-    await moduleMocker.mock('@/repositories', () => ({
+    mockDb = {
+      transaction: mock(async (callback: any) => {
+        return await callback({
+          insert: mock(() => ({
+            values: mock(() => ({
+              returning: mock(() => Promise.resolve([mockNewUser])),
+            })),
+          })),
+          update: mock(() => ({
+            set: mock(() => ({
+              where: mock(() => Promise.resolve()),
+            })),
+          })),
+        })
+      }),
+    }
+
+    await moduleMocker.mock('@/data', () => ({
       userRepo: {
         findByEmail: mock(() => Promise.resolve(null)),
         create: mock(() => Promise.resolve(mockNewUser)),
@@ -47,25 +65,7 @@ describe('Signup with Email', () => {
       tokenRepo: {
         replace: mock(() => Promise.resolve()),
       },
-    }))
-
-    await moduleMocker.mock('@/db', () => ({
-      default: {
-        transaction: mock(async (callback: any) => {
-          return await callback({
-            insert: mock(() => ({
-              values: mock(() => ({
-                returning: mock(() => Promise.resolve([mockNewUser])),
-              })),
-            })),
-            update: mock(() => ({
-              set: mock(() => ({
-                where: mock(() => Promise.resolve()),
-              })),
-            })),
-          })
-        }),
-      },
+      db: mockDb,
     }))
 
     await moduleMocker.mock('@/lib/cipher', () => ({
@@ -101,7 +101,7 @@ describe('Signup with Email', () => {
     it('should create a new user with correct data', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
@@ -224,7 +224,7 @@ describe('Signup with Email', () => {
         updatedAt: new Date(),
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(existingUser)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -248,7 +248,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).not.toHaveBeenCalled()
+      expect(mockDb.transaction).not.toHaveBeenCalled()
       expect(userRepo.create).not.toHaveBeenCalled()
       expect(authRepo.create).not.toHaveBeenCalled()
       expect(tokenRepo.replace).not.toHaveBeenCalled()
@@ -259,7 +259,7 @@ describe('Signup with Email', () => {
 
   describe('when user creation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.reject(new Error('Database connection failed'))),
@@ -277,7 +277,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).not.toHaveBeenCalled()
       expect(tokenRepo.replace).not.toHaveBeenCalled()
@@ -288,7 +288,7 @@ describe('Signup with Email', () => {
 
   describe('when auth creation fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -309,7 +309,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
       expect(tokenRepo.replace).not.toHaveBeenCalled()
@@ -320,7 +320,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -344,7 +344,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
       expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
@@ -371,7 +371,7 @@ describe('Signup with Email', () => {
       expect(result.user).toEqual(expectedUser)
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
       expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
@@ -410,7 +410,7 @@ describe('Signup with Email', () => {
       }
 
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(userWithShortNames)),
@@ -514,7 +514,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).not.toHaveBeenCalled()
+      expect(mockDb.transaction).not.toHaveBeenCalled()
       expect(userRepo.create).not.toHaveBeenCalled()
       expect(authRepo.create).not.toHaveBeenCalled()
       expect(tokenRepo.replace).not.toHaveBeenCalled()
@@ -525,7 +525,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         userRepo: {
           findByEmail: mock(() => Promise.resolve(null)),
           create: mock(() => Promise.resolve(mockNewUser)),
@@ -549,7 +549,7 @@ describe('Signup with Email', () => {
       }
 
       expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       expect(userRepo.create).toHaveBeenCalledTimes(1)
       expect(authRepo.create).toHaveBeenCalledTimes(1)
       expect(tokenRepo.replace).toHaveBeenCalledTimes(1)

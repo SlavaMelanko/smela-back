@@ -1,10 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import db from '@/db'
+import { db, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
-import { tokenRepo, userRepo } from '@/repositories'
 import { Role, Status, Token, TokenStatus } from '@/types'
 
 import verifyEmail from '../verify-email'
@@ -40,7 +39,7 @@ describe('Verify Email', () => {
   const mockJwtToken = 'mock-verify-jwt-token'
 
   beforeEach(async () => {
-    await moduleMocker.mock('@/repositories', () => ({
+    await moduleMocker.mock('@/data', () => ({
       tokenRepo: {
         findByToken: mock(() => Promise.resolve(mockTokenRecord)),
         update: mock(() => Promise.resolve()),
@@ -112,7 +111,7 @@ describe('Verify Email', () => {
 
   describe('when token does not exist', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(null)),
           update: mock(() => Promise.resolve()),
@@ -155,7 +154,7 @@ describe('Verify Email', () => {
         usedAt: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(usedTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -197,7 +196,7 @@ describe('Verify Email', () => {
         status: TokenStatus.Deprecated,
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(deprecatedTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -239,7 +238,7 @@ describe('Verify Email', () => {
         expiresAt: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(expiredTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -281,7 +280,7 @@ describe('Verify Email', () => {
         type: Token.PasswordReset,
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(wrongTypeTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -320,7 +319,7 @@ describe('Verify Email', () => {
 
   describe('when token repository operations fail', () => {
     it('should propagate findByToken errors', async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.reject(new Error('Database connection failed'))),
           update: mock(() => Promise.resolve()),
@@ -345,7 +344,7 @@ describe('Verify Email', () => {
     })
 
     it('should propagate token update errors', async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.reject(new Error('Token update failed'))),
@@ -370,7 +369,7 @@ describe('Verify Email', () => {
     })
 
     it('should propagate user update errors', async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -397,7 +396,7 @@ describe('Verify Email', () => {
 
   describe('when user update fails', () => {
     beforeEach(async () => {
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(mockTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -431,7 +430,7 @@ describe('Verify Email', () => {
         expiresAt: new Date(Date.now() + 1000), // 1 second from now
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(boundaryTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -463,7 +462,7 @@ describe('Verify Email', () => {
         userId: 999,
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(differentUserTokenRecord)),
           update: mock(() => Promise.resolve()),
@@ -501,7 +500,7 @@ describe('Verify Email', () => {
       for (const testToken of testTokens) {
         const testTokenRecord = { ...mockTokenRecord, token: testToken }
 
-        await moduleMocker.mock('@/repositories', () => ({
+        await moduleMocker.mock('@/data', () => ({
           tokenRepo: {
             findByToken: mock(() => Promise.resolve(testTokenRecord)),
             update: mock(() => Promise.resolve()),
@@ -533,7 +532,7 @@ describe('Verify Email', () => {
         usedAt: null,
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(tokenWithNullUsedAt)),
           update: mock(() => Promise.resolve()),
@@ -568,7 +567,7 @@ describe('Verify Email', () => {
         usedAt: new Date(Date.now() - 60 * 60 * 1000), // has usedAt but status is Active
       }
 
-      await moduleMocker.mock('@/repositories', () => ({
+      await moduleMocker.mock('@/data', () => ({
         tokenRepo: {
           findByToken: mock(() => Promise.resolve(inconsistentTokenRecord)),
           update: mock(() => Promise.resolve()),

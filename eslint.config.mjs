@@ -9,7 +9,7 @@ export default antfu({
     semi: false,
     quotes: 'single',
   },
-  ignores: ['src/db/migrations/**'],
+  ignores: ['src/data/migrations/**'],
   rules: {
     'no-console': ['warn'],
     'antfu/no-top-level-await': ['off'],

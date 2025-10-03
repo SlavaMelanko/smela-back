@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { hashPassword } from '@/lib/cipher'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
-import db from './db'
+import { db } from './clients'
 import { authTable, permissionsTable, rolePermissionsTable, usersTable } from './schema'
 
 const seedPermissions = async () => {

@@ -45,10 +45,14 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 
 - `/src/app.ts` - Application entry point
 - `/src/server.ts` - Server configuration with middleware setup
-- `/src/db/` - Database layer (schema, migrations, seed data)
+- `/src/data/` - Data access layer
+  - `/schema/` - Database schema (users, auth, rbac, tokens) with inline enums
+  - `/clients/` - Database clients (Neon, future: Redis, S3)
+  - `/repositories/` - Repository pattern for data access (auth, token, user)
+  - `/migrations/` - Drizzle ORM migrations
+  - `seed.ts` - Database seeding script
 - `/src/lib/` - Core utilities (cipher, validation, JWT, errors)
 - `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
-- `/src/repositories/` - Data access layer following repository pattern
 - `/src/routes/` - API endpoint handlers organized by domain
   - `/auth/` - Authentication routes (login, signup, password reset, etc.)
   - `/user/` - User-specific routes (profile, settings, etc.)

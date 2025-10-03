@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import jwt from '@/lib/jwt'
-import { userRepo } from '@/repositories'
 import { isActive, isNewOrActive, isUser, Role, Status } from '@/types'
 
 describe('Dual Auth Middleware - New User Access', () => {
@@ -49,7 +49,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const newUserToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.New, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -67,7 +67,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const verifiedToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Verified, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -83,7 +83,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const trialToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Trial, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -99,7 +99,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const activeToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Active, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -117,7 +117,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const newUserToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.New, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -133,7 +133,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const verifiedToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Verified, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -149,7 +149,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const trialToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Trial, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -165,7 +165,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const activeToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Active, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -181,7 +181,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const suspendedToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Suspended, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -199,7 +199,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const archivedToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Archived, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -217,7 +217,7 @@ describe('Dual Auth Middleware - New User Access', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
       const pendingToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Pending, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockUser)),
         },
@@ -240,7 +240,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       const newUserToken = await jwt.sign(newUserId, newUserEmail, mockRole, Status.New, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockNewUser)),
         },
@@ -263,7 +263,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       const newUserToken = await jwt.sign(newUserId, newUserEmail, mockRole, Status.New, tokenVersion)
 
-      mock.module('@/repositories', () => ({
+      mock.module('@/data', () => ({
         userRepo: {
           findById: mock(() => Promise.resolve(mockNewUser)),
         },

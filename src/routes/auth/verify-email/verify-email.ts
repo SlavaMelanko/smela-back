@@ -1,10 +1,9 @@
-import type { User } from '@/repositories/user/types'
+import type { User } from '@/data'
 
-import db from '@/db'
+import { db, tokenRepo, userRepo } from '@/data'
 import jwt from '@/lib/jwt'
 import { TokenValidator } from '@/lib/token'
 import { normalizeUser } from '@/lib/user'
-import { tokenRepo, userRepo } from '@/repositories'
 import { Status, Token, TokenStatus } from '@/types'
 
 export interface VerifyEmailResult {

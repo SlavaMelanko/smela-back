@@ -1,8 +1,7 @@
-import db from '@/db'
+import { db, tokenRepo, userRepo } from '@/data'
 import { emailAgent } from '@/lib/email-agent'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
-import { tokenRepo, userRepo } from '@/repositories'
 import { isActive, Token } from '@/types'
 
 const createPasswordResetToken = async (userId: number) => {

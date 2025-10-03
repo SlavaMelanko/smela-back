@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/neon-serverless'
 
 import env, { isDevEnv } from '@/lib/env'
 
-import * as schema from './schema'
+import * as schema from '../schema'
 
 export type Transaction = NeonDatabase<typeof schema>
 
@@ -14,9 +14,7 @@ const pool = new Pool({
   max: env.DB_MAX_CONNECTIONS,
 })
 
-const db = drizzle(pool, {
+export const db = drizzle(pool, {
   schema,
   logger: isDevEnv(),
 })
-
-export default db

@@ -1,12 +1,14 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
-import type { Transaction } from '@/db'
 import type { Token } from '@/types'
 
-import db, { tokensTable } from '@/db'
 import { TokenStatus } from '@/types'
 
+import type { Transaction } from '../../clients'
 import type { CreateTokenInput, UpdateTokenInput } from './types'
+
+import { db } from '../../clients'
+import { tokensTable } from '../../schema'
 
 export const deprecateOldTokens = async (userId: number, token: Token, tx?: Transaction) => {
   const executor = tx || db

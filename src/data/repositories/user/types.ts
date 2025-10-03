@@ -1,5 +1,6 @@
-import type { usersTable } from '@/db/schema'
 import type { Role, Status } from '@/types'
+
+import type { usersTable } from '../../schema'
 
 // Database type
 type UserRecord = typeof usersTable.$inferSelect
