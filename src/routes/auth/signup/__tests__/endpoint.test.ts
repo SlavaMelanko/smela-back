@@ -10,13 +10,13 @@ import { Role, Status } from '@/types'
 import signupRoute from '../index'
 
 describe('Signup Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const SIGNUP_URL = '/api/v1/auth/signup'
 
   let app: Hono
   let mockSignUpWithEmail: any
   let mockSetAccessCookie: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(() => Promise.resolve({
@@ -33,11 +33,11 @@ describe('Signup Endpoint', () => {
       token: 'signup-jwt-token',
     }))
 
-    mockSetAccessCookie = mock(() => {})
-
     await moduleMocker.mock('../signup', () => ({
       default: mockSignUpWithEmail,
     }))
+
+    mockSetAccessCookie = mock(() => {})
 
     await moduleMocker.mock('@/lib/cookie', () => ({
       setAccessCookie: mockSetAccessCookie,
