@@ -5,11 +5,11 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-import { Action, Resource } from '@/types'
+import { Action, Resource, Role } from '@/types'
 
 import { createPgEnum } from '../utils'
-import { roleEnum } from './users'
 
+export const roleEnum = createPgEnum('role', Role)
 export const actionEnum = createPgEnum('action', Action)
 export const resourceEnum = createPgEnum('resource', Resource)
 
@@ -28,5 +28,3 @@ export const rolePermissionsTable = pgTable('role_permissions', {
 }, table => ({
   uniqueRolePermission: uniqueIndex('unique_role_permission').on(table.role, table.permissionId),
 }))
-
-export { roleEnum }

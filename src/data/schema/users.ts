@@ -10,9 +10,9 @@ import {
 import { Role, Status } from '@/types'
 
 import { createPgEnum } from '../utils'
+import { roleEnum } from './rbac'
 
 export const statusEnum = createPgEnum('status', Status)
-export const roleEnum = createPgEnum('role', Role)
 
 export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),

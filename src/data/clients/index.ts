@@ -1,3 +1,3 @@
 export type { Transaction } from './db'
 
-export { default as db } from './db'
+export { db } from './db'
