@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/data'
-
-import { db, tokensTable } from '@/data'
-
+import type { Transaction } from '../../clients'
 import type { TokenRecord } from './types'
+
+import { db } from '../../clients'
+import { tokensTable } from '../../schema'
 
 export const findByToken = async (token: string, tx?: Transaction): Promise<TokenRecord | undefined> => {
   const executor = tx || db

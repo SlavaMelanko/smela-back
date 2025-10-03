@@ -1,11 +1,12 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '@/data'
 import type { Role, Status } from '@/types'
 
-import { db, usersTable } from '@/data'
-
+import type { Transaction } from '../../clients'
 import type { User, UserRecord } from './types'
+
+import { db } from '../../clients'
+import { usersTable } from '../../schema'
 
 export const toTypeSafeUser = (user: UserRecord): User | undefined => {
   if (!user) {
