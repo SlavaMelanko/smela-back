@@ -9,12 +9,15 @@ describe('Request Password Reset', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: any
+
+  let mockUserRepo: any
+  let mockTokenRepo: any
+  let mockDb: any
+
   let mockToken: string
   let mockExpiresAt: Date
+
   let mockEmailAgent: any
-  let mockTokenRepo: any
-  let mockUserRepo: any
-  let mockDb: any
 
   beforeEach(async () => {
     mockUser = {
@@ -28,22 +31,12 @@ describe('Request Password Reset', () => {
       updatedAt: new Date(),
     }
 
-    mockToken = 'reset-token-123'
-
-    mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
-
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
-
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
-
-    mockEmailAgent = {
-      sendResetPasswordEmail: mock(() => Promise.resolve()),
-    }
-
     mockDb = {
       transaction: mock(async (callback: any) => callback({})),
     }
@@ -55,6 +48,9 @@ describe('Request Password Reset', () => {
       db: mockDb,
     }))
 
+    mockToken = 'reset-token-123'
+    mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
+
     await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.PasswordReset,
@@ -62,6 +58,10 @@ describe('Request Password Reset', () => {
         expiresAt: mockExpiresAt,
       })),
     }))
+
+    mockEmailAgent = {
+      sendResetPasswordEmail: mock(() => Promise.resolve()),
+    }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: mockEmailAgent,

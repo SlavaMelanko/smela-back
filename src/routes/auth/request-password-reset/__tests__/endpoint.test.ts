@@ -9,12 +9,12 @@ import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/
 import requestPasswordResetRoute from '../index'
 
 describe('Request Password Reset Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const REQUEST_PASSWORD_RESET_URL = '/api/v1/auth/request-password-reset'
 
   let app: Hono
   let mockRequestPasswordReset: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
