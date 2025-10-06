@@ -13,7 +13,7 @@ describe('Resend Verification Email', () => {
   let mockUserRepo: any
   let mockTokenRepo: any
 
-  let mockToken: string
+  let mockTokenString: string
   let mockExpiresAt: Date
   let mockGenerateToken: any
 
@@ -46,11 +46,11 @@ describe('Resend Verification Email', () => {
 
     db.transaction = mock(async (callback: any) => callback({}))
 
-    mockToken = 'mock-resend-verification-token-123'
+    mockTokenString = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
     mockGenerateToken = mock(() => ({
       type: Token.EmailVerification,
-      token: mockToken,
+      token: mockTokenString,
       expiresAt: mockExpiresAt,
     }))
 
@@ -80,7 +80,7 @@ describe('Resend Verification Email', () => {
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.EmailVerification,
-        token: mockToken,
+        token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
@@ -94,7 +94,7 @@ describe('Resend Verification Email', () => {
       expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
         firstName: mockUser.firstName,
         email: mockUser.email,
-        token: mockToken,
+        token: mockTokenString,
       })
       expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })

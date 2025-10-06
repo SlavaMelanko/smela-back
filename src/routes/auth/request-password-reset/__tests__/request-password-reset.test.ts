@@ -12,9 +12,9 @@ describe('Request Password Reset', () => {
 
   let mockUserRepo: any
   let mockTokenRepo: any
-  let mockDb: any
+  let mockTransaction: any
 
-  let mockToken: string
+  let mockTokenString: string
   let mockExpiresAt: Date
 
   let mockEmailAgent: any
@@ -36,7 +36,7 @@ describe('Request Password Reset', () => {
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
-    mockDb = {
+    mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
     }
 
@@ -44,16 +44,16 @@ describe('Request Password Reset', () => {
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
       authRepo: {},
-      db: mockDb,
+      db: mockTransaction,
     }))
 
-    mockToken = 'reset-token-123'
+    mockTokenString = 'reset-token-123'
     mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
 
     await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.PasswordReset,
-        token: mockToken,
+        token: mockTokenString,
         expiresAt: mockExpiresAt,
       })),
     }))
@@ -75,13 +75,13 @@ describe('Request Password Reset', () => {
     it('should replace token and send reset email', async () => {
       const result = await requestPasswordReset(mockUser.email)
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       // Replace token should be called
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.PasswordReset,
-        token: mockToken,
+        token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
@@ -90,7 +90,7 @@ describe('Request Password Reset', () => {
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith({
         firstName: mockUser.firstName,
         email: mockUser.email,
-        token: mockToken,
+        token: mockTokenString,
       })
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
 

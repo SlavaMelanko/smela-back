@@ -12,7 +12,7 @@ describe('Login with Email', () => {
   let mockLoginParams: any
   let mockUser: any
   let mockUserRepo: any
-  let mockAuth: any
+  let mockAuthRecord: any
   let mockAuthRepo: any
 
   let mockCipher: any
@@ -42,14 +42,14 @@ describe('Login with Email', () => {
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
-    mockAuth = {
+    mockAuthRecord = {
       userId: 1,
       provider: 'local',
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',
     }
     mockAuthRepo = {
-      findById: mock(() => Promise.resolve(mockAuth)),
+      findById: mock(() => Promise.resolve(mockAuthRecord)),
     }
 
     await moduleMocker.mock('@/data', () => ({
@@ -112,14 +112,10 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when user does not exist', async () => {
       mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
-
-      try {
-        await logInWithEmail(mockLoginParams)
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
+      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+        name: 'AppError',
+        code: ErrorCode.InvalidCredentials,
+      })
     })
 
     it('should handle case-sensitive email lookup', async () => {
@@ -136,27 +132,19 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when auth record not found', async () => {
       mockAuthRepo.findById.mockImplementation(() => Promise.resolve(null))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
-
-      try {
-        await logInWithEmail(mockLoginParams)
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
+      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+        name: 'AppError',
+        code: ErrorCode.InvalidCredentials,
+      })
     })
 
     it('should throw InvalidCredentials when auth record has no password hash', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuth, passwordHash: null }))
+      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuthRecord, passwordHash: null }))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
-
-      try {
-        await logInWithEmail(mockLoginParams)
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InvalidCredentials)
-      }
+      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+        name: 'AppError',
+        code: ErrorCode.InvalidCredentials,
+      })
     })
   })
 
@@ -164,25 +152,19 @@ describe('Login with Email', () => {
     it('should throw BadCredentials for incorrect password', async () => {
       mockCipher.comparePasswords.mockImplementation(() => Promise.resolve(false))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(AppError)
-
-      try {
-        await logInWithEmail(mockLoginParams)
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
-      }
+      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+        name: 'AppError',
+        code: ErrorCode.BadCredentials,
+      })
     })
 
     it('should handle empty password input', async () => {
       mockCipher.comparePasswords.mockImplementation(() => Promise.resolve(false))
 
-      try {
-        await logInWithEmail({ ...mockLoginParams, password: '' })
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.BadCredentials)
-      }
+      await expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
+        name: 'AppError',
+        code: ErrorCode.BadCredentials,
+      })
     })
 
     it('should handle password comparison failure', async () => {
@@ -261,7 +243,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle malformed auth data from database', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuth, passwordHash: undefined }))
+      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuthRecord, passwordHash: undefined }))
 
       try {
         await logInWithEmail(mockLoginParams)

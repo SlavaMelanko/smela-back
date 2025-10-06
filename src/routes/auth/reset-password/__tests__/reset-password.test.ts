@@ -13,14 +13,13 @@ describe('Reset Password', () => {
 
   let mockPassword: string
 
-  let mockToken: string
+  let mockTokenString: string
   let mockTokenRecord: any
   let mockTokenRepo: any
   let mockAuthRepo: any
   let mockUserRepo: any
-  let mockDb: any
+  let mockTransaction: any
 
-  let mockValidatedToken: any
   let mockTokenValidator: any
 
   let mockHashedPassword: string
@@ -29,12 +28,12 @@ describe('Reset Password', () => {
   beforeEach(async () => {
     mockPassword = 'NewSecure@123'
 
-    mockToken = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
+    mockTokenString = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
     mockTokenRecord = {
       id: 1,
       userId: 123,
       type: Token.PasswordReset,
-      token: mockToken,
+      token: mockTokenString,
       status: TokenStatus.Pending,
       expiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
       createdAt: new Date(),
@@ -50,7 +49,7 @@ describe('Reset Password', () => {
     mockUserRepo = {
       incrementTokenVersion: mock(() => Promise.resolve()),
     }
-    mockDb = {
+    mockTransaction = {
       transaction: mock(async (callback: any) => {
         return await callback({})
       }),
@@ -60,23 +59,13 @@ describe('Reset Password', () => {
       tokenRepo: mockTokenRepo,
       authRepo: mockAuthRepo,
       userRepo: mockUserRepo,
-      db: mockDb,
+      db: mockTransaction,
     }))
 
-    db.transaction = mockDb.transaction
+    db.transaction = mockTransaction.transaction
 
-    mockValidatedToken = {
-      id: 1,
-      userId: 123,
-      type: Token.PasswordReset,
-      token: mockToken,
-      status: TokenStatus.Pending,
-      expiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000),
-      createdAt: new Date(),
-      usedAt: null,
-    }
     mockTokenValidator = {
-      validate: mock(() => mockValidatedToken),
+      validate: mock(() => mockTokenRecord),
     }
 
     await moduleMocker.mock('@/lib/token', () => ({
@@ -97,28 +86,28 @@ describe('Reset Password', () => {
 
   describe('when token is valid and active', () => {
     it('should validate token, hash password, mark token as used, update password, and increment token version', async () => {
-      const result = await resetPassword({ token: mockToken, password: mockPassword })
+      const result = await resetPassword({ token: mockTokenString, password: mockPassword })
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.findByToken).toHaveBeenCalledTimes(1)
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       expect(mockHashPassword).toHaveBeenCalledWith(mockPassword)
       expect(mockHashPassword).toHaveBeenCalledTimes(1)
 
-      expect(mockTokenRepo.update).toHaveBeenCalledWith(mockValidatedToken.id, {
+      expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),
       }, {})
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(mockAuthRepo.update).toHaveBeenCalledWith(mockValidatedToken.userId, {
+      expect(mockAuthRepo.update).toHaveBeenCalledWith(mockTokenRecord.userId, {
         passwordHash: mockHashedPassword,
       }, {})
       expect(mockAuthRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(mockValidatedToken.userId, {})
+      expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(mockTokenRecord.userId, {})
       expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ success: true })
@@ -139,7 +128,7 @@ describe('Reset Password', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
       }
 
-      expect(mockDb.transaction).not.toHaveBeenCalled()
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -152,14 +141,14 @@ describe('Reset Password', () => {
       })
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
       }
 
-      expect(mockDb.transaction).not.toHaveBeenCalled()
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -172,14 +161,14 @@ describe('Reset Password', () => {
       })
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
       }
 
-      expect(mockDb.transaction).not.toHaveBeenCalled()
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -192,14 +181,14 @@ describe('Reset Password', () => {
       })
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
       }
 
-      expect(mockDb.transaction).not.toHaveBeenCalled()
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -210,14 +199,14 @@ describe('Reset Password', () => {
       mockTokenRepo.update.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -228,14 +217,14 @@ describe('Reset Password', () => {
       mockAuthRepo.update.mockImplementation(() => Promise.reject(new Error('Password update failed')))
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Password update failed')
       }
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -246,14 +235,14 @@ describe('Reset Password', () => {
       mockHashPassword.mockImplementation(() => Promise.reject(new Error('Password hashing failed')))
 
       try {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Password hashing failed')
       }
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.update).not.toHaveBeenCalled()
     })
@@ -262,7 +251,7 @@ describe('Reset Password', () => {
   describe('edge cases', () => {
     it('should handle empty password', async () => {
       try {
-        await resetPassword({ token: mockToken, password: '' })
+        await resetPassword({ token: mockTokenString, password: '' })
         expect(true).toBe(false) // should not reach here due to validation
       } catch (error) {
         // This would be caught by the validation layer before reaching this function
@@ -273,7 +262,7 @@ describe('Reset Password', () => {
     it('should handle very long passwords', async () => {
       const longPassword = `A1@${'a'.repeat(1000)}` // very long password
 
-      const result = await resetPassword({ token: mockToken, password: longPassword })
+      const result = await resetPassword({ token: mockTokenString, password: longPassword })
 
       expect(result).toEqual({ success: true })
 
@@ -285,9 +274,9 @@ describe('Reset Password', () => {
   describe('Token Version Invalidation', () => {
     describe('when password reset is successful', () => {
       it('should increment user tokenVersion to invalidate existing JWTs', async () => {
-        await resetPassword({ token: mockToken, password: mockPassword })
+        await resetPassword({ token: mockTokenString, password: mockPassword })
 
-        expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
         expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(123, {})
         expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledTimes(1)
       })
@@ -298,14 +287,14 @@ describe('Reset Password', () => {
         mockUserRepo.incrementTokenVersion.mockImplementation(() => Promise.reject(new Error('TokenVersion update failed')))
 
         try {
-          await resetPassword({ token: mockToken, password: mockPassword })
+          await resetPassword({ token: mockTokenString, password: mockPassword })
           expect(true).toBe(false) // should not reach here
         } catch (error) {
           expect(error).toBeInstanceOf(Error)
           expect((error as Error).message).toBe('TokenVersion update failed')
         }
 
-        expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
         expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(123, {})
       })
     })
@@ -315,16 +304,16 @@ describe('Reset Password', () => {
         const userId = 123
 
         // Execute password reset
-        const result = await resetPassword({ token: mockToken, password: 'NewPassword123!' })
+        const result = await resetPassword({ token: mockTokenString, password: 'NewPassword123!' })
 
         // Verify all operations completed in correct order
         expect(result.success).toBe(true)
 
         // Transaction was called
-        expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
         // 1. Token marked as used
-        expect(mockTokenRepo.update).toHaveBeenCalledWith(mockValidatedToken.id, {
+        expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
           status: TokenStatus.Used,
           usedAt: expect.any(Date),
         }, {})

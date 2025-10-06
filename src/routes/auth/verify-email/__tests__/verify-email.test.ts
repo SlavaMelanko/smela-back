@@ -10,12 +10,12 @@ import verifyEmail from '../verify-email'
 describe('Verify Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockToken: string
+  let mockTokenString: string
   let mockTokenRecord: any
   let mockTokenRepo: any
   let mockUser: any
   let mockUserRepo: any
-  let mockDb: any
+  let mockTransaction: any
 
   let mockTokenValidator: any
 
@@ -23,12 +23,12 @@ describe('Verify Email', () => {
   let mockJwt: any
 
   beforeEach(async () => {
-    mockToken = 'a'.repeat(TOKEN_LENGTH)
+    mockTokenString = 'a'.repeat(TOKEN_LENGTH)
     mockTokenRecord = {
       id: 1,
       userId: 1,
       type: Token.EmailVerification,
-      token: mockToken,
+      token: mockTokenString,
       status: TokenStatus.Pending,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
       usedAt: null,
@@ -53,7 +53,7 @@ describe('Verify Email', () => {
     mockUserRepo = {
       update: mock(() => Promise.resolve(mockUser)),
     }
-    mockDb = {
+    mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
     }
 
@@ -61,7 +61,7 @@ describe('Verify Email', () => {
       tokenRepo: mockTokenRepo,
       userRepo: mockUserRepo,
       authRepo: {},
-      db: mockDb,
+      db: mockTransaction,
     }))
 
     mockTokenValidator = {
@@ -88,12 +88,12 @@ describe('Verify Email', () => {
 
   describe('when token is valid and active', () => {
     it('should mark token as used, update user status, and return user with JWT token', async () => {
-      const result = await verifyEmail(mockToken)
+      const result = await verifyEmail(mockTokenString)
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.findByToken).toHaveBeenCalledTimes(1)
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
@@ -115,7 +115,7 @@ describe('Verify Email', () => {
 
     it('should set correct timestamp when marking token as used', async () => {
       const beforeCall = Date.now()
-      await verifyEmail(mockToken)
+      await verifyEmail(mockTokenString)
       const afterCall = Date.now()
 
       const updateCall = (mockTokenRepo.update as any).mock.calls[0]
@@ -134,14 +134,14 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -161,14 +161,14 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -187,14 +187,14 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenDeprecated)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -213,14 +213,14 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -239,7 +239,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -248,7 +248,7 @@ describe('Verify Email', () => {
         expect((error as AppError).message).toContain(`got ${Token.PasswordReset}`)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -259,14 +259,14 @@ describe('Verify Email', () => {
       mockTokenRepo.findByToken.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -275,14 +275,14 @@ describe('Verify Email', () => {
       mockTokenRepo.update.mockImplementation(() => Promise.reject(new Error('Token update failed')))
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token update failed')
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.update).not.toHaveBeenCalled()
     })
@@ -291,14 +291,14 @@ describe('Verify Email', () => {
       mockUserRepo.update.mockImplementation(() => Promise.reject(new Error('User update failed')))
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('User update failed')
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -309,14 +309,14 @@ describe('Verify Email', () => {
       mockUserRepo.update.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user')))
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.InternalError)
       }
 
-      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockToken)
+      expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -332,7 +332,7 @@ describe('Verify Email', () => {
       mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(boundaryTokenRecord))
       mockTokenValidator.validate.mockImplementation(() => boundaryTokenRecord)
 
-      const result = await verifyEmail(mockToken)
+      const result = await verifyEmail(mockTokenString)
 
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
@@ -350,7 +350,7 @@ describe('Verify Email', () => {
       mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(differentUserTokenRecord))
       mockTokenValidator.validate.mockImplementation(() => differentUserTokenRecord)
 
-      const result = await verifyEmail(mockToken)
+      const result = await verifyEmail(mockTokenString)
 
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
@@ -392,7 +392,7 @@ describe('Verify Email', () => {
       mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(tokenWithNullUsedAt))
       mockTokenValidator.validate.mockImplementation(() => tokenWithNullUsedAt)
 
-      const result = await verifyEmail(mockToken)
+      const result = await verifyEmail(mockTokenString)
 
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
@@ -416,7 +416,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockToken)
+        await verifyEmail(mockTokenString)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
