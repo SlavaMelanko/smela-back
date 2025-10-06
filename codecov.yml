@@ -1,0 +1,25 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 50%
+        informational: true
+    patch: off
+
+  range: 50..75
+  round: down
+  precision: 0
+
+ignore:
+  - '**/*.test.ts'
+  - '**/__tests__/**'
+  - 'src/data/migrations/**'
+  - 'node_modules/**'
+  - 'coverage/**'
+  - 'dist/**'
+  - 'build/**'
+
+comment:
+  layout: 'reach,diff,flags,tree,footer'
+  behavior: default
+  require_changes: false
