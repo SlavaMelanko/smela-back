@@ -8,12 +8,12 @@ import HttpStatus from '@/lib/http-status'
 import logoutRoute from '../index'
 
 describe('Logout Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const LOGOUT_URL = '/api/v1/auth/logout'
 
   let app: Hono
   let mockDeleteAccessCookie: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockDeleteAccessCookie = mock(() => {})

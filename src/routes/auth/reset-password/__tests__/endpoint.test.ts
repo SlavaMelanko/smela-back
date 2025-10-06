@@ -9,12 +9,12 @@ import { TOKEN_LENGTH } from '@/lib/token/constants'
 import resetPasswordRoute from '../index'
 
 describe('Reset Password Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const RESET_PASSWORD_URL = '/api/v1/auth/reset-password'
 
   let app: Hono
   let mockResetPassword: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockResetPassword = mock(() => Promise.resolve({ success: true }))

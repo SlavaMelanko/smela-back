@@ -9,12 +9,15 @@ describe('Request Password Reset', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: any
-  let mockToken: string
-  let mockExpiresAt: Date
-  let mockEmailAgent: any
-  let mockTokenRepo: any
+
   let mockUserRepo: any
-  let mockDb: any
+  let mockTokenRepo: any
+  let mockTransaction: any
+
+  let mockTokenString: string
+  let mockExpiresAt: Date
+
+  let mockEmailAgent: any
 
   beforeEach(async () => {
     mockUser = {
@@ -27,24 +30,13 @@ describe('Request Password Reset', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-
-    mockToken = 'reset-token-123'
-
-    mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
-
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
     }
-
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
-
-    mockEmailAgent = {
-      sendResetPasswordEmail: mock(() => Promise.resolve()),
-    }
-
-    mockDb = {
+    mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
     }
 
@@ -52,16 +44,23 @@ describe('Request Password Reset', () => {
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
       authRepo: {},
-      db: mockDb,
+      db: mockTransaction,
     }))
+
+    mockTokenString = 'reset-token-123'
+    mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
 
     await moduleMocker.mock('@/lib/token', () => ({
       generateToken: mock(() => ({
         type: Token.PasswordReset,
-        token: mockToken,
+        token: mockTokenString,
         expiresAt: mockExpiresAt,
       })),
     }))
+
+    mockEmailAgent = {
+      sendResetPasswordEmail: mock(() => Promise.resolve()),
+    }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
       emailAgent: mockEmailAgent,
@@ -76,13 +75,13 @@ describe('Request Password Reset', () => {
     it('should replace token and send reset email', async () => {
       const result = await requestPasswordReset(mockUser.email)
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       // Replace token should be called
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: Token.PasswordReset,
-        token: mockToken,
+        token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
@@ -91,7 +90,7 @@ describe('Request Password Reset', () => {
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith({
         firstName: mockUser.firstName,
         email: mockUser.email,
-        token: mockToken,
+        token: mockTokenString,
       })
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
 
@@ -145,11 +144,9 @@ describe('Request Password Reset', () => {
   })
 
   describe('email sending failure scenarios', () => {
-    beforeEach(async () => {
-      mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
-    })
-
     it('should complete successfully even if email fails', async () => {
+      mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+
       const result = await requestPasswordReset(mockUser.email)
 
       expect(result).toEqual({ success: true })

@@ -1,9 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
-import { authRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
-import { emailAgent } from '@/lib/email-agent'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 import signUpWithEmail from '../signup'
@@ -11,85 +9,98 @@ import signUpWithEmail from '../signup'
 describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockDb: any
+  let mockSignupParams: any
 
-  const mockSignupParams = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    password: 'ValidPass123!',
-  }
+  let mockNewUser: any
+  let mockUserRepo: any
+  let mockAuthRepo: any
+  let mockTokenRepo: any
+  let mockTransaction: any
 
-  const mockNewUser = {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    status: Status.New,
-    role: Role.User,
-    tokenVersion: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
+  let mockHashedPassword: string
+  let mockHashPassword: any
 
-  const mockHashedPassword = '$2b$10$hashedPassword123'
-  const mockToken = 'verification-token-123'
-  const mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
+  let mockTokenString: string
+  let mockExpiresAt: Date
+  let mockGenerateToken: any
+
+  let mockEmailAgent: any
+
+  let mockJwt: any
 
   beforeEach(async () => {
-    mockDb = {
-      transaction: mock(async (callback: any) => {
-        return await callback({
-          insert: mock(() => ({
-            values: mock(() => ({
-              returning: mock(() => Promise.resolve([mockNewUser])),
-            })),
-          })),
-          update: mock(() => ({
-            set: mock(() => ({
-              where: mock(() => Promise.resolve()),
-            })),
-          })),
-        })
-      }),
+    mockSignupParams = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      password: 'ValidPass123!',
+    }
+
+    mockNewUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      status: Status.New,
+      role: Role.User,
+      tokenVersion: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    mockUserRepo = {
+      findByEmail: mock(() => Promise.resolve(null)),
+      create: mock(() => Promise.resolve(mockNewUser)),
+    }
+    mockAuthRepo = {
+      create: mock(() => Promise.resolve(1)),
+    }
+    mockTokenRepo = {
+      replace: mock(() => Promise.resolve()),
+    }
+    mockTransaction = {
+      transaction: mock(async (callback: any) => await callback({})),
     }
 
     await moduleMocker.mock('@/data', () => ({
-      userRepo: {
-        findByEmail: mock(() => Promise.resolve(null)),
-        create: mock(() => Promise.resolve(mockNewUser)),
-      },
-      authRepo: {
-        create: mock(() => Promise.resolve(1)),
-      },
-      tokenRepo: {
-        replace: mock(() => Promise.resolve()),
-      },
-      db: mockDb,
+      userRepo: mockUserRepo,
+      authRepo: mockAuthRepo,
+      tokenRepo: mockTokenRepo,
+      db: mockTransaction,
     }))
 
+    mockHashedPassword = '$2b$10$hashedPassword123'
+    mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+
     await moduleMocker.mock('@/lib/cipher', () => ({
-      hashPassword: mock(() => Promise.resolve(mockHashedPassword)),
+      hashPassword: mockHashPassword,
+    }))
+
+    mockTokenString = 'verification-token-123'
+    mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
+    mockGenerateToken = mock(() => ({
+      type: Token.EmailVerification,
+      token: mockTokenString,
+      expiresAt: mockExpiresAt,
     }))
 
     await moduleMocker.mock('@/lib/token', () => ({
-      generateToken: mock(() => ({
-        type: Token.EmailVerification,
-        token: mockToken,
-        expiresAt: mockExpiresAt,
-      })),
+      generateToken: mockGenerateToken,
     }))
+
+    mockEmailAgent = {
+      sendWelcomeEmail: mock(() => Promise.resolve()),
+    }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
-      emailAgent: {
-        sendWelcomeEmail: mock(() => Promise.resolve()),
-      },
+      emailAgent: mockEmailAgent,
     }))
 
+    mockJwt = {
+      sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
+    }
+
     await moduleMocker.mock('@/lib/jwt', () => ({
-      default: {
-        sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
-      },
+      default: mockJwt,
     }))
   })
 
@@ -101,8 +112,8 @@ describe('Signup with Email', () => {
     it('should create a new user with correct data', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledWith(
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -112,7 +123,7 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
@@ -122,7 +133,7 @@ describe('Signup with Email', () => {
     it('should create auth record with hashed password', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(authRepo.create).toHaveBeenCalledWith(
+      expect(mockAuthRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
@@ -131,15 +142,15 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(authRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
     })
 
     it('should hash the password correctly', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
@@ -153,28 +164,28 @@ describe('Signup with Email', () => {
     it('should create email verification token', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(tokenRepo.replace).toHaveBeenCalledWith(
+      expect(mockTokenRepo.replace).toHaveBeenCalledWith(
         mockNewUser.id,
         {
           userId: mockNewUser.id,
           type: Token.EmailVerification,
-          token: mockToken,
+          token: mockTokenString,
           expiresAt: mockExpiresAt,
         },
         expect.anything(),
       )
-      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
     })
 
     it('should send welcome email with verification token', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
         firstName: mockNewUser.firstName,
         email: mockNewUser.email,
-        token: mockToken,
+        token: mockTokenString,
       })
-      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
 
     it('should generate JWT token for immediate authentication', async () => {
@@ -206,13 +217,13 @@ describe('Signup with Email', () => {
     it('should check for existing user first', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(userRepo.findByEmail).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('when email is already in use', () => {
-    beforeEach(async () => {
+    it('should throw EmailAlreadyInUse error', async () => {
       const existingUser = {
         id: 2,
         firstName: 'Jane',
@@ -224,21 +235,8 @@ describe('Signup with Email', () => {
         updatedAt: new Date(),
       }
 
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(existingUser)),
-          create: mock(() => Promise.resolve(mockNewUser)),
-        },
-        authRepo: {
-          create: mock(() => Promise.resolve(1)),
-        },
-        tokenRepo: {
-          replace: mock(() => Promise.resolve()),
-        },
-      }))
-    })
+      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(existingUser))
 
-    it('should throw EmailAlreadyInUse error', async () => {
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false)
@@ -247,27 +245,20 @@ describe('Signup with Email', () => {
         expect((error as AppError).code).toBe(ErrorCode.EmailAlreadyInUse)
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).not.toHaveBeenCalled()
-      expect(userRepo.create).not.toHaveBeenCalled()
-      expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
+      expect(mockUserRepo.create).not.toHaveBeenCalled()
+      expect(mockAuthRepo.create).not.toHaveBeenCalled()
+      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when user creation fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.reject(new Error('Database connection failed'))),
-        },
-      }))
-    })
-
     it('should throw the error and rollback transaction', async () => {
+      mockUserRepo.create.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false)
@@ -276,30 +267,20 @@ describe('Signup with Email', () => {
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).not.toHaveBeenCalled()
+      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when auth creation fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.resolve(mockNewUser)),
-        },
-        authRepo: {
-          create: mock(() => Promise.reject(new Error('Auth table unavailable'))),
-        },
-      }))
-    })
-
     it('should throw the error and rollback transaction', async () => {
+      mockAuthRepo.create.mockImplementation(() => Promise.reject(new Error('Auth table unavailable')))
+
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false)
@@ -308,33 +289,20 @@ describe('Signup with Email', () => {
         expect((error as Error).message).toBe('Auth table unavailable')
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when token replacement fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.resolve(mockNewUser)),
-        },
-        authRepo: {
-          create: mock(() => Promise.resolve(1)),
-        },
-        tokenRepo: {
-          replace: mock(() => Promise.reject(new Error('Token replacement failed'))),
-        },
-      }))
-    })
-
     it('should throw the error and rollback transaction', async () => {
+      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Token replacement failed')))
+
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false)
@@ -343,26 +311,20 @@ describe('Signup with Email', () => {
         expect((error as Error).message).toBe('Token replacement failed')
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when email sending fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/lib/email-agent', () => ({
-        emailAgent: {
-          sendWelcomeEmail: mock(() => Promise.reject(new Error('Email service unavailable'))),
-        },
-      }))
-    })
-
     it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
+      mockEmailAgent.sendWelcomeEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(result).toHaveProperty('user')
@@ -370,13 +332,13 @@ describe('Signup with Email', () => {
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -387,8 +349,8 @@ describe('Signup with Email', () => {
 
       const result = await signUpWithEmail(paramsWithUppercaseEmail)
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
-      expect(userRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
+      expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -410,16 +372,11 @@ describe('Signup with Email', () => {
       }
 
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.resolve(userWithShortNames)),
-        },
-      }))
+      mockUserRepo.create.mockImplementation(() => Promise.resolve(userWithShortNames))
 
       await signUpWithEmail(paramsWithShortNames)
 
-      expect(userRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: 'Al',
           lastName: 'Bo',
@@ -430,17 +387,17 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
 
-      expect(emailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
         firstName: 'Al',
         email: mockSignupParams.email,
-        token: mockToken,
+        token: mockTokenString,
       })
     })
 
     it('should always assign user role regardless of input', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(userRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
@@ -461,8 +418,8 @@ describe('Signup with Email', () => {
 
       await signUpWithEmail(paramsWithComplexPassword)
 
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledWith(
         {
           userId: mockNewUser.id,
           provider: AuthProvider.Local,
@@ -484,7 +441,7 @@ describe('Signup with Email', () => {
 
       await signUpWithEmail(paramsWithLongNames)
 
-      expect(userRepo.create).toHaveBeenCalledWith(
+      expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: longFirstName,
           lastName: longLastName,
@@ -498,13 +455,9 @@ describe('Signup with Email', () => {
   })
 
   describe('when password hashing fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/lib/cipher', () => ({
-        hashPassword: mock(() => Promise.reject(new Error('Password hashing failed'))),
-      }))
-    })
-
     it('should throw the cipher error and not proceed with transaction', async () => {
+      mockHashPassword.mockImplementation(() => Promise.reject(new Error('Password hashing failed')))
+
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false) // should not reach here
@@ -513,33 +466,20 @@ describe('Signup with Email', () => {
         expect((error as Error).message).toBe('Password hashing failed')
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).not.toHaveBeenCalled()
-      expect(userRepo.create).not.toHaveBeenCalled()
-      expect(authRepo.create).not.toHaveBeenCalled()
-      expect(tokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).not.toHaveBeenCalled()
+      expect(mockUserRepo.create).not.toHaveBeenCalled()
+      expect(mockAuthRepo.create).not.toHaveBeenCalled()
+      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when token replacement fails', () => {
-    beforeEach(async () => {
-      await moduleMocker.mock('@/data', () => ({
-        userRepo: {
-          findByEmail: mock(() => Promise.resolve(null)),
-          create: mock(() => Promise.resolve(mockNewUser)),
-        },
-        authRepo: {
-          create: mock(() => Promise.resolve(1)),
-        },
-        tokenRepo: {
-          replace: mock(() => Promise.reject(new Error('Token replacement failed'))),
-        },
-      }))
-    })
-
     it('should throw the error and rollback transaction', async () => {
+      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Token replacement failed')))
+
       try {
         await signUpWithEmail(mockSignupParams)
         expect(true).toBe(false)
@@ -548,13 +488,13 @@ describe('Signup with Email', () => {
         expect((error as Error).message).toBe('Token replacement failed')
       }
 
-      expect(userRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
-      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
-      expect(userRepo.create).toHaveBeenCalledTimes(1)
-      expect(authRepo.create).toHaveBeenCalledTimes(1)
-      expect(tokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(emailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
     })
   })
 })

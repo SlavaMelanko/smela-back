@@ -4,19 +4,19 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import HttpStatus from '@/lib/http-status'
-import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { Role, Status } from '@/types'
 
 import signupRoute from '../index'
 
 describe('Signup Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const SIGNUP_URL = '/api/v1/auth/signup'
 
   let app: Hono
   let mockSignUpWithEmail: any
   let mockSetAccessCookie: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(() => Promise.resolve({
@@ -33,11 +33,11 @@ describe('Signup Endpoint', () => {
       token: 'signup-jwt-token',
     }))
 
-    mockSetAccessCookie = mock(() => {})
-
     await moduleMocker.mock('../signup', () => ({
       default: mockSignUpWithEmail,
     }))
+
+    mockSetAccessCookie = mock(() => {})
 
     await moduleMocker.mock('@/lib/cookie', () => ({
       setAccessCookie: mockSetAccessCookie,

@@ -9,12 +9,12 @@ import { Role, Status } from '@/types'
 import verifyEmailRoute from '../index'
 
 describe('Verify Email Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const VERIFY_EMAIL_URL = '/api/v1/auth/verify-email'
 
   let app: Hono
   let mockVerifyEmail: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockVerifyEmail = mock(() => Promise.resolve({

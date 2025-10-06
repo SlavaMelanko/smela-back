@@ -4,17 +4,17 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import HttpStatus from '@/lib/http-status'
-import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 
 import requestPasswordResetRoute from '../index'
 
 describe('Request Password Reset Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const REQUEST_PASSWORD_RESET_URL = '/api/v1/auth/request-password-reset'
 
   let app: Hono
   let mockRequestPasswordReset: any
-
-  const moduleMocker = new ModuleMocker(import.meta.url)
 
   beforeEach(async () => {
     mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
