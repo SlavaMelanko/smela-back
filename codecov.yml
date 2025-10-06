@@ -1,0 +1,19 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 50%
+        informational: true
+    patch:
+      default:
+        target: 50%
+        informational: true
+
+  range: 50..75
+  round: down
+  precision: 0
+
+comment:
+  layout: 'reach,diff,flags,tree,footer'
+  behavior: default
+  require_changes: false
