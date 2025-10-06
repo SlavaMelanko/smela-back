@@ -1,4 +1,4 @@
-name: Claude Code Review
+name: Code Quality
 
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 1
 
       - name: Run Claude Code Review
-        id: claude-review
+        id: claude-code-review
         if: |
           !contains(github.event.pull_request.title, '[WIP]')
         uses: anthropics/claude-code-action@beta
