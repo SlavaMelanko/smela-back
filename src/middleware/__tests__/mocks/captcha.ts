@@ -11,12 +11,6 @@ export const INVALID_CAPTCHA_TOKENS = {
   empty: '',
 }
 
-mock.module('@/services', () => ({
-  createCaptcha: mock(() => ({
-    validate: mock(() => Promise.resolve()),
-  })),
-}))
-
 export const mockCaptchaSuccess = () => {
   mock.module('@/services', () => ({
     createCaptcha: mock(() => ({
