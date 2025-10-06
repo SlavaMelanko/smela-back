@@ -1,6 +1,6 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
 
-const signupSchema = buildSchema({
+const signupSchema = buildStrictSchema({
   firstName: userRules.name,
   lastName: userRules.name.opt,
   email: userRules.email,

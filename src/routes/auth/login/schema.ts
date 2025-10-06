@@ -1,9 +1,9 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
 
-const loginSchema = buildSchema({
+const loginSchema = buildStrictSchema({
   email: userRules.email,
   password: userRules.password,
   captchaToken: tokenRules.captchaToken,
 })
 
-export default loginSchema.strict()
+export default loginSchema

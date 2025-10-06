@@ -1,6 +1,6 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
 
-const resetPasswordSchema = buildSchema({
+const resetPasswordSchema = buildStrictSchema({
   token: tokenRules.token,
   password: userRules.password,
 })
