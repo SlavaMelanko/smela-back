@@ -1,6 +1,6 @@
-import { buildSchema, tokenRules } from '@/lib/validation'
+import { buildStrictSchema, tokenRules } from '@/lib/validation'
 
-const verifyEmailSchema = buildSchema({
+const verifyEmailSchema = buildStrictSchema({
   token: tokenRules.token,
 })
 
