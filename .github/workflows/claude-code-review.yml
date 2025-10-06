@@ -49,34 +49,13 @@ jobs:
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request focusing on these key principles:
+            Please review this pull request and provide a quality assessment score (1-10) for each of these criteria:
 
-            1. **Clear and Meaningful Naming**: Variable, function, and class names should be clear, simple, and meaningful. Avoid cryptic abbreviations and ensure names express intent.
-
-            2. **Single Responsibility Principle**: Each component, function, or class should have one and only one reason to change. Identify violations where a single unit handles multiple responsibilities.
-
-            3. **Modularity and Abstraction**: Use proper abstractions to hide implementation details. Modules should export only necessary interfaces, not internal implementation. This enables easy replacement of tools, features, or services.
-
-            4. **Loose Coupling & High Cohesion**: Components should provide minimal, focused functionality. Reduce dependencies between modules while ensuring related functionality is grouped together.
-
-            Additionally, consider:
-            - Potential bugs or security vulnerabilities
-            - Performance implications
-            - Test coverage and quality
-
-            Be constructive and provide specific examples in your feedback.
-
-            ---
-
-            ## Overall Quality Assessment
-
-            At the end of your review, provide a quality assessment score (1-10) for each of these criteria:
-
-            - **Architecture** (1-10): System design, modularity, separation of concerns, scalability
-            - **Security** (1-10): Vulnerability prevention, input validation, authentication/authorization, data protection
-            - **Testing** (1-10): Test coverage, test quality, edge cases, maintainability of tests
-            - **Performance** (1-10): Efficiency, resource usage, scalability, optimization opportunities
-            - **Code Quality** (1-10): Readability, maintainability, adherence to standards, documentation
+            - **Architecture** (1-10): Check system design for modularity (loose coupling between modules and high cohesion within each module), clear separation of concerns, and proper abstractions (hide implementation details and export only necessary interfaces). Ensure each component aligns with SOLID best practices — especially the Single Responsibility Principle
+            - **Security** (1-10): Check that inputs are validated, auth & permissions are enforced, sensitive data is protected, and no obvious vulnerabilities (injection, XSS, CSRF) exist
+            - **Testing** (1-10): Check that tests cover at least the main logic (~60%), are clear, reliable, and easy to maintain. Focus on meaningful coverage and critical paths rather than chasing 100%
+            - **Performance** (1-10): Check this update for efficiency, resource usage, and scalability. Identify any optimization opportunities or performance implications, especially under high load or large data scenarios
+            - **Code Quality** (1-10): Check this code for readability, maintainability, adherence to ESLint and CLAUDE.md standards, and naming clarity. Favor clarity over cleverness and ensure names express intent clearly
 
             Format the assessment as:
             ```
