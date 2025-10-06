@@ -1,7 +1,5 @@
 import { mock } from 'bun:test'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-
 export const VALID_CAPTCHA_TOKEN = 'test-captcha-token-1234567890'
 
 export const INVALID_CAPTCHA_TOKENS = {
@@ -11,18 +9,16 @@ export const INVALID_CAPTCHA_TOKENS = {
   empty: '',
 }
 
+/**
+ * Mocks captcha service to always succeed.
+ *
+ * Note: Captcha validation failure scenarios should be tested in dedicated captcha middleware tests.
+ * Endpoint tests focus on successful captcha validation and business logic errors.
+ */
 export const mockCaptchaSuccess = () => {
   mock.module('@/services', () => ({
     createCaptcha: mock(() => ({
       validate: mock(() => Promise.resolve()),
-    })),
-  }))
-}
-
-export const mockCaptchaFailure = (errorCode = ErrorCode.CaptchaValidationFailed, message?: string) => {
-  mock.module('@/services', () => ({
-    createCaptcha: mock(() => ({
-      validate: mock(() => Promise.reject(new AppError(errorCode, message))),
     })),
   }))
 }

@@ -1,4 +1,4 @@
-export { default as captchaMiddleware } from './captcha'
+export { default as captchaMiddleware } from './captcha/captcha'
 export { default as corsMiddleware } from './cors'
 export { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
 export { default as loggerMiddleware } from './logger'
