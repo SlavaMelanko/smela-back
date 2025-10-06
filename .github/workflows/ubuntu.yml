@@ -47,6 +47,9 @@ jobs:
       CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
 
     steps:
+      - name: Install dependencies for Codecov
+        run: apt-get update && apt-get install -y git curl gpg
+
       - name: Checkout code
         uses: actions/checkout@v4
 
