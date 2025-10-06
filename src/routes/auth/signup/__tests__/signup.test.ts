@@ -15,6 +15,7 @@ describe('Signup with Email', () => {
   let mockUserRepo: any
   let mockAuthRepo: any
   let mockTokenRepo: any
+  let mockTransaction: any
 
   let mockHashedPassword: string
   let mockHashPassword: any
@@ -26,8 +27,6 @@ describe('Signup with Email', () => {
   let mockEmailAgent: any
 
   let mockJwt: any
-
-  let mockTransaction: any
 
   beforeEach(async () => {
     mockSignupParams = {

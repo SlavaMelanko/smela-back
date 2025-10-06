@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import { db } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { Token, TokenStatus } from '@/types'
@@ -61,8 +60,6 @@ describe('Reset Password', () => {
       userRepo: mockUserRepo,
       db: mockTransaction,
     }))
-
-    db.transaction = mockTransaction.transaction
 
     mockTokenValidator = {
       validate: mock(() => mockTokenRecord),

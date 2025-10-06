@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
-import { db } from '@/data'
 import { Role, Status, Token } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
@@ -12,6 +11,7 @@ describe('Resend Verification Email', () => {
   let mockUser: any
   let mockUserRepo: any
   let mockTokenRepo: any
+  let mockTransaction: any
 
   let mockTokenString: string
   let mockExpiresAt: Date
@@ -37,14 +37,15 @@ describe('Resend Verification Email', () => {
     mockTokenRepo = {
       replace: mock(() => Promise.resolve()),
     }
+    mockTransaction = {
+      transaction: mock(async (callback: any) => callback({})),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       tokenRepo: mockTokenRepo,
-      authRepo: {},
+      db: mockTransaction,
     }))
-
-    db.transaction = mock(async (callback: any) => callback({}))
 
     mockTokenString = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
@@ -75,7 +76,7 @@ describe('Resend Verification Email', () => {
     it('should replace token with new verification token', async () => {
       const result = await resendVerificationEmail(mockUser.email)
 
-      expect(db.transaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
