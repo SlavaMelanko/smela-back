@@ -451,7 +451,7 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   const captcha = createCaptcha() // Single instance for performance
 
   return async (c, next) => {
-    const { captchaToken } = await c.req.json()
+    const { captchaToken } = await c.req.json<CaptchaRequestBody>()
     await captcha.validate(captchaToken)
     await next()
   }
