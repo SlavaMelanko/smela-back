@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { TOKEN_LENGTH } from '../../token'
-import { withVariants } from '../with-variants'
+import { withVariants } from '../helper'
 
 const rules = {
   token: withVariants(
