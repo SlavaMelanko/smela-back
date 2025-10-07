@@ -312,7 +312,7 @@ describe('Me Endpoint', () => {
       const { updateUser } = await import('../me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
-        lastName: null,
+        lastName: undefined, // null is converted to undefined
       })
     })
 
