@@ -26,6 +26,7 @@ export const createUser = async (user: CreateUserInput, tx?: Transaction): Promi
 
 export const updateUser = async (userId: number, updates: UpdateUserInput, tx?: Transaction): Promise<User> => {
   const executor = tx || db
+
   const [updatedUser] = await executor
     .update(usersTable)
     .set({ ...updates, updatedAt: new Date() })
