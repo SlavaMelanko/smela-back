@@ -13,5 +13,5 @@ export const comparePasswords = async (password: string, hash: string): Promise<
 
   const encoder = createPasswordEncoder()
 
-  return await encoder.compare(password, hash)
+  return encoder.compare(password, hash)
 }

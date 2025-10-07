@@ -58,7 +58,7 @@ describe('Signup with Email', () => {
       replace: mock(() => Promise.resolve()),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => await callback({})),
+      transaction: mock(async (callback: any) => callback({})),
     }
 
     await moduleMocker.mock('@/data', () => ({

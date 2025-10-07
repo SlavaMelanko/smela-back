@@ -49,9 +49,8 @@ describe('Reset Password', () => {
       incrementTokenVersion: mock(() => Promise.resolve()),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => {
-        return await callback({})
-      }),
+      transaction: mock(async (callback: any) => callback({}),
+      ),
     }
 
     await moduleMocker.mock('@/data', () => ({
