@@ -15,7 +15,7 @@ describe('Captcha Middleware', () => {
 
   describe('when captcha validation succeeds', () => {
     beforeEach(async () => {
-      mockCaptchaValidate = mock(() => Promise.resolve())
+      mockCaptchaValidate = mock(async () => {})
 
       await moduleMocker.mock('@/services', () => ({
         createCaptcha: mock(() => ({
@@ -66,7 +66,9 @@ describe('Captcha Middleware', () => {
 
   describe('when captcha validation fails', () => {
     beforeEach(async () => {
-      mockCaptchaValidate = mock(() => Promise.reject(new AppError(ErrorCode.CaptchaValidationFailed)))
+      mockCaptchaValidate = mock(async () => {
+        throw new AppError(ErrorCode.CaptchaValidationFailed)
+      })
 
       await moduleMocker.mock('@/services', () => ({
         createCaptcha: mock(() => ({
@@ -136,7 +138,9 @@ describe('Captcha Middleware', () => {
 
   describe('when unexpected error occurs', () => {
     beforeEach(async () => {
-      mockCaptchaValidate = mock(() => Promise.reject(new Error('Network timeout')))
+      mockCaptchaValidate = mock(async () => {
+        throw new Error('Network timeout')
+      })
 
       await moduleMocker.mock('@/services', () => ({
         createCaptcha: mock(() => ({
@@ -186,7 +190,7 @@ describe('Captcha Middleware', () => {
 
   describe('edge cases', () => {
     beforeEach(async () => {
-      mockCaptchaValidate = mock(() => Promise.resolve())
+      mockCaptchaValidate = mock(async () => {})
 
       await moduleMocker.mock('@/services', () => ({
         createCaptcha: mock(() => ({

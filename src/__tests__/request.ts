@@ -1,6 +1,6 @@
 import type { Hono } from 'hono'
 
-export const doRequest = (
+export const doRequest = async (
   app: Hono,
   url: string,
   method: string = 'GET',
@@ -13,7 +13,7 @@ export const doRequest = (
     ...(body !== undefined && { body: typeof body === 'string' ? body : JSON.stringify(body) }),
   })
 
-export const post = (
+export const post = async (
   app: Hono,
   url: string,
   body?: any,
@@ -21,7 +21,7 @@ export const post = (
 ) =>
   doRequest(app, url, 'POST', body, headers)
 
-export const get = (
+export const get = async (
   app: Hono,
   url: string,
   headers?: Record<string, string>,

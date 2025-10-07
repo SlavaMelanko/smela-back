@@ -17,7 +17,7 @@ describe('Request Password Reset Endpoint', () => {
   let mockRequestPasswordReset: any
 
   beforeEach(async () => {
-    mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
+    mockRequestPasswordReset = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('../request-password-reset', () => ({
       default: mockRequestPasswordReset,

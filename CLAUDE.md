@@ -197,7 +197,7 @@ describe('Test Suite Name', () => {
     mockUser = { /* ... */ }
     // Step 3: Initialize repository mocks (depend on data objects)
     mockUserRepo = {
-      findByEmail: mock(() => Promise.resolve(mockUser)),
+      findByEmail: mock(async () => mockUser),
     }
 
     // Step 4: Setup module mocks (depend on repository mocks)
@@ -208,7 +208,7 @@ describe('Test Suite Name', () => {
 
     // Step 5: Initialize service mocks (small to large)
     mockCipher = {
-      comparePasswords: mock(() => Promise.resolve(true)),
+      comparePasswords: mock(async () => true),
     }
 
     // Step 6: Setup service module mocks
@@ -221,7 +221,7 @@ describe('Test Suite Name', () => {
 
   it('should update mock behavior', async () => {
     // Update mocks using mockImplementation, NOT moduleMocker.mock()
-    mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
+    mockUserRepo.findByEmail.mockImplementation(async () => null)
   })
 })
 ```
@@ -286,7 +286,7 @@ describe('Test Suite Name', () => {
 
      // @/lib/cipher module group. We don't need to use blank lines within group definition
      mockHashedPassword = '$2b$10$hash123'
-     mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+     mockHashPassword = mock(async () => mockHashedPassword)
      // But before `moduleMocker.mock` we should add a blank line
      await moduleMocker.mock('@/lib/cipher', () => ({
        hashPassword: mockHashPassword,
@@ -322,11 +322,11 @@ describe('Test Suite Name', () => {
 ```typescript
 // Good: Clear dependency chain from small to large
 mockUser = { id: 1, email: 'test@example.com' }
-mockUserRepo = { findByEmail: mock(() => Promise.resolve(mockUser)) }
+mockUserRepo = { findByEmail: mock(async () => mockUser) }
 await moduleMocker.mock('@/data', () => ({ userRepo: mockUserRepo }))
 
 mockJwtToken = 'token-123'
-mockJwt = { default: { sign: mock(() => Promise.resolve(mockJwtToken)) } }
+mockJwt = { default: { sign: mock(async () => mockJwtToken) } }
 await moduleMocker.mock('@/lib/jwt', () => mockJwt)
 ```
 

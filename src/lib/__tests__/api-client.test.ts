@@ -3,9 +3,9 @@ import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import { ApiClient } from '@/lib/api-client'
 
 // Mock fetch globally
-const mockFetch = mock(() => Promise.resolve({
+const mockFetch = mock(async () => ({
   ok: true,
-  json: () => Promise.resolve({ success: true, data: 'test' }),
+  json: async () => ({ success: true, data: 'test' }),
 }))
 
 // Store original fetch to restore later
@@ -105,7 +105,7 @@ describe('API Client', () => {
       const mockData = { id: 1, name: 'John' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockData),
+        json: async () => mockData,
       } as any)
 
       const client = new ApiClient('https://example.com')
@@ -385,7 +385,7 @@ describe('API Client', () => {
 
     test('should handle timeout errors', async () => {
       // Mock a slow response that exceeds timeout
-      mockFetch.mockImplementationOnce(() =>
+      mockFetch.mockImplementationOnce(async () =>
         new Promise(resolve => setTimeout(resolve, 20)), // 20ms delay
       )
 
@@ -398,7 +398,7 @@ describe('API Client', () => {
       const mockData = { id: 1, name: 'John' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockData),
+        json: async () => mockData,
       } as any)
 
       const client = new ApiClient('https://example.com', { timeout: 1000 })

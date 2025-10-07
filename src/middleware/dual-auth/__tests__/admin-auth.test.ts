@@ -66,7 +66,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -83,7 +83,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -101,7 +101,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -118,7 +118,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -136,7 +136,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -154,7 +154,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -171,7 +171,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -193,7 +193,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockAdmin)),
+          findById: mock(async () => mockAdmin),
         },
       }))
 
@@ -216,7 +216,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockOwner)),
+          findById: mock(async () => mockOwner),
         },
       }))
 
@@ -239,7 +239,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -259,7 +259,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -276,7 +276,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -293,7 +293,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -310,7 +310,7 @@ describe('Admin Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 

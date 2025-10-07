@@ -47,7 +47,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       // Mock userRepo to return user with matching tokenVersion
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -70,7 +70,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -93,7 +93,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -114,7 +114,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       // Mock userRepo to return null (user not found)
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(null)),
+          findById: mock(async () => null),
         },
       }))
 
@@ -135,7 +135,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -156,7 +156,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -174,7 +174,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -192,7 +192,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       // Mock userRepo to throw database error
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.reject(new Error('Database connection failed'))),
+          findById: mock(async () => { throw new Error('Database connection failed') }),
         },
       }))
 
@@ -211,7 +211,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve({ id: mockUserId, tokenVersion: 1 })),
+          findById: mock(async () => ({ id: mockUserId, tokenVersion: 1 })),
         },
       }))
 
@@ -237,7 +237,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(userAfterReset)),
+          findById: mock(async () => userAfterReset),
         },
       }))
 
@@ -269,7 +269,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
         mock.module('@/data', () => ({
           userRepo: {
-            findById: mock(() => Promise.resolve(user)),
+            findById: mock(async () => user),
           },
         }))
 
@@ -299,7 +299,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(user)),
+          findById: mock(async () => user),
         },
       }))
 
@@ -314,7 +314,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(userAfterReset)),
+          findById: mock(async () => userAfterReset),
         },
       }))
 

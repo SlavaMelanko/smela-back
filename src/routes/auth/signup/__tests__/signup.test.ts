@@ -48,14 +48,14 @@ describe('Signup with Email', () => {
       updatedAt: new Date(),
     }
     mockUserRepo = {
-      findByEmail: mock(() => Promise.resolve(null)),
-      create: mock(() => Promise.resolve(mockNewUser)),
+      findByEmail: mock(async () => null),
+      create: mock(async () => mockNewUser),
     }
     mockAuthRepo = {
-      create: mock(() => Promise.resolve(1)),
+      create: mock(async () => 1),
     }
     mockTokenRepo = {
-      replace: mock(() => Promise.resolve()),
+      replace: mock(async () => {}),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
@@ -69,7 +69,7 @@ describe('Signup with Email', () => {
     }))
 
     mockHashedPassword = '$2b$10$hashedPassword123'
-    mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+    mockHashPassword = mock(async () => mockHashedPassword)
 
     await moduleMocker.mock('@/lib/cipher', () => ({
       hashPassword: mockHashPassword,
@@ -88,7 +88,7 @@ describe('Signup with Email', () => {
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(() => Promise.resolve()),
+      sendWelcomeEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
@@ -96,7 +96,7 @@ describe('Signup with Email', () => {
     }))
 
     mockJwt = {
-      sign: mock(() => Promise.resolve('mock-signup-jwt-token')),
+      sign: mock(async () => 'mock-signup-jwt-token'),
     }
 
     await moduleMocker.mock('@/lib/jwt', () => ({
@@ -235,7 +235,7 @@ describe('Signup with Email', () => {
         updatedAt: new Date(),
       }
 
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(existingUser))
+      mockUserRepo.findByEmail.mockImplementation(async () => existingUser)
 
       try {
         await signUpWithEmail(mockSignupParams)
@@ -257,7 +257,9 @@ describe('Signup with Email', () => {
 
   describe('when user creation fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockUserRepo.create.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockUserRepo.create.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await signUpWithEmail(mockSignupParams)
@@ -279,7 +281,9 @@ describe('Signup with Email', () => {
 
   describe('when auth creation fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockAuthRepo.create.mockImplementation(() => Promise.reject(new Error('Auth table unavailable')))
+      mockAuthRepo.create.mockImplementation(async () => {
+        throw new Error('Auth table unavailable')
+      })
 
       try {
         await signUpWithEmail(mockSignupParams)
@@ -301,7 +305,9 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Token replacement failed')))
+      mockTokenRepo.replace.mockImplementation(async () => {
+        throw new Error('Token replacement failed')
+      })
 
       try {
         await signUpWithEmail(mockSignupParams)
@@ -323,7 +329,9 @@ describe('Signup with Email', () => {
 
   describe('when email sending fails', () => {
     it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+        throw new Error('Email service unavailable')
+      })
 
       const result = await signUpWithEmail(mockSignupParams)
 
@@ -372,7 +380,7 @@ describe('Signup with Email', () => {
       }
 
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
-      mockUserRepo.create.mockImplementation(() => Promise.resolve(userWithShortNames))
+      mockUserRepo.create.mockImplementation(async () => userWithShortNames)
 
       await signUpWithEmail(paramsWithShortNames)
 
@@ -456,7 +464,9 @@ describe('Signup with Email', () => {
 
   describe('when password hashing fails', () => {
     it('should throw the cipher error and not proceed with transaction', async () => {
-      mockHashPassword.mockImplementation(() => Promise.reject(new Error('Password hashing failed')))
+      mockHashPassword.mockImplementation(async () => {
+        throw new Error('Password hashing failed')
+      })
 
       try {
         await signUpWithEmail(mockSignupParams)
@@ -478,7 +488,9 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Token replacement failed')))
+      mockTokenRepo.replace.mockImplementation(async () => {
+        throw new Error('Token replacement failed')
+      })
 
       try {
         await signUpWithEmail(mockSignupParams)

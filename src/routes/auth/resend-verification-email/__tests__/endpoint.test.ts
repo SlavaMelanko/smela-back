@@ -17,7 +17,7 @@ describe('Resend Verification Email Endpoint', () => {
   let mockResendVerificationEmail: any
 
   beforeEach(async () => {
-    mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
+    mockResendVerificationEmail = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('../resend-verification-email', () => ({
       default: mockResendVerificationEmail,
