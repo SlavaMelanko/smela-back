@@ -58,35 +58,38 @@ jobs:
             - **Code Quality** (1-10): Check this code for readability, maintainability, adherence to ESLint and CLAUDE.md standards, and naming clarity. Favor clarity over cleverness and ensure names express intent clearly
 
             Format the assessment as:
-            ```
-            📊 Quality Assessment:
-            - **Architecture**: X/10
+            ```md
+            ## Quality Assessment:
+
+            ### **Architecture 🏗️**: X/10
             [Brief justification]
 
-            - **Security**: X/10
+            ### **Security 🛡️**: X/10
             [Brief justification]
 
-            - **Testing**: X/10
+            ### **Testing 🧪**: X/10
             [Brief justification]
 
-            - **Performance**: X/10
+            ### **Performance ⚡**: X/10
             [Brief justification]
 
-            - **Code Quality**: X/10
+            ### **Code Quality 💎**: X/10
             [Brief justification]
-            ---
-            **Overall**: X/10 (average)
 
-            🚦 Recommendation:
-            [ ] ✅ Approve (8.5+ overall)
-            [ ] 💬 Approve with suggestions (7-7.4 overall)
-            [ ] ❌ Request changes (<7 overall)
-            ```
+            ### **🌟 Overall**: X/10 (average)
 
-            **Required Actions** (if changes requested):
+            ### 🚦 Recommendation:
+
+            ✅ Approve (if score 8.5+ overall)
+            💬 Approve with suggestions (if score 7-7.4 overall)
+            ❌ Request changes (if score <7 overall)
+
+            ### Required Actions (if changes requested):
             - [ ] Implement changes based on review feedback
             - [ ] Add tests to cover missing scenarios
             - [ ] Improve documentation as needed
+            - [ ] etc.
+            ```
 
           # Optional: Different prompts for different authors
           # direct_prompt: |
