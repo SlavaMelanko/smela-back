@@ -47,7 +47,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
-    mockGetUser = mock(() => Promise.resolve(mockFullUser))
+    mockGetUser = mock(async () => mockFullUser)
     mockUpdatedUser = {
       id: 1,
       firstName: 'Jane',
@@ -59,7 +59,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
     }
-    mockUpdateUser = mock(() => Promise.resolve(mockUpdatedUser))
+    mockUpdateUser = mock(async () => mockUpdatedUser)
 
     await moduleMocker.mock('../me', () => ({
       getUser: mockGetUser,
@@ -131,7 +131,9 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle user not found as data inconsistency', async () => {
-      mockGetUser.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Internal server error.')))
+      mockGetUser.mockImplementation(async () => {
+        throw new AppError(ErrorCode.InternalError, 'Internal server error.')
+      })
 
       const res = await app.request(ME_URL, {
         method: 'GET',
@@ -207,7 +209,9 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle update failure', async () => {
-      mockUpdateUser.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.')))
+      mockUpdateUser.mockImplementation(async () => {
+        throw new AppError(ErrorCode.InternalError, 'Failed to update user.')
+      })
 
       const res = await post(app, ME_URL, { firstName: 'Jane', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
@@ -252,7 +256,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle valid names with minimum length', async () => {
-      mockUpdateUser.mockImplementation(() => Promise.resolve(mockUpdatedUserMinimal))
+      mockUpdateUser.mockImplementation(async () => mockUpdatedUserMinimal)
 
       const res = await post(app, ME_URL, { firstName: 'Jo', lastName: 'Do' }, {
         'Content-Type': 'application/json',
@@ -280,7 +284,7 @@ describe('Me Endpoint', () => {
           return mockGetUser()
         }
 
-        return Promise.resolve(mockUpdatedUser)
+        return mockUpdatedUser
       })
 
       const res = await post(app, ME_URL, {}, {
@@ -312,7 +316,7 @@ describe('Me Endpoint', () => {
       const { updateUser } = await import('../me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
-        lastName: null,
+        lastName: undefined, // null is converted to undefined
       })
     })
 
@@ -360,7 +364,7 @@ describe('Me Endpoint', () => {
           return mockGetUser()
         }
 
-        return Promise.resolve(mockUpdatedUser)
+        return mockUpdatedUser
       })
 
       const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, {

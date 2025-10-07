@@ -17,7 +17,7 @@ describe('Verify Email Endpoint', () => {
   let mockVerifyEmail: any
 
   beforeEach(async () => {
-    mockVerifyEmail = mock(() => Promise.resolve({
+    mockVerifyEmail = mock(async () => ({
       user: {
         id: 1,
         firstName: 'John',

@@ -51,7 +51,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -69,7 +69,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -85,7 +85,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -101,7 +101,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -119,7 +119,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -135,7 +135,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -151,7 +151,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -167,7 +167,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -183,7 +183,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -201,7 +201,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -219,7 +219,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -242,7 +242,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockNewUser)),
+          findById: mock(async () => mockNewUser),
         },
       }))
 
@@ -265,7 +265,7 @@ describe('Dual Auth Middleware - New User Access', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockNewUser)),
+          findById: mock(async () => mockNewUser),
         },
       }))
 

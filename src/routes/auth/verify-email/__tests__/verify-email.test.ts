@@ -36,8 +36,8 @@ describe('Verify Email', () => {
       updatedAt: new Date(),
     }
     mockTokenRepo = {
-      findByToken: mock(() => Promise.resolve(mockTokenRecord)),
-      update: mock(() => Promise.resolve()),
+      findByToken: mock(async () => mockTokenRecord),
+      update: mock(async () => {}),
     }
     mockUser = {
       id: 1,
@@ -51,7 +51,7 @@ describe('Verify Email', () => {
       updatedAt: new Date(),
     }
     mockUserRepo = {
-      update: mock(() => Promise.resolve(mockUser)),
+      update: mock(async () => mockUser),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
@@ -74,7 +74,7 @@ describe('Verify Email', () => {
 
     mockJwtToken = 'mock-verify-jwt-token'
     mockJwt = {
-      sign: mock(() => Promise.resolve(mockJwtToken)),
+      sign: mock(async () => mockJwtToken),
     }
 
     await moduleMocker.mock('@/lib/jwt', () => ({
@@ -128,7 +128,7 @@ describe('Verify Email', () => {
 
   describe('when token does not exist', () => {
     it('should throw TokenNotFound error', async () => {
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(null))
+      mockTokenRepo.findByToken.mockImplementation(async () => null)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenNotFound)
       })
@@ -155,7 +155,7 @@ describe('Verify Email', () => {
         usedAt: new Date(Date.now() - 60 * 60 * 1000),
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(usedTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => usedTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenAlreadyUsed)
       })
@@ -181,7 +181,7 @@ describe('Verify Email', () => {
         status: TokenStatus.Deprecated,
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(deprecatedTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => deprecatedTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenDeprecated)
       })
@@ -207,7 +207,7 @@ describe('Verify Email', () => {
         expiresAt: new Date(Date.now() - 60 * 60 * 1000),
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(expiredTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => expiredTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenExpired)
       })
@@ -233,7 +233,7 @@ describe('Verify Email', () => {
         type: Token.PasswordReset,
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(wrongTypeTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => wrongTypeTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenTypeMismatch, `expected ${Token.EmailVerification}, got ${Token.PasswordReset}`)
       })
@@ -256,7 +256,9 @@ describe('Verify Email', () => {
 
   describe('when token repository operations fail', () => {
     it('should propagate findByToken errors', async () => {
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockTokenRepo.findByToken.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await verifyEmail(mockTokenString)
@@ -272,7 +274,9 @@ describe('Verify Email', () => {
     })
 
     it('should propagate token update errors', async () => {
-      mockTokenRepo.update.mockImplementation(() => Promise.reject(new Error('Token update failed')))
+      mockTokenRepo.update.mockImplementation(async () => {
+        throw new Error('Token update failed')
+      })
 
       try {
         await verifyEmail(mockTokenString)
@@ -288,7 +292,9 @@ describe('Verify Email', () => {
     })
 
     it('should propagate user update errors', async () => {
-      mockUserRepo.update.mockImplementation(() => Promise.reject(new Error('User update failed')))
+      mockUserRepo.update.mockImplementation(async () => {
+        throw new Error('User update failed')
+      })
 
       try {
         await verifyEmail(mockTokenString)
@@ -306,7 +312,9 @@ describe('Verify Email', () => {
 
   describe('when user update fails', () => {
     it('should throw error when user update fails', async () => {
-      mockUserRepo.update.mockImplementation(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user')))
+      mockUserRepo.update.mockImplementation(async () => {
+        throw new AppError(ErrorCode.InternalError, 'Failed to update user')
+      })
 
       try {
         await verifyEmail(mockTokenString)
@@ -329,7 +337,7 @@ describe('Verify Email', () => {
         expiresAt: new Date(Date.now() + 1000),
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(boundaryTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => boundaryTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => boundaryTokenRecord)
 
       const result = await verifyEmail(mockTokenString)
@@ -347,7 +355,7 @@ describe('Verify Email', () => {
         userId: 999,
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(differentUserTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => differentUserTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => differentUserTokenRecord)
 
       const result = await verifyEmail(mockTokenString)
@@ -371,7 +379,7 @@ describe('Verify Email', () => {
       for (const testToken of testTokens) {
         const testTokenRecord = { ...mockTokenRecord, token: testToken }
 
-        mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(testTokenRecord))
+        mockTokenRepo.findByToken.mockImplementation(async () => testTokenRecord)
         mockTokenValidator.validate.mockImplementation(() => testTokenRecord)
 
         const result = await verifyEmail(testToken)
@@ -389,7 +397,7 @@ describe('Verify Email', () => {
         usedAt: null,
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(tokenWithNullUsedAt))
+      mockTokenRepo.findByToken.mockImplementation(async () => tokenWithNullUsedAt)
       mockTokenValidator.validate.mockImplementation(() => tokenWithNullUsedAt)
 
       const result = await verifyEmail(mockTokenString)
@@ -410,7 +418,7 @@ describe('Verify Email', () => {
         usedAt: new Date(Date.now() - 60 * 60 * 1000),
       }
 
-      mockTokenRepo.findByToken.mockImplementation(() => Promise.resolve(inconsistentTokenRecord))
+      mockTokenRepo.findByToken.mockImplementation(async () => inconsistentTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
         throw new AppError(ErrorCode.TokenAlreadyUsed)
       })

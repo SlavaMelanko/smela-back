@@ -32,10 +32,10 @@ describe('Resend Verification Email', () => {
     }
 
     mockUserRepo = {
-      findByEmail: mock(() => Promise.resolve(mockUser)),
+      findByEmail: mock(async () => mockUser),
     }
     mockTokenRepo = {
-      replace: mock(() => Promise.resolve()),
+      replace: mock(async () => {}),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
@@ -60,7 +60,7 @@ describe('Resend Verification Email', () => {
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(() => Promise.resolve()),
+      sendWelcomeEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
@@ -103,7 +103,7 @@ describe('Resend Verification Email', () => {
 
   describe('when user does not exist', () => {
     it('should return success response to prevent email enumeration', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
+      mockUserRepo.findByEmail.mockImplementation(async () => null)
 
       const result = await resendVerificationEmail('nonexistent@example.com')
 
@@ -120,7 +120,7 @@ describe('Resend Verification Email', () => {
         status: Status.Verified,
       }
 
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(verifiedUser))
+      mockUserRepo.findByEmail.mockImplementation(async () => verifiedUser)
 
       const result = await resendVerificationEmail(verifiedUser.email)
 
@@ -137,7 +137,7 @@ describe('Resend Verification Email', () => {
         status: Status.Suspended,
       }
 
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(suspendedUser))
+      mockUserRepo.findByEmail.mockImplementation(async () => suspendedUser)
 
       const result = await resendVerificationEmail(suspendedUser.email)
 
@@ -149,7 +149,9 @@ describe('Resend Verification Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and not send email', async () => {
-      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Database error')))
+      mockTokenRepo.replace.mockImplementation(async () => {
+        throw new Error('Database error')
+      })
 
       try {
         await resendVerificationEmail(mockUser.email)
@@ -184,7 +186,7 @@ describe('Resend Verification Email', () => {
       for (const status of ineligibleStatuses) {
         const userWithStatus = { ...mockUser, status }
 
-        mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(userWithStatus))
+        mockUserRepo.findByEmail.mockImplementation(async () => userWithStatus)
 
         const result = await resendVerificationEmail(userWithStatus.email)
 
@@ -197,7 +199,9 @@ describe('Resend Verification Email', () => {
 
   describe('when email sending fails', () => {
     it('should complete successfully even if email fails', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+        throw new Error('Email service unavailable')
+      })
 
       const result = await resendVerificationEmail(mockUser.email)
 
@@ -210,7 +214,9 @@ describe('Resend Verification Email', () => {
 
   describe('when replace fails due to transaction error', () => {
     it('should throw the error and not send email', async () => {
-      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockTokenRepo.replace.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await resendVerificationEmail(mockUser.email)

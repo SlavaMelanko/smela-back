@@ -16,7 +16,7 @@ describe('JWT', () => {
     let signJwt: any
 
     beforeEach(async () => {
-      mockSign = mock(() => Promise.resolve('mock-jwt-token'))
+      mockSign = mock(async () => 'mock-jwt-token')
 
       await moduleMocker.mock('hono/jwt', () => ({
         sign: mockSign,
@@ -70,7 +70,7 @@ describe('JWT', () => {
     let verifyJwt: any
 
     beforeEach(async () => {
-      mockVerify = mock(() => Promise.resolve({
+      mockVerify = mock(async () => ({
         id: 1,
         email: 'test@example.com',
         role: Role.User,
@@ -113,7 +113,9 @@ describe('JWT', () => {
     })
 
     it('should throw Unauthorized error for invalid token', async () => {
-      mockVerify.mockImplementation(() => Promise.reject(new Error('Invalid token')))
+      mockVerify.mockImplementation(async () => {
+        throw new Error('Invalid token')
+      })
 
       await expect(verifyJwt('invalid-token')).rejects.toThrow(AppError)
       await expect(verifyJwt('invalid-token')).rejects.toMatchObject({
@@ -135,7 +137,9 @@ describe('JWT', () => {
     })
 
     it('should handle expired tokens', async () => {
-      mockVerify.mockImplementation(() => Promise.reject(new Error('Token expired')))
+      mockVerify.mockImplementation(async () => {
+        throw new Error('Token expired')
+      })
 
       await expect(verifyJwt('expired-token')).rejects.toThrow(AppError)
       await expect(verifyJwt('expired-token')).rejects.toMatchObject({

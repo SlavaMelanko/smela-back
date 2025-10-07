@@ -39,19 +39,18 @@ describe('Reset Password', () => {
       usedAt: null,
     }
     mockTokenRepo = {
-      findByToken: mock(() => Promise.resolve(mockTokenRecord)),
-      update: mock(() => Promise.resolve()),
+      findByToken: mock(async () => mockTokenRecord),
+      update: mock(async () => {}),
     }
     mockAuthRepo = {
-      update: mock(() => Promise.resolve()),
+      update: mock(async () => {}),
     }
     mockUserRepo = {
-      incrementTokenVersion: mock(() => Promise.resolve()),
+      incrementTokenVersion: mock(async () => {}),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => {
-        return await callback({})
-      }),
+      transaction: mock(async (callback: any) => callback({}),
+      ),
     }
 
     await moduleMocker.mock('@/data', () => ({
@@ -70,7 +69,7 @@ describe('Reset Password', () => {
     }))
 
     mockHashedPassword = 'mock-hashed-new-password'
-    mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+    mockHashPassword = mock(async () => mockHashedPassword)
 
     await moduleMocker.mock('@/lib/cipher', () => ({
       hashPassword: mockHashPassword,
@@ -193,7 +192,9 @@ describe('Reset Password', () => {
 
   describe('when token marking as used fails', () => {
     it('should throw the error and not update password', async () => {
-      mockTokenRepo.update.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockTokenRepo.update.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await resetPassword({ token: mockTokenString, password: mockPassword })
@@ -211,7 +212,9 @@ describe('Reset Password', () => {
 
   describe('when password update fails', () => {
     it('should throw the error within transaction', async () => {
-      mockAuthRepo.update.mockImplementation(() => Promise.reject(new Error('Password update failed')))
+      mockAuthRepo.update.mockImplementation(async () => {
+        throw new Error('Password update failed')
+      })
 
       try {
         await resetPassword({ token: mockTokenString, password: mockPassword })
@@ -229,7 +232,9 @@ describe('Reset Password', () => {
 
   describe('when password hashing fails', () => {
     it('should throw the error within transaction', async () => {
-      mockHashPassword.mockImplementation(() => Promise.reject(new Error('Password hashing failed')))
+      mockHashPassword.mockImplementation(async () => {
+        throw new Error('Password hashing failed')
+      })
 
       try {
         await resetPassword({ token: mockTokenString, password: mockPassword })
@@ -281,7 +286,9 @@ describe('Reset Password', () => {
 
     describe('token version error handling', () => {
       it('should fail if tokenVersion increment fails', async () => {
-        mockUserRepo.incrementTokenVersion.mockImplementation(() => Promise.reject(new Error('TokenVersion update failed')))
+        mockUserRepo.incrementTokenVersion.mockImplementation(async () => {
+          throw new Error('TokenVersion update failed')
+        })
 
         try {
           await resetPassword({ token: mockTokenString, password: mockPassword })

@@ -12,7 +12,7 @@ import { AuthProvider, Role, Status, Token } from '@/types'
 
 export interface SignupParams {
   firstName: string
-  lastName: string
+  lastName?: string
   email: string
   password: string
 }

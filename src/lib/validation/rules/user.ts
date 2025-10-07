@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { Role } from '@/types'
 
-import { withVariants } from '../with-variants'
+import { withVariants } from '../helper'
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Z\d@$!%*#?&]{8,}$/i
 

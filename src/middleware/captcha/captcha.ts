@@ -8,6 +8,10 @@ import { AppError, ErrorCode } from '@/lib/catch'
 import logger from '@/lib/logger'
 import { createCaptcha } from '@/services'
 
+interface CaptchaRequestBody {
+  captchaToken: string
+}
+
 /**
  * CAPTCHA validation middleware for protecting auth endpoints from bot attacks.
  *
@@ -23,7 +27,7 @@ const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
     try {
       // At this point, the request has already been validated by requestValidator
       // So we know captchaToken exists and is properly formatted
-      const { captchaToken } = await c.req.json()
+      const { captchaToken } = await c.req.json<CaptchaRequestBody>()
 
       await captcha.validate(captchaToken)
     } catch (error) {

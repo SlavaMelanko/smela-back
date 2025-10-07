@@ -31,10 +31,10 @@ describe('Request Password Reset', () => {
       updatedAt: new Date(),
     }
     mockUserRepo = {
-      findByEmail: mock(() => Promise.resolve(mockUser)),
+      findByEmail: mock(async () => mockUser),
     }
     mockTokenRepo = {
-      replace: mock(() => Promise.resolve()),
+      replace: mock(async () => {}),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({})),
@@ -59,7 +59,7 @@ describe('Request Password Reset', () => {
     }))
 
     mockEmailAgent = {
-      sendResetPasswordEmail: mock(() => Promise.resolve()),
+      sendResetPasswordEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/lib/email-agent', () => ({
@@ -98,7 +98,7 @@ describe('Request Password Reset', () => {
     })
 
     it('should return success when user not found', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
+      mockUserRepo.findByEmail.mockImplementation(async () => null)
 
       const result = await requestPasswordReset('nonexistent@example.com')
 
@@ -114,7 +114,7 @@ describe('Request Password Reset', () => {
     inactiveStatuses.forEach((status) => {
       it(`should return success when user status is ${status}`, async () => {
         const inactiveUser = { ...mockUser, status }
-        mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(inactiveUser))
+        mockUserRepo.findByEmail.mockImplementation(async () => inactiveUser)
 
         const result = await requestPasswordReset(mockUser.email)
 
@@ -127,8 +127,10 @@ describe('Request Password Reset', () => {
 
   describe('token operation failure scenarios', () => {
     it('should throw error when token replacement fails and not send email', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(mockUser))
-      mockTokenRepo.replace.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockUserRepo.findByEmail.mockImplementation(async () => mockUser)
+      mockTokenRepo.replace.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await requestPasswordReset(mockUser.email)
@@ -145,7 +147,9 @@ describe('Request Password Reset', () => {
 
   describe('email sending failure scenarios', () => {
     it('should complete successfully even if email fails', async () => {
-      mockEmailAgent.sendResetPasswordEmail.mockImplementation(() => Promise.reject(new Error('Email service unavailable')))
+      mockEmailAgent.sendResetPasswordEmail.mockImplementation(async () => {
+        throw new Error('Email service unavailable')
+      })
 
       const result = await requestPasswordReset(mockUser.email)
 

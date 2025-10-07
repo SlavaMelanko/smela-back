@@ -40,7 +40,7 @@ describe('Login with Email', () => {
       updatedAt: new Date('2024-01-01'),
     }
     mockUserRepo = {
-      findByEmail: mock(() => Promise.resolve(mockUser)),
+      findByEmail: mock(async () => mockUser),
     }
     mockAuthRecord = {
       userId: 1,
@@ -49,7 +49,7 @@ describe('Login with Email', () => {
       passwordHash: '$2b$10$hashedPassword123',
     }
     mockAuthRepo = {
-      findById: mock(() => Promise.resolve(mockAuthRecord)),
+      findById: mock(async () => mockAuthRecord),
     }
 
     await moduleMocker.mock('@/data', () => ({
@@ -58,7 +58,7 @@ describe('Login with Email', () => {
     }))
 
     mockCipher = {
-      comparePasswords: mock(() => Promise.resolve(true)),
+      comparePasswords: mock(async () => true),
     }
 
     await moduleMocker.mock('@/lib/cipher', () => mockCipher)
@@ -66,7 +66,7 @@ describe('Login with Email', () => {
     mockJwtToken = 'login-jwt-token-123'
     mockJwt = {
       default: {
-        sign: mock(() => Promise.resolve(mockJwtToken)),
+        sign: mock(async () => mockJwtToken),
       },
     }
 
@@ -101,7 +101,7 @@ describe('Login with Email', () => {
     it('should handle different user roles correctly', async () => {
       const adminUser = { ...mockUser, role: Role.Admin }
 
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(adminUser))
+      mockUserRepo.findByEmail.mockImplementation(async () => adminUser)
 
       const result = await logInWithEmail(mockLoginParams)
       expect(result.user.role).toBe(Role.Admin)
@@ -110,7 +110,7 @@ describe('Login with Email', () => {
 
   describe('user not found scenarios', () => {
     it('should throw InvalidCredentials when user does not exist', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(null))
+      mockUserRepo.findByEmail.mockImplementation(async () => null)
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -130,7 +130,7 @@ describe('Login with Email', () => {
 
   describe('auth record scenarios', () => {
     it('should throw InvalidCredentials when auth record not found', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.resolve(null))
+      mockAuthRepo.findById.mockImplementation(async () => null)
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -139,7 +139,7 @@ describe('Login with Email', () => {
     })
 
     it('should throw InvalidCredentials when auth record has no password hash', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuthRecord, passwordHash: null }))
+      mockAuthRepo.findById.mockImplementation(async () => ({ ...mockAuthRecord, passwordHash: null }))
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -150,7 +150,7 @@ describe('Login with Email', () => {
 
   describe('password validation scenarios', () => {
     it('should throw BadCredentials for incorrect password', async () => {
-      mockCipher.comparePasswords.mockImplementation(() => Promise.resolve(false))
+      mockCipher.comparePasswords.mockImplementation(async () => false)
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -159,7 +159,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle empty password input', async () => {
-      mockCipher.comparePasswords.mockImplementation(() => Promise.resolve(false))
+      mockCipher.comparePasswords.mockImplementation(async () => false)
 
       await expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
         name: 'AppError',
@@ -168,7 +168,9 @@ describe('Login with Email', () => {
     })
 
     it('should handle password comparison failure', async () => {
-      mockCipher.comparePasswords.mockImplementation(() => Promise.reject(new Error('Password comparison failed')))
+      mockCipher.comparePasswords.mockImplementation(async () => {
+        throw new Error('Password comparison failed')
+      })
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
         'Password comparison failed',
@@ -178,7 +180,9 @@ describe('Login with Email', () => {
 
   describe('JWT generation scenarios', () => {
     it('should handle JWT signing failure', async () => {
-      mockJwt.default.sign.mockImplementation(() => Promise.reject(new Error('JWT signing failed')))
+      mockJwt.default.sign.mockImplementation(async () => {
+        throw new Error('JWT signing failed')
+      })
 
       await expect(logInWithEmail(mockLoginParams)).rejects.toThrow('JWT signing failed')
     })
@@ -219,7 +223,9 @@ describe('Login with Email', () => {
 
   describe('repository error scenarios', () => {
     it('should handle user repository database failure', async () => {
-      mockUserRepo.findByEmail.mockImplementation(() => Promise.reject(new Error('Database connection failed')))
+      mockUserRepo.findByEmail.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
 
       try {
         await logInWithEmail(mockLoginParams)
@@ -231,7 +237,9 @@ describe('Login with Email', () => {
     })
 
     it('should handle auth repository database failure', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.reject(new Error('Auth table query failed')))
+      mockAuthRepo.findById.mockImplementation(async () => {
+        throw new Error('Auth table query failed')
+      })
 
       try {
         await logInWithEmail(mockLoginParams)
@@ -243,7 +251,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle malformed auth data from database', async () => {
-      mockAuthRepo.findById.mockImplementation(() => Promise.resolve({ ...mockAuthRecord, passwordHash: undefined }))
+      mockAuthRepo.findById.mockImplementation(async () => ({ ...mockAuthRecord, passwordHash: undefined }))
 
       try {
         await logInWithEmail(mockLoginParams)
@@ -273,7 +281,7 @@ describe('Login with Email', () => {
 
       for (const role of roles) {
         const userWithRole = { ...mockUser, role }
-        mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(userWithRole))
+        mockUserRepo.findByEmail.mockImplementation(async () => userWithRole)
 
         const result = await logInWithEmail(mockLoginParams)
         expect(result.user.role).toBe(role)
@@ -285,7 +293,7 @@ describe('Login with Email', () => {
 
       for (const status of statuses) {
         const userWithStatus = { ...mockUser, status }
-        mockUserRepo.findByEmail.mockImplementation(() => Promise.resolve(userWithStatus))
+        mockUserRepo.findByEmail.mockImplementation(async () => userWithStatus)
 
         await logInWithEmail(mockLoginParams)
         // Test passes if no error is thrown

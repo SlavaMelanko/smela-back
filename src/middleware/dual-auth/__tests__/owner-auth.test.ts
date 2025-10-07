@@ -80,7 +80,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -97,7 +97,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -115,7 +115,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -133,7 +133,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -151,7 +151,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -169,7 +169,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -192,7 +192,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockOwner)),
+          findById: mock(async () => mockOwner),
         },
       }))
 
@@ -215,7 +215,7 @@ describe('Owner Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockAdmin)),
+          findById: mock(async () => mockAdmin),
         },
       }))
 

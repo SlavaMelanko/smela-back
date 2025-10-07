@@ -19,7 +19,7 @@ describe('Login Endpoint', () => {
   let mockSetCookie: any
 
   beforeEach(async () => {
-    mockLogInWithEmail = mock(() => Promise.resolve({
+    mockLogInWithEmail = mock(async () => ({
       user: {
         id: 1,
         firstName: 'Test',

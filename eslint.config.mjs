@@ -32,5 +32,6 @@ export default antfu({
       'error',
       { blankLine: 'always', prev: '*', next: 'return' },
     ],
+    'no-return-await': ['error'],
   },
 })

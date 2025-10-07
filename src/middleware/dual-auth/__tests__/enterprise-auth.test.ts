@@ -57,7 +57,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -74,7 +74,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -92,7 +92,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -110,7 +110,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -128,7 +128,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -145,7 +145,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -162,7 +162,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -180,7 +180,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -202,7 +202,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockEnterprise)),
+          findById: mock(async () => mockEnterprise),
         },
       }))
 
@@ -225,7 +225,7 @@ describe('Enterprise Authentication Middleware', () => {
 
       mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
