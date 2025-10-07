@@ -2,24 +2,10 @@
 
 Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
 
-|                                                                            |                                                                     Latest Release                                                                      |                                                                                                    Build Status                                                                                                    | Code Quality |                                                                                Coverage                                                                                |
-| :------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|  ![dev](https://img.shields.io/badge/%2F_dev-blue?style=flat&logo=GitHub)  |                                                                                                                                                         | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=dev&label=Ubuntu&logo=linux)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml)  |              | [![codecov](https://codecov.io/gh/SlavaMelanko/smela-back/branch/dev/graph/badge.svg?token=4JM8EMJE4H&label=Coverage)](https://codecov.io/gh/SlavaMelanko/smela-back)  |
-| ![main](https://img.shields.io/badge/%2F_main-blue?style=flat&logo=GitHub) | [![GitHub Release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back?label=Release)](https://github.com/SlavaMelanko/smela-back/releases) | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=main&label=Ubuntu&logo=linux)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml) |              | [![codecov](https://codecov.io/gh/SlavaMelanko/smela-back/branch/main/graph/badge.svg?token=4JM8EMJE4H&label=Coverage)](https://codecov.io/gh/SlavaMelanko/smela-back) |
-
-## 📦 Technology Stack
-
-- **Runtime**: Bun with TypeScript
-- **Framework**: Hono web framework
-- **Database**: PostgreSQL (serverless)
-- **ORM**: Drizzle for type-safe queries
-- **Authentication**: JWT
-- **Email**: Transactional email support
-- **Validation**: Schema-based validation
-- **Security**: Rate limiting, CORS, CSP
-- **Testing**: Built-in test runner
-- **Code Quality**: ESLint & formatting
-- **CI/CD**: GitHub Actions pipeline
+|                                                                            |                                                                     Latest Release                                                                      |                                                                                                    Build Status                                                                                                     | Code Quality |                                                                                Coverage                                                                                |
+| :------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|  ![dev](https://img.shields.io/badge/%2F_dev-blue?style=flat&logo=GitHub)  |                                                                                                                                                         | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=dev&label=ubuntu&logo=ubuntu)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml)  |              | [![codecov](https://codecov.io/gh/SlavaMelanko/smela-back/branch/dev/graph/badge.svg?token=4JM8EMJE4H&label=Coverage)](https://codecov.io/gh/SlavaMelanko/smela-back)  |
+| ![main](https://img.shields.io/badge/%2F_main-blue?style=flat&logo=GitHub) | [![GitHub Release](https://img.shields.io/github/v/release/SlavaMelanko/smela-back?label=release)](https://github.com/SlavaMelanko/smela-back/releases) | [![Ubuntu](https://img.shields.io/github/actions/workflow/status/SlavaMelanko/smela-back/ubuntu.yml?branch=main&label=ubuntu&logo=ubuntu)](https://github.com/SlavaMelanko/smela-back/actions/workflows/ubuntu.yml) |              | [![codecov](https://codecov.io/gh/SlavaMelanko/smela-back/branch/main/graph/badge.svg?token=4JM8EMJE4H&label=Coverage)](https://codecov.io/gh/SlavaMelanko/smela-back) |
 
 ## 📋 Prerequisites
 

@@ -6,14 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
 
-- **Runtime:** Bun
-- **Framework:** Hono
-- **Database:** PostgreSQL
-- **ORM:** Drizzle ORM
-- **Authentication:** JWT tokens, bcrypt password hashing
-- **Validation:** Zod
-- **Testing:** Bun's built-in test runner
-- **Linting:** ESLint
+- **Runtime**: Bun with TypeScript
+- **Framework**: Hono web framework
+- **Database**: PostgreSQL (serverless)
+- **ORM**: Drizzle for type-safe queries
+- **Authentication**: JWT, bcrypt password hashing
+- **Email**: Transactional email support
+- **Validation**: Schema-based validation
+- **Security**: Rate limiting, CORS, CSP
+- **Testing**: Built-in test runner
+- **Code Quality**: ESLint & formatting
+- **CI/CD**: GitHub Actions pipeline
 
 ## Key Commands
 
@@ -71,6 +74,7 @@ All auth routes accept POST requests:
 
 - `/api/v1/auth/signup` - User registration
 - `/api/v1/auth/login` - User authentication
+- `/api/v1/auth/logout` - User logout (clears JWT cookie)
 - `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
 - `/api/v1/auth/resend-verification-email` - Resend verification email
 - `/api/v1/auth/request-password-reset` - Request password reset
@@ -191,7 +195,6 @@ describe('Test Suite Name', () => {
 
     // Step 2: Initialize data objects (used by repositories)
     mockUser = { /* ... */ }
-
     // Step 3: Initialize repository mocks (depend on data objects)
     mockUserRepo = {
       findByEmail: mock(() => Promise.resolve(mockUser)),
@@ -232,24 +235,25 @@ describe('Test Suite Name', () => {
    - Within each group, order variables by their dependency chain (small → large)
 
    Example:
+
    ```typescript
    const moduleMocker = new ModuleMocker(import.meta.url)
 
-   let mockSignupParams: any  // Test data group
+   let mockSignupParams: any // Test data group
 
-   let mockNewUser: any       // @/data module group
-   let mockDb: any
+   let mockNewUser: any // @/data module group
    let mockUserRepo: any
    let mockAuthRepo: any
+   let mockTransaction: any
 
-   let mockHashedPassword: string  // @/lib/cipher module group
+   let mockHashedPassword: string // @/lib/cipher module group
    let mockHashPassword: any
 
-   let mockToken: string      // @/lib/token module group
+   let mockToken: string // @/lib/token module group
    let mockExpiresAt: Date
    let mockGenerateToken: any
 
-   let mockEmailAgent: any    // @/lib/email-agent module group
+   let mockEmailAgent: any // @/lib/email-agent module group
    ```
 
 2. **Initial Mock Setup in `beforeEach`**:
@@ -265,6 +269,7 @@ describe('Test Suite Name', () => {
    - **Step 5**: Repeat for each module: primitives → mock objects → `moduleMocker.mock()`
 
    Example:
+
    ```typescript
    beforeEach(async () => {
      // Test data
@@ -279,17 +284,19 @@ describe('Test Suite Name', () => {
        authRepo: mockAuthRepo,
      }))
 
-     // @/lib/cipher module group
+     // @/lib/cipher module group. We don't need to use blank lines within group definition
      mockHashedPassword = '$2b$10$hash123'
      mockHashPassword = mock(() => Promise.resolve(mockHashedPassword))
+     // But before `moduleMocker.mock` we should add a blank line
      await moduleMocker.mock('@/lib/cipher', () => ({
        hashPassword: mockHashPassword,
      }))
-
-     // @/lib/token module group
+     // And after `moduleMocker.mock` we need blank line too
+     // @/lib/token module group. Again within group no blank lines.
      mockToken = 'token-123'
      mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
      mockGenerateToken = mock(() => ({ token: mockToken, expiresAt: mockExpiresAt }))
+
      await moduleMocker.mock('@/lib/token', () => ({
        generateToken: mockGenerateToken,
      }))
@@ -501,11 +508,11 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   const hasPermission = await checkUserRole(userId)
   ```
 
-- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences
+- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences but not at the end:
 
   ```typescript
   // Initialize database connection pool. This ensures optimal performance
-  // for concurrent requests. The pool size is configured via environment variables.
+  // for concurrent requests. The pool size is configured via environment variables
   const pool = createConnectionPool()
   ```
 
@@ -611,3 +618,4 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+ALWAYS remember our specified rules about trailing vs full-line comments formatting
