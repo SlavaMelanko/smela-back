@@ -19,6 +19,7 @@ export const createAuth = async (auth: CreateAuthInput, tx?: Transaction): Promi
 
 export const updateAuth = async (userId: number, updates: UpdateAuthInput, tx?: Transaction): Promise<void> => {
   const executor = tx || db
+
   await executor
     .update(authTable)
     .set({ ...updates, updatedAt: new Date() })

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { eq } from 'drizzle-orm'
 
 import { hashPassword } from '@/lib/cipher'
@@ -31,7 +32,6 @@ const seedPermissions = async () => {
   }
 
   if (!permissionsToInsert.length) {
-    // eslint-disable-next-line no-console
     console.log('✅ Permissions already seeded')
 
     return
@@ -39,7 +39,6 @@ const seedPermissions = async () => {
 
   await db.insert(permissionsTable).values(permissionsToInsert)
 
-  // eslint-disable-next-line no-console
   console.log(`✅ ${permissionsToInsert.length} permissions seeded`)
 }
 
@@ -72,7 +71,6 @@ const assignPermissionsToRole = async ({
   }
 
   if (!permissionsToInsert.length) {
-    // eslint-disable-next-line no-console
     console.log(`✅ Permissions already seeded for role ${role}`)
 
     return
@@ -80,7 +78,6 @@ const assignPermissionsToRole = async ({
 
   await db.insert(rolePermissionsTable).values(permissionsToInsert)
 
-  // eslint-disable-next-line no-console
   console.log(
     `✅ Seeded ${permissionsToInsert.length} permissions for role ${role}`,
   )
@@ -142,10 +139,8 @@ const seedAdmins = async () => {
         passwordHash: hashedPassword,
       })
 
-      // eslint-disable-next-line no-console
       console.log(`✅ Admin ${admin.email} seeded`)
     } else {
-      // eslint-disable-next-line no-console
       console.log(`✅ Admin ${admin.email} already exists`)
     }
   }

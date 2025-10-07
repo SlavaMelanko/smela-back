@@ -11,6 +11,7 @@ export default antfu({
   },
   ignores: ['src/data/migrations/**'],
   rules: {
+    'complexity': ['warn', 15],
     'no-console': ['warn'],
     'antfu/no-top-level-await': ['off'],
     'node/prefer-global/process': ['off'],
