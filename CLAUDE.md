@@ -332,13 +332,30 @@ await moduleMocker.mock('@/lib/jwt', () => mockJwt)
 
 ### Security Considerations
 
-- Passwords hashed with bcrypt (10 rounds)
-- JWT tokens for session management
+#### Authentication & Authorization
+
+- JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
+- Dual authentication support (cookies for web, Bearer tokens for API/mobile)
+- bcrypt password hashing with configurable salt rounds (default: 10 rounds)
+- Email verification and secure password reset flows
 - One-time use tokens for password reset with expiration
 - Email enumeration attack prevention (consistent error responses)
-- Rate limiting with different presets for auth vs general endpoints
 - Environment variable validation on startup
-- Role-based permissions system
+
+#### Request Protection
+
+- Rate limiting: 5 auth attempts/15min (production), 100 requests/15min (general)
+- Request size limits: 10KB (auth), 100KB (general), 5MB (uploads)
+- CORS with environment-specific origin validation
+- Input validation using Zod schemas
+- CAPTCHA protection: Google reCAPTCHA v2 (invisible) on auth endpoints
+
+#### Security Headers
+
+- Content Security Policy (CSP) with strict directives
+- HSTS, X-Frame-Options, X-Content-Type-Options
+- Permissions Policy restricting browser features
+- Environment-specific configurations (dev/staging/production)
 
 ### Development Patterns
 
