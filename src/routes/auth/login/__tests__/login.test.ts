@@ -1,26 +1,29 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { AuthRecord, User } from '@/data'
+
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
+
+import type { LoginParams } from '../login'
 
 import logInWithEmail from '../login'
 
 describe('Login with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockLoginParams: any
-  let mockUser: any
+  let mockLoginParams: LoginParams
+
+  let mockUser: User
   let mockUserRepo: any
-  let mockAuthRecord: any
+  let mockAuthRecord: AuthRecord
   let mockAuthRepo: any
 
-  let mockCipher: any
+  let mockComparePasswords: any
 
   let mockJwtToken: string
   let mockJwt: any
-
-  let mockUserLib: any
 
   beforeEach(async () => {
     mockLoginParams = {
@@ -43,10 +46,13 @@ describe('Login with Email', () => {
       findByEmail: mock(async () => mockUser),
     }
     mockAuthRecord = {
+      id: 1,
       userId: 1,
       provider: 'local',
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     }
     mockAuthRepo = {
       findById: mock(async () => mockAuthRecord),
@@ -57,30 +63,28 @@ describe('Login with Email', () => {
       authRepo: mockAuthRepo,
     }))
 
-    mockCipher = {
-      comparePasswords: mock(async () => true),
-    }
+    mockComparePasswords = mock(async () => true)
 
-    await moduleMocker.mock('@/lib/cipher', () => mockCipher)
+    await moduleMocker.mock('@/lib/cipher', () => ({
+      comparePasswords: mockComparePasswords,
+    }))
 
     mockJwtToken = 'login-jwt-token-123'
     mockJwt = {
-      default: {
-        sign: mock(async () => mockJwtToken),
-      },
+      sign: mock(async () => mockJwtToken),
     }
 
-    await moduleMocker.mock('@/lib/jwt', () => mockJwt)
+    await moduleMocker.mock('@/lib/jwt', () => ({
+      default: mockJwt,
+    }))
 
-    mockUserLib = {
-      normalizeUser: mock((user) => {
+    await moduleMocker.mock('@/lib/user', () => ({
+      normalizeUser: mock((user: User) => {
         const { tokenVersion, ...normalizedUser } = user
 
         return normalizedUser
       }),
-    }
-
-    await moduleMocker.mock('@/lib/user', () => mockUserLib)
+    }))
   })
 
   afterEach(async () => {
@@ -150,7 +154,7 @@ describe('Login with Email', () => {
 
   describe('password validation scenarios', () => {
     it('should throw BadCredentials for incorrect password', async () => {
-      mockCipher.comparePasswords.mockImplementation(async () => false)
+      mockComparePasswords.mockImplementation(async () => false)
 
       expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -159,7 +163,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle empty password input', async () => {
-      mockCipher.comparePasswords.mockImplementation(async () => false)
+      mockComparePasswords.mockImplementation(async () => false)
 
       expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
         name: 'AppError',
@@ -168,7 +172,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle password comparison failure', async () => {
-      mockCipher.comparePasswords.mockImplementation(async () => {
+      mockComparePasswords.mockImplementation(async () => {
         throw new Error('Password comparison failed')
       })
 
@@ -180,7 +184,7 @@ describe('Login with Email', () => {
 
   describe('JWT generation scenarios', () => {
     it('should handle JWT signing failure', async () => {
-      mockJwt.default.sign.mockImplementation(async () => {
+      mockJwt.sign.mockImplementation(async () => {
         throw new Error('JWT signing failed')
       })
 

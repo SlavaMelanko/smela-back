@@ -2,9 +2,13 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { User, UserRecord } from '@/data'
+import type { UserPayload } from '@/types'
+
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import HttpStatus from '@/lib/http-status'
+import { Role, Status } from '@/types'
 
 import meRoute from '../index'
 
@@ -15,13 +19,14 @@ describe('Me Endpoint', () => {
 
   let app: Hono
 
-  let mockJwtPayload: any
-  let mockFullUser: any
-  let mockUpdatedUser: any
-  let mockUpdatedUserMinimal: any
+  let mockUpdatedUserMinimal: User
 
+  let mockFullUser: User
   let mockGetUser: any
+  let mockUpdatedUser: User
   let mockUpdateUser: any
+
+  let mockJwtPayload: UserPayload
 
   beforeEach(async () => {
     mockUpdatedUserMinimal = {
@@ -29,11 +34,11 @@ describe('Me Endpoint', () => {
       firstName: 'Jo',
       lastName: 'Do',
       email: 'test@example.com',
-      role: 'user',
-      status: 'active',
+      role: Role.User,
+      status: Status.Active,
       tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-02'),
+      updatedAt: new Date('2024-01-01'),
     }
 
     mockFullUser = {
@@ -41,8 +46,8 @@ describe('Me Endpoint', () => {
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
-      role: 'user',
-      status: 'active',
+      role: Role.User,
+      status: Status.Active,
       tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
@@ -53,8 +58,8 @@ describe('Me Endpoint', () => {
       firstName: 'Jane',
       lastName: 'Smith',
       email: 'test@example.com',
-      role: 'user',
-      status: 'active',
+      role: Role.User,
+      status: Status.Active,
       tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
@@ -69,9 +74,10 @@ describe('Me Endpoint', () => {
     mockJwtPayload = {
       id: 1,
       email: 'test@example.com',
-      role: 'user',
-      status: 'active',
+      role: Role.User,
+      status: Status.Active,
       v: 1,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiry
     }
 
     const userMiddleware: any = async (c: any, next: any) => {
@@ -104,8 +110,8 @@ describe('Me Endpoint', () => {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
-          role: 'user',
-          status: 'active',
+          role: Role.User,
+          status: Status.Active,
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
@@ -189,8 +195,8 @@ describe('Me Endpoint', () => {
           firstName: 'Jane',
           lastName: 'Smith',
           email: 'test@example.com',
-          role: 'user',
-          status: 'active',
+          role: Role.User,
+          status: Status.Active,
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-02T00:00:00.000Z',
         },
@@ -258,7 +264,10 @@ describe('Me Endpoint', () => {
     it('should handle valid names with minimum length', async () => {
       mockUpdateUser.mockImplementation(async () => mockUpdatedUserMinimal)
 
-      const res = await post(app, ME_URL, { firstName: 'Jo', lastName: 'Do' }, {
+      const res = await post(app, ME_URL, {
+        firstName: mockUpdatedUserMinimal.firstName,
+        lastName: mockUpdatedUserMinimal.lastName,
+      }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -271,7 +280,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle empty body (no updates)', async () => {
-      mockUpdateUser.mockImplementation((_userId: number, updates: any) => {
+      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -281,7 +290,7 @@ describe('Me Endpoint', () => {
         }
 
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser()
+          return mockGetUser() as Promise<UserRecord>
         }
 
         return mockUpdatedUser
@@ -351,7 +360,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle whitespace-only strings as empty', async () => {
-      mockUpdateUser.mockImplementation((_userId: number, updates: any) => {
+      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -361,7 +370,7 @@ describe('Me Endpoint', () => {
         }
 
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser()
+          return mockGetUser() as Promise<UserRecord>
         }
 
         return mockUpdatedUser

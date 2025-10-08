@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { TokenRecord, UserRecord } from '@/data'
+
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
@@ -11,9 +13,9 @@ describe('Verify Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockTokenString: string
-  let mockTokenRecord: any
+  let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
-  let mockUser: any
+  let mockUser: UserRecord
   let mockUserRepo: any
   let mockTransaction: any
 
@@ -32,8 +34,8 @@ describe('Verify Email', () => {
       status: TokenStatus.Pending,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
       usedAt: null,
+      metadata: null,
       createdAt: new Date(),
-      updatedAt: new Date(),
     }
     mockTokenRepo = {
       findByToken: mock(async () => mockTokenRecord),
@@ -54,7 +56,7 @@ describe('Verify Email', () => {
       update: mock(async () => mockUser),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => callback({})),
+      transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
 
     await moduleMocker.mock('@/data', () => ({

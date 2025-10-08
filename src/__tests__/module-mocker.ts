@@ -57,7 +57,7 @@ export class ModuleMocker {
     return resolvedPath
   }
 
-  async mock(modulePath: string, renderMocks: () => Record<string, any>) {
+  async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
     const resolvedPath = this.resolveModulePath(modulePath)
     const original = {
       ...(await import(resolvedPath)),
@@ -68,11 +68,11 @@ export class ModuleMocker {
       ...mocks,
     }
 
-    await mock.module(resolvedPath, () => result)
+    await mock.module(resolvedPath, () => result as Record<string, unknown>)
 
     this.mocks.push({
       clear: async () => {
-        await mock.module(resolvedPath, () => original)
+        await mock.module(resolvedPath, () => original as Record<string, unknown>)
       },
     })
   }

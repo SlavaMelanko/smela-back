@@ -84,7 +84,7 @@ describe('JWT', () => {
         verify: mockVerify,
       }))
 
-      mockParsePayload = mock((payload: any) => payload)
+      mockParsePayload = mock((payload: unknown) => payload)
 
       await moduleMocker.mock('@/lib/jwt/payload', () => ({
         parsePayload: mockParsePayload,

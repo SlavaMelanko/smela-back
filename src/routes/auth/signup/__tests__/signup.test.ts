@@ -1,17 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { User } from '@/data'
+
 import { ModuleMocker } from '@/__tests__/module-mocker'
+import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { AuthProvider, Role, Status, Token } from '@/types'
+
+import type { SignupParams } from '../signup'
 
 import signUpWithEmail from '../signup'
 
 describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockSignupParams: any
+  let mockSignupParams: SignupParams
 
-  let mockNewUser: any
+  let mockNewUser: User
   let mockUserRepo: any
   let mockAuthRepo: any
   let mockTokenRepo: any
@@ -36,7 +41,7 @@ describe('Signup with Email', () => {
       password: 'ValidPass123!',
     }
 
-    mockNewUser = {
+    mockNewUser = toTypeSafeUser({
       id: 1,
       firstName: 'John',
       lastName: 'Doe',
@@ -46,7 +51,7 @@ describe('Signup with Email', () => {
       tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    })!
     mockUserRepo = {
       findByEmail: mock(async () => null),
       create: mock(async () => mockNewUser),
@@ -58,7 +63,7 @@ describe('Signup with Email', () => {
       replace: mock(async () => {}),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => callback({})),
+      transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
 
     await moduleMocker.mock('@/data', () => ({

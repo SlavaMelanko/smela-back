@@ -6,7 +6,7 @@ import { comparePasswords } from '@/lib/cipher'
 import jwt from '@/lib/jwt'
 import { normalizeUser } from '@/lib/user'
 
-interface LoginParams {
+export interface LoginParams {
   email: string
   password: string
 }
