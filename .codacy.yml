@@ -1,14 +1,7 @@
 ---
 engines:
-  eslint:
+  eslint-9:
     enabled: true
-    configuration_file: eslint.config.mjs
-    exclude_patterns:
-      - '@typescript-eslint/no-unsafe-assignment'
-      - '@typescript-eslint/no-unsafe-call'
-      - '@typescript-eslint/no-unsafe-member-access'
-      - '@typescript-eslint/no-unsafe-return'
-      - '@typescript-eslint/no-unsafe-argument'
 exclude_paths:
   - 'src/**/*.test.ts'
   - 'src/**/*.mock.ts'

@@ -33,5 +33,10 @@ export default antfu({
       { blankLine: 'always', prev: '*', next: 'return' },
     ],
     'no-return-await': ['error'],
+    '@typescript-eslint/no-unsafe-assignment': ['off'],
+    '@typescript-eslint/no-unsafe-call': ['off'],
+    '@typescript-eslint/no-unsafe-member-access': ['off'],
+    '@typescript-eslint/no-unsafe-return': ['off'],
+    '@typescript-eslint/no-unsafe-argument': ['off'],
   },
 })
