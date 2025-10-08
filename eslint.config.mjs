@@ -2,7 +2,9 @@ import antfu from '@antfu/eslint-config'
 
 export default antfu({
   type: 'app',
-  typescript: true,
+  typescript: {
+    tsconfigPath: './tsconfig.json',
+  },
   formatters: true,
   stylistic: {
     indent: 2,
@@ -15,6 +17,7 @@ export default antfu({
     'antfu/top-level-function': ['off'],
     'complexity': ['warn', 15],
     'curly': ['error', 'all'],
+    'ts/strict-boolean-expressions': ['off'],
     'func-style': ['error', 'expression', { allowArrowFunctions: true }],
     'no-console': ['warn'],
     'no-return-await': ['error'],

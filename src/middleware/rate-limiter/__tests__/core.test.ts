@@ -8,8 +8,8 @@ import { createRateLimiter } from '..'
 describe('Rate Limiter Core', () => {
   let app: Hono
 
-  beforeEach(() => {
-    mock.module('@/lib/env', () => ({
+  beforeEach(async () => {
+    await mock.module('@/lib/env', () => ({
       isDevOrTestEnv: () => true,
     }))
 
@@ -164,7 +164,7 @@ describe('Rate Limiter Core', () => {
       app.get('/test', c => c.text('OK'))
 
       // Make many requests quickly (simulating test suite)
-      const requests = Array.from({ length: 50 }, (_, _i) =>
+      const requests = Array.from({ length: 50 }, async (_, _i) =>
         app.request('/test', { method: 'GET' }))
 
       const responses = await Promise.all(requests)

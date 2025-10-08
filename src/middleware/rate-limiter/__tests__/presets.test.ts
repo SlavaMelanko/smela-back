@@ -24,7 +24,7 @@ describe('Rate Limiter Presets', () => {
 
     it('should have custom authentication error message', async () => {
       // Create a low-limit version for testing the message
-      app.use('/', (c, next) => {
+      app.use('/', async (c, next) => {
         // Override the limit for this test
         const mockAuthLimiter = authRateLimiter
 

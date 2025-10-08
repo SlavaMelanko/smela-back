@@ -23,13 +23,13 @@ describe('Resend Verification Email Endpoint', () => {
       default: mockResendVerificationEmail,
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
 
     app = createTestApp('/api/v1/auth', resendVerificationEmailRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/resend-verification-email', () => {

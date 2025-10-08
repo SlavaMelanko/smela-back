@@ -67,8 +67,8 @@ describe('Request Password Reset', () => {
     }))
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('successful password reset request', () => {

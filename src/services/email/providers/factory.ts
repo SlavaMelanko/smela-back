@@ -35,7 +35,7 @@ export const createEmailProvider = (type?: EmailProviderType): EmailProvider => 
       return new ResendEmailProvider(env.EMAIL_RESEND_API_KEY)
     }
     default: {
-      throw new Error(`Unknown email provider type: ${providerType}`)
+      throw new Error(`Unknown email provider type: ${providerType as string}`)
     }
   }
 }

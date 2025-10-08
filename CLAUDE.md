@@ -216,7 +216,7 @@ describe('Test Suite Name', () => {
   })
 
   afterEach(() => {
-    moduleMocker.clear()
+    await moduleMocker.clear()
   })
 
   it('should update mock behavior', async () => {

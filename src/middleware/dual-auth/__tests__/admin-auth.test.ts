@@ -17,17 +17,17 @@ describe('Admin Authentication Middleware', () => {
     try {
       const payload = await jwt.verify(token)
 
-      if (!statusValidator(payload.status as Status)) {
+      if (!statusValidator(payload.status)) {
         throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
       }
 
-      if (!roleValidator(payload.role as Role)) {
+      if (!roleValidator(payload.role)) {
         throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
       }
 
       // Fetch current user to validate token version
-      const user = await userRepo.findById(payload.id as number)
-      if (!user || user.tokenVersion !== (payload.v as number)) {
+      const user = await userRepo.findById(payload.id)
+      if (!user || user.tokenVersion !== (payload.v)) {
         throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
       }
 
@@ -64,7 +64,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 1, tokenVersion, email: 'owner@example.com' }
       const ownerToken = await jwt.sign(1, 'owner@example.com', Role.Owner, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -81,7 +81,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 1, tokenVersion, email: 'owner@example.com' }
       const ownerToken = await jwt.sign(1, 'owner@example.com', Role.Owner, Status.Verified, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -99,7 +99,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 2, tokenVersion, email: 'admin@example.com' }
       const adminToken = await jwt.sign(2, 'admin@example.com', Role.Admin, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -116,7 +116,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 3, tokenVersion, email: 'user@example.com' }
       const userToken = await jwt.sign(3, 'user@example.com', Role.User, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -134,7 +134,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 4, tokenVersion, email: 'enterprise@example.com' }
       const enterpriseToken = await jwt.sign(4, 'enterprise@example.com', Role.Enterprise, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -152,7 +152,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 5, tokenVersion, email: 'suspended-admin@example.com' }
       const suspendedAdminToken = await jwt.sign(5, 'suspended-admin@example.com', Role.Admin, Status.Suspended, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -169,7 +169,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 6, tokenVersion, email: 'new-owner@example.com' }
       const newOwnerToken = await jwt.sign(6, 'new-owner@example.com', Role.Owner, Status.New, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -191,7 +191,7 @@ describe('Admin Authentication Middleware', () => {
 
       const adminToken = await jwt.sign(adminId, adminEmail, Role.Admin, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockAdmin),
         },
@@ -214,7 +214,7 @@ describe('Admin Authentication Middleware', () => {
 
       const ownerToken = await jwt.sign(ownerId, ownerEmail, Role.Owner, Status.Active, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockOwner),
         },
@@ -237,7 +237,7 @@ describe('Admin Authentication Middleware', () => {
 
       const userToken = await jwt.sign(userId, userEmail, Role.User, Status.Verified, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -257,7 +257,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 200, tokenVersion, email: 'trial-admin@example.com' }
       const trialAdminToken = await jwt.sign(200, 'trial-admin@example.com', Role.Admin, Status.Trial, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -274,7 +274,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 199, tokenVersion, email: 'verified-admin@example.com' }
       const verifiedAdminToken = await jwt.sign(199, 'verified-admin@example.com', Role.Admin, Status.Verified, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -291,7 +291,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 201, tokenVersion, email: 'pending-owner@example.com' }
       const pendingOwnerToken = await jwt.sign(201, 'pending-owner@example.com', Role.Owner, Status.Pending, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },
@@ -308,7 +308,7 @@ describe('Admin Authentication Middleware', () => {
       const mockUser = { id: 202, tokenVersion, email: 'archived-admin@example.com' }
       const archivedAdminToken = await jwt.sign(202, 'archived-admin@example.com', Role.Admin, Status.Archived, tokenVersion)
 
-      mock.module('@/data', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
           findById: mock(async () => mockUser),
         },

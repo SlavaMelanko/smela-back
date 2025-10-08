@@ -104,8 +104,8 @@ describe('Signup with Email', () => {
     }))
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('when signup is successful', () => {
