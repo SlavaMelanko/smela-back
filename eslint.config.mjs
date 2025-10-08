@@ -35,7 +35,6 @@ export default antfu({
     'ts/no-unsafe-assignment': ['off'],
     'ts/no-unsafe-call': ['off'],
     'ts/no-unsafe-member-access': ['off'],
-    'ts/no-unsafe-return': ['warn'],
     'unicorn/filename-case': ['error', {
       case: 'kebabCase',
       ignore: ['README.md', 'CLAUDE.md', 'WARP.md'],

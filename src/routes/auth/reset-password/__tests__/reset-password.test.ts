@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { TokenRecord } from '@/data'
+
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
@@ -13,7 +15,7 @@ describe('Reset Password', () => {
   let mockPassword: string
 
   let mockTokenString: string
-  let mockTokenRecord: any
+  let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
   let mockAuthRepo: any
   let mockUserRepo: any
@@ -37,6 +39,7 @@ describe('Reset Password', () => {
       expiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
       createdAt: new Date(),
       usedAt: null,
+      metadata: null,
     }
     mockTokenRepo = {
       findByToken: mock(async () => mockTokenRecord),
@@ -49,8 +52,7 @@ describe('Reset Password', () => {
       incrementTokenVersion: mock(async () => {}),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => callback({}),
-      ),
+      transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
 
     await moduleMocker.mock('@/data', () => ({

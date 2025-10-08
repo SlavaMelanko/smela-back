@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { User } from '@/data'
+
 import { ModuleMocker } from '@/__tests__'
+import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { Role, Status, Token } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
@@ -8,7 +11,7 @@ import resendVerificationEmail from '../resend-verification-email'
 describe('Resend Verification Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockUser: any
+  let mockUser: User
   let mockUserRepo: any
   let mockTokenRepo: any
   let mockTransaction: any
@@ -20,16 +23,17 @@ describe('Resend Verification Email', () => {
   let mockEmailAgent: any
 
   beforeEach(async () => {
-    mockUser = {
+    mockUser = toTypeSafeUser({
       id: 1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
       status: Status.New,
       role: Role.User,
+      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    })!
 
     mockUserRepo = {
       findByEmail: mock(async () => mockUser),
@@ -38,7 +42,7 @@ describe('Resend Verification Email', () => {
       replace: mock(async () => {}),
     }
     mockTransaction = {
-      transaction: mock(async (callback: any) => callback({})),
+      transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
 
     await moduleMocker.mock('@/data', () => ({

@@ -57,7 +57,7 @@ export class ApiClient {
       throw new AppError(ErrorCode.InternalError)
     }
 
-    return response.json()
+    return response.json() as Promise<T>
   }
 
   async get<T = any>(path: string, headers?: Headers): Promise<T> {
