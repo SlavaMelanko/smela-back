@@ -31,8 +31,8 @@ describe('Logout Endpoint', () => {
     app = createTestApp('/api/v1/auth', logoutRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/logout', () => {

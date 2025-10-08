@@ -43,13 +43,13 @@ describe('Signup Endpoint', () => {
       setAccessCookie: mockSetAccessCookie,
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
 
     app = createTestApp('/api/v1/auth', signupRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/signup', () => {

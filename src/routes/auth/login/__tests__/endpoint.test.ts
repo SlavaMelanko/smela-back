@@ -61,13 +61,13 @@ describe('Login Endpoint', () => {
       deleteCookie: mock(() => {}),
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
 
     app = createTestApp('/api/v1/auth', loginRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/login', () => {

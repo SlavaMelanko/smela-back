@@ -82,8 +82,8 @@ describe('Verify Email', () => {
     }))
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('when token is valid and active', () => {
@@ -118,7 +118,7 @@ describe('Verify Email', () => {
       await verifyEmail(mockTokenString)
       const afterCall = Date.now()
 
-      const updateCall = (mockTokenRepo.update as any).mock.calls[0]
+      const updateCall = (mockTokenRepo.update).mock.calls[0]
       const usedAt = updateCall[1].usedAt as Date
 
       expect(usedAt.getTime()).toBeGreaterThanOrEqual(beforeCall)

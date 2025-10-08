@@ -76,8 +76,8 @@ describe('Reset Password', () => {
     }))
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('when token is valid and active', () => {

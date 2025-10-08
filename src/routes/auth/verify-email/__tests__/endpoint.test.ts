@@ -38,8 +38,8 @@ describe('Verify Email Endpoint', () => {
     app = createTestApp('/api/v1/auth', verifyEmailRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/verify-email', () => {

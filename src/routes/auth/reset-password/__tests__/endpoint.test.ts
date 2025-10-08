@@ -26,8 +26,8 @@ describe('Reset Password Endpoint', () => {
     app = createTestApp('/api/v1/auth', resetPasswordRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   const validPayload = {

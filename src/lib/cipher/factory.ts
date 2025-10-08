@@ -9,7 +9,7 @@ export const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncode
     case 'bcrypt':
       return new BcryptPasswordEncoder()
     default:
-      throw new Error(`Unknown password encoder: ${impl}`)
+      throw new Error(`Unknown password encoder: ${impl as string}`)
   }
 }
 
@@ -18,6 +18,6 @@ export const createRandomBytesGenerator = (impl: 'crypto' = 'crypto'): RandomByt
     case 'crypto':
       return new CryptoRandomBytesGenerator()
     default:
-      throw new Error(`Unknown random bytes generator: ${impl}`)
+      throw new Error(`Unknown random bytes generator: ${impl as string}`)
   }
 }

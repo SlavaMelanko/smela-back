@@ -83,8 +83,8 @@ describe('Login with Email', () => {
     await moduleMocker.mock('@/lib/user', () => mockUserLib)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('successful login', () => {
@@ -112,7 +112,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when user does not exist', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => null)
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -132,7 +132,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when auth record not found', async () => {
       mockAuthRepo.findById.mockImplementation(async () => null)
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -141,7 +141,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when auth record has no password hash', async () => {
       mockAuthRepo.findById.mockImplementation(async () => ({ ...mockAuthRecord, passwordHash: null }))
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -152,7 +152,7 @@ describe('Login with Email', () => {
     it('should throw BadCredentials for incorrect password', async () => {
       mockCipher.comparePasswords.mockImplementation(async () => false)
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.BadCredentials,
       })
@@ -161,7 +161,7 @@ describe('Login with Email', () => {
     it('should handle empty password input', async () => {
       mockCipher.comparePasswords.mockImplementation(async () => false)
 
-      await expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
+      expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.BadCredentials,
       })
@@ -172,7 +172,7 @@ describe('Login with Email', () => {
         throw new Error('Password comparison failed')
       })
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
+      expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
         'Password comparison failed',
       )
     })
@@ -184,7 +184,7 @@ describe('Login with Email', () => {
         throw new Error('JWT signing failed')
       })
 
-      await expect(logInWithEmail(mockLoginParams)).rejects.toThrow('JWT signing failed')
+      expect(logInWithEmail(mockLoginParams)).rejects.toThrow('JWT signing failed')
     })
   })
 

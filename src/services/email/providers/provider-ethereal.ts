@@ -47,7 +47,7 @@ export class EtherealEmailProvider implements EmailProvider {
         msg: 'Ethereal email sent',
         subject: payload.subject,
         messageId: info.messageId,
-        previewUrl: previewUrl || 'No preview URL available',
+        previewUrl: previewUrl ?? 'No preview URL available',
         to: payload.to,
       })
     } catch (error) {

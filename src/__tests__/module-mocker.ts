@@ -2,7 +2,7 @@ import { mock } from 'bun:test'
 import path from 'node:path'
 
 export interface MockResult {
-  clear: () => void
+  clear: () => Promise<void>
 }
 
 /**
@@ -12,8 +12,8 @@ export interface MockResult {
  * When setting up a test that will mock a module, the block should add this:
  * const moduleMocker = new ModuleMocker(import.meta.url)
  *
- * afterEach(() => {
- *   moduleMocker.clear()
+ * afterEach(async () => {
+ *   await moduleMocker.clear()
  * })
  *
  * When a test mocks a module, it should do it this way:
@@ -68,17 +68,20 @@ export class ModuleMocker {
       ...mocks,
     }
 
-    mock.module(resolvedPath, () => result)
+    await mock.module(resolvedPath, () => result)
 
     this.mocks.push({
-      clear: () => {
-        mock.module(resolvedPath, () => original)
+      clear: async () => {
+        await mock.module(resolvedPath, () => original)
       },
     })
   }
 
-  clear() {
-    this.mocks.forEach(mockResult => mockResult.clear())
+  async clear() {
+    await Promise.all(this.mocks.map(async (mockResult) => {
+      return mockResult.clear()
+    }))
+
     this.mocks = []
   }
 }

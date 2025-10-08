@@ -23,13 +23,13 @@ describe('Request Password Reset Endpoint', () => {
       default: mockRequestPasswordReset,
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
 
     app = createTestApp('/api/v1/auth', requestPasswordResetRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/request-password-reset', () => {

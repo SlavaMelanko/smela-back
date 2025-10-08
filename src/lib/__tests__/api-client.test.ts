@@ -391,7 +391,7 @@ describe('API Client', () => {
 
       const client = new ApiClient('https://example.com', { timeout: 10 }) // 10ms timeout
 
-      await expect(client.get('/users')).rejects.toThrow('Timeout.')
+      expect(client.get('/users')).rejects.toThrow('Timeout.')
     })
 
     test('should complete before timeout', async () => {

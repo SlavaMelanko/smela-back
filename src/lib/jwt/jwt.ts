@@ -10,7 +10,7 @@ import { parsePayload } from './payload'
 
 const getSecret = () => env.JWT_ACCESS_SECRET
 
-export const signJwt = (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
+export const signJwt = async (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
   const payload = {
     id,
     email,

@@ -27,8 +27,8 @@ describe('JWT', () => {
       signJwt = jwt.signJwt
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should create JWT token with correct payload', async () => {
@@ -94,8 +94,8 @@ describe('JWT', () => {
       verifyJwt = jwt.verifyJwt
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should verify and parse valid JWT token', async () => {
@@ -117,8 +117,8 @@ describe('JWT', () => {
         throw new Error('Invalid token')
       })
 
-      await expect(verifyJwt('invalid-token')).rejects.toThrow(AppError)
-      await expect(verifyJwt('invalid-token')).rejects.toMatchObject({
+      expect(verifyJwt('invalid-token')).rejects.toThrow(AppError)
+      expect(verifyJwt('invalid-token')).rejects.toMatchObject({
         code: ErrorCode.Unauthorized,
         message: 'Invalid authentication token',
       })
@@ -129,8 +129,8 @@ describe('JWT', () => {
         throw new ZodError([])
       })
 
-      await expect(verifyJwt('token-with-bad-payload')).rejects.toThrow(AppError)
-      await expect(verifyJwt('token-with-bad-payload')).rejects.toMatchObject({
+      expect(verifyJwt('token-with-bad-payload')).rejects.toThrow(AppError)
+      expect(verifyJwt('token-with-bad-payload')).rejects.toMatchObject({
         code: ErrorCode.Unauthorized,
         message: 'Invalid token payload structure',
       })
@@ -141,8 +141,8 @@ describe('JWT', () => {
         throw new Error('Token expired')
       })
 
-      await expect(verifyJwt('expired-token')).rejects.toThrow(AppError)
-      await expect(verifyJwt('expired-token')).rejects.toMatchObject({
+      expect(verifyJwt('expired-token')).rejects.toThrow(AppError)
+      expect(verifyJwt('expired-token')).rejects.toMatchObject({
         code: ErrorCode.Unauthorized,
       })
     })

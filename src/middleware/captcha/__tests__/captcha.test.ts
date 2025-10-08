@@ -24,8 +24,8 @@ describe('Captcha Middleware', () => {
       }))
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should allow request to proceed when captcha is valid', async () => {
@@ -77,8 +77,8 @@ describe('Captcha Middleware', () => {
       }))
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should reject request with BAD_REQUEST status', async () => {
@@ -149,8 +149,8 @@ describe('Captcha Middleware', () => {
       }))
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should convert unexpected errors to CaptchaValidationFailed', async () => {
@@ -199,8 +199,8 @@ describe('Captcha Middleware', () => {
       }))
     })
 
-    afterEach(() => {
-      moduleMocker.clear()
+    afterEach(async () => {
+      await moduleMocker.clear()
     })
 
     it('should handle empty captcha token', async () => {

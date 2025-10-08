@@ -68,8 +68,8 @@ describe('Resend Verification Email', () => {
     }))
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('when user exists and is not verified', () => {

@@ -82,8 +82,8 @@ describe('Me Endpoint', () => {
     app = createTestApp('/api/v1/protected', meRoute, [userMiddleware])
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('GET /me', () => {

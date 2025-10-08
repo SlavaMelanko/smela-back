@@ -204,7 +204,7 @@ describe('Secure Headers Middleware', () => {
 
   describe('Response Handling', () => {
     it('should preserve original response status', async () => {
-      app.get('/not-found', c => c.notFound())
+      app.get('/not-found', async c => c.notFound())
       app.get('/error', c => c.text('Error', 500))
       app.get('/created', c => c.json({ id: 1 }, 201))
 
