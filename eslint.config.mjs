@@ -11,11 +11,10 @@ export default antfu({
     semi: false,
     quotes: 'single',
   },
-  ignores: ['src/data/migrations/**'],
+  ignores: ['src/data/migrations/**', 'scripts/**', '**/*.md', 'coverage/**', '.env*'],
   rules: {
-    'antfu/no-top-level-await': ['off'],
     'antfu/top-level-function': ['off'],
-    'complexity': ['warn', 15],
+    'complexity': ['warn', 10],
     'curly': ['error', 'all'],
     'ts/strict-boolean-expressions': ['off'],
     'func-style': ['error', 'expression', { allowArrowFunctions: true }],
