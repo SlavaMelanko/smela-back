@@ -4,10 +4,12 @@ import {
   Text,
 } from '@react-email/components'
 
+import type { ThemeStyles } from '../../../styles'
+
 import { getThemeStyles } from '../../../styles'
 
 interface Props {
-  styles: any
+  styles: ThemeStyles
   companyName?: string
 }
 

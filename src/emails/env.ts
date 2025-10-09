@@ -13,10 +13,10 @@ const parseSocialLinks = (jsonString?: string) => {
   }
 
   try {
-    const parsed: Record<string, string> = JSON.parse(jsonString)
+    const parsed = JSON.parse(jsonString) as unknown
 
-    return (typeof parsed === 'object' && parsed !== null)
-      ? parsed
+    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+      ? parsed as CompanyEnv['companySocialLinks']
       : DEFAULT_SOCIAL_LINKS
   } catch {
     return DEFAULT_SOCIAL_LINKS

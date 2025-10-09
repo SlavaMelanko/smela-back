@@ -8,7 +8,7 @@ const rules = {
     }
 
     try {
-      const parsed = JSON.parse(str)
+      const parsed = JSON.parse(str) as unknown
 
       return z.record(z.string(), z.string().url()).parse(parsed)
     } catch {

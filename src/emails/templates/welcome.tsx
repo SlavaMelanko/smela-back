@@ -6,6 +6,7 @@ import {
 } from '@react-email/components'
 
 import type { WelcomeEmailContent } from '../content'
+import type { ThemeStyles } from '../styles'
 import type { Metadata } from '../types'
 
 import getContent from '../content'
@@ -19,7 +20,7 @@ interface Props {
     verificationUrl: string
   }
   content: WelcomeEmailContent
-  styles: any
+  styles: ThemeStyles
   metadata?: Metadata
 }
 

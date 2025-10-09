@@ -3,16 +3,16 @@ import type { Role, Status } from '@/types'
 import type { usersTable } from '../../schema'
 
 // Database type
-type UserRecord = typeof usersTable.$inferSelect
+export type UserRecord = typeof usersTable.$inferSelect
 
 // Input types for create / update / delete / etc
-type CreateUserInput = typeof usersTable.$inferInsert
-type UpdateUserInput = Partial<CreateUserInput>
+export type CreateUserInput = typeof usersTable.$inferInsert
+export type UpdateUserInput = Partial<CreateUserInput>
 
 // Public-facing / API-return type
-type User = Omit<UserRecord, 'role' | 'status'> & {
+export type User = Omit<UserRecord, 'role' | 'status'> & {
   role: Role
   status: Status
 }
 
-export type { CreateUserInput, UpdateUserInput, User, UserRecord }
+export type NormalizedUser = Omit<User, 'tokenVersion'>

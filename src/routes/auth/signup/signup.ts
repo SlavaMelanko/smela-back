@@ -82,7 +82,7 @@ const signUpWithEmail = async (
     firstName: newUser.firstName,
     email: newUser.email,
     token: verificationToken,
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 

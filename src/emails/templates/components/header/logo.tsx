@@ -1,9 +1,10 @@
 /** @jsxImportSource react */
+import type { ThemeStyles } from '../../../styles'
 
 import { getThemeStyles } from '../../../styles'
 
 interface Props {
-  styles: any
+  styles: ThemeStyles
   width?: number | string
   height?: number | string
 }

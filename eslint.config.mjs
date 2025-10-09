@@ -31,13 +31,21 @@ export default antfu({
     }],
     'prefer-arrow-callback': ['error'],
     'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
-    'ts/no-unsafe-argument': ['off'],
-    'ts/no-unsafe-assignment': ['off'],
-    'ts/no-unsafe-call': ['off'],
-    'ts/no-unsafe-member-access': ['off'],
+    'ts/no-unsafe-argument': ['error'],
+    'ts/no-unsafe-assignment': ['error'],
+    'ts/no-unsafe-call': ['error'],
+    'ts/no-unsafe-member-access': ['error'],
     'unicorn/filename-case': ['error', {
       case: 'kebabCase',
       ignore: ['README.md', 'CLAUDE.md', 'WARP.md'],
     }],
+  },
+}, {
+  files: ['**/*.test.ts', '**/__tests__/**'],
+  rules: {
+    'ts/no-unsafe-argument': ['off'],
+    'ts/no-unsafe-assignment': ['off'],
+    'ts/no-unsafe-call': ['off'],
+    'ts/no-unsafe-member-access': ['off'],
   },
 })

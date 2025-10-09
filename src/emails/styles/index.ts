@@ -18,4 +18,6 @@ export const getThemeStyles = (theme?: Theme) => {
   return { ...styles, ...styles.get(t), color: styles.color[t] }
 }
 
+export type ThemeStyles = ReturnType<typeof getThemeStyles>
+
 export default styles

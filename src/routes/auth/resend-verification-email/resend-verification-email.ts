@@ -26,7 +26,7 @@ const resendVerificationEmail = async (email: string) => {
       firstName: user.firstName,
       email: user.email,
       token,
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       logger.error({ error }, `Failed to send email verification email to ${user.email}`)
     })
   }

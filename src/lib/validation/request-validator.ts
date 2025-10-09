@@ -1,11 +1,11 @@
 import type { ValidationTargets } from 'hono'
-import type { ZodSchema } from 'zod'
+import type { ZodIssue, ZodSchema } from 'zod'
 
 import { zValidator } from '@hono/zod-validator'
 
 import { AppError, ErrorCode } from '../catch'
 
-const makeErrorMessage = (issues: Array<{ message: string, path: (string | number)[] }>): string => {
+const makeErrorMessage = (issues: ZodIssue[]): string => {
   const firstIssue = issues[0]
   const errorMessage = firstIssue?.message || 'Invalid request'
 
@@ -24,7 +24,8 @@ const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTa
 ) =>
   zValidator(target, schema, (result, _c) => {
     if (!result.success) {
-      const message = makeErrorMessage(result.error.issues)
+      const issues = result.error.issues as ZodIssue[]
+      const message = makeErrorMessage(issues)
 
       throw new AppError(ErrorCode.ValidationError, message)
     }

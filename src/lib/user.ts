@@ -1,4 +1,4 @@
-import type { User } from '@/data'
+import type { NormalizedUser, User } from '@/data'
 
 /**
  * Removes sensitive fields from a user object before sending to the client.
@@ -7,7 +7,7 @@ import type { User } from '@/data'
  * @param user - The user object from the database
  * @returns The user object without sensitive fields
  */
-export const normalizeUser = (user: User): Omit<User, 'tokenVersion'> => {
+export const normalizeUser = (user: User): NormalizedUser => {
   const { tokenVersion, ...userWithoutSensitiveFields } = user
 
   return userWithoutSensitiveFields

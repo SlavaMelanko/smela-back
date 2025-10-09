@@ -6,11 +6,13 @@ import {
   Section,
 } from '@react-email/components'
 
+import type { ThemeStyles } from '../../../styles'
+
 import { getThemeStyles } from '../../../styles'
 import Logo from './logo'
 
 interface Props {
-  styles: any
+  styles: ThemeStyles
   logoWidth?: number | string
   showBorder?: boolean
 }
