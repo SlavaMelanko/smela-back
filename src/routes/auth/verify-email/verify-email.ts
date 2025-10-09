@@ -1,9 +1,8 @@
 import type { User } from '@/data'
 
-import { db, tokenRepo, userRepo } from '@/data'
+import { db, normalizeUser, tokenRepo, userRepo } from '@/data'
 import jwt from '@/lib/jwt'
 import { TokenValidator } from '@/lib/token'
-import { normalizeUser } from '@/lib/user'
 import { Status, Token, TokenStatus } from '@/types'
 
 export interface VerifyEmailResult {

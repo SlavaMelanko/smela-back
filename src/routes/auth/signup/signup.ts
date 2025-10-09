@@ -1,13 +1,12 @@
 import type { User } from '@/data'
 
-import { authRepo, db, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { hashPassword } from '@/lib/cipher'
 import { emailAgent } from '@/lib/email-agent'
 import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
-import { normalizeUser } from '@/lib/user'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 export interface SignupParams {
