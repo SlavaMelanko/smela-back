@@ -3,7 +3,7 @@ import { z } from 'zod'
 const rules = {
   emailSenderProfiles: z.string().transform((str) => {
     try {
-      const parsed = JSON.parse(str)
+      const parsed = JSON.parse(str) as unknown
       const profileSchema = z.record(z.string(), z.object({
         email: z.string().email(),
         name: z.string(),
