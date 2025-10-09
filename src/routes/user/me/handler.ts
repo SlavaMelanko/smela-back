@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { normalizeUser } from '@/lib/user'
+import { normalizeUser } from '@/data'
 
 import type { UpdateProfileBody } from './schema'
 

@@ -77,14 +77,6 @@ describe('Login with Email', () => {
     await moduleMocker.mock('@/lib/jwt', () => ({
       default: mockJwt,
     }))
-
-    await moduleMocker.mock('@/lib/user', () => ({
-      normalizeUser: mock((user: User) => {
-        const { tokenVersion, ...normalizedUser } = user
-
-        return normalizedUser
-      }),
-    }))
   })
 
   afterEach(async () => {

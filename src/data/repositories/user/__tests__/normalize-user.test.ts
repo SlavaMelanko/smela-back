@@ -4,7 +4,7 @@ import type { User } from '@/data'
 
 import { Role, Status } from '@/types'
 
-import { normalizeUser } from '../user'
+import { normalizeUser } from '..'
 
 describe('Normalize User', () => {
   const mockUser: User = {
