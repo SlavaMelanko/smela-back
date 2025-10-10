@@ -13,8 +13,10 @@
     "db:setup": "bun run db:generate && bun run db:migrate && bun run db:seed",
     "db:studio": "drizzle-kit studio",
     "test": "NODE_ENV=test bun test",
+    "coverage": "NODE_ENV=test bun test --coverage",
     "lint": "bunx eslint ./src",
     "lint:fix": "bunx eslint --fix ./src",
+    "check": "bun lint && bun test",
     "email": "email dev --dir src/emails --port 3001",
     "docker:build": "docker build -t smela-back .",
     "docker:test": "docker run --rm -it smela-back"
