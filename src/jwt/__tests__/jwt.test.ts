@@ -216,7 +216,7 @@ describe('JWT', () => {
       expect(verifyJwt('token-with-bad-payload', { secret: 'test-secret' })).rejects.toThrow(AppError)
       expect(verifyJwt('token-with-bad-payload', { secret: 'test-secret' })).rejects.toMatchObject({
         code: ErrorCode.Unauthorized,
-        message: 'Invalid token payload structure',
+        message: 'Invalid authentication token',
       })
     })
 
