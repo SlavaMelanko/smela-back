@@ -1,34 +1,36 @@
-import type { ZodError } from 'zod'
-
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 
 import { companyEnvVars } from './company'
 import { coreEnvVars } from './core'
 import { dbEnvVars } from './db'
 import { emailEnvVars } from './email'
-import { networkEnvVars } from './network'
+import { createNetworkEnvVars } from './network'
 import { captchaEnvVars } from './services'
 
-const validate = () => {
+export const validateEnvVars = (envVars: typeof Bun.env = Bun.env) => {
   try {
+    const nodeEnv = envVars.NODE_ENV
+
     const envSchema = z.object({
       ...coreEnvVars,
       ...dbEnvVars,
-      ...networkEnvVars,
+      ...createNetworkEnvVars(nodeEnv),
       ...emailEnvVars,
       ...companyEnvVars,
       ...captchaEnvVars,
     })
 
-    // eslint-disable-next-line node/no-process-env
-    return envSchema.parse(process.env)
-  } catch (e) {
-    const error = e as ZodError
-    console.error('❌ Invalid env:', error.flatten().fieldErrors)
+    return envSchema.parse(envVars)
+  } catch (error: unknown) {
+    console.error(
+      '❌ Failed to parse environment variables:',
+      error instanceof ZodError ? error.flatten().fieldErrors : error,
+    )
+
     process.exit(1)
   }
 }
 
-const env = validate()
+const env = validateEnvVars()
 
 export default env
