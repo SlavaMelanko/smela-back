@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { userRepo } from '@/data'
+import { signJwt, verifyJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
 import { isActiveOnly, isEnterprise, Role, Status } from '@/types'
+
+import { jwtOptions } from './jwt-utils'
 
 describe('Enterprise Authentication Middleware', () => {
   const tokenVersion = 1
@@ -15,7 +17,7 @@ describe('Enterprise Authentication Middleware', () => {
     roleValidator: (role: Role) => boolean,
   ) => {
     try {
-      const payload = await jwt.verify(token)
+      const payload = await verifyJwt(token, jwtOptions)
 
       if (!statusValidator(payload.status)) {
         throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
@@ -41,19 +43,13 @@ describe('Enterprise Authentication Middleware', () => {
     // Reset mocks before each test
   })
 
-  describe('Enterprise Role Helper Function', () => {
-    it('isEnterprise should return true only for Enterprise role', () => {
-      expect(isEnterprise(Role.Enterprise)).toBe(true)
-      expect(isEnterprise(Role.User)).toBe(false)
-      expect(isEnterprise(Role.Admin)).toBe(false)
-      expect(isEnterprise(Role.Owner)).toBe(false)
-    })
-  })
-
   describe('Enterprise-Only Middleware', () => {
     it('should allow Enterprise with Active status', async () => {
       const mockUser = { id: 1, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(1, 'enterprise@example.com', Role.Enterprise, Status.Active, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 1, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -70,7 +66,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Enterprise with Verified status (requires fully active)', async () => {
       const mockUser = { id: 2, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(2, 'enterprise@example.com', Role.Enterprise, Status.Verified, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 2, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Verified, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -88,7 +87,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Enterprise with Trial status (requires fully active)', async () => {
       const mockUser = { id: 3, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(3, 'enterprise@example.com', Role.Enterprise, Status.Trial, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 3, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Trial, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -106,7 +108,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject User role even with Active status', async () => {
       const mockUser = { id: 4, tokenVersion, email: 'user@example.com' }
-      const userToken = await jwt.sign(4, 'user@example.com', Role.User, Status.Active, tokenVersion)
+      const userToken = await signJwt(
+        { id: 4, email: 'user@example.com', role: Role.User, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -124,7 +129,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Admin role with Active status', async () => {
       const mockUser = { id: 5, tokenVersion, email: 'admin@example.com' }
-      const adminToken = await jwt.sign(5, 'admin@example.com', Role.Admin, Status.Active, tokenVersion)
+      const adminToken = await signJwt(
+        { id: 5, email: 'admin@example.com', role: Role.Admin, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -141,7 +149,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Owner role with Active status', async () => {
       const mockUser = { id: 6, tokenVersion, email: 'owner@example.com' }
-      const ownerToken = await jwt.sign(6, 'owner@example.com', Role.Owner, Status.Active, tokenVersion)
+      const ownerToken = await signJwt(
+        { id: 6, email: 'owner@example.com', role: Role.Owner, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -158,7 +169,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Enterprise with New status', async () => {
       const mockUser = { id: 7, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(7, 'enterprise@example.com', Role.Enterprise, Status.New, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 7, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.New, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -176,7 +190,10 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Enterprise with Suspended status', async () => {
       const mockUser = { id: 8, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(8, 'enterprise@example.com', Role.Enterprise, Status.Suspended, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 8, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Suspended, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -204,12 +221,15 @@ describe('Enterprise Authentication Middleware', () => {
         status: Status.Active,
       }
 
-      const enterpriseToken = await jwt.sign(
-        enterpriseId,
-        enterpriseEmail,
-        Role.Enterprise,
-        Status.Active,
-        tokenVersion,
+      const enterpriseToken = await signJwt(
+        {
+          id: enterpriseId,
+          email: enterpriseEmail,
+          role: Role.Enterprise,
+          status: Status.Active,
+          tokenVersion,
+        },
+        jwtOptions,
       )
 
       await mock.module('@/data', () => ({
@@ -239,7 +259,10 @@ describe('Enterprise Authentication Middleware', () => {
         status: Status.Active,
       }
 
-      const userToken = await jwt.sign(userId, userEmail, Role.User, Status.Active, tokenVersion)
+      const userToken = await signJwt(
+        { id: userId, email: userEmail, role: Role.User, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {

@@ -1,4 +1,4 @@
-import type { UserPayload } from '@/types'
+import type { UserPayload } from '@/jwt'
 
 export interface Variables {
   user: UserPayload

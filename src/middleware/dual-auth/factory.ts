@@ -6,8 +6,9 @@ import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
 
 import { userRepo } from '@/data'
+import env from '@/env'
+import { verifyJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
 
 import extractToken from './token'
 
@@ -27,7 +28,7 @@ const createDualAuthMiddleware = (
   }
 
   try {
-    const payload = await jwt.verify(token)
+    const payload = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
 
     if (!statusValidator(payload.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')

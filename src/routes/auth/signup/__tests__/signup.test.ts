@@ -31,7 +31,8 @@ describe('Signup with Email', () => {
 
   let mockEmailAgent: any
 
-  let mockJwt: any
+  let mockJwtToken: string
+  let mockCreateJwt: any
 
   beforeEach(async () => {
     mockSignupParams = {
@@ -100,12 +101,11 @@ describe('Signup with Email', () => {
       emailAgent: mockEmailAgent,
     }))
 
-    mockJwt = {
-      sign: mock(async () => 'mock-signup-jwt-token'),
-    }
+    mockJwtToken = 'mock-signup-jwt-token'
+    mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/lib/jwt', () => ({
-      default: mockJwt,
+    await moduleMocker.mock('@/jwt', () => ({
+      signJwt: mockCreateJwt,
     }))
   })
 
@@ -132,7 +132,7 @@ describe('Signup with Email', () => {
       const { tokenVersion, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-signup-jwt-token')
+      expect(result.token).toBe(mockJwtToken)
     })
 
     it('should create auth record with hashed password', async () => {
@@ -197,7 +197,7 @@ describe('Signup with Email', () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(result).toHaveProperty('token')
-      expect(result.token).toBe('mock-signup-jwt-token')
+      expect(result.token).toBe(mockJwtToken)
       expect(result).toHaveProperty('user')
     })
 

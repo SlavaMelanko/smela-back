@@ -22,7 +22,7 @@ describe('Verify Email', () => {
   let mockTokenValidator: any
 
   let mockJwtToken: string
-  let mockJwt: any
+  let mockCreateJwt: any
 
   beforeEach(async () => {
     mockTokenString = 'a'.repeat(TOKEN_LENGTH)
@@ -75,12 +75,10 @@ describe('Verify Email', () => {
     }))
 
     mockJwtToken = 'mock-verify-jwt-token'
-    mockJwt = {
-      sign: mock(async () => mockJwtToken),
-    }
+    mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/lib/jwt', () => ({
-      default: mockJwt,
+    await moduleMocker.mock('@/jwt', () => ({
+      signJwt: mockCreateJwt,
     }))
   })
 
