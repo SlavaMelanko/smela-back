@@ -12,12 +12,19 @@ export interface PasswordResetEmailData {
 }
 
 export default class PasswordResetEmailRenderer implements EmailRenderer<PasswordResetEmailData> {
-  async render(data: PasswordResetEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
+  async render(
+    data: PasswordResetEmailData,
+    userPreferences?: UserPreferences,
+    metadata?: Metadata,
+  ): Promise<RenderedEmail> {
     const content = getContent(userPreferences?.locale).passwordReset
     const styles = getThemeStyles(userPreferences?.theme)
 
     const subject = content.subject
-    const { html, text } = await renderEmail(PasswordResetEmail, { data, content, styles, metadata })
+    const { html, text } = await renderEmail(
+      PasswordResetEmail,
+      { data, content, styles, metadata },
+    )
 
     return {
       subject,

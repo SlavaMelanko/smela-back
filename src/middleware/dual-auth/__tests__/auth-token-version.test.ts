@@ -66,7 +66,13 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion: currentTokenVersion }
 
       // Create JWT with old tokenVersion (user has reset password since)
-      const outdatedToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, oldTokenVersion)
+      const outdatedToken = await jwt.sign(
+        mockUserId,
+        mockEmail,
+        mockRole,
+        mockStatus,
+        oldTokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -89,7 +95,13 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion: currentTokenVersion }
 
       // Create JWT with higher tokenVersion (shouldn't happen in practice)
-      const invalidToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, highTokenVersion)
+      const invalidToken = await jwt.sign(
+        mockUserId,
+        mockEmail,
+        mockRole,
+        mockStatus,
+        highTokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -131,7 +143,13 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion, status: Status.Suspended }
 
       // Create JWT with valid tokenVersion but inactive user
-      const inactiveToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Suspended, tokenVersion)
+      const inactiveToken = await jwt.sign(
+        mockUserId,
+        mockEmail,
+        mockRole,
+        Status.Suspended,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {

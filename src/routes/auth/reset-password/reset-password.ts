@@ -14,7 +14,9 @@ const validateToken = async (token: string) => {
   return TokenValidator.validate(tokenRecord, Token.PasswordReset)
 }
 
-const resetPassword = async ({ token, password }: ResetPasswordParams): Promise<{ success: boolean }> => {
+const resetPassword = async (
+  { token, password }: ResetPasswordParams,
+): Promise<{ success: boolean }> => {
   const validatedToken = await validateToken(token)
 
   await db.transaction(async (tx) => {

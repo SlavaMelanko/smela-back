@@ -17,7 +17,11 @@ export const createAuth = async (auth: CreateAuthInput, tx?: Transaction): Promi
   return createdAuth.id
 }
 
-export const updateAuth = async (userId: number, updates: UpdateAuthInput, tx?: Transaction): Promise<void> => {
+export const updateAuth = async (
+  userId: number,
+  updates: UpdateAuthInput,
+  tx?: Transaction,
+): Promise<void> => {
   const executor = tx || db
 
   await executor

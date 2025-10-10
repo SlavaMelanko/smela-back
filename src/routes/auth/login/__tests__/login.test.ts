@@ -135,7 +135,9 @@ describe('Login with Email', () => {
     })
 
     it('should throw InvalidCredentials when auth record has no password hash', async () => {
-      mockAuthRepo.findById.mockImplementation(async () => ({ ...mockAuthRecord, passwordHash: null }))
+      mockAuthRepo.findById.mockImplementation(
+        async () => ({ ...mockAuthRecord, passwordHash: null }),
+      )
 
       expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -247,7 +249,9 @@ describe('Login with Email', () => {
     })
 
     it('should handle malformed auth data from database', async () => {
-      mockAuthRepo.findById.mockImplementation(async () => ({ ...mockAuthRecord, passwordHash: undefined }))
+      mockAuthRepo.findById.mockImplementation(
+        async () => ({ ...mockAuthRecord, passwordHash: undefined }),
+      )
 
       try {
         await logInWithEmail(mockLoginParams)

@@ -143,7 +143,8 @@ describe('Secure Headers Middleware', () => {
 
       // Verify each directive has proper format
       for (const directive of directives) {
-        // All directives in dev/test should have values (no standalone directives like upgrade-insecure-requests)
+        // All directives in dev/test should have values
+        // (no standalone directives like upgrade-insecure-requests)
         expect(directive).toMatch(/^[\w-]+\s+/)
       }
     })

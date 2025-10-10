@@ -196,9 +196,21 @@ describe('Enterprise Authentication Middleware', () => {
     it('should allow enterprise user to access enterprise-only endpoints', async () => {
       const enterpriseId = 100
       const enterpriseEmail = 'enterprise@company.com'
-      const mockEnterprise = { id: enterpriseId, tokenVersion, email: enterpriseEmail, role: Role.Enterprise, status: Status.Active }
+      const mockEnterprise = {
+        id: enterpriseId,
+        tokenVersion,
+        email: enterpriseEmail,
+        role: Role.Enterprise,
+        status: Status.Active,
+      }
 
-      const enterpriseToken = await jwt.sign(enterpriseId, enterpriseEmail, Role.Enterprise, Status.Active, tokenVersion)
+      const enterpriseToken = await jwt.sign(
+        enterpriseId,
+        enterpriseEmail,
+        Role.Enterprise,
+        Status.Active,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -219,7 +231,13 @@ describe('Enterprise Authentication Middleware', () => {
     it('should block regular user from enterprise-only endpoints', async () => {
       const userId = 101
       const userEmail = 'user@company.com'
-      const mockUser = { id: userId, tokenVersion, email: userEmail, role: Role.User, status: Status.Active }
+      const mockUser = {
+        id: userId,
+        tokenVersion,
+        email: userEmail,
+        role: Role.User,
+        status: Status.Active,
+      }
 
       const userToken = await jwt.sign(userId, userEmail, Role.User, Status.Active, tokenVersion)
 

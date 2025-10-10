@@ -31,6 +31,13 @@ export default antfu({
     }],
     'prefer-arrow-callback': ['error'],
     'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+    'style/max-len': ['warn', {
+      code: 100,
+      ignoreUrls: true,
+      ignoreStrings: true,
+      ignoreTemplateLiterals: true,
+      ignoreRegExpLiterals: true,
+    }],
     'ts/no-unsafe-argument': ['error'],
     'ts/no-unsafe-assignment': ['error'],
     'ts/no-unsafe-call': ['error'],
