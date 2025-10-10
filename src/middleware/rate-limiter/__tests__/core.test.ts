@@ -1,19 +1,26 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
+import { ModuleMocker } from '@/__tests__/module-mocker'
 import HttpStatus from '@/lib/http-status'
 
 import { createRateLimiter } from '..'
 
 describe('Rate Limiter Core', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   let app: Hono
 
   beforeEach(async () => {
-    await mock.module('@/lib/env', () => ({
+    await moduleMocker.mock('@/env', () => ({
       isDevOrTestEnv: () => true,
     }))
 
     app = new Hono()
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('Basic Rate Limiting', () => {

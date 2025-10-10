@@ -186,9 +186,21 @@ describe('Owner Authentication Middleware', () => {
     it('should allow owner to manage admin users', async () => {
       const ownerId = 100
       const ownerEmail = 'owner@company.com'
-      const mockOwner = { id: ownerId, tokenVersion, email: ownerEmail, role: Role.Owner, status: Status.Active }
+      const mockOwner = {
+        id: ownerId,
+        tokenVersion,
+        email: ownerEmail,
+        role: Role.Owner,
+        status: Status.Active,
+      }
 
-      const ownerToken = await jwt.sign(ownerId, ownerEmail, Role.Owner, Status.Active, tokenVersion)
+      const ownerToken = await jwt.sign(
+        ownerId,
+        ownerEmail,
+        Role.Owner,
+        Status.Active,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -209,9 +221,21 @@ describe('Owner Authentication Middleware', () => {
     it('should block admin from owner-only endpoints', async () => {
       const adminId = 101
       const adminEmail = 'admin@company.com'
-      const mockAdmin = { id: adminId, tokenVersion, email: adminEmail, role: Role.Admin, status: Status.Active }
+      const mockAdmin = {
+        id: adminId,
+        tokenVersion,
+        email: adminEmail,
+        role: Role.Admin,
+        status: Status.Active,
+      }
 
-      const adminToken = await jwt.sign(adminId, adminEmail, Role.Admin, Status.Active, tokenVersion)
+      const adminToken = await jwt.sign(
+        adminId,
+        adminEmail,
+        Role.Admin,
+        Status.Active,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {

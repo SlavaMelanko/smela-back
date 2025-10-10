@@ -160,7 +160,7 @@ await db.transaction(async (tx) => {
 **Environment Configuration:**
 
 - **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
-- **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
+- **Minimize mocking `@/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
 - Only mock business logic dependencies (repositories, cipher, JWT, external services)
 - Use global mocks for services (like CAPTCHA) that are already mocked globally
 
@@ -328,6 +328,53 @@ await moduleMocker.mock('@/data', () => ({ userRepo: mockUserRepo }))
 mockJwtToken = 'token-123'
 mockJwt = { default: { sign: mock(async () => mockJwtToken) } }
 await moduleMocker.mock('@/lib/jwt', () => mockJwt)
+```
+
+**TypeScript Type Safety in Tests:**
+
+- **Minimize use of `any` type**: Prefer proper TypeScript types even in test files
+- **Use type inference**: Let TypeScript infer types when possible instead of explicit `any`
+- **Type mock data**: Create proper interfaces or use `Partial<T>` for mock objects
+- **Exception**: Use `any` only for complex mocks where full typing would add unnecessary complexity
+
+Example:
+
+```typescript
+// Bad: Overuse of any
+let mockUser: any
+let mockUserRepo: any
+
+beforeEach(() => {
+  mockUser = { id: 1, email: 'test@example.com' }
+  mockUserRepo = { findByEmail: mock(async () => mockUser) }
+})
+
+// Good: Proper typing with Partial<T>
+interface User {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+}
+
+interface UserRepository {
+  findByEmail: (email: string) => Promise<User | null>
+  create: (data: Partial<User>) => Promise<User>
+}
+
+let mockUser: Partial<User>
+let mockUserRepo: Partial<UserRepository>
+
+beforeEach(() => {
+  mockUser = { id: 1, email: 'test@example.com' }
+  mockUserRepo = {
+    findByEmail: mock(async () => mockUser as User),
+  }
+})
+
+// Acceptable: Use any for complex objects when full typing is impractical
+let mockEnv: NodeJS.ProcessEnv // NodeJS type is already defined
+let mockComplexObject: any // Only when the object structure is too complex to type
 ```
 
 ### Security Considerations

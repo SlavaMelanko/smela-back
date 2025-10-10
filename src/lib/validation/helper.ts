@@ -20,7 +20,9 @@ export type InferType<T extends z.ZodTypeAny> = z.infer<T>
  *
  * @returns The schema extended with .opt property
  */
-export const withVariants = <T extends z.ZodTypeAny>(schema: T): T & { opt: z.ZodOptional<z.ZodNullable<T>> } => {
+export const withVariants = <T extends z.ZodTypeAny>(
+  schema: T,
+): T & { opt: z.ZodOptional<z.ZodNullable<T>> } => {
   return Object.assign(schema, {
     opt: schema.nullable().optional(),
   })

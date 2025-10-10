@@ -3,8 +3,8 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { HTTPException } from 'hono/http-exception'
 
+import { isDevEnv } from '@/env'
 import { ErrorCode, ErrorRegistry } from '@/lib/catch'
-import { isDevEnv } from '@/lib/env'
 import HttpStatus, { getReasonPhrase } from '@/lib/http-status'
 import logger from '@/lib/logger'
 

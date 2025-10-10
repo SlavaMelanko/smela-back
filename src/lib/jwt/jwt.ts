@@ -3,14 +3,20 @@ import { ZodError } from 'zod'
 
 import type { Role, Status, UserPayload } from '@/types'
 
+import env from '@/env'
 import { AppError, ErrorCode } from '@/lib/catch'
-import env from '@/lib/env'
 
 import { parsePayload } from './payload'
 
 const getSecret = () => env.JWT_ACCESS_SECRET
 
-export const signJwt = async (id: number, email: string, role: Role, status: Status, tokenVersion: number): Promise<string> => {
+export const signJwt = async (
+  id: number,
+  email: string,
+  role: Role,
+  status: Status,
+  tokenVersion: number,
+): Promise<string> => {
   const payload = {
     id,
     email,

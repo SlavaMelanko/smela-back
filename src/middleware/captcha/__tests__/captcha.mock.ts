@@ -12,7 +12,7 @@ export const INVALID_CAPTCHA_TOKENS = {
 /**
  * Mocks captcha service to always succeed.
  *
- * Note: Captcha validation failure scenarios should be tested in dedicated captcha middleware tests.
+ * Note: Captcha validation failure cases should be tested in dedicated captcha middleware tests.
  * Endpoint tests focus on successful captcha validation and business logic errors.
  */
 export const mockCaptchaSuccess = async () => {

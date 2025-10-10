@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
-import env, { isDevOrTestEnv } from '@/lib/env'
+import env, { isDevOrTestEnv } from '@/env'
 
 const options = ({
   name: env.COOKIE_NAME,

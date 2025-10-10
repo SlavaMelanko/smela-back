@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { isDevEnv, isStagingOrProdEnv, isTestEnv } from '@/lib/env'
+import { isDevEnv, isStagingOrProdEnv, isTestEnv } from '@/env'
 
 import { dev, fallback, stagingAndProd, test } from './env'
 

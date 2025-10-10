@@ -24,7 +24,11 @@ export const createUser = async (user: CreateUserInput, tx?: Transaction): Promi
   return toTypeSafeUser(createdUser) as User
 }
 
-export const updateUser = async (userId: number, updates: UpdateUserInput, tx?: Transaction): Promise<User> => {
+export const updateUser = async (
+  userId: number,
+  updates: UpdateUserInput,
+  tx?: Transaction,
+): Promise<User> => {
   const executor = tx || db
 
   const [updatedUser] = await executor

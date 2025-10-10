@@ -12,7 +12,11 @@ export interface WelcomeEmailData {
 }
 
 export default class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
-  async render(data: WelcomeEmailData, userPreferences?: UserPreferences, metadata?: Metadata): Promise<RenderedEmail> {
+  async render(
+    data: WelcomeEmailData,
+    userPreferences?: UserPreferences,
+    metadata?: Metadata,
+  ): Promise<RenderedEmail> {
     const content = getContent(userPreferences?.locale).welcome
     const styles = getThemeStyles(userPreferences?.theme)
 

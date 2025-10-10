@@ -15,7 +15,9 @@ export interface RequestSizeLimiterOptions {
   maxSize?: number
 }
 
-export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): MiddlewareHandler<AppContext> => {
+export const createRequestSizeLimiter = (
+  options: RequestSizeLimiterOptions = {},
+): MiddlewareHandler<AppContext> => {
   const {
     maxSize = DEFAULT_MAX_SIZE,
   } = options

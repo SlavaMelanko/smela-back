@@ -1,4 +1,4 @@
-import { isDevOrTestEnv, isStagingOrProdEnv } from '@/lib/env'
+import { isDevOrTestEnv, isStagingOrProdEnv } from '@/env'
 
 const getCommonCsp = () => ({
   defaultSrc: ['\'self\''],

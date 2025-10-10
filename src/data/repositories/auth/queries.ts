@@ -6,7 +6,10 @@ import type { AuthRecord } from './types'
 import { db } from '../../clients'
 import { authTable } from '../../schema'
 
-export const findByUserId = async (userId: number, tx?: Transaction): Promise<AuthRecord | undefined> => {
+export const findByUserId = async (
+  userId: number,
+  tx?: Transaction,
+): Promise<AuthRecord | undefined> => {
   const executor = tx || db
 
   const [foundAuth] = await executor

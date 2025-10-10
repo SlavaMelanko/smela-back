@@ -1,7 +1,10 @@
 import { AppError, ErrorCode } from '@/lib/catch'
 import logger from '@/lib/logger'
 
-export const validateContentLengthHeader = (contentHeader: string | null | undefined, maxSize: number): number | null => {
+export const validateContentLengthHeader = (
+  contentHeader: string | null | undefined,
+  maxSize: number,
+): number | null => {
   if (!contentHeader) {
     return null
   }

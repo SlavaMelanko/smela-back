@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { rateLimiter } from 'hono-rate-limiter'
 
-import { isDevOrTestEnv } from '@/lib/env'
+import { isDevOrTestEnv } from '@/env'
 
 import type { RateLimiterConfig } from './config'
 

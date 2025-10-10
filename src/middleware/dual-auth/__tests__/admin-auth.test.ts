@@ -187,9 +187,21 @@ describe('Admin Authentication Middleware', () => {
     it('should allow admin to access admin endpoints', async () => {
       const adminId = 100
       const adminEmail = 'admin@company.com'
-      const mockAdmin = { id: adminId, tokenVersion, email: adminEmail, role: Role.Admin, status: Status.Active }
+      const mockAdmin = {
+        id: adminId,
+        tokenVersion,
+        email: adminEmail,
+        role: Role.Admin,
+        status: Status.Active,
+      }
 
-      const adminToken = await jwt.sign(adminId, adminEmail, Role.Admin, Status.Active, tokenVersion)
+      const adminToken = await jwt.sign(
+        adminId,
+        adminEmail,
+        Role.Admin,
+        Status.Active,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -210,9 +222,21 @@ describe('Admin Authentication Middleware', () => {
     it('should allow owner to access admin endpoints', async () => {
       const ownerId = 101
       const ownerEmail = 'owner@company.com'
-      const mockOwner = { id: ownerId, tokenVersion, email: ownerEmail, role: Role.Owner, status: Status.Active }
+      const mockOwner = {
+        id: ownerId,
+        tokenVersion,
+        email: ownerEmail,
+        role: Role.Owner,
+        status: Status.Active,
+      }
 
-      const ownerToken = await jwt.sign(ownerId, ownerEmail, Role.Owner, Status.Active, tokenVersion)
+      const ownerToken = await jwt.sign(
+        ownerId,
+        ownerEmail,
+        Role.Owner,
+        Status.Active,
+        tokenVersion,
+      )
 
       await mock.module('@/data', () => ({
         userRepo: {
@@ -233,7 +257,13 @@ describe('Admin Authentication Middleware', () => {
     it('should block regular user from admin endpoints', async () => {
       const userId = 102
       const userEmail = 'user@company.com'
-      const mockUser = { id: userId, tokenVersion, email: userEmail, role: Role.User, status: Status.Verified }
+      const mockUser = {
+        id: userId,
+        tokenVersion,
+        email: userEmail,
+        role: Role.User,
+        status: Status.Verified,
+      }
 
       const userToken = await jwt.sign(userId, userEmail, Role.User, Status.Verified, tokenVersion)
 
