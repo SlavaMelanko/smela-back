@@ -160,7 +160,7 @@ await db.transaction(async (tx) => {
 **Environment Configuration:**
 
 - **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
-- **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
+- **Minimize mocking `@/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
 - Only mock business logic dependencies (repositories, cipher, JWT, external services)
 - Use global mocks for services (like CAPTCHA) that are already mocked globally
 

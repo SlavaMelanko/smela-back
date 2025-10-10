@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { cors } from 'hono/cors'
 
-import env from '@/lib/env'
+import env from '@/env'
 import logger from '@/lib/logger'
 import { isHttps, isValidOrigin, normalizeOrigin } from '@/lib/url'
 

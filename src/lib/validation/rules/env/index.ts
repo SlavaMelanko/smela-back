@@ -1,6 +1,0 @@
-export { default as captchaRules } from './captcha'
-export { default as companyRules } from './company'
-export { default as coreRules } from './core'
-export { default as dbRules } from './db'
-export { default as emailRules } from './email'
-export { default as networkRules } from './network'

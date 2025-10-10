@@ -1,7 +1,7 @@
 import pino from 'pino'
 import pretty from 'pino-pretty'
 
-import env, { isDevOrTestEnv } from '@/lib/env'
+import env, { isDevOrTestEnv } from '@/env'
 
 const logger = pino({
   level: env.LOG_LEVEL,

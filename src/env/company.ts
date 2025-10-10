@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-const rules = {
-  companyName: z.string().default('SMELA'),
-  companySocialLinks: z.string().optional().transform((str) => {
+export const companyEnvVars = {
+  COMPANY_NAME: z.string().default('SMELA'),
+  COMPANY_SOCIAL_LINKS: z.string().optional().transform((str) => {
     if (!str) {
       return {}
     }
@@ -16,5 +16,3 @@ const rules = {
     }
   }),
 }
-
-export default rules

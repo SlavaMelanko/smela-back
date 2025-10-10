@@ -3,8 +3,8 @@ import { ZodError } from 'zod'
 
 import type { Role, Status, UserPayload } from '@/types'
 
+import env from '@/env'
 import { AppError, ErrorCode } from '@/lib/catch'
-import env from '@/lib/env'
 
 import { parsePayload } from './payload'
 
