@@ -1,21 +1,23 @@
 import type { User } from '@/data'
 
 import { authRepo, normalizeUser, userRepo } from '@/data'
+import { signJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { comparePasswords } from '@/lib/cipher'
-import jwt from '@/lib/jwt'
 
 export interface LoginParams {
   email: string
   password: string
 }
 
-const signJwt = async (user: User) => jwt.sign(
-  user.id,
-  user.email,
-  user.role,
-  user.status,
-  user.tokenVersion,
+const createJwtToken = async (user: User) => signJwt(
+  {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    tokenVersion: user.tokenVersion,
+  },
 )
 
 const logInWithEmail = async ({ email, password }: LoginParams) => {
@@ -37,7 +39,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  const token = await signJwt(user)
+  const token = await createJwtToken(user)
 
   return { user: normalizeUser(user), token }
 }

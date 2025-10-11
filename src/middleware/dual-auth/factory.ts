@@ -6,8 +6,9 @@ import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
 
 import { userRepo } from '@/data'
+import env from '@/env'
+import { verifyJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
 
 import extractToken from './token'
 
@@ -27,22 +28,22 @@ const createDualAuthMiddleware = (
   }
 
   try {
-    const payload = await jwt.verify(token)
+    const userClaims = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
 
-    if (!statusValidator(payload.status)) {
+    if (!statusValidator(userClaims.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
     }
 
-    if (!roleValidator(payload.role)) {
+    if (!roleValidator(userClaims.role)) {
       throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
     }
 
-    const user = await userRepo.findById(payload.id)
-    if (!user || user.tokenVersion !== payload.v) {
+    const user = await userRepo.findById(userClaims.id)
+    if (!user || user.tokenVersion !== userClaims.tokenVersion) {
       throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
     }
 
-    c.set('user', payload)
+    c.set('user', userClaims)
   } catch (error) {
     if (error instanceof AppError) {
       throw error

@@ -4,6 +4,7 @@ export const createNetworkEnvVars = (nodeEnv?: string) => ({
   // JWT configuration
   JWT_ACCESS_SECRET: z.string().min(10),
   JWT_ACCESS_EXPIRATION: z.coerce.number().int().positive().default(3600),
+  JWT_ACCESS_SIGNATURE_ALGORITHM: z.enum(['HS256', 'HS512']).default('HS256'),
 
   // CORS and domain configuration
   COOKIE_NAME: z.string().default('access-token'),

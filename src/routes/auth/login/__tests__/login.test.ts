@@ -23,7 +23,7 @@ describe('Login with Email', () => {
   let mockComparePasswords: any
 
   let mockJwtToken: string
-  let mockJwt: any
+  let mockCreateJwt: any
 
   beforeEach(async () => {
     mockLoginParams = {
@@ -70,12 +70,10 @@ describe('Login with Email', () => {
     }))
 
     mockJwtToken = 'login-jwt-token-123'
-    mockJwt = {
-      sign: mock(async () => mockJwtToken),
-    }
+    mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/lib/jwt', () => ({
-      default: mockJwt,
+    await moduleMocker.mock('@/jwt', () => ({
+      signJwt: mockCreateJwt,
     }))
   })
 
@@ -178,7 +176,7 @@ describe('Login with Email', () => {
 
   describe('JWT generation scenarios', () => {
     it('should handle JWT signing failure', async () => {
-      mockJwt.sign.mockImplementation(async () => {
+      mockCreateJwt.mockImplementation(async () => {
         throw new Error('JWT signing failed')
       })
 

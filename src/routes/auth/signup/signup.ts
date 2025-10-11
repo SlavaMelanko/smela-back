@@ -1,10 +1,10 @@
 import type { User } from '@/data'
 
 import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
+import { signJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { hashPassword } from '@/lib/cipher'
 import { emailAgent } from '@/lib/email-agent'
-import jwt from '@/lib/jwt'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
 import { AuthProvider, Role, Status, Token } from '@/types'
@@ -50,12 +50,14 @@ const createNewUser = async ({ firstName, lastName, email, password }: SignupPar
   return { newUser, verificationToken }
 }
 
-const signJwt = async (user: User) => jwt.sign(
-  user.id,
-  user.email,
-  user.role,
-  user.status,
-  user.tokenVersion,
+const createJwtToken = async (user: User) => signJwt(
+  {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    tokenVersion: user.tokenVersion,
+  },
 )
 
 const signUpWithEmail = async (
@@ -85,7 +87,7 @@ const signUpWithEmail = async (
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 
-  const jwtToken = await signJwt(newUser)
+  const jwtToken = await createJwtToken(newUser)
 
   return { user: normalizeUser(newUser), token: jwtToken }
 }
