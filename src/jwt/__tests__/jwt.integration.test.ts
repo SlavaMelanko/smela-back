@@ -139,4 +139,30 @@ describe('JWT Integration Tests', () => {
       expect(token1).not.toBe(token2)
     })
   })
+
+  describe('custom algorithm support', () => {
+    it('should use HS256 by default', async () => {
+      const secret = 'test-secret'
+      const token = await signJwt(userClaims, { secret })
+      const payload = await verifyJwt(token, { secret })
+
+      expect(payload.id).toBe(userClaims.id)
+    })
+
+    it('should support HS512 algorithm', async () => {
+      const secret = 'test-secret'
+      const token = await signJwt(userClaims, { secret, signatureAlgorithm: 'HS512' })
+      const payload = await verifyJwt(token, { secret, signatureAlgorithm: 'HS512' })
+
+      expect(payload.id).toBe(userClaims.id)
+      expect(payload.email).toBe(userClaims.email)
+    })
+
+    it('should fail verification when algorithm mismatch', async () => {
+      const secret = 'test-secret'
+      const token = await signJwt(userClaims, { secret, signatureAlgorithm: 'HS256' })
+
+      expect(verifyJwt(token, { secret, signatureAlgorithm: 'HS512' })).rejects.toThrow(AppError)
+    })
+  })
 })

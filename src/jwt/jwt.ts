@@ -9,32 +9,34 @@ import type { Options } from './options'
 import type { UserPayload } from './payload'
 
 import { createStandardClaims, createUserClaims } from './claims'
-import { EXPIRES_IN_ONE_HOUR } from './options'
+import { mergeWithDefaults } from './options'
 import { parse } from './payload'
 
 export const signJwt = async (
   claims: UserClaims,
-  options: Options,
+  userOptions?: Partial<Options>,
 ): Promise<string> => {
-  const userClaims = createUserClaims(claims)
+  const options = mergeWithDefaults(userOptions)
 
-  const expiresIn = options.expiresIn ?? EXPIRES_IN_ONE_HOUR
-  const standardClaims = createStandardClaims(expiresIn)
+  const userClaims = createUserClaims(claims)
+  const standardClaims = createStandardClaims(options.expiresIn)
 
   const payload = {
     ...userClaims,
     ...standardClaims,
   }
 
-  return sign(payload, options.secret)
+  return sign(payload, options.secret, options.signatureAlgorithm)
 }
 
 export const verifyJwt = async (
   token: string,
-  options: Options,
+  userOptions?: Partial<Options>,
 ): Promise<UserPayload> => {
   try {
-    const payload = await verify(token, options.secret)
+    const options = mergeWithDefaults(userOptions)
+
+    const payload = await verify(token, options.secret, options.signatureAlgorithm)
 
     return parse(payload)
   } catch (error: unknown) {
