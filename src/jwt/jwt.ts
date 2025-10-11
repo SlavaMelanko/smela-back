@@ -6,7 +6,7 @@ import logger from '@/lib/logger'
 
 import type { UserClaims } from './claims'
 import type { Options } from './options'
-import type { UserPayload } from './payload'
+import type { Payload } from './payload'
 
 import { createStandardClaims, createUserClaims } from './claims'
 import { mergeWithDefaults } from './options'
@@ -32,7 +32,7 @@ export const signJwt = async (
 export const verifyJwt = async (
   token: string,
   userOptions?: Partial<Options>,
-): Promise<UserPayload> => {
+): Promise<Payload> => {
   try {
     const options = mergeWithDefaults(userOptions)
 

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { Role, Status } from '@/types'
 
-const userPayloadSchema = z.object({
+const payloadSchema = z.object({
   id: z.number(),
   email: z.string().email(),
   role: z.nativeEnum(Role),
@@ -11,8 +11,8 @@ const userPayloadSchema = z.object({
   exp: z.number(),
 })
 
-export type UserPayload = z.infer<typeof userPayloadSchema>
+export type Payload = z.infer<typeof payloadSchema>
 
-export const parse = (payload: unknown): UserPayload => {
-  return userPayloadSchema.parse(payload)
+export const parse = (payload: unknown): Payload => {
+  return payloadSchema.parse(payload)
 }
