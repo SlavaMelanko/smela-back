@@ -1,7 +1,6 @@
 import type { User } from '@/data'
 
 import { authRepo, normalizeUser, userRepo } from '@/data'
-import env from '@/env'
 import { signJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { comparePasswords } from '@/lib/cipher'
@@ -19,7 +18,6 @@ const createJwtToken = async (user: User) => signJwt(
     status: user.status,
     tokenVersion: user.tokenVersion,
   },
-  { secret: env.JWT_ACCESS_SECRET },
 )
 
 const logInWithEmail = async ({ email, password }: LoginParams) => {

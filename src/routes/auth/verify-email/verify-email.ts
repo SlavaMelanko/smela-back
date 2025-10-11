@@ -1,7 +1,6 @@
 import type { User } from '@/data'
 
 import { db, normalizeUser, tokenRepo, userRepo } from '@/data'
-import env from '@/env'
 import { signJwt } from '@/jwt'
 import { TokenValidator } from '@/lib/token'
 import { Status, Token, TokenStatus } from '@/types'
@@ -25,7 +24,6 @@ const createJwtToken = async (user: User) => signJwt(
     status: user.status,
     tokenVersion: user.tokenVersion,
   },
-  { secret: env.JWT_ACCESS_SECRET },
 )
 
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
