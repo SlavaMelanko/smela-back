@@ -62,33 +62,31 @@ jobs:
             ## Quality Assessment:
 
             ### **Architecture 🏗️**: X/10
-            [Brief justification]
+            [Brief justification (2-3 sentences)]
+
+            [Optional suggestions for improvement to make a better score]
 
             ### **Security 🛡️**: X/10
-            [Brief justification]
+            [Brief justification (2-3 sentences)]
+
+            [Optional suggestions for improvement to make a better score]
 
             ### **Testing 🧪**: X/10
-            [Brief justification]
+            [Brief justification (2-3 sentences)]
+
+            [Optional suggestions for improvement to make a better score]
 
             ### **Performance ⚡**: X/10
-            [Brief justification]
+            [Brief justification (2-3 sentences)]
+
+            [Optional suggestions for improvement to make a better score]
 
             ### **Code Quality 💎**: X/10
-            [Brief justification]
+            [Brief justification (2-3 sentences)]
 
-            ### **🌟 Overall**: X/10 (average)
+            [Optional suggestions for improvement to make a better score]
 
-            ### 🚦 Recommendation:
-
-            ✅ Approve (if score 8.5+ overall)
-            💬 Approve with suggestions (if score 7-7.4 overall)
-            ❌ Request changes (if score <7 overall)
-
-            ### Required Actions (if changes requested):
-            - [ ] Implement changes based on review feedback
-            - [ ] Add tests to cover missing scenarios
-            - [ ] Improve documentation as needed
-            - [ ] etc.
+            ### **🌟 Overall**: X/10 -> ✅ Approve (if score 8.5+ overall) | ❌ Request changes (if score <8.5 overall)
             ```
 
           # Optional: Different prompts for different authors
