@@ -1,18 +1,15 @@
-import { z } from 'zod'
+import type { StandardClaims, UserClaims } from './claims'
 
-import { Role, Status } from '@/types'
+import { getStandardClaims, getUserClaims } from './claims'
 
-const payloadSchema = z.object({
-  id: z.number(),
-  email: z.string().email(),
-  role: z.nativeEnum(Role),
-  status: z.nativeEnum(Status),
-  v: z.number(),
-  exp: z.number(),
-})
+export const parse = (
+  payload: unknown,
+): { standardClaims: StandardClaims, userClaims: UserClaims } => {
+  const standardClaims = getStandardClaims(payload)
+  const userClaims = getUserClaims(payload)
 
-export type Payload = z.infer<typeof payloadSchema>
-
-export const parse = (payload: unknown): Payload => {
-  return payloadSchema.parse(payload)
+  return {
+    standardClaims,
+    userClaims,
+  }
 }

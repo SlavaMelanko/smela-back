@@ -16,19 +16,19 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
   // Simulate the core auth logic from the middleware
   const simulateAuthLogic = async (token: string) => {
     try {
-      const payload = await verifyJwt(token, jwtOptions)
+      const userClaims = await verifyJwt(token, jwtOptions)
 
-      if (!isActive(payload.status)) {
+      if (!isActive(userClaims.status)) {
         throw new AppError(ErrorCode.Forbidden)
       }
 
       // Fetch current user to validate token version
-      const user = await userRepo.findById(payload.id)
-      if (!user || user.tokenVersion !== (payload.v)) {
+      const user = await userRepo.findById(userClaims.id)
+      if (!user || user.tokenVersion !== userClaims.tokenVersion) {
         throw new AppError(ErrorCode.Unauthorized)
       }
 
-      return { success: true, user: payload }
+      return { success: true, user: userClaims }
     } catch (error) {
       return { success: false, error }
     }
@@ -60,7 +60,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
-      expect(result.user?.v).toBe(tokenVersion)
+      expect(result.user?.tokenVersion).toBe(tokenVersion)
       expect(userRepo.findById).toHaveBeenCalledWith(mockUserId)
     })
 

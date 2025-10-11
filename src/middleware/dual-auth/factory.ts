@@ -28,22 +28,22 @@ const createDualAuthMiddleware = (
   }
 
   try {
-    const userPayload = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
+    const userClaims = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
 
-    if (!statusValidator(userPayload.status)) {
+    if (!statusValidator(userClaims.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
     }
 
-    if (!roleValidator(userPayload.role)) {
+    if (!roleValidator(userClaims.role)) {
       throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
     }
 
-    const user = await userRepo.findById(userPayload.id)
-    if (!user || user.tokenVersion !== userPayload.v) {
+    const user = await userRepo.findById(userClaims.id)
+    if (!user || user.tokenVersion !== userClaims.tokenVersion) {
       throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
     }
 
-    c.set('user', userPayload)
+    c.set('user', userClaims)
   } catch (error) {
     if (error instanceof AppError) {
       throw error

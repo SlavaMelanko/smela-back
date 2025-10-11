@@ -3,7 +3,7 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User, UserRecord } from '@/data'
-import type { UserPayload } from '@/jwt'
+import type { UserClaims } from '@/jwt'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/lib/catch'
@@ -26,7 +26,7 @@ describe('Me Endpoint', () => {
   let mockUpdatedUser: User
   let mockUpdateUser: any
 
-  let mockJwtPayload: UserPayload
+  let mockUserClaims: UserClaims
 
   beforeEach(async () => {
     mockUpdatedUserMinimal = {
@@ -71,17 +71,16 @@ describe('Me Endpoint', () => {
       updateUser: mockUpdateUser,
     }))
 
-    mockJwtPayload = {
+    mockUserClaims = {
       id: 1,
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
-      v: 1,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiry
+      tokenVersion: 1,
     }
 
     const userMiddleware: any = async (c: any, next: any) => {
-      c.set('user', mockJwtPayload)
+      c.set('user', mockUserClaims)
       await next()
     }
 

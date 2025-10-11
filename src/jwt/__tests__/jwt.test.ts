@@ -46,14 +46,18 @@ describe('JWT Unit Tests', () => {
       expect(mockSign).toHaveBeenCalledTimes(1)
 
       const [payload] = mockSign.mock.calls[0]
+      const nowInSeconds = Math.floor(Date.now() / 1000)
+
       expect(payload).toMatchObject({
         id: 1,
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
-        v: 5,
+        tokenVersion: 5,
       })
-      expect(payload.exp).toBeGreaterThan(Math.floor(Date.now() / 1000))
+      expect(payload.iat).toBeGreaterThanOrEqual(nowInSeconds - 1)
+      expect(payload.nbf).toBeGreaterThanOrEqual(nowInSeconds - 1)
+      expect(payload.exp).toBeGreaterThan(nowInSeconds)
     })
   })
 

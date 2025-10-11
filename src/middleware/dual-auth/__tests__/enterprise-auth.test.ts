@@ -17,23 +17,23 @@ describe('Enterprise Authentication Middleware', () => {
     roleValidator: (role: Role) => boolean,
   ) => {
     try {
-      const payload = await verifyJwt(token, jwtOptions)
+      const userClaims = await verifyJwt(token, jwtOptions)
 
-      if (!statusValidator(payload.status)) {
+      if (!statusValidator(userClaims.status)) {
         throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
       }
 
-      if (!roleValidator(payload.role)) {
+      if (!roleValidator(userClaims.role)) {
         throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
       }
 
       // Fetch current user to validate token version
-      const user = await userRepo.findById(payload.id)
-      if (!user || user.tokenVersion !== (payload.v)) {
+      const user = await userRepo.findById(userClaims.id)
+      if (!user || user.tokenVersion !== userClaims.tokenVersion) {
         throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
       }
 
-      return { success: true, user: payload }
+      return { success: true, user: userClaims }
     } catch (error) {
       return { success: false, error }
     }

@@ -6,19 +6,16 @@ import logger from '@/lib/logger'
 
 import type { UserClaims } from './claims'
 import type { Options } from './options'
-import type { Payload } from './payload'
 
-import { createStandardClaims, createUserClaims } from './claims'
+import { createStandardClaims } from './claims'
 import { mergeWithDefaults } from './options'
 import { parse } from './payload'
 
 export const signJwt = async (
-  claims: UserClaims,
+  userClaims: UserClaims,
   userOptions?: Partial<Options>,
 ): Promise<string> => {
   const options = mergeWithDefaults(userOptions)
-
-  const userClaims = createUserClaims(claims)
   const standardClaims = createStandardClaims(options.expiresIn)
 
   const payload = {
@@ -32,13 +29,15 @@ export const signJwt = async (
 export const verifyJwt = async (
   token: string,
   userOptions?: Partial<Options>,
-): Promise<Payload> => {
+): Promise<UserClaims> => {
   try {
     const options = mergeWithDefaults(userOptions)
 
     const payload = await verify(token, options.secret, options.signatureAlgorithm)
 
-    return parse(payload)
+    const { userClaims } = parse(payload)
+
+    return userClaims
   } catch (error: unknown) {
     logger.error(
       {
