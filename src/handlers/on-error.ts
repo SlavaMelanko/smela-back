@@ -5,8 +5,8 @@ import { HTTPException } from 'hono/http-exception'
 
 import { isDevEnv } from '@/env'
 import { ErrorCode, ErrorRegistry } from '@/errors'
-import HttpStatus, { getReasonPhrase } from '@/lib/http-status'
 import { logger } from '@/logging'
+import HttpStatus, { getReasonPhrase } from '@/net/http/status'
 
 const getErrorCode = (err: unknown): ErrorCode => {
   if (err instanceof HTTPException) {

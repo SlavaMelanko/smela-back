@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 
 import { cors } from 'hono/cors'
 
-import { isLocalhost, isValidOrigin, normalizeOrigin } from '@/lib/url'
+import { isLocalhost, isValidOrigin, normalizeOrigin } from '@/net/url'
 
 import { ALLOWED_HEADERS, ALLOWED_METHODS, EXPOSED_HEADERS, MAX_AGE_TEN_MINUTES } from '../constants'
 
