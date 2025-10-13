@@ -1,8 +1,8 @@
 import type { User } from '@/data'
 
 import { authRepo, normalizeUser, userRepo } from '@/data'
+import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/jwt'
-import { AppError, ErrorCode } from '@/lib/catch'
 import { comparePasswords } from '@/lib/cipher'
 
 export interface LoginParams {

@@ -1,5 +1,6 @@
+import { AppError, ErrorCode } from '@/errors'
+
 import { withTimeout } from './async'
-import { AppError, ErrorCode } from './catch'
 import logger from './logger'
 import { makeUrl, removeTrailingSlash } from './url'
 
@@ -13,16 +14,16 @@ export interface RequestOptions {
   timeout?: number
 }
 
-export interface ApiClientOptions {
+export interface HttpClientOptions {
   headers?: Headers
   timeout?: number
 }
 
-export class ApiClient {
+export class HttpClient {
   private baseUrl: string
-  private defaultOptions: Required<ApiClientOptions>
+  private defaultOptions: Required<HttpClientOptions>
 
-  constructor(baseUrl: string, defaultOptions: ApiClientOptions = {}) {
+  constructor(baseUrl: string, defaultOptions: HttpClientOptions = {}) {
     this.baseUrl = removeTrailingSlash(baseUrl)
     this.defaultOptions = {
       headers: defaultOptions.headers ?? {},

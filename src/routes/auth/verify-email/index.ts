@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 
-import { requestValidator } from '@/lib/validation'
+import { requestValidator } from '@/middleware'
 
 import handler from './handler'
 import schema from './schema'

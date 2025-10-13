@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 
+import { AppError, ErrorCode } from '@/errors'
 import { signJwt, verifyJwt } from '@/jwt'
-import { AppError, ErrorCode } from '@/lib/catch'
 import { Role, Status } from '@/types'
 
 describe('JWT Integration Tests', () => {

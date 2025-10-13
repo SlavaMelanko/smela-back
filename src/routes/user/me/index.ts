@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { requestValidator } from '@/lib/validation'
+import { requestValidator } from '@/middleware'
 
 import { getHandler, postHandler } from './handler'
 import updateProfileSchema from './schema'

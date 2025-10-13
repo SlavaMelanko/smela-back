@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import logger from '@/lib/logger'
 
 import { DEFAULT_STREAMING_THRESHOLD } from './constants'

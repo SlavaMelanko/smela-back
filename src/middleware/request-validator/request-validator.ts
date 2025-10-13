@@ -3,7 +3,7 @@ import type { ZodIssue, ZodSchema } from 'zod'
 
 import { zValidator } from '@hono/zod-validator'
 
-import { AppError, ErrorCode } from '../catch'
+import { AppError, ErrorCode } from '@/errors'
 
 const makeErrorMessage = (issues: ZodIssue[]): string => {
   const firstIssue = issues[0]

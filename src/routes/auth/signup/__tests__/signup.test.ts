@@ -4,7 +4,7 @@ import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 import type { SignupParams } from '../signup'

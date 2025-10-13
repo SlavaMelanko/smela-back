@@ -3,8 +3,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import type { AppContext } from '@/context'
 
-import ErrorCode from '@/lib/catch/codes'
-import ErrorRegistry from '@/lib/catch/registry'
+import { ErrorCode, ErrorRegistry } from '@/errors'
 
 const notFound: NotFoundHandler<AppContext> = (c) => {
   const code = ErrorCode.NotFound

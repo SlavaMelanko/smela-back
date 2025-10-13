@@ -1,8 +1,8 @@
 import type { User } from '@/data'
 
 import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
+import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/jwt'
-import { AppError, ErrorCode } from '@/lib/catch'
 import { hashPassword } from '@/lib/cipher'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'

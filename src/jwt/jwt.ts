@@ -1,7 +1,7 @@
 import { sign, verify } from 'hono/jwt'
 import { ZodError } from 'zod'
 
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import logger from '@/lib/logger'
 
 import type { UserClaims } from './claims'

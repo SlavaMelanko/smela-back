@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { AuthRecord, User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
 import type { LoginParams } from '../login'
