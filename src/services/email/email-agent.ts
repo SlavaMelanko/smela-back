@@ -1,5 +1,9 @@
 import env from '@/env'
-import { buildEmailRegistry, createEmailProvider, EmailService, EmailType } from '@/services/email'
+
+import { EmailType } from './email-type'
+import { createEmailProvider } from './providers'
+import { buildEmailRegistry } from './registry'
+import { EmailService } from './service'
 
 export class EmailAgent {
   private static instance: EmailAgent | null = null

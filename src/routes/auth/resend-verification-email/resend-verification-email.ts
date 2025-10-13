@@ -1,7 +1,7 @@
 import { db, tokenRepo, userRepo } from '@/data'
-import { emailAgent } from '@/lib/email-agent'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
+import { emailAgent } from '@/services'
 import { Status, Token } from '@/types'
 
 const createEmailVerificationToken = async (userId: number) => {

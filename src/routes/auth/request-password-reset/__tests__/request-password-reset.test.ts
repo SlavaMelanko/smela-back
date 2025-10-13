@@ -66,7 +66,7 @@ describe('Request Password Reset', () => {
       sendResetPasswordEmail: mock(async () => {}),
     }
 
-    await moduleMocker.mock('@/lib/email-agent', () => ({
+    await moduleMocker.mock('@/services', () => ({
       emailAgent: mockEmailAgent,
     }))
   })
