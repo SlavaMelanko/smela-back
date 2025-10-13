@@ -17,7 +17,7 @@ export const INVALID_CAPTCHA_TOKENS = {
  */
 export const mockCaptchaSuccess = async () => {
   await mock.module('@/services', () => ({
-    createCaptcha: mock(() => ({
+    createCaptchaVerifier: mock(() => ({
       validate: mock(async () => {}),
     })),
   }))
