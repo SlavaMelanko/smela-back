@@ -3,7 +3,7 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 import nodemailer from 'nodemailer'
 
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import type { EmailPayload } from './payload'
 import type { EmailProvider } from './provider'

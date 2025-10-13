@@ -1,6 +1,6 @@
 import { AppError, ErrorCode } from '@/errors'
 import { HttpClient } from '@/lib/http-client'
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import type { Captcha } from '../captcha'
 import type { Config } from '../config'

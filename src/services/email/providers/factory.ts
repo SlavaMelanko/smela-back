@@ -1,5 +1,5 @@
 import env from '@/env'
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import type { EmailProvider } from './provider'
 

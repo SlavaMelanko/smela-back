@@ -3,8 +3,8 @@ import type { MiddlewareHandler } from 'hono'
 import { cors } from 'hono/cors'
 
 import env from '@/env'
-import logger from '@/lib/logger'
 import { isHttps, isValidOrigin, normalizeOrigin } from '@/lib/url'
+import { logger } from '@/logging'
 
 import { ALLOWED_HEADERS, ALLOWED_METHODS, EXPOSED_HEADERS, MAX_AGE_ONE_HOUR } from '../constants'
 

@@ -1,6 +1,6 @@
 import { db, tokenRepo, userRepo } from '@/data'
-import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
+import { logger } from '@/logging'
 import { emailAgent } from '@/services'
 import { Status, Token } from '@/types'
 
