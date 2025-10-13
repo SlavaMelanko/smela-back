@@ -102,6 +102,8 @@ describe('Logger', () => {
       errorSpy = spyOn(logger, 'error').mockImplementation(() => {})
     })
 
+    // Note: These tests verify that logger methods accept calls, but don't test Pino's internal
+    // filtering. To properly verify output suppression, we'd need to capture the transport stream
     it('should accept debug messages but not output them when LOG_LEVEL is error', () => {
       logger.debug('Processing email template compilation')
       expect(debugSpy).toHaveBeenCalledTimes(1)
