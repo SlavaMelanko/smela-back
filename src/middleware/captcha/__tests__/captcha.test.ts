@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 
 import { ModuleMocker } from '@/__tests__'
+import { AppError, ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
-import { AppError, ErrorCode } from '@/lib/catch'
 import HttpStatus from '@/lib/http-status'
 
 import captchaMiddleware from '../captcha'

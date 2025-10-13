@@ -1,6 +1,5 @@
+import { AppError, ErrorCode } from '@/errors'
 import { ApiClient } from '@/lib/api-client'
-import AppError from '@/lib/catch/app-error'
-import ErrorCode from '@/lib/catch/codes'
 import logger from '@/lib/logger'
 
 import type { Captcha } from '../captcha'

@@ -1,5 +1,6 @@
+import { AppError, ErrorCode } from '@/errors'
+
 import { withTimeout } from './async'
-import { AppError, ErrorCode } from './catch'
 import logger from './logger'
 import { makeUrl, removeTrailingSlash } from './url'
 

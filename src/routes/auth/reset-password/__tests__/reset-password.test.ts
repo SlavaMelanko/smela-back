@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { TokenRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
 import { Token, TokenStatus } from '@/types'
 

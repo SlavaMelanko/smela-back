@@ -4,7 +4,7 @@ import { createMiddleware } from 'hono/factory'
 
 import type { AppContext } from '@/context'
 
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import logger from '@/lib/logger'
 import { createCaptchaVerifier } from '@/services'
 

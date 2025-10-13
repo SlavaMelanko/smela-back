@@ -7,8 +7,8 @@ import type { Role, Status } from '@/types'
 
 import { userRepo } from '@/data'
 import env from '@/env'
+import { AppError, ErrorCode } from '@/errors'
 import { verifyJwt } from '@/jwt'
-import { AppError, ErrorCode } from '@/lib/catch'
 
 import extractToken from './token'
 

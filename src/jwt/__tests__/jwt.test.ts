@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { ZodError } from 'zod'
 
 import { ModuleMocker } from '@/__tests__'
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
 describe('JWT Unit Tests', () => {

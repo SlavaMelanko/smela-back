@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 
 import type { Transaction } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'

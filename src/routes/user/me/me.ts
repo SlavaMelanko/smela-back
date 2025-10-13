@@ -1,7 +1,7 @@
 import type { UpdateUserInput } from '@/data'
 
 import { userRepo } from '@/data'
-import { AppError, ErrorCode } from '@/lib/catch'
+import { AppError, ErrorCode } from '@/errors'
 
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   const validUpdates: UpdateUserInput = {
