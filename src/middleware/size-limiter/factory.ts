@@ -5,7 +5,7 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 
 import { AppError, ErrorCode } from '@/errors'
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import { validateBodySize } from './body-size-validator'
 import { DEFAULT_MAX_SIZE } from './constants'

@@ -2,7 +2,7 @@ import { sign, verify } from 'hono/jwt'
 import { ZodError } from 'zod'
 
 import { AppError, ErrorCode } from '@/errors'
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import type { UserClaims } from './claims'
 import type { Options } from './options'

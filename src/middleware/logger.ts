@@ -1,6 +1,6 @@
 import { pinoLogger } from 'hono-pino'
 
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 const loggerMiddleware = pinoLogger({
   pino: logger,

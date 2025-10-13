@@ -1,7 +1,7 @@
 import { AppError, ErrorCode } from '@/errors'
+import { logger } from '@/logging'
 
 import { withTimeout } from './async'
-import logger from './logger'
 import { makeUrl, removeTrailingSlash } from './url'
 
 export type Headers = Record<string, string>
