@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
-import HttpStatus from '@/lib/http-status'
+import HttpStatus from '@/net/http/status'
 
 import { createRateLimiter } from '..'
 

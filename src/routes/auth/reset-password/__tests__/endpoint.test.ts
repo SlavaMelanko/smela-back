@@ -3,8 +3,8 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
 import { TOKEN_LENGTH } from '@/lib/token/constants'
+import HttpStatus from '@/net/http/status'
 
 import resetPasswordRoute from '../index'
 

@@ -7,7 +7,7 @@ import type { UserClaims } from '@/jwt'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import HttpStatus from '@/lib/http-status'
+import HttpStatus from '@/net/http/status'
 import { Role, Status } from '@/types'
 
 import meRoute from '../index'
