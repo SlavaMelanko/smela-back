@@ -6,7 +6,7 @@ import type { AppContext } from '@/context'
 
 import { AppError, ErrorCode } from '@/lib/catch'
 import logger from '@/lib/logger'
-import { createCaptcha } from '@/services'
+import { createCaptchaVerifier } from '@/services'
 
 interface CaptchaRequestBody {
   captchaToken: string
@@ -21,7 +21,7 @@ interface CaptchaRequestBody {
  * Expects `captchaToken` to be present in the validated request body.
  */
 const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
-  const captcha = createCaptcha()
+  const captchaVerifier = createCaptchaVerifier()
 
   return createMiddleware<AppContext>(async (c, next) => {
     try {
@@ -29,7 +29,7 @@ const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
       // So we know captchaToken exists and is properly formatted
       const { captchaToken } = await c.req.json<CaptchaRequestBody>()
 
-      await captcha.validate(captchaToken)
+      await captchaVerifier.validate(captchaToken)
     } catch (error) {
       if (error instanceof AppError) {
         throw error

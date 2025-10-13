@@ -18,7 +18,7 @@ describe('Captcha Middleware', () => {
       mockCaptchaValidate = mock(async () => {})
 
       await moduleMocker.mock('@/services', () => ({
-        createCaptcha: mock(() => ({
+        createCaptchaVerifier: mock(() => ({
           validate: mockCaptchaValidate,
         })),
       }))
@@ -71,7 +71,7 @@ describe('Captcha Middleware', () => {
       })
 
       await moduleMocker.mock('@/services', () => ({
-        createCaptcha: mock(() => ({
+        createCaptchaVerifier: mock(() => ({
           validate: mockCaptchaValidate,
         })),
       }))
@@ -143,7 +143,7 @@ describe('Captcha Middleware', () => {
       })
 
       await moduleMocker.mock('@/services', () => ({
-        createCaptcha: mock(() => ({
+        createCaptchaVerifier: mock(() => ({
           validate: mockCaptchaValidate,
         })),
       }))
@@ -193,7 +193,7 @@ describe('Captcha Middleware', () => {
       mockCaptchaValidate = mock(async () => {})
 
       await moduleMocker.mock('@/services', () => ({
-        createCaptcha: mock(() => ({
+        createCaptchaVerifier: mock(() => ({
           validate: mockCaptchaValidate,
         })),
       }))

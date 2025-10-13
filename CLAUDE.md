@@ -487,7 +487,7 @@ Provide factory method for service creation:
 
 ```typescript
 // factory.ts
-export const createCaptcha = (): Captcha => {
+export const createCaptchaVerifier = (): Captcha => {
   return new Recaptcha(recaptchaConfig)
 }
 ```
@@ -499,7 +499,7 @@ Export only public API via index.ts:
 ```typescript
 // index.ts - Public API only
 export type { Captcha } from './captcha'
-export { createCaptcha } from './factory'
+export { createCaptchaVerifier } from './factory'
 // Implementation details (Recaptcha class) NOT exported
 ```
 
@@ -509,14 +509,14 @@ Services should be consumed via factory methods and generic interfaces:
 
 ```typescript
 // middleware/captcha.ts
-import { createCaptcha } from '@/services/captcha'
+import { createCaptchaVerifier } from '@/services/captcha'
 
 export const captchaMiddleware = (): MiddlewareHandler => {
-  const captcha = createCaptcha() // Single instance for performance
+  const captchaVerifier = createCaptchaVerifier() // Single instance for performance
 
   return async (c, next) => {
     const { captchaToken } = await c.req.json<CaptchaRequestBody>()
-    await captcha.validate(captchaToken)
+    await captchaVerifier.validate(captchaToken)
     await next()
   }
 }

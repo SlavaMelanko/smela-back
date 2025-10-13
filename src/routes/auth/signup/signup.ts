@@ -4,9 +4,9 @@ import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/jwt'
 import { AppError, ErrorCode } from '@/lib/catch'
 import { hashPassword } from '@/lib/cipher'
-import { emailAgent } from '@/lib/email-agent'
 import logger from '@/lib/logger'
 import { generateToken } from '@/lib/token'
+import { emailAgent } from '@/services'
 import { AuthProvider, Role, Status, Token } from '@/types'
 
 export interface SignupParams {
