@@ -65,7 +65,7 @@ describe('Login with Email', () => {
 
     mockComparePasswords = mock(async () => true)
 
-    await moduleMocker.mock('@/lib/cipher', () => ({
+    await moduleMocker.mock('@/security/password', () => ({
       comparePasswords: mockComparePasswords,
     }))
 

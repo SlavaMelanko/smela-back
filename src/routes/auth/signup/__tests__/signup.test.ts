@@ -77,7 +77,7 @@ describe('Signup with Email', () => {
     mockHashedPassword = '$2b$10$hashedPassword123'
     mockHashPassword = mock(async () => mockHashedPassword)
 
-    await moduleMocker.mock('@/lib/cipher', () => ({
+    await moduleMocker.mock('@/security/password', () => ({
       hashPassword: mockHashPassword,
     }))
 

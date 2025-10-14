@@ -73,7 +73,7 @@ describe('Reset Password', () => {
     mockHashedPassword = 'mock-hashed-new-password'
     mockHashPassword = mock(async () => mockHashedPassword)
 
-    await moduleMocker.mock('@/lib/cipher', () => ({
+    await moduleMocker.mock('@/security/password', () => ({
       hashPassword: mockHashPassword,
     }))
   })

@@ -1,4 +1,4 @@
-import { createHasher } from './factory'
+import { createHasher } from '@/lib/cipher'
 
 export const hashPassword = async (password: string): Promise<string> => {
   const hasher = createHasher()

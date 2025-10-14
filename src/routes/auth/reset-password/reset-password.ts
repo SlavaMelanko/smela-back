@@ -1,6 +1,6 @@
 import { authRepo, db, tokenRepo, userRepo } from '@/data'
-import { hashPassword } from '@/lib/cipher'
 import { TokenValidator } from '@/lib/token'
+import { hashPassword } from '@/security/password'
 import { Token, TokenStatus } from '@/types'
 
 interface ResetPasswordParams {
