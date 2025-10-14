@@ -20,27 +20,13 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 
 ## Key Commands
 
-### Development
+All available commands are defined in [package.json](package.json#L3-L23). Key commands include:
 
-- `bun run dev` - Start development server with hot reload on port 3000
-- `bun run start` - Start production server (NODE_ENV=production)
-- `bun run staging` - Start staging server (NODE_ENV=staging)
-- `bun test` - Run all tests using Bun's built-in test runner
-- `bun test [file]` - Run a specific test file (e.g., `bun test src/routes/auth/login/__tests__/login.test.ts`)
-- `bun run email` - Start React Email dev server on port 3001 for email template development
-
-### Database Operations
-
-- `bun run db:generate` - Generate migration files from schema changes
-- `bun run db:migrate` - Apply migrations to database
-- `bun run db:seed` - Seed database with initial data
-- `bun run db:setup` - Run all database setup steps (generate, migrate, seed)
-- `bun run db:studio` - Open Drizzle Studio for database management
-
-### Code Quality
-
-- `bun run lint` - Run ESLint checks
-- `bun run lint:fix` - Auto-fix ESLint issues
+- **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
+- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`
+- **Database**: `bun run db:setup` (generate + migrate + seed), `bun run db:studio` (Drizzle Studio)
+- **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
+- **Email Dev**: `bun run email` (React Email dev server on port 3001)
 
 ## Architecture Overview
 
@@ -50,17 +36,41 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 - `/src/server.ts` - Server configuration with middleware setup
 - `/src/data/` - Data access layer
   - `/schema/` - Database schema (users, auth, rbac, tokens) with inline enums
-  - `/clients/` - Database clients (Neon, future: Redis, S3)
+  - `/clients/` - Database clients (Neon serverless)
   - `/repositories/` - Repository pattern for data access (auth, token, user)
   - `/migrations/` - Drizzle ORM migrations
   - `seed.ts` - Database seeding script
-- `/src/lib/` - Core utilities (validation, JWT, errors)
-- `/src/crypto/` - Low-level cryptographic utilities (hashing, random bytes generation)
-- `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
+- `/src/security/` - Security-related utilities
+  - `/jwt/` - JWT token generation and validation with claims
+  - `/password/` - Password hashing and validation
+  - `/token/` - Token generation for email verification and password reset
+- `/src/crypto/` - Low-level cryptographic primitives (hashing, random bytes)
+- `/src/services/` - External service integrations
+  - `/email/` - Email provider abstraction (Ethereal, Resend)
+  - `/captcha/` - CAPTCHA verification (reCAPTCHA)
+- `/src/emails/` - Email templates and rendering
+  - `/templates/` - React Email templates and components
+  - `/renderers/` - Email renderer implementations
+  - `/content/` - Localized email content (en, uk)
+  - `/styles/` - Email styling utilities
+- `/src/middleware/` - Hono middleware stack
+  - `/dual-auth/` - JWT authentication (cookie and Bearer token support)
+  - `/captcha/` - CAPTCHA verification middleware
+  - `/rate-limiter/` - Rate limiting per endpoint
+  - `/size-limiter/` - Request size limits
+  - `/secure-headers/` - Security headers (CSP, HSTS, etc.)
+  - `/cors/` - CORS configuration
+  - `/request-validator/` - Request validation middleware
 - `/src/routes/` - API endpoint handlers organized by domain
-  - `/auth/` - Authentication routes (login, signup, password reset, etc.)
-  - `/user/` - User-specific routes (profile, settings, etc.)
-- `/src/types/` - TypeScript type definitions
+  - `/auth/` - Authentication routes (login, signup, password reset, email verification)
+  - `/user/` - User-specific routes (profile management)
+- `/src/lib/` - Shared utilities (validation rules, email sender)
+- `/src/net/http/` - HTTP utilities (cookie handling, status codes)
+- `/src/env/` - Environment variable configuration and validation
+- `/src/errors/` - Custom error classes
+- `/src/handlers/` - Global error handlers
+- `/src/logging/` - Pino logger configuration and transports
+- `/src/types/` - Shared TypeScript type definitions
 
 ### Route Organization
 
@@ -87,47 +97,13 @@ Key tables:
 
 - `users` - User accounts with roles and status
 - `auth` - Authentication providers (email/password)
-- `permissions` - Role-based access control
+- `permissions` - Available actions and resources (e.g., read:user, write:post)
+- `role_permissions` - Maps roles to permissions for RBAC
 - `tokens` - Email verification and password reset tokens
 
 ### Database Connection
 
-The project uses **Neon serverless PostgreSQL** with the **WebSocket driver** (`drizzle-orm/neon-serverless`) for full transaction support:
-
-```typescript
-import { Pool } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-serverless'
-
-const pool = new Pool({
-  connectionString: env.DB_URL,
-  max: env.DB_MAX_CONNECTIONS, // 2 for dev/test, 10 for staging/prod
-})
-const db = drizzle(pool, { schema, logger: isDevEnv() })
-```
-
-**Connection Pool Configuration:**
-
-- **Development/Test**: 2 connections (minimal resource usage, single-user pattern)
-- **Staging/Production**: 10 connections (higher throughput for concurrent users)
-- Configured via `DB_MAX_CONNECTIONS` environment variable
-
-**Transaction Support:**
-
-```typescript
-// Example: Atomic user signup with auth record
-await db.transaction(async (tx) => {
-  const [user] = await tx.insert(usersTable).values(userData).returning()
-  await tx.insert(authTable).values({ userId: user.id, ...authData })
-  await tx.insert(tokensTable).values({ userId: user.id, ...tokenData })
-})
-```
-
-**Important:** The WebSocket driver supports:
-
-- ✅ Interactive transactions
-- ✅ Connection pooling with configurable size
-- ✅ Prepared statements
-- ✅ Session management
+The project uses **Neon serverless PostgreSQL** with connection pooling (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
 
 ### Authentication Flow
 
@@ -144,88 +120,47 @@ await db.transaction(async (tx) => {
 - Backend API validates tokens sent in JSON body (not URL parameters)
 - This approach prevents tokens from appearing in server logs and provides better security
 
-### Testing Approach
+### Testing Philosophy
 
-- Tests use `bun:test` framework
-- Test files follow `*.test.ts` pattern in `__tests__` directories
-- Focus on unit tests for critical components (cipher, auth, rate limiting)
+🧪 Testing Guidelines
+• Use bun:test as the testing framework.
+• Place test files as `*.test.ts` inside `__tests__` directories.
+• Target 60–80% coverage — focus on important logic and edge cases, not full 100%.
+• Prioritize testing:
+  • Correct scenario(s)
+  • Error handling
+  • Boundary inputs
+  • Failure scenarios
+• Keep tests simple, clear, and reliable — avoid over-engineering or redundant mocks.
 
-#### Testing Philosophy
+⚙️ Environment & Configuration
+• Use `.env.test` for test-specific environment variables.
+• Let Bun’s native env loading handle configuration — no manual dotenv setup needed.
+• Minimize mocking `@/env` — rely on `.env.test` by default.
+• Only mock env values when testing special or invalid configurations.
+• Document all required variables inside `.env.test`.
+• Tests should run with: `bun install` -> `bun test` (after .env.test is set up).
 
-**Coverage & Focus:**
+🧱 Mocking & Isolation
+• Mock only business logic dependencies, e.g.:
+  • Repositories
+  • External APIs or integrations
+• Use global mocks for shared services (e.g., CAPTCHA, email, etc.) — don’t redefine them in each test.
+• Avoid real database or network calls — all I/O must be mocked.
+• Keep mocks minimal: only mock what’s needed to isolate the logic under test.
 
-- Target 60-80% test coverage focusing on **edge cases** rather than 100% coverage
-- Prioritize testing error conditions, boundary inputs, and failure scenarios
-- Keep tests simple and working - avoid over-engineering test complexity
+✅ Additional Suggestions
+• Use factories or fixtures for repetitive test data.
+• Prefer unit + integration tests for business logic over full E2E when not necessary.
+• Keep one clear arrange → act → assert structure per test.
+• Use descriptive test names.
+• Always clean up side effects (reset mocks, restore spies) after each test.
 
-**Environment Configuration:**
-
-- **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
-- **Minimize mocking `@/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
-- Only mock business logic dependencies (repositories, cipher, JWT, external services)
-- Use global mocks for services (like CAPTCHA) that are already mocked globally
-
-**Self-Contained Tests:**
-
-- Tests should work with `bun install` → set up `.env.test` → `bun test` with env vars
-- All required environment variables should be documented in `.env.test`
-- No external services or database connections required
-- Mock only what's necessary for isolating business logic
-
-**Test Structure & Mocking Conventions:**
-
-Follow this variable declaration order in test `describe` blocks:
-
-```typescript
-describe('Test Suite Name', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockPrimitiveConstant: string
-  let mockAnotherPrimitive: Date
-
-  let mockUser: any
-  let mockUserRepo: any
-  let mockTokenRepo: any
-  let mockDb: any
-  let mockEmailAgent: any
-
-  beforeEach(async () => {
-    // Step 1: Initialize primitive constants and base mock data
-    mockPrimitiveConstant = 'value'
-    mockAnotherPrimitive = new Date()
-
-    // Step 2: Initialize data objects (used by repositories)
-    mockUser = { /* ... */ }
-    // Step 3: Initialize repository mocks (depend on data objects)
-    mockUserRepo = {
-      findByEmail: mock(async () => mockUser),
-    }
-
-    // Step 4: Setup module mocks (depend on repository mocks)
-    await moduleMocker.mock('@/data', () => ({
-      userRepo: mockUserRepo,
-      tokenRepo: mockTokenRepo,
-    }))
-
-    // Step 5: Initialize service mocks (small to large)
-    mockCipher = {
-      comparePasswords: mock(async () => true),
-    }
-
-    // Step 6: Setup service module mocks
-    await moduleMocker.mock('@/crypto', () => mockCipher)
-  })
-
-  afterEach(() => {
-    await moduleMocker.clear()
-  })
-
-  it('should update mock behavior', async () => {
-    // Update mocks using mockImplementation, NOT moduleMocker.mock()
-    mockUserRepo.findByEmail.mockImplementation(async () => null)
-  })
-})
-```
+👍 Type Safety in Tests
+• **Minimize use of `any` type**: Prefer proper TypeScript types even in test files
+• **Use type inference**: Let TypeScript infer types when possible instead of explicit `any`
+• **Type mock data**: Create proper interfaces or use `Partial<T>` for mock objects
+• **Exception**: Use `any` only for complex mocks where full typing would add unnecessary complexity
 
 **Mocking Best Practices:**
 
@@ -247,9 +182,6 @@ describe('Test Suite Name', () => {
    let mockAuthRepo: any
    let mockTransaction: any
 
-   let mockHashedPassword: string // @/crypto module group
-   let mockHashPassword: any
-
    let mockToken: string // @/security/token module group
    let mockExpiresAt: Date
    let mockGenerateToken: any
@@ -258,7 +190,7 @@ describe('Test Suite Name', () => {
    ```
 
 2. **Initial Mock Setup in `beforeEach`**:
-   - **Core Principle**: Define each variable immediately before its first usage
+   - **Core Principle**: Use `const` at top level for static test data that never changes, use `let` + `beforeEach` for mocks that need re-initialization
    - **Pattern**: Follow small → large dependency chain within each module group
    - **Goal**: Create a clear, readable flow where dependencies are obvious
 
@@ -272,35 +204,39 @@ describe('Test Suite Name', () => {
    Example:
 
    ```typescript
-   beforeEach(async () => {
-     // Test data
-     mockSignupParams = { firstName: 'John', ... }
+   describe('Signup', () => {
+     const moduleMocker = new ModuleMocker(import.meta.url)
 
-     // @/data module group
-     mockNewUser = { id: 1, ... }
-     mockUserRepo = { findByEmail: mock(() => ...) }
-     mockAuthRepo = { create: mock(() => ...) }
-     await moduleMocker.mock('@/data', () => ({
-       userRepo: mockUserRepo,
-       authRepo: mockAuthRepo,
-     }))
+     // Static test data - never changes across tests
+     const VALID_EMAIL = 'test@example.com'
+     const VALID_PASSWORD = 'SecurePass123!'
+     const HASHED_PASSWORD = '$2b$10$hash123'
 
-     // @/crypto module group. We don't need to use blank lines within group definition
-     mockHashedPassword = '$2b$10$hash123'
-     mockHashPassword = mock(async () => mockHashedPassword)
-     // But before `moduleMocker.mock` we should add a blank line
-     await moduleMocker.mock('@/crypto', () => ({
-       hashPassword: mockHashPassword,
-     }))
-     // And after `moduleMocker.mock` we need blank line too
-     // @/security/token module group. Again within group no blank lines.
-     mockToken = 'token-123'
-     mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
-     mockGenerateToken = mock(() => ({ token: mockToken, expiresAt: mockExpiresAt }))
+     // Mocks that need re-initialization
+     let mockSignupParams: any
+     let mockNewUser: any
+     let mockUserRepo: any
+     let mockHashPassword: any
 
-     await moduleMocker.mock('@/security/token', () => ({
-       generateToken: mockGenerateToken,
-     }))
+     beforeEach(async () => {
+       // Test data
+       mockSignupParams = { firstName: 'John', email: VALID_EMAIL, ... }
+
+       // @/data module group
+       mockNewUser = { id: 1, email: VALID_EMAIL, ... }
+       mockUserRepo = { findByEmail: mock(() => ...) }
+
+       await moduleMocker.mock('@/data', () => ({
+         userRepo: mockUserRepo,
+       }))
+
+       // @/crypto module group
+       mockHashPassword = mock(async () => HASHED_PASSWORD)
+
+       await moduleMocker.mock('@/crypto', () => ({
+         hashPassword: mockHashPassword,
+       }))
+     })
    })
    ```
 
@@ -329,53 +265,6 @@ await moduleMocker.mock('@/data', () => ({ userRepo: mockUserRepo }))
 mockJwtToken = 'token-123'
 mockJwt = { default: { sign: mock(async () => mockJwtToken) } }
 await moduleMocker.mock('@/lib/jwt', () => mockJwt)
-```
-
-**TypeScript Type Safety in Tests:**
-
-- **Minimize use of `any` type**: Prefer proper TypeScript types even in test files
-- **Use type inference**: Let TypeScript infer types when possible instead of explicit `any`
-- **Type mock data**: Create proper interfaces or use `Partial<T>` for mock objects
-- **Exception**: Use `any` only for complex mocks where full typing would add unnecessary complexity
-
-Example:
-
-```typescript
-// Bad: Overuse of any
-let mockUser: any
-let mockUserRepo: any
-
-beforeEach(() => {
-  mockUser = { id: 1, email: 'test@example.com' }
-  mockUserRepo = { findByEmail: mock(async () => mockUser) }
-})
-
-// Good: Proper typing with Partial<T>
-interface User {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-}
-
-interface UserRepository {
-  findByEmail: (email: string) => Promise<User | null>
-  create: (data: Partial<User>) => Promise<User>
-}
-
-let mockUser: Partial<User>
-let mockUserRepo: Partial<UserRepository>
-
-beforeEach(() => {
-  mockUser = { id: 1, email: 'test@example.com' }
-  mockUserRepo = {
-    findByEmail: mock(async () => mockUser as User),
-  }
-})
-
-// Acceptable: Use any for complex objects when full typing is impractical
-let mockEnv: NodeJS.ProcessEnv // NodeJS type is already defined
-let mockComplexObject: any // Only when the object structure is too complex to type
 ```
 
 ### Security Considerations
