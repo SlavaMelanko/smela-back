@@ -1,11 +1,13 @@
 import type { TokenRecord } from '@/data'
-import type { Token } from '@/types'
 
 import { AppError, ErrorCode } from '@/errors'
-import { TokenStatus } from '@/types'
+
+import type { TokenType } from './types'
+
+import { TokenStatus } from './types'
 
 class TokenValidator {
-  static validate(tokenRecord: TokenRecord | undefined, expectedType: Token): TokenRecord {
+  static validate(tokenRecord: TokenRecord | undefined, expectedType: TokenType): TokenRecord {
     TokenValidator.shouldExist(tokenRecord)
     TokenValidator.shouldNotBeUsed(tokenRecord)
     TokenValidator.shouldNotBeDeprecated(tokenRecord)
@@ -39,7 +41,7 @@ class TokenValidator {
     }
   }
 
-  static hasExpectedType(tokenRecord: TokenRecord, expectedType: Token): void {
+  static hasExpectedType(tokenRecord: TokenRecord, expectedType: TokenType): void {
     if (tokenRecord.type !== expectedType) {
       throw new AppError(ErrorCode.TokenTypeMismatch, `Token type mismatch: expected ${expectedType}, got ${tokenRecord.type}`)
     }

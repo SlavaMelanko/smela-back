@@ -5,7 +5,8 @@ import type { User } from '@/data'
 import { ModuleMocker } from '@/__tests__/module-mocker'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/errors'
-import { AuthProvider, Role, Status, Token } from '@/types'
+import { TokenType } from '@/security/token'
+import { AuthProvider, Role, Status } from '@/types'
 
 import type { SignupParams } from '../signup'
 
@@ -84,7 +85,7 @@ describe('Signup with Email', () => {
     mockTokenString = 'verification-token-123'
     mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
     mockGenerateToken = mock(() => ({
-      type: Token.EmailVerification,
+      type: TokenType.EmailVerification,
       token: mockTokenString,
       expiresAt: mockExpiresAt,
     }))
@@ -173,7 +174,7 @@ describe('Signup with Email', () => {
         mockNewUser.id,
         {
           userId: mockNewUser.id,
-          type: Token.EmailVerification,
+          type: TokenType.EmailVerification,
           token: mockTokenString,
           expiresAt: mockExpiresAt,
         },

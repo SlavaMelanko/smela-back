@@ -1,6 +1,11 @@
-// Bun automatically loads .env files based on NODE_ENV
-// No need to import and configure dotenv
+import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
+
+// Load environment-specific .env file
+// eslint-disable-next-line node/no-process-env
+const nodeEnv = process.env.NODE_ENV || 'development'
+
+config({ path: `.env.${nodeEnv}` })
 
 export default defineConfig({
   schema: './src/data/schema',

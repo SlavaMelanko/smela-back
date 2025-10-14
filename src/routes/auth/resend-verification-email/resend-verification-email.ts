@@ -1,11 +1,11 @@
 import { db, tokenRepo, userRepo } from '@/data'
 import { logger } from '@/logging'
-import { generateToken } from '@/security/token'
+import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
-import { Status, Token } from '@/types'
+import { Status } from '@/types'
 
 const createEmailVerificationToken = async (userId: number) => {
-  const { type, token, expiresAt } = generateToken(Token.EmailVerification)
+  const { type, token, expiresAt } = generateToken(TokenType.EmailVerification)
 
   await db.transaction(async (tx) => {
     await tokenRepo.replace(userId, { userId, type, token, expiresAt }, tx)

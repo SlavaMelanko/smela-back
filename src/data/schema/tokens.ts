@@ -9,18 +9,18 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
-import { Token, TokenStatus } from '@/types'
+import { TokenStatus, TokenType } from '@/security/token'
 
 import { createPgEnum } from '../utils'
 import { usersTable } from './users'
 
-export const tokenEnum = createPgEnum('token', Token)
+export const tokenTypeEnum = createPgEnum('token_type', TokenType)
 export const tokenStatusEnum = createPgEnum('token_status', TokenStatus)
 
 export const tokensTable = pgTable('tokens', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => usersTable.id),
-  type: tokenEnum('type').notNull(),
+  type: tokenTypeEnum('type').notNull(),
   status: tokenStatusEnum('status').notNull().default(TokenStatus.Pending),
   token: varchar('token', { length: 255 }).notNull().unique(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),

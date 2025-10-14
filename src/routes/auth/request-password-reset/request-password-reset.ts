@@ -1,11 +1,11 @@
 import { db, tokenRepo, userRepo } from '@/data'
 import { logger } from '@/logging'
-import { generateToken } from '@/security/token'
+import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
-import { isActive, Token } from '@/types'
+import { isActive } from '@/types'
 
 const createPasswordResetToken = async (userId: number) => {
-  const { type, token, expiresAt } = generateToken(Token.PasswordReset)
+  const { type, token, expiresAt } = generateToken(TokenType.PasswordReset)
 
   await db.transaction(async (tx) => {
     await tokenRepo.replace(userId, { userId, type, token, expiresAt }, tx)

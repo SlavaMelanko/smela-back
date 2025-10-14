@@ -1,4 +1,4 @@
-import type { Token, TokenStatus } from '@/types'
+import type { TokenStatus, TokenType } from '@/security/token'
 
 import type { tokensTable } from '../../schema'
 
@@ -8,7 +8,7 @@ export type TokenRecord = typeof tokensTable.$inferSelect
 // Input types for create / update / delete / etc
 export interface CreateTokenInput {
   userId: number
-  type: Token
+  type: TokenType
   status?: TokenStatus
   token: string
   expiresAt: Date

@@ -1,4 +1,4 @@
-import { Token } from '@/types'
+import { TokenType } from './types'
 
 export const TOKEN_LENGTH = 64
 export const DEFAULT_EXPIRY_HOURS = 24
@@ -12,18 +12,18 @@ export interface Options {
   tokenLength?: number
 }
 
-export const defaultOptionsMap = new Map<Token, Required<Options>>([
-  [Token.EmailVerification, {
+export const defaultOptionsMap = new Map<TokenType, Required<Options>>([
+  [TokenType.EmailVerification, {
     expiryHours: EMAIL_VERIFICATION_EXPIRY_HOURS,
     tokenLength: TOKEN_LENGTH,
   }],
-  [Token.PasswordReset, {
+  [TokenType.PasswordReset, {
     expiryHours: PASSWORD_RESET_EXPIRY_HOURS,
     tokenLength: TOKEN_LENGTH,
   }],
 ])
 
-export const getDefaultOptions = (type: Token): Required<Options> => {
+export const getDefaultOptions = (type: TokenType): Required<Options> => {
   const options = defaultOptionsMap.get(type)
 
   if (!options) {

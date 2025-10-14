@@ -1,8 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
-import type { Token } from '@/types'
+import type { TokenType } from '@/security/token'
 
-import { TokenStatus } from '@/types'
+import { TokenStatus } from '@/security/token'
 
 import type { Transaction } from '../../clients'
 import type { CreateTokenInput, UpdateTokenInput } from './types'
@@ -10,7 +10,11 @@ import type { CreateTokenInput, UpdateTokenInput } from './types'
 import { db } from '../../clients'
 import { tokensTable } from '../../schema'
 
-export const deprecateOldTokens = async (userId: number, token: Token, tx?: Transaction) => {
+export const deprecateOldTokens = async (
+  userId: number,
+  tokenType: TokenType,
+  tx?: Transaction,
+) => {
   const executor = tx || db
 
   await executor
@@ -19,7 +23,7 @@ export const deprecateOldTokens = async (userId: number, token: Token, tx?: Tran
     .where(
       and(
         eq(tokensTable.userId, userId),
-        eq(tokensTable.type, token),
+        eq(tokensTable.type, tokenType),
         isNull(tokensTable.usedAt),
         eq(tokensTable.status, TokenStatus.Pending),
       ),

@@ -4,7 +4,8 @@ import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
-import { Role, Status, Token } from '@/types'
+import { TokenType } from '@/security/token'
+import { Role, Status } from '@/types'
 
 import resendVerificationEmail from '../resend-verification-email'
 
@@ -54,7 +55,7 @@ describe('Resend Verification Email', () => {
     mockTokenString = 'mock-resend-verification-token-123'
     mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
     mockGenerateToken = mock(() => ({
-      type: Token.EmailVerification,
+      type: TokenType.EmailVerification,
       token: mockTokenString,
       expiresAt: mockExpiresAt,
     }))
@@ -84,7 +85,7 @@ describe('Resend Verification Email', () => {
 
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
-        type: Token.EmailVerification,
+        type: TokenType.EmailVerification,
         token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
