@@ -1,9 +1,9 @@
-import { createPasswordEncoder } from './factory'
+import { createHasher } from './factory'
 
 export const hashPassword = async (password: string): Promise<string> => {
-  const encoder = createPasswordEncoder()
+  const hasher = createHasher()
 
-  return encoder.hash(password)
+  return hasher.hash(password)
 }
 
 export const comparePasswords = async (password: string, hash: string): Promise<boolean> => {
@@ -11,7 +11,7 @@ export const comparePasswords = async (password: string, hash: string): Promise<
     return false
   }
 
-  const encoder = createPasswordEncoder()
+  const hasher = createHasher()
 
-  return encoder.compare(password, hash)
+  return hasher.compare(password, hash)
 }
