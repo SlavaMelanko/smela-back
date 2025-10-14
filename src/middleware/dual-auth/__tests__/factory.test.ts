@@ -8,7 +8,7 @@ import { userRepo } from '@/data'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
-import { signJwt } from '@/jwt'
+import { signJwt } from '@/security/jwt'
 import { Role, Status } from '@/types'
 
 import createDualAuthMiddleware from '../factory'

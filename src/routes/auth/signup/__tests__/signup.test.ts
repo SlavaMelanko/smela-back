@@ -104,7 +104,7 @@ describe('Signup with Email', () => {
     mockJwtToken = 'mock-signup-jwt-token'
     mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/jwt', () => ({
+    await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
   })

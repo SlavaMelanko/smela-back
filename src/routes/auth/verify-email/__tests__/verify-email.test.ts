@@ -77,7 +77,7 @@ describe('Verify Email', () => {
     mockJwtToken = 'mock-verify-jwt-token'
     mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/jwt', () => ({
+    await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
   })

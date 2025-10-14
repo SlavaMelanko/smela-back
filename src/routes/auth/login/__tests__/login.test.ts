@@ -72,7 +72,7 @@ describe('Login with Email', () => {
     mockJwtToken = 'login-jwt-token-123'
     mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/jwt', () => ({
+    await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
   })
