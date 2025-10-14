@@ -1,13 +1,9 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 
 import CryptoTokenGenerator from '../token-generator-crypto'
 
 describe('Token Generator', () => {
-  let generator: CryptoTokenGenerator
-
-  beforeEach(() => {
-    generator = new CryptoTokenGenerator()
-  })
+  const generator = new CryptoTokenGenerator()
 
   describe('generate', () => {
     it('should generate a token with default length', () => {

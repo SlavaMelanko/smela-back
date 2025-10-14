@@ -4,7 +4,7 @@ import type { TokenRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { TOKEN_LENGTH } from '@/security/token/constants'
+import { TOKEN_LENGTH } from '@/security/token'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'

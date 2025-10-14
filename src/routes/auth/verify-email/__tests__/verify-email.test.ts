@@ -4,7 +4,7 @@ import type { TokenRecord, UserRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { TOKEN_LENGTH } from '@/security/token/constants'
+import { TOKEN_LENGTH } from '@/security/token'
 import { Role, Status, Token, TokenStatus } from '@/types'
 
 import verifyEmail from '../verify-email'

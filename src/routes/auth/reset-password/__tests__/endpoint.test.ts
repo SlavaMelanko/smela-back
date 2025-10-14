@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
 import HttpStatus from '@/net/http/status'
-import { TOKEN_LENGTH } from '@/security/token/constants'
+import { TOKEN_LENGTH } from '@/security/token'
 
 import resetPasswordRoute from '../index'
 
