@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { getAccessCookie } from '@/lib/cookie'
+import { getAccessCookie } from '@/net/http/cookie'
 
 /**
  * Extracts authentication token from either Authorization header or cookie.

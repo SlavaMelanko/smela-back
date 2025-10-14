@@ -4,7 +4,8 @@ import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
-import { Role, Status, Token } from '@/types'
+import { TokenType } from '@/security/token'
+import { Role, Status } from '@/types'
 
 import requestPasswordReset from '../request-password-reset'
 
@@ -56,7 +57,7 @@ describe('Request Password Reset', () => {
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: mock(() => ({
-        type: Token.PasswordReset,
+        type: TokenType.PasswordReset,
         token: mockTokenString,
         expiresAt: mockExpiresAt,
       })),
@@ -84,7 +85,7 @@ describe('Request Password Reset', () => {
       // Replace token should be called
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
-        type: Token.PasswordReset,
+        type: TokenType.PasswordReset,
         token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})

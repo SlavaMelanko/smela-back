@@ -39,7 +39,7 @@ describe('Signup Endpoint', () => {
 
     mockSetAccessCookie = mock(() => {})
 
-    await moduleMocker.mock('@/lib/cookie', () => ({
+    await moduleMocker.mock('@/net/http/cookie', () => ({
       setAccessCookie: mockSetAccessCookie,
     }))
 

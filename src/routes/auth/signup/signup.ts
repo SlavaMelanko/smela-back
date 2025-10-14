@@ -5,9 +5,9 @@ import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
-import { generateToken } from '@/security/token'
+import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
-import { AuthProvider, Role, Status, Token } from '@/types'
+import { AuthProvider, Role, Status } from '@/types'
 
 export interface SignupParams {
   firstName: string
@@ -19,7 +19,7 @@ export interface SignupParams {
 const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
   const hashedPassword = await hashPassword(password)
 
-  const { type, token: verificationToken, expiresAt } = generateToken(Token.EmailVerification)
+  const { type, token: verificationToken, expiresAt } = generateToken(TokenType.EmailVerification)
 
   const newUser = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({

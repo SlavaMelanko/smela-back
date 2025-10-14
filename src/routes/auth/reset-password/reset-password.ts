@@ -1,7 +1,6 @@
 import { authRepo, db, tokenRepo, userRepo } from '@/data'
 import { hashPassword } from '@/security/password'
-import { TokenValidator } from '@/security/token'
-import { Token, TokenStatus } from '@/types'
+import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 
 interface ResetPasswordParams {
   token: string
@@ -11,7 +10,7 @@ interface ResetPasswordParams {
 const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
-  return TokenValidator.validate(tokenRecord, Token.PasswordReset)
+  return TokenValidator.validate(tokenRecord, TokenType.PasswordReset)
 }
 
 const resetPassword = async (

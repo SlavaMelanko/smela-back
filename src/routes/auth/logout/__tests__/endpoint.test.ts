@@ -18,14 +18,10 @@ describe('Logout Endpoint', () => {
   beforeEach(async () => {
     mockDeleteAccessCookie = mock(() => {})
 
-    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
+    await moduleMocker.mock('@/net/http/cookie', () => ({
       deleteAccessCookie: mockDeleteAccessCookie,
       getAccessCookie: mock(() => undefined),
       setAccessCookie: mock(() => {}),
-    }))
-
-    await moduleMocker.mock('@/lib/cookie', () => ({
-      deleteAccessCookie: mockDeleteAccessCookie,
     }))
 
     app = createTestApp('/api/v1/auth', logoutRoute)

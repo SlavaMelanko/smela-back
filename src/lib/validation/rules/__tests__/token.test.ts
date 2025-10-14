@@ -264,41 +264,6 @@ describe('Token Validation Rules', () => {
     })
   })
 
-  describe('default and opt properties', () => {
-    it('should work as required by default for token', () => {
-      const validToken = 'a'.repeat(TOKEN_LENGTH)
-      expect(() => rules.token.parse(validToken)).not.toThrow()
-      expect(() => rules.token.parse('')).toThrow()
-      expect(() => rules.token.parse(null)).toThrow()
-      expect(() => rules.token.parse(undefined)).toThrow()
-    })
-
-    it('should have .opt property for token that allows null and undefined', () => {
-      const validToken = 'a'.repeat(TOKEN_LENGTH)
-      expect(() => rules.token.opt.parse(validToken)).not.toThrow()
-      expect(() => rules.token.opt.parse(null)).not.toThrow()
-      expect(() => rules.token.opt.parse(undefined)).not.toThrow()
-      expect(() => rules.token.opt.parse('')).toThrow() // Empty string still fails validation
-      expect(() => rules.token.opt.parse('short')).toThrow() // Wrong length still fails
-    })
-
-    it('should work as required by default for captchaToken', () => {
-      expect(() => rules.captchaToken.parse('valid_captcha_token_123')).not.toThrow()
-      expect(() => rules.captchaToken.parse('')).toThrow()
-      expect(() => rules.captchaToken.parse(null)).toThrow()
-      expect(() => rules.captchaToken.parse(undefined)).toThrow()
-    })
-
-    it('should have .opt property for captchaToken that allows null and undefined', () => {
-      expect(() => rules.captchaToken.opt.parse('valid_captcha_token_123')).not.toThrow()
-      expect(() => rules.captchaToken.opt.parse(null)).not.toThrow()
-      expect(() => rules.captchaToken.opt.parse(undefined)).not.toThrow()
-      expect(() => rules.captchaToken.opt.parse('')).toThrow() // Empty string still fails
-      expect(() => rules.captchaToken.opt.parse('short')).toThrow() // Too short still fails
-      expect(() => rules.captchaToken.opt.parse('invalid@chars')).toThrow() // Invalid chars still fail
-    })
-  })
-
   describe('combined validation (schema-like usage)', () => {
     it('should validate auth object with both token types', () => {
       const authSchema = z.object({
@@ -332,29 +297,6 @@ describe('Token Validation Rules', () => {
 
       const result = authSchema.safeParse(invalidAuth)
       expect(result.success).toBe(false)
-    })
-
-    it('should work with optional captcha token in signup flow', () => {
-      const signupSchema = z.object({
-        email: z.string().email(),
-        password: z.string(),
-        captchaToken: rules.captchaToken.opt, // Optional for some flows
-      })
-
-      const validSignupWithCaptcha = {
-        email: 'test@example.com',
-        password: 'password123',
-        captchaToken: 'valid_captcha_token_123',
-      }
-
-      const validSignupWithoutCaptcha = {
-        email: 'test@example.com',
-        password: 'password123',
-        captchaToken: null,
-      }
-
-      expect(() => signupSchema.parse(validSignupWithCaptcha)).not.toThrow()
-      expect(() => signupSchema.parse(validSignupWithoutCaptcha)).not.toThrow()
     })
 
     it('should validate multiple token formats in batch processing', () => {

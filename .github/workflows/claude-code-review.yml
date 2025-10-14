@@ -61,32 +61,32 @@ jobs:
             ```md
             ## Quality Assessment:
 
-            ### **Architecture 🏗️**: X/10
+            ### **🏗️ Architecture**: X/10
             [Brief justification (2-3 sentences)]
 
-            [Optional suggestions for improvement to make a better score]
+            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
 
-            ### **Security 🛡️**: X/10
+            ### **🛡️ Security**: X/10
             [Brief justification (2-3 sentences)]
 
-            [Optional suggestions for improvement to make a better score]
+            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
 
-            ### **Testing 🧪**: X/10
+            ### **🧪 Testing**: X/10
             [Brief justification (2-3 sentences)]
 
-            [Optional suggestions for improvement to make a better score]
+            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
 
-            ### **Performance ⚡**: X/10
+            ### **⚡ Performance**: X/10
             [Brief justification (2-3 sentences)]
 
-            [Optional suggestions for improvement to make a better score]
+            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
 
-            ### **Code Quality 💎**: X/10
+            ### **💎 Code Quality**: X/10
             [Brief justification (2-3 sentences)]
 
-            [Optional suggestions for improvement to make a better score]
+            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
 
-            ### **🌟 Overall**: X/10 -> ✅ Approve (if score 8.5+ overall) | ❌ Request changes (if score <8.5 overall)
+            ### **🌟 Overall**: X/10 -> "✅ Approve" if score 8+ overall or "⚠️ Request changes" if score <8 overall
             ```
 
           # Optional: Different prompts for different authors

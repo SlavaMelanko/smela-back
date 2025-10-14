@@ -118,9 +118,12 @@ describe('Token Generator', () => {
       const negativeHoursGenerator = new CryptoTokenGenerator({ expiryHours: -1 })
       const beforeGeneration = new Date()
       const result = negativeHoursGenerator.generateWithExpiry()
+      const afterGeneration = new Date()
 
-      const expectedMaxExpiry = new Date(beforeGeneration.getTime() - 60 * 60 * 1000)
+      const expectedMinExpiry = new Date(beforeGeneration.getTime() - 60 * 60 * 1000)
+      const expectedMaxExpiry = new Date(afterGeneration.getTime() - 60 * 60 * 1000)
 
+      expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry.getTime())
     })
   })

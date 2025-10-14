@@ -4,8 +4,8 @@ import type { TokenRecord, UserRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { TOKEN_LENGTH } from '@/security/token'
-import { Role, Status, Token, TokenStatus } from '@/types'
+import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
+import { Role, Status } from '@/types'
 
 import verifyEmail from '../verify-email'
 
@@ -29,7 +29,7 @@ describe('Verify Email', () => {
     mockTokenRecord = {
       id: 1,
       userId: 1,
-      type: Token.EmailVerification,
+      type: TokenType.EmailVerification,
       token: mockTokenString,
       status: TokenStatus.Pending,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
@@ -230,12 +230,12 @@ describe('Verify Email', () => {
     it('should throw TokenTypeMismatch error', async () => {
       const wrongTypeTokenRecord = {
         ...mockTokenRecord,
-        type: Token.PasswordReset,
+        type: TokenType.PasswordReset,
       }
 
       mockTokenRepo.findByToken.mockImplementation(async () => wrongTypeTokenRecord)
       mockTokenValidator.validate.mockImplementation(() => {
-        throw new AppError(ErrorCode.TokenTypeMismatch, `expected ${Token.EmailVerification}, got ${Token.PasswordReset}`)
+        throw new AppError(ErrorCode.TokenTypeMismatch, `expected ${TokenType.EmailVerification}, got ${TokenType.PasswordReset}`)
       })
 
       try {
@@ -244,8 +244,8 @@ describe('Verify Email', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
-        expect((error as AppError).message).toContain(`expected ${Token.EmailVerification}`)
-        expect((error as AppError).message).toContain(`got ${Token.PasswordReset}`)
+        expect((error as AppError).message).toContain(`expected ${TokenType.EmailVerification}`)
+        expect((error as AppError).message).toContain(`got ${TokenType.PasswordReset}`)
       }
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
