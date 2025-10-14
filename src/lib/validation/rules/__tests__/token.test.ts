@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 import { z } from 'zod'
 
-import { TOKEN_LENGTH } from '../../../token/constants'
+import { TOKEN_LENGTH } from '@/security/token'
+
 import rules from '../token'
 
 describe('Token Validation Rules', () => {

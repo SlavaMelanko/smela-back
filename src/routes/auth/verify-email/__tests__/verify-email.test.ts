@@ -4,7 +4,7 @@ import type { TokenRecord, UserRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { TOKEN_LENGTH } from '@/lib/token/constants'
+import { TOKEN_LENGTH } from '@/security/token/constants'
 import { Role, Status, Token, TokenStatus } from '@/types'
 
 import verifyEmail from '../verify-email'
@@ -70,7 +70,7 @@ describe('Verify Email', () => {
       validate: mock(() => mockTokenRecord),
     }
 
-    await moduleMocker.mock('@/lib/token', () => ({
+    await moduleMocker.mock('@/security/token', () => ({
       TokenValidator: mockTokenValidator,
     }))
 

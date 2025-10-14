@@ -250,7 +250,7 @@ describe('Test Suite Name', () => {
    let mockHashedPassword: string // @/crypto module group
    let mockHashPassword: any
 
-   let mockToken: string // @/lib/token module group
+   let mockToken: string // @/security/token module group
    let mockExpiresAt: Date
    let mockGenerateToken: any
 
@@ -293,12 +293,12 @@ describe('Test Suite Name', () => {
        hashPassword: mockHashPassword,
      }))
      // And after `moduleMocker.mock` we need blank line too
-     // @/lib/token module group. Again within group no blank lines.
+     // @/security/token module group. Again within group no blank lines.
      mockToken = 'token-123'
      mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
      mockGenerateToken = mock(() => ({ token: mockToken, expiresAt: mockExpiresAt }))
 
-     await moduleMocker.mock('@/lib/token', () => ({
+     await moduleMocker.mock('@/security/token', () => ({
        generateToken: mockGenerateToken,
      }))
    })

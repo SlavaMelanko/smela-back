@@ -4,7 +4,7 @@ import type { TokenRecord } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { TOKEN_LENGTH } from '@/lib/token/constants'
+import { TOKEN_LENGTH } from '@/security/token/constants'
 import { Token, TokenStatus } from '@/types'
 
 import resetPassword from '../reset-password'
@@ -66,7 +66,7 @@ describe('Reset Password', () => {
       validate: mock(() => mockTokenRecord),
     }
 
-    await moduleMocker.mock('@/lib/token', () => ({
+    await moduleMocker.mock('@/security/token', () => ({
       TokenValidator: mockTokenValidator,
     }))
 

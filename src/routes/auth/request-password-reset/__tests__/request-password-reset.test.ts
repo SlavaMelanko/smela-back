@@ -54,7 +54,7 @@ describe('Request Password Reset', () => {
     mockTokenString = 'reset-token-123'
     mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
 
-    await moduleMocker.mock('@/lib/token', () => ({
+    await moduleMocker.mock('@/security/token', () => ({
       generateToken: mock(() => ({
         type: Token.PasswordReset,
         token: mockTokenString,
