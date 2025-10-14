@@ -1,8 +1,10 @@
-import type { RandomBytesGenerator } from '../cipher'
+import type { RandomBytesGenerator } from '@/crypto'
+
+import { createRandomBytesGenerator } from '@/crypto'
+
 import type { Options } from './options'
 import type TokenGenerator from './token-generator'
 
-import { createRandomBytesGenerator } from '../cipher'
 import { DEFAULT_OPTIONS } from './options'
 
 class CryptoTokenGenerator implements TokenGenerator {

@@ -54,7 +54,8 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
   - `/repositories/` - Repository pattern for data access (auth, token, user)
   - `/migrations/` - Drizzle ORM migrations
   - `seed.ts` - Database seeding script
-- `/src/lib/` - Core utilities (cipher, validation, JWT, errors)
+- `/src/lib/` - Core utilities (validation, JWT, errors)
+- `/src/crypto/` - Low-level cryptographic utilities (hashing, random bytes generation)
 - `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
 - `/src/routes/` - API endpoint handlers organized by domain
   - `/auth/` - Authentication routes (login, signup, password reset, etc.)
@@ -212,7 +213,7 @@ describe('Test Suite Name', () => {
     }
 
     // Step 6: Setup service module mocks
-    await moduleMocker.mock('@/lib/cipher', () => mockCipher)
+    await moduleMocker.mock('@/crypto', () => mockCipher)
   })
 
   afterEach(() => {
@@ -246,7 +247,7 @@ describe('Test Suite Name', () => {
    let mockAuthRepo: any
    let mockTransaction: any
 
-   let mockHashedPassword: string // @/lib/cipher module group
+   let mockHashedPassword: string // @/crypto module group
    let mockHashPassword: any
 
    let mockToken: string // @/lib/token module group
@@ -284,11 +285,11 @@ describe('Test Suite Name', () => {
        authRepo: mockAuthRepo,
      }))
 
-     // @/lib/cipher module group. We don't need to use blank lines within group definition
+     // @/crypto module group. We don't need to use blank lines within group definition
      mockHashedPassword = '$2b$10$hash123'
      mockHashPassword = mock(async () => mockHashedPassword)
      // But before `moduleMocker.mock` we should add a blank line
-     await moduleMocker.mock('@/lib/cipher', () => ({
+     await moduleMocker.mock('@/crypto', () => ({
        hashPassword: mockHashPassword,
      }))
      // And after `moduleMocker.mock` we need blank line too
