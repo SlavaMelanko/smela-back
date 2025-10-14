@@ -65,6 +65,8 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/auth/` - Authentication routes (login, signup, password reset, email verification)
   - `/user/` - User-specific routes (profile management)
 - `/src/lib/` - Shared utilities (validation rules, email sender)
+- `/src/utils/` - Generic, reusable utilities
+  - `/async.ts` - Async/promise utilities (withTimeout, sleepFor, exponentialBackoffDelay)
 - `/src/net/http/` - HTTP utilities (cookie handling, status codes)
 - `/src/env/` - Environment variable configuration and validation
 - `/src/errors/` - Custom error classes
@@ -509,6 +511,28 @@ src/services/email/providers/
 ```
 
 This convention groups implementations together alphabetically and makes the relationship to the interface explicit.
+
+#### Utils Directory Guidelines
+
+The `/src/utils/` directory is for **generic, reusable utilities** that meet strict acceptance criteria to prevent it from becoming a dumping ground.
+
+**Acceptance Criteria for New Utilities:**
+
+1. **Genuinely Generic**: Must not be domain-specific or tied to business logic
+2. **Multiple Usage**: Must be used in 2+ places across different modules
+3. **Single Responsibility**: Each utility file must have a clear, focused purpose
+4. **Well-Documented**: Must include JSDoc with examples and clear parameter descriptions
+
+**Organization Rules:**
+
+- Name files by specific domain: `async.ts`, `string.ts`, `date.ts`
+- Avoid vague names like `helpers.ts`, `common.ts`, or `utils.ts`
+- One file per utility domain (e.g., all async/promise utilities in `async.ts`)
+- Reject utilities that are only used once - co-locate with primary usage instead
+
+**Current Utilities:**
+
+- `async.ts` - Async/promise utilities (`withTimeout`, `sleepFor`, `exponentialBackoffDelay`)
 
 ### Environment Configuration
 

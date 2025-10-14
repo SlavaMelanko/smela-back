@@ -1,7 +1,7 @@
 import { AppError, ErrorCode } from '@/errors'
-import { withTimeout } from '@/lib/async'
 import { logger } from '@/logging'
 import { makeUrl, removeTrailingSlash } from '@/net/url'
+import { withTimeout } from '@/utils/async'
 
 export type Headers = Record<string, string>
 export type Body = string | FormData | URLSearchParams
