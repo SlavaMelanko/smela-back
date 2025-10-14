@@ -49,16 +49,10 @@ describe('Login Endpoint', () => {
       })
     })
 
-    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
+    await moduleMocker.mock('@/net/http/cookie', () => ({
       setAccessCookie: mockSetAccessCookie,
       getAccessCookie: mock(() => undefined),
       deleteAccessCookie: mock(() => {}),
-    }))
-
-    await moduleMocker.mock('hono/cookie', () => ({
-      setCookie: mockSetCookie,
-      getCookie: mock(() => undefined),
-      deleteCookie: mock(() => {}),
     }))
 
     await mockCaptchaSuccess()

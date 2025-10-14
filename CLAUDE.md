@@ -310,7 +310,7 @@ describe('Test Suite Name', () => {
    - Always define the mock object variable before calling `moduleMocker.mock()` with it
    - Call `moduleMocker.mock()` immediately after defining all related mock objects
    - **Don't mock encapsulated dependencies**: Only mock the public API/wrapper, not the underlying implementation details
-     - Example: If you have a wrapper `@/lib/cookie/access-cookie` that uses `hono/cookie`, only mock the wrapper, not `hono/cookie`
+     - Example: If you have a wrapper `@/net/http/cookie` that uses `hono/cookie`, only mock the wrapper, not `hono/cookie`
      - This prevents tight coupling to implementation details and makes tests more maintainable
 
 4. **Updating Mock Behavior**:
