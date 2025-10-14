@@ -81,7 +81,7 @@ describe('JWT Unit Tests', () => {
 
       mockParsePayload = mock((payload: unknown) => payload)
 
-      await moduleMocker.mock('@/jwt/payload', () => ({
+      await moduleMocker.mock('@/security/jwt/payload', () => ({
         parse: mockParsePayload,
       }))
 

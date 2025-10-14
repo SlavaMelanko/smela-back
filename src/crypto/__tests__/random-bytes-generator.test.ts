@@ -1,14 +1,10 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 
 import { createRandomBytesGenerator } from '../factory'
 import CryptoRandomBytesGenerator from '../random-bytes-generator-crypto'
 
 describe('Random Bytes Generator', () => {
-  let generator: CryptoRandomBytesGenerator
-
-  beforeEach(() => {
-    generator = new CryptoRandomBytesGenerator()
-  })
+  const generator = new CryptoRandomBytesGenerator()
 
   describe('CryptoRandomBytesGenerator', () => {
     describe('generate', () => {
@@ -83,6 +79,70 @@ describe('Random Bytes Generator', () => {
         // Should truncate to 5 bytes
         expect(result.length).toBe(10) // 5 bytes = 10 hex chars
         expect(/^[0-9a-f]+$/.test(result)).toBe(true)
+      })
+    })
+
+    describe('generate with different encodings', () => {
+      it('should generate hex encoding by default', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes)
+
+        expect(result.length).toBe(numberOfBytes * 2) // hex string is 2 chars per byte
+        expect(/^[0-9a-f]+$/.test(result)).toBe(true)
+      })
+
+      it('should generate hex encoding when explicitly specified', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes, 'hex')
+
+        expect(result.length).toBe(numberOfBytes * 2)
+        expect(/^[0-9a-f]+$/.test(result)).toBe(true)
+      })
+
+      it('should generate base64 encoding', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes, 'base64')
+
+        expect(result).toBeDefined()
+        expect(typeof result).toBe('string')
+        expect(/^[A-Z0-9+/]+=*$/i.test(result)).toBe(true)
+      })
+
+      it('should generate base64url encoding', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes, 'base64url')
+
+        expect(result).toBeDefined()
+        expect(typeof result).toBe('string')
+        expect(/^[\w-]+$/.test(result)).toBe(true)
+      })
+
+      it('should generate utf8 encoding', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes, 'utf8')
+
+        expect(result).toBeDefined()
+        expect(typeof result).toBe('string')
+        expect(result.length).toBeGreaterThan(0)
+      })
+
+      it('should generate binary encoding', () => {
+        const numberOfBytes = 16
+        const result = generator.generate(numberOfBytes, 'binary')
+
+        expect(result).toBeDefined()
+        expect(typeof result).toBe('string')
+        expect(result.length).toBe(numberOfBytes)
+      })
+
+      it('should generate different results for same bytes with different encodings', () => {
+        const numberOfBytes = 16
+        const hexResult = generator.generate(numberOfBytes, 'hex')
+        const base64Result = generator.generate(numberOfBytes, 'base64')
+
+        expect(hexResult).not.toBe(base64Result)
+        expect(/^[0-9a-f]+$/.test(hexResult)).toBe(true)
+        expect(/^[A-Z0-9+/]+=*$/i.test(base64Result)).toBe(true)
       })
     })
   })

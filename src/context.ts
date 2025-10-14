@@ -1,4 +1,4 @@
-import type { UserClaims } from '@/jwt'
+import type { UserClaims } from '@/security/jwt'
 
 export interface Variables {
   user: UserClaims

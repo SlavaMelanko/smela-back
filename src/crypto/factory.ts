@@ -1,15 +1,15 @@
-import type PasswordEncoder from './password-encoder'
+import type Hasher from './hasher'
 import type RandomBytesGenerator from './random-bytes-generator'
 
-import BcryptPasswordEncoder from './password-encoder-bcrypt'
+import BcryptHasher from './hasher-bcrypt'
 import CryptoRandomBytesGenerator from './random-bytes-generator-crypto'
 
-export const createPasswordEncoder = (impl: 'bcrypt' = 'bcrypt'): PasswordEncoder => {
+export const createHasher = (impl: 'bcrypt' = 'bcrypt'): Hasher => {
   switch (impl) {
     case 'bcrypt':
-      return new BcryptPasswordEncoder()
+      return new BcryptHasher()
     default:
-      throw new Error(`Unknown password encoder: ${impl as string}`)
+      throw new Error(`Unknown hasher: ${impl as string}`)
   }
 }
 

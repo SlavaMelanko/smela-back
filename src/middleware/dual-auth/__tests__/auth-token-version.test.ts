@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt, verifyJwt } from '@/jwt'
+import { signJwt, verifyJwt } from '@/security/jwt'
 import { isActive, Role, Status } from '@/types'
 
 import { jwtOptions } from './jwt-utils'

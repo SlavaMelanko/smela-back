@@ -1,16 +1,21 @@
-import type { RandomBytesGenerator } from '../cipher'
+import type { RandomBytesGenerator } from '@/crypto'
+
+import { createRandomBytesGenerator } from '@/crypto'
+
 import type { Options } from './options'
 import type TokenGenerator from './token-generator'
 
-import { createRandomBytesGenerator } from '../cipher'
-import { DEFAULT_OPTIONS } from './options'
+import { DEFAULT_EXPIRY_HOURS, TOKEN_LENGTH } from './options'
 
 class CryptoTokenGenerator implements TokenGenerator {
   private readonly options: Required<Options>
   private readonly cryptoGenerator: RandomBytesGenerator
 
   constructor(options?: Options) {
-    this.options = { ...DEFAULT_OPTIONS, ...options }
+    this.options = {
+      expiryHours: options?.expiryHours ?? DEFAULT_EXPIRY_HOURS,
+      tokenLength: options?.tokenLength ?? TOKEN_LENGTH,
+    }
     this.cryptoGenerator = createRandomBytesGenerator()
   }
 

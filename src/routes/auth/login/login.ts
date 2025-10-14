@@ -2,8 +2,8 @@ import type { User } from '@/data'
 
 import { authRepo, normalizeUser, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt } from '@/jwt'
-import { comparePasswords } from '@/lib/cipher'
+import { signJwt } from '@/security/jwt'
+import { comparePasswords } from '@/security/password'
 
 export interface LoginParams {
   email: string

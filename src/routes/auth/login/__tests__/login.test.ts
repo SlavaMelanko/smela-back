@@ -65,14 +65,14 @@ describe('Login with Email', () => {
 
     mockComparePasswords = mock(async () => true)
 
-    await moduleMocker.mock('@/lib/cipher', () => ({
+    await moduleMocker.mock('@/security/password', () => ({
       comparePasswords: mockComparePasswords,
     }))
 
     mockJwtToken = 'login-jwt-token-123'
     mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/jwt', () => ({
+    await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
   })

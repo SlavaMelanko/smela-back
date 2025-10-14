@@ -2,10 +2,10 @@ import type { User } from '@/data'
 
 import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt } from '@/jwt'
-import { hashPassword } from '@/lib/cipher'
-import { generateToken } from '@/lib/token'
 import { logger } from '@/logging'
+import { signJwt } from '@/security/jwt'
+import { hashPassword } from '@/security/password'
+import { generateToken } from '@/security/token'
 import { emailAgent } from '@/services'
 import { AuthProvider, Role, Status, Token } from '@/types'
 

@@ -3,7 +3,7 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User, UserRecord } from '@/data'
-import type { UserClaims } from '@/jwt'
+import type { UserClaims } from '@/security/jwt'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'

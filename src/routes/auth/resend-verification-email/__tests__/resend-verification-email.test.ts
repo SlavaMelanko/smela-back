@@ -59,7 +59,7 @@ describe('Resend Verification Email', () => {
       expiresAt: mockExpiresAt,
     }))
 
-    await moduleMocker.mock('@/lib/token', () => ({
+    await moduleMocker.mock('@/security/token', () => ({
       generateToken: mockGenerateToken,
     }))
 

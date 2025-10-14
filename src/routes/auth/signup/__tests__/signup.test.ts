@@ -77,7 +77,7 @@ describe('Signup with Email', () => {
     mockHashedPassword = '$2b$10$hashedPassword123'
     mockHashPassword = mock(async () => mockHashedPassword)
 
-    await moduleMocker.mock('@/lib/cipher', () => ({
+    await moduleMocker.mock('@/security/password', () => ({
       hashPassword: mockHashPassword,
     }))
 
@@ -89,7 +89,7 @@ describe('Signup with Email', () => {
       expiresAt: mockExpiresAt,
     }))
 
-    await moduleMocker.mock('@/lib/token', () => ({
+    await moduleMocker.mock('@/security/token', () => ({
       generateToken: mockGenerateToken,
     }))
 
@@ -104,7 +104,7 @@ describe('Signup with Email', () => {
     mockJwtToken = 'mock-signup-jwt-token'
     mockCreateJwt = mock(async () => mockJwtToken)
 
-    await moduleMocker.mock('@/jwt', () => ({
+    await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
   })

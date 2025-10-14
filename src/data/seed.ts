@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { eq } from 'drizzle-orm'
 
-import { hashPassword } from '@/lib/cipher'
+import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from './clients'
