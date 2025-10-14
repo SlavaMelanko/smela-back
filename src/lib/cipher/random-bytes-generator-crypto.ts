@@ -3,8 +3,8 @@ import crypto from 'node:crypto'
 import type RandomBytesGenerator from './random-bytes-generator'
 
 class CryptoRandomBytesGenerator implements RandomBytesGenerator {
-  generate(numberOfBytes: number): string {
-    return crypto.randomBytes(numberOfBytes).toString('hex')
+  generate(numberOfBytes: number, encoding: BufferEncoding = 'hex'): string {
+    return crypto.randomBytes(numberOfBytes).toString(encoding)
   }
 }
 
