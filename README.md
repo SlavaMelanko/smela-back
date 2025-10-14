@@ -1,6 +1,6 @@
 # Backend
 
-Backend API with authentication, user management, and role-based access control. Built with focus on security and clean architecture.
+Monolithic REST API with authentication and RBAC, focused on security and modularity.
 
 |                                                                            |                                                                     Latest Release                                                                      |                                                                                                    Build Status                                                                                                     |                                                                                 Code Quality                                                                                 |                                                                             Code Coverage                                                                              |
 | :------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
@@ -27,19 +27,13 @@ See [`.env.example`](.env.example) to configure required variables.
 
 ### 3. Database Setup
 
+Run all database setup steps at once (generate → migrate → seed):
+
 ```bash
-# Generate migration files from schema
-bun db:generate
-
-# Apply migrations to database
-bun db:migrate
-
-# Seed database with initial data
-bun db:seed
-
-# Or run all database setup steps at once
 bun db:setup
 ```
+
+Or look at [`package.json`](package.json) for individual steps.
 
 ### 4. Start Development Server
 
@@ -47,7 +41,7 @@ bun db:setup
 bun dev
 ```
 
-Server will start on <http://localhost:3000>
+Server will start on <http://localhost:3000> by default.
 
 ## 🔌 API Endpoints
 
