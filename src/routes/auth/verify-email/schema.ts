@@ -1,10 +1,10 @@
 import type { InferType } from '@/lib/validation'
 
-import { buildStrictSchema, tokenRules } from '@/lib/validation'
+import { buildSchema, tokenRules } from '@/lib/validation'
 
-const verifyEmailSchema = buildStrictSchema({
+const verifyEmailSchema = buildSchema({
   token: tokenRules.token,
-})
+}).strict()
 
 export type VerifyEmailBody = InferType<typeof verifyEmailSchema>
 

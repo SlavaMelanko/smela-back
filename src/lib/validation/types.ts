@@ -6,7 +6,7 @@ import type { z } from 'zod'
  * @template T - Zod schema type
  *
  * @example
- * const userSchema = buildStrictSchema({ name: z.string(), age: z.number() })
+ * const userSchema = buildSchema({ name: z.string(), age: z.number() })
  * type User = InferType<typeof userSchema> // { name: string; age: number }
  */
 export type InferType<T extends z.ZodTypeAny> = z.infer<T>
