@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { rules } from '@/lib/rules'
+import { dataValidationRules as rules } from '../../@shared'
 
 const verifyEmailSchema = z.object({
   token: rules.securityToken,

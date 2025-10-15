@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { rules } from '@/lib/rules'
+import { dataValidationRules as rules } from '../../@shared'
 
 const requestPasswordResetSchema = z.object({
   email: rules.email,

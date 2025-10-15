@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { rules } from '@/lib/rules'
+import { dataValidationRules as rules } from '../../@shared'
 
 const signupSchema = z.object({
   firstName: rules.name,
