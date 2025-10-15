@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { TOKEN_LENGTH } from '@/security/token'
 
-import rules from '../token'
+import { tokenRules as rules } from '../token'
 
 describe('Token Validation Rules', () => {
   describe('token validation', () => {

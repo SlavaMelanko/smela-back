@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { TOKEN_LENGTH } from '@/security/token'
 
-const rules = {
+export const tokenRules = {
   token: z.string().length(
     TOKEN_LENGTH,
     `Token must be exactly ${TOKEN_LENGTH} characters long`,
@@ -14,5 +14,3 @@ const rules = {
     .max(2000, 'reCAPTCHA token is too long')
     .regex(/^[\w-]+$/, 'reCAPTCHA token contains invalid characters'),
 }
-
-export default rules

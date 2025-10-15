@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import { z } from 'zod'
 
-import rules from '../user'
+import { userRules as rules } from '../user'
 
 describe('User Validation Rules', () => {
   describe('email normalization', () => {

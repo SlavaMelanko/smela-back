@@ -6,7 +6,7 @@ const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Z\d@$!%*#?&]{8,}$
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
-const rules = {
+export const userRules = {
   email: z
     .string()
     .transform(normalizeEmail)
@@ -22,5 +22,3 @@ const rules = {
   name: z.string().min(2).max(50),
   role: z.nativeEnum(Role),
 }
-
-export default rules
