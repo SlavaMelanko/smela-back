@@ -5,7 +5,7 @@ import type { TokenRecord } from '@/data'
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
-import { hour } from '@/utils/chrono'
+import { hour, nowPlus } from '@/utils/chrono'
 
 import resetPassword from '../reset-password'
 
@@ -36,7 +36,7 @@ describe('Reset Password', () => {
       type: TokenType.PasswordReset,
       token: mockTokenString,
       status: TokenStatus.Pending,
-      expiresAt: new Date(Date.now() + hour()),
+      expiresAt: nowPlus(hour()),
       createdAt: new Date(),
       usedAt: null,
       metadata: null,

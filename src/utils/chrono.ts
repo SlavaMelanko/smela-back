@@ -11,6 +11,10 @@ const toHour = (n: number = 1) => toHours(n)
 const toDay = (n: number = 1) => toDays(n)
 const toWeek = (n: number = 1) => toWeeks(n)
 
+export const nowPlus = (ms: number) => new Date(Date.now() + ms)
+
+export const nowMinus = (ms: number) => new Date(Date.now() - ms)
+
 export { toMs as ms }
 export { toSecond as second, toSeconds as seconds }
 export { toMinute as minute, toMinutes as minutes }

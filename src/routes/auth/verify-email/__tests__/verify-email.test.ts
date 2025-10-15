@@ -6,7 +6,7 @@ import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
-import { hour, hours } from '@/utils/chrono'
+import { hour, hours, nowMinus, nowPlus } from '@/utils/chrono'
 
 import verifyEmail from '../verify-email'
 
@@ -33,7 +33,7 @@ describe('Verify Email', () => {
       type: TokenType.EmailVerification,
       token: mockTokenString,
       status: TokenStatus.Pending,
-      expiresAt: new Date(Date.now() + hours(48)),
+      expiresAt: nowPlus(hours(48)),
       usedAt: null,
       metadata: null,
       createdAt: new Date(),
@@ -153,7 +153,7 @@ describe('Verify Email', () => {
       const usedTokenRecord = {
         ...mockTokenRecord,
         status: TokenStatus.Used,
-        usedAt: new Date(Date.now() - hour()),
+        usedAt: nowMinus(hour()),
       }
 
       mockTokenRepo.findByToken.mockImplementation(async () => usedTokenRecord)
@@ -205,7 +205,7 @@ describe('Verify Email', () => {
     it('should throw TokenExpired error', async () => {
       const expiredTokenRecord = {
         ...mockTokenRecord,
-        expiresAt: new Date(Date.now() - hour()),
+        expiresAt: nowMinus(hour()),
       }
 
       mockTokenRepo.findByToken.mockImplementation(async () => expiredTokenRecord)
@@ -416,7 +416,7 @@ describe('Verify Email', () => {
       const inconsistentTokenRecord = {
         ...mockTokenRecord,
         status: TokenStatus.Pending,
-        usedAt: new Date(Date.now() - hour()),
+        usedAt: nowMinus(hour()),
       }
 
       mockTokenRepo.findByToken.mockImplementation(async () => inconsistentTokenRecord)
