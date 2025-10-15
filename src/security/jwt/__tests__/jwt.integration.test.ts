@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'bun:test'
 
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt, verifyJwt } from '@/security/jwt'
 import { Role, Status } from '@/types'
+
+import { signJwt, verifyJwt } from '../jwt'
 
 describe('JWT Integration Tests', () => {
   const testUserClaims = {

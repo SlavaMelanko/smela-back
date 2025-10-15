@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 
-import { HttpClient } from '@/net/http/client'
+import { HttpClient } from '../client'
 
 // Mock fetch globally
 const mockFetch = mock(async () => ({

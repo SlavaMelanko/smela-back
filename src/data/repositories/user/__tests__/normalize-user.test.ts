@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 
-import type { User } from '@/data'
-
 import { Role, Status } from '@/types'
+
+import type { User } from '../types'
 
 import { normalizeUser } from '..'
 
