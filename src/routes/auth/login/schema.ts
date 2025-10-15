@@ -1,13 +1,13 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
+import { dataValidationRules as rules } from '../../@shared'
 
-const loginSchema = buildStrictSchema({
-  email: userRules.email,
-  password: userRules.password,
-  captchaToken: tokenRules.captchaToken,
-})
+const loginSchema = z.object({
+  email: rules.email,
+  password: rules.password,
+  captchaToken: rules.captchaToken,
+}).strict()
 
-export type LoginBody = InferType<typeof loginSchema>
+export type LoginBody = z.infer<typeof loginSchema>
 
 export default loginSchema

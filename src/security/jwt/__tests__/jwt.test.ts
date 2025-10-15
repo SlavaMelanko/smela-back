@@ -4,6 +4,7 @@ import { ZodError } from 'zod'
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
+import { nowInSeconds } from '@/utils/chrono'
 
 describe('JWT Unit Tests', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -46,7 +47,7 @@ describe('JWT Unit Tests', () => {
       expect(mockSign).toHaveBeenCalledTimes(1)
 
       const [payload] = mockSign.mock.calls[0]
-      const nowInSeconds = Math.floor(Date.now() / 1000)
+      const now = nowInSeconds()
 
       expect(payload).toMatchObject({
         id: 1,
@@ -55,9 +56,9 @@ describe('JWT Unit Tests', () => {
         status: Status.Active,
         tokenVersion: 5,
       })
-      expect(payload.iat).toBeGreaterThanOrEqual(nowInSeconds - 1)
-      expect(payload.nbf).toBeGreaterThanOrEqual(nowInSeconds - 1)
-      expect(payload.exp).toBeGreaterThan(nowInSeconds)
+      expect(payload.iat).toBeGreaterThanOrEqual(now - 1)
+      expect(payload.nbf).toBeGreaterThanOrEqual(now - 1)
+      expect(payload.exp).toBeGreaterThan(now)
     })
   })
 
@@ -71,7 +72,7 @@ describe('JWT Unit Tests', () => {
         role: Role.User,
         status: Status.Active,
         v: 0,
-        exp: Math.floor(Date.now() / 1000) + 3600,
+        exp: nowInSeconds() + 3600,
       }))
 
       await moduleMocker.mock('hono/jwt', () => ({

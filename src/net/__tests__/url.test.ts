@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { isHttps, isLocalhost, isValidOrigin, makeUrl, normalizeOrigin, parseOrigin, removeTrailingSlash } from '@/net/url'
+import { isHttps, isLocalhost, isValidOrigin, makeUrl, normalizeOrigin, parseOrigin, removeTrailingSlash } from '../url'
 
 describe('URL Utilities', () => {
   describe('isLocalhost', () => {

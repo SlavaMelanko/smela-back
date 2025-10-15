@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { post } from '@/__tests__/request'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
-import { tokenRules, userRules } from '@/lib/validation'
 import HttpStatus from '@/net/http/status'
 
 import requestValidator from '../request-validator'
@@ -13,8 +12,8 @@ import requestValidator from '../request-validator'
 describe('Request Validator Middleware', () => {
   it('should accept valid email and password together', async () => {
     const schema = z.object({
-      email: userRules.email,
-      password: userRules.password,
+      email: z.string().email(),
+      password: z.string().min(8),
     })
 
     const app = new Hono()
@@ -34,8 +33,8 @@ describe('Request Validator Middleware', () => {
 
   it('should return validation error when required password field is missing', async () => {
     const schema = z.object({
-      email: userRules.email,
-      password: userRules.password,
+      email: z.string().email(),
+      password: z.string().min(8),
     })
 
     const app = new Hono()
@@ -53,7 +52,7 @@ describe('Request Validator Middleware', () => {
 
   it('should return validation error when token exceeds required length', async () => {
     const schema = z.object({
-      token: tokenRules.token,
+      token: z.string().length(64, { message: 'Token must be exactly 64 characters long' }),
     })
 
     const app = new Hono()

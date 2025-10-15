@@ -6,6 +6,7 @@ import { ModuleMocker } from '@/__tests__'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
+import { hour, nowPlus } from '@/utils/chrono'
 
 import requestPasswordReset from '../request-password-reset'
 
@@ -53,7 +54,7 @@ describe('Request Password Reset', () => {
     }))
 
     mockTokenString = 'reset-token-123'
-    mockExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
+    mockExpiresAt = nowPlus(hour())
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: mock(() => ({

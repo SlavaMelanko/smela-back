@@ -1,12 +1,12 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
+import { dataValidationRules as rules } from '../../@shared'
 
-const resendVerificationEmailSchema = buildStrictSchema({
-  email: userRules.email,
-  captchaToken: tokenRules.captchaToken,
-})
+const resendVerificationEmailSchema = z.object({
+  email: rules.email,
+  captchaToken: rules.captchaToken,
+}).strict()
 
-export type ResendVerificationEmailBody = InferType<typeof resendVerificationEmailSchema>
+export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>
 
 export default resendVerificationEmailSchema
