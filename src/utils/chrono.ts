@@ -12,8 +12,9 @@ const toDay = (n: number = 1) => toDays(n)
 const toWeek = (n: number = 1) => toWeeks(n)
 
 export const nowPlus = (ms: number) => new Date(Date.now() + ms)
-
 export const nowMinus = (ms: number) => new Date(Date.now() - ms)
+
+export const nowInSeconds = () => Math.floor(Date.now() / 1000)
 
 export { toMs as ms }
 export { toSecond as second, toSeconds as seconds }
