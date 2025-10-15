@@ -7,6 +7,7 @@ import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
+import { hours } from '@/utils/chrono'
 
 import type { SignupParams } from '../signup'
 
@@ -83,7 +84,7 @@ describe('Signup with Email', () => {
     }))
 
     mockTokenString = 'verification-token-123'
-    mockExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
+    mockExpiresAt = new Date(Date.now() + hours(48))
     mockGenerateToken = mock(() => ({
       type: TokenType.EmailVerification,
       token: mockTokenString,

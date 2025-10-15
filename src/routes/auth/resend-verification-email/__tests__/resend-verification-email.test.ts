@@ -6,6 +6,7 @@ import { ModuleMocker } from '@/__tests__'
 import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
+import { hours } from '@/utils/chrono'
 
 import resendVerificationEmail from '../resend-verification-email'
 
@@ -53,7 +54,7 @@ describe('Resend Verification Email', () => {
     }))
 
     mockTokenString = 'mock-resend-verification-token-123'
-    mockExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    mockExpiresAt = new Date(Date.now() + hours(24))
     mockGenerateToken = mock(() => ({
       type: TokenType.EmailVerification,
       token: mockTokenString,
