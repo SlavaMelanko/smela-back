@@ -352,7 +352,7 @@ describe('User Validation Rules', () => {
     })
   })
 
-  describe('default and opt properties', () => {
+  describe('required vs nullish properties', () => {
     it('should work as required by default for email', () => {
       expect(() => rules.email.parse('test@example.com')).not.toThrow()
       expect(() => rules.email.parse('')).toThrow()
@@ -360,11 +360,12 @@ describe('User Validation Rules', () => {
       expect(() => rules.email.parse(undefined)).toThrow()
     })
 
-    it('should have .opt property for email that allows null and undefined', () => {
-      expect(() => rules.email.opt.parse('test@example.com')).not.toThrow()
-      expect(() => rules.email.opt.parse(null)).not.toThrow()
-      expect(() => rules.email.opt.parse(undefined)).not.toThrow()
-      expect(() => rules.email.opt.parse('')).toThrow() // Empty string still fails validation
+    it('should support .nullish() for email that allows null and undefined', () => {
+      const nullishEmail = rules.email.nullish()
+      expect(() => nullishEmail.parse('test@example.com')).not.toThrow()
+      expect(() => nullishEmail.parse(null)).not.toThrow()
+      expect(() => nullishEmail.parse(undefined)).not.toThrow()
+      expect(() => nullishEmail.parse('')).toThrow() // empty string still fails validation
     })
 
     it('should work as required by default for password', () => {
@@ -374,11 +375,12 @@ describe('User Validation Rules', () => {
       expect(() => rules.password.parse(undefined)).toThrow()
     })
 
-    it('should have .opt property for password that allows null and undefined', () => {
-      expect(() => rules.password.opt.parse('Password1!')).not.toThrow()
-      expect(() => rules.password.opt.parse(null)).not.toThrow()
-      expect(() => rules.password.opt.parse(undefined)).not.toThrow()
-      expect(() => rules.password.opt.parse('weak')).toThrow() // Weak password still fails
+    it('should support .nullish() for password that allows null and undefined', () => {
+      const nullishPassword = rules.password.nullish()
+      expect(() => nullishPassword.parse('Password1!')).not.toThrow()
+      expect(() => nullishPassword.parse(null)).not.toThrow()
+      expect(() => nullishPassword.parse(undefined)).not.toThrow()
+      expect(() => nullishPassword.parse('weak')).toThrow() // weak password still fails
     })
 
     it('should work as required by default for name', () => {
@@ -388,11 +390,12 @@ describe('User Validation Rules', () => {
       expect(() => rules.name.parse(undefined)).toThrow()
     })
 
-    it('should have .opt property for name that allows null and undefined', () => {
-      expect(() => rules.name.opt.parse('John')).not.toThrow()
-      expect(() => rules.name.opt.parse(null)).not.toThrow()
-      expect(() => rules.name.opt.parse(undefined)).not.toThrow()
-      expect(() => rules.name.opt.parse('J')).toThrow() // Too short still fails
+    it('should support .nullish() for name that allows null and undefined', () => {
+      const nullishName = rules.name.nullish()
+      expect(() => nullishName.parse('John')).not.toThrow()
+      expect(() => nullishName.parse(null)).not.toThrow()
+      expect(() => nullishName.parse(undefined)).not.toThrow()
+      expect(() => nullishName.parse('J')).toThrow() // too short still fails
     })
 
     it('should work in schemas with required fields by default', () => {
@@ -412,16 +415,24 @@ describe('User Validation Rules', () => {
       expect(() => schema.parse({ ...valid, email: null })).toThrow()
     })
 
-    it('should work in schemas with optional fields using .opt', () => {
+    it('should work in schemas with nullish fields using .nullish()', () => {
       const schema = z.object({
-        firstName: rules.name.opt,
-        lastName: rules.name.opt,
+        firstName: rules.name.nullish(),
+        lastName: rules.name.nullish(),
       })
 
       expect(() => schema.parse({})).not.toThrow()
       expect(() => schema.parse({ firstName: null })).not.toThrow()
       expect(() => schema.parse({ firstName: 'John' })).not.toThrow()
       expect(() => schema.parse({ firstName: 'John', lastName: null })).not.toThrow()
+    })
+
+    it('should support .optional() for name that allows undefined but not null', () => {
+      const optionalName = rules.name.optional()
+      expect(() => optionalName.parse('John')).not.toThrow()
+      expect(() => optionalName.parse(undefined)).not.toThrow()
+      expect(() => optionalName.parse(null)).toThrow() // null not allowed with .optional()
+      expect(() => optionalName.parse('J')).toThrow() // too short still fails
     })
   })
 

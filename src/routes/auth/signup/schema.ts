@@ -4,7 +4,7 @@ import { buildStrictSchema, tokenRules, userRules } from '@/lib/validation'
 
 const signupSchema = buildStrictSchema({
   firstName: userRules.name,
-  lastName: userRules.name.opt,
+  lastName: userRules.name.nullish(),
   email: userRules.email,
   password: userRules.password,
   captchaToken: tokenRules.captchaToken,
