@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { tokenRules, userRules } from '@/lib/validation'
+import { rules } from '@/lib/rules'
 
 const resendVerificationEmailSchema = z.object({
-  email: userRules.email,
-  captchaToken: tokenRules.captchaToken,
+  email: rules.email,
+  captchaToken: rules.captchaToken,
 }).strict()
 
 export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>

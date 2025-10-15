@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
-import { tokenRules, userRules } from '@/lib/validation'
+import { rules } from '@/lib/rules'
 
 const signupSchema = z.object({
-  firstName: userRules.name,
-  lastName: userRules.name.nullish(),
-  email: userRules.email,
-  password: userRules.password,
-  captchaToken: tokenRules.captchaToken,
+  firstName: rules.name,
+  lastName: rules.name.nullish(),
+  email: rules.email,
+  password: rules.password,
+  captchaToken: rules.captchaToken,
 }).strict()
 
 export type SignupBody = z.infer<typeof signupSchema>

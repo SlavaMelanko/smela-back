@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { tokenRules, userRules } from '@/lib/validation'
+import { rules } from '@/lib/rules'
 
 const resetPasswordSchema = z.object({
-  token: tokenRules.token,
-  password: userRules.password,
+  token: rules.securityToken,
+  password: rules.password,
 }).strict()
 
 export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>

@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { userRules } from '@/lib/validation'
+import { rules } from '@/lib/rules'
 
 const updateProfileSchema = z.object({
-  firstName: userRules.name.nullish(),
-  lastName: userRules.name.nullish(),
+  firstName: rules.name.nullish(),
+  lastName: rules.name.nullish(),
 })
 
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>

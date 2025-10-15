@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import { tokenRules } from '@/lib/validation'
+import { rules } from '@/lib/rules'
 
 const verifyEmailSchema = z.object({
-  token: tokenRules.token,
+  token: rules.securityToken,
 }).strict()
 
 export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>
