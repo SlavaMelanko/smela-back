@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 
-import { validateEnvVars } from '@/env/env'
+import { validateEnvVars } from '../env'
 
 describe('Environment Configuration', () => {
   // eslint-disable-next-line ts/unbound-method
