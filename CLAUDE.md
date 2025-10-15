@@ -42,7 +42,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `seed.ts` - Database seeding script
 - `/src/security/` - Security-related utilities
   - `/jwt/` - JWT token generation and validation with claims
-  - `/password/` - Password hashing and validation
+  - `/password/` - Password hashing, validation, and regex patterns
   - `/token/` - Token generation for email verification and password reset
 - `/src/crypto/` - Low-level cryptographic primitives (hashing, random bytes)
 - `/src/services/` - External service integrations
@@ -62,9 +62,10 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/cors/` - CORS configuration
   - `/request-validator/` - Request validation middleware
 - `/src/routes/` - API endpoint handlers organized by domain
+  - `/@shared/` - Shared route utilities (data validation rules)
   - `/auth/` - Authentication routes (login, signup, password reset, email verification)
   - `/user/` - User-specific routes (profile management)
-- `/src/lib/` - Shared utilities (validation rules, email sender)
+- `/src/lib/` - Shared utilities (email sender)
 - `/src/utils/` - Generic, reusable utilities
   - `/async.ts` - Async/promise utilities (withTimeout, sleepFor, exponentialBackoffDelay)
 - `/src/net/http/` - HTTP utilities (cookie handling, status codes)
