@@ -1,11 +1,11 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildSchema, tokenRules } from '@/lib/validation'
+import { tokenRules } from '@/lib/validation'
 
-const verifyEmailSchema = buildSchema({
+const verifyEmailSchema = z.object({
   token: tokenRules.token,
 }).strict()
 
-export type VerifyEmailBody = InferType<typeof verifyEmailSchema>
+export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>
 
 export default verifyEmailSchema

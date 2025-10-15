@@ -1,12 +1,12 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildSchema, userRules } from '@/lib/validation'
+import { userRules } from '@/lib/validation'
 
-const updateProfileSchema = buildSchema({
+const updateProfileSchema = z.object({
   firstName: userRules.name.nullish(),
   lastName: userRules.name.nullish(),
 })
 
-export type UpdateProfileBody = InferType<typeof updateProfileSchema>
+export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
 
 export default updateProfileSchema

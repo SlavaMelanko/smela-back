@@ -1,13 +1,13 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { tokenRules, userRules } from '@/lib/validation'
 
-const loginSchema = buildSchema({
+const loginSchema = z.object({
   email: userRules.email,
   password: userRules.password,
   captchaToken: tokenRules.captchaToken,
 }).strict()
 
-export type LoginBody = InferType<typeof loginSchema>
+export type LoginBody = z.infer<typeof loginSchema>
 
 export default loginSchema

@@ -1,12 +1,12 @@
-import type { InferType } from '@/lib/validation'
+import { z } from 'zod'
 
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { tokenRules, userRules } from '@/lib/validation'
 
-const resetPasswordSchema = buildSchema({
+const resetPasswordSchema = z.object({
   token: tokenRules.token,
   password: userRules.password,
 }).strict()
 
-export type ResetPasswordBody = InferType<typeof resetPasswordSchema>
+export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>
 
 export default resetPasswordSchema
