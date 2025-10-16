@@ -32,7 +32,7 @@ describe('Signup Endpoint', () => {
       token: 'signup-jwt-token',
     }))
 
-    await moduleMocker.mock('../signup', () => ({
+    await moduleMocker.mock('@/use-cases/auth/signup', () => ({
       default: mockSignUpWithEmail,
     }))
 

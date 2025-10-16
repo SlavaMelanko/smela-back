@@ -1,10 +1,9 @@
 import type { Context } from 'hono'
 
 import HttpStatus from '@/types/http-status'
+import resendVerificationEmail from '@/use-cases/auth/resend-verification-email'
 
 import type { ResendVerificationEmailBody } from './schema'
-
-import resendVerificationEmail from './resend-verification-email'
 
 const resendVerificationEmailHandler = async (c: Context) => {
   const { email } = await c.req.json<ResendVerificationEmailBody>()

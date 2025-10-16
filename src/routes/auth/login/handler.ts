@@ -2,10 +2,9 @@ import type { Context } from 'hono'
 
 import { setAccessCookie } from '@/net/http'
 import HttpStatus from '@/types/http-status'
+import logInWithEmail from '@/use-cases/auth/login'
 
 import type { LoginBody } from './schema'
-
-import logInWithEmail from './login'
 
 const loginHandler = async (c: Context) => {
   const { email, password } = await c.req.json<LoginBody>()

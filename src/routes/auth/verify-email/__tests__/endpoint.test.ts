@@ -30,7 +30,7 @@ describe('Verify Email Endpoint', () => {
       token: 'verify-jwt-token',
     }))
 
-    await moduleMocker.mock('../verify-email', () => ({
+    await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
       default: mockVerifyEmail,
     }))
 

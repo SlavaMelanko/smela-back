@@ -65,7 +65,7 @@ describe('Me Endpoint', () => {
     }
     mockUpdateUser = mock(async () => mockUpdatedUser)
 
-    await moduleMocker.mock('../me', () => ({
+    await moduleMocker.mock('@/use-cases/user/me', () => ({
       getUser: mockGetUser,
       updateUser: mockUpdateUser,
     }))
@@ -129,7 +129,7 @@ describe('Me Endpoint', () => {
       expect(data.user).toHaveProperty('updatedAt')
 
       // Verify getUser was called with correct user ID
-      const { getUser } = await import('../me')
+      const { getUser } = await import('@/use-cases/user/me')
       expect(getUser).toHaveBeenCalledWith(1)
       expect(getUser).toHaveBeenCalledTimes(1)
     })
@@ -204,7 +204,7 @@ describe('Me Endpoint', () => {
       expect(data.user).not.toHaveProperty('tokenVersion')
 
       // Verify updateUser was called with correct parameters
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
         lastName: 'Smith',
@@ -253,7 +253,7 @@ describe('Me Endpoint', () => {
       expect(data.user.firstName).toBe('Jane')
 
       // Verify updateUser was called with only firstName
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
       })
@@ -307,7 +307,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Doe')
 
       // Verify updateUser was called
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {})
     })
 
@@ -320,7 +320,7 @@ describe('Me Endpoint', () => {
       expect(res.status).toBe(HttpStatus.OK)
 
       // Verify updateUser was called with both fields (validation layer handles null)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
         lastName: undefined, // null is converted to undefined
@@ -339,7 +339,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called only with lastName
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         lastName: 'Smith',
       })
@@ -386,7 +386,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called with whitespace string (prepareValidUpdates will filter it)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: '   ',
         lastName: 'Smith',
@@ -406,7 +406,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called with untrimmed values (trimming happens inside updateUser)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: '  Jane  ',
         lastName: '  Smith  ',

@@ -33,7 +33,7 @@ describe('Login Endpoint', () => {
       token: 'login-jwt-token',
     }))
 
-    await moduleMocker.mock('../login', () => ({
+    await moduleMocker.mock('@/use-cases/auth/login', () => ({
       default: mockLogInWithEmail,
     }))
 
