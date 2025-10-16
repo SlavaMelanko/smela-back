@@ -3,10 +3,9 @@ import type { Context } from 'hono'
 import type { AppContext } from '@/context'
 
 import { normalizeUser } from '@/data'
+import { getUser, updateUser } from '@/use-cases/user/me'
 
 import type { UpdateProfileBody } from './schema'
-
-import { getUser, updateUser } from './me'
 
 const getHandler = async (c: Context<AppContext>) => {
   const userContext = c.get('user')
