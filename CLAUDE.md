@@ -30,6 +30,8 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 
 ## Architecture Overview
 
+**For detailed architecture documentation, see [src/README.md](src/README.md)** - Describes the layered architecture, module organization, and dependency rules.
+
 ### Directory Structure
 
 - `/src/app.ts` - Application entry point
