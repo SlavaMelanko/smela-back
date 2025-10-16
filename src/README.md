@@ -12,7 +12,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 ## Layer Overview
 
-### Layer 4: Presentation Layer (HTTP Interface)
+### 🌐 Layer 4: Presentation Layer (HTTP Interface)
 
 **Purpose**: Handle HTTP requests and responses, translate between HTTP and application logic.
 
@@ -26,7 +26,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 ---
 
-### Layer 3: Application Layer (Business Workflows)
+### 🎯 Layer 3: Application Layer (Business Workflows)
 
 **Purpose**: Orchestrate business workflows and use cases, coordinate between infrastructure services.
 
@@ -40,7 +40,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 ---
 
-### Layer 2: Infrastructure Layer (External Integrations)
+### 🔌 Layer 2: Infrastructure Layer (External Integrations)
 
 **Purpose**: Integrate with external systems and manage data persistence.
 
@@ -68,7 +68,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 ---
 
-### Layer 1.5: Technical Capabilities Layer (Reusable Technical Utilities)
+### 🛠️ Layer 1.5: Technical Capabilities Layer (Reusable Technical Utilities)
 
 **Purpose**: Provide infrastructure-level primitives (HTTP, security) that are reusable across the application.
 
@@ -85,7 +85,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 ---
 
-### Layer 1: Foundation Layer (Pure Primitives)
+### 🧱 Layer 1: Foundation Layer (Pure Primitives)
 
 **Purpose**: Provide fundamental primitives with zero internal dependencies (only external packages).
 
@@ -182,11 +182,3 @@ When adding new features, follow this pattern:
 5. **Update barrel exports** in relevant `index.ts` files
 
 **Never put business logic in route handlers** - always extract to use cases.
-
----
-
-## References
-
-- Project root `CLAUDE.md` - Comprehensive project documentation
-- `package.json` - Available commands and dependencies
-- `.env.example` - Environment configuration reference
