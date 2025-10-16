@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { post } from '@/__tests__/request'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
-import HttpStatus from '@/net/http/status'
+import HttpStatus from '@/types/http-status'
 
 import requestValidator from '../request-validator'
 

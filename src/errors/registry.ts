@@ -1,4 +1,4 @@
-import HttpStatus from '@/net/http/status'
+import HttpStatus from '@/types/http-status'
 
 import ErrorCode from './codes'
 

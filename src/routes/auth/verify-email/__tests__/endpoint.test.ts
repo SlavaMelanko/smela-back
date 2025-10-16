@@ -3,8 +3,8 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/net/http/status'
 import { Role, Status } from '@/types'
+import HttpStatus from '@/types/http-status'
 
 import verifyEmailRoute from '../index'
 
