@@ -5,7 +5,6 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 import { createCaptchaVerifier } from '@/services'
 
 interface CaptchaRequestBody {
@@ -34,12 +33,6 @@ const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
       if (error instanceof AppError) {
         throw error
       }
-
-      logger.error({
-        error,
-        path: c.req.path,
-        method: c.req.method,
-      }, 'Unexpected error during CAPTCHA validation')
 
       throw new AppError(ErrorCode.CaptchaValidationFailed)
     }

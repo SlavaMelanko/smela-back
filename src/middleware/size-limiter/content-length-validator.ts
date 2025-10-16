@@ -1,5 +1,4 @@
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 
 export const validateContentLengthHeader = (
   contentHeader: string | null | undefined,
@@ -12,17 +11,10 @@ export const validateContentLengthHeader = (
   const contentLength = +contentHeader
 
   if (Number.isNaN(contentLength) || contentLength < 0) {
-    logger.warn({ contentLength: contentHeader }, 'Invalid Content-Length header')
-
     throw new AppError(ErrorCode.InvalidContentLength)
   }
 
   if (contentLength > maxSize) {
-    logger.warn({
-      length: contentLength,
-      maxSize,
-    }, 'Request body too large (Content-Length)')
-
     throw new AppError(ErrorCode.RequestTooLarge)
   }
 

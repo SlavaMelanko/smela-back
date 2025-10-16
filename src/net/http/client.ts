@@ -1,5 +1,4 @@
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 import { withTimeout } from '@/utils/async'
 
 import { makeUrl, removeTrailingSlash } from '../url'
@@ -53,9 +52,7 @@ export class HttpClient {
     )
 
     if (!response.ok) {
-      logger.error(`API request failed: ${response.status} ${response.statusText} - ${url}`)
-
-      throw new AppError(ErrorCode.InternalError)
+      throw new AppError(ErrorCode.InternalError, `API request failed: ${response.status} ${response.statusText}`)
     }
 
     return response.json() as Promise<T>

@@ -1,5 +1,4 @@
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 import { HttpClient } from '@/net/http/client'
 
 import type { Captcha } from '../captcha'
@@ -39,15 +38,11 @@ export class Recaptcha implements Captcha {
     const result = await this.httpClient.post<Result>(this.config.path, body)
 
     if (!result.success) {
-      logger.warn({ data: result }, 'reCAPTCHA token validation failed')
-
       const errorCodes = result['error-codes'] || []
       const hostname = result.hostname || 'unknown'
       const message = `reCAPTCHA token validation failed. Error codes: ${errorCodes.join(', ')}. Hostname: ${hostname}`
 
       throw new AppError(ErrorCode.CaptchaValidationFailed, message)
     }
-
-    logger.debug({ data: result }, 'reCAPTCHA token validated successfully')
   }
 }

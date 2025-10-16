@@ -5,7 +5,6 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 
 import { validateBodySize } from './body-size-validator'
 import { DEFAULT_MAX_SIZE } from './constants'
@@ -37,23 +36,12 @@ export const createRequestSizeLimiter = (
 
       // Validate that Content-Length matches actual size if header was provided.
       if (contentHeader && contentLength !== null && contentLength !== bodySize) {
-        logger.warn({
-          declaredSize: contentLength,
-          actualSize: bodySize,
-        }, 'Content-Length mismatch')
-
         throw new AppError(ErrorCode.ContentLengthMismatch)
       }
     } catch (error) {
       if (error instanceof AppError) {
         throw error
       }
-
-      logger.error({
-        error,
-        path: c.req.path,
-        method: c.req.method,
-      }, 'Failed to validate request body size')
 
       throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }
