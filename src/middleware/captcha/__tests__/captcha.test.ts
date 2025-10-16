@@ -4,7 +4,7 @@ import { Hono } from 'hono'
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
-import HttpStatus from '@/net/http/status'
+import HttpStatus from '@/types/http-status'
 
 import captchaMiddleware from '../captcha'
 

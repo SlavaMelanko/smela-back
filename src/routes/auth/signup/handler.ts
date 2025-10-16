@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 
-import { HttpStatus, setAccessCookie } from '@/net/http'
+import { setAccessCookie } from '@/net/http'
+import HttpStatus from '@/types/http-status'
 
 import type { SignupBody } from './schema'
 
