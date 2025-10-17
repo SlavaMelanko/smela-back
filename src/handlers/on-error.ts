@@ -33,10 +33,10 @@ const onError: ErrorHandler = (err, c) => {
   logger.error(err)
 
   const code = getErrorCode(err)
-  const error = err.message || ErrorRegistry[code].error || getReasonPhrase(getHttpStatus(code))
+  const status = getHttpStatus(code)
+  const error = err.message || ErrorRegistry[code].error || getReasonPhrase(status)
   const name = err.name
   const stack = isDevEnv() ? err.stack : undefined
-  const status = getHttpStatus(code)
 
   return c.json(
     {
