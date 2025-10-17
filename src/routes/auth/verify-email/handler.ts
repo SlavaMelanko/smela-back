@@ -1,7 +1,6 @@
 import type { Context } from 'hono'
 
-import { setAccessCookie } from '@/net/http'
-import HttpStatus from '@/types/http-status'
+import { HttpStatus, setAccessCookie } from '@/net/http'
 import verifyEmail from '@/use-cases/auth/verify-email'
 
 import type { VerifyEmailBody } from './schema'

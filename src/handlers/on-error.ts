@@ -4,9 +4,11 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { HTTPException } from 'hono/http-exception'
 
 import { isDevEnv } from '@/env'
-import { ErrorCode, ErrorRegistry } from '@/errors'
+import { APP_ERROR_NAME, ErrorCode, ErrorRegistry } from '@/errors'
 import { logger } from '@/logging'
-import HttpStatus, { getReasonPhrase } from '@/types/http-status'
+import { getReasonPhrase, HttpStatus } from '@/net/http'
+
+import { getHttpStatus } from './http-status-mapper'
 
 const getErrorCode = (err: unknown): ErrorCode => {
   if (err instanceof HTTPException) {
@@ -31,18 +33,15 @@ const onError: ErrorHandler = (err, c) => {
   logger.error(err)
 
   const code = getErrorCode(err)
-
-  const error = ErrorRegistry[code]
-  const status = error.status
-  const message = err.message || error.error || getReasonPhrase(status)
-  const name = err.name
+  const status = getHttpStatus(code)
+  const error = err.message || ErrorRegistry[code].error || getReasonPhrase(status)
   const stack = isDevEnv() ? err.stack : undefined
 
   return c.json(
     {
+      name: APP_ERROR_NAME,
       code,
-      error: message,
-      name,
+      error,
       stack,
     },
     status as ContentfulStatusCode,

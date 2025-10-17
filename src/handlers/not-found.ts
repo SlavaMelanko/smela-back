@@ -3,16 +3,20 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import type { AppContext } from '@/context'
 
-import { ErrorCode, ErrorRegistry } from '@/errors'
+import { APP_ERROR_NAME, ErrorCode, ErrorRegistry } from '@/errors'
+
+import { getHttpStatus } from './http-status-mapper'
 
 const notFound: NotFoundHandler<AppContext> = (c) => {
   const code = ErrorCode.NotFound
-  const { error, status } = ErrorRegistry[code]
+  const error = ErrorRegistry[code].error
+  const status = getHttpStatus(code)
 
   return c.json(
     {
-      error,
+      name: APP_ERROR_NAME,
       code,
+      error,
       path: c.req.path,
     },
     status as ContentfulStatusCode,

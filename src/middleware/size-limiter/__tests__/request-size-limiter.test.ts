@@ -4,7 +4,7 @@ import { Hono } from 'hono'
 import type { AppContext } from '@/context'
 
 import { onError } from '@/handlers'
-import HttpStatus from '@/types/http-status'
+import { HttpStatus } from '@/net/http'
 
 import {
   authRequestSizeLimiter,
