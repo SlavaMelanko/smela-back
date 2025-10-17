@@ -8,7 +8,7 @@ class AppError extends Error {
   code: ErrorCode
 
   constructor(code: ErrorCode, message?: string) {
-    super(message ?? ErrorRegistry[code].error)
+    super(message?.trim() || ErrorRegistry[code].error)
     this.code = code
     this.name = APP_ERROR_NAME
   }
