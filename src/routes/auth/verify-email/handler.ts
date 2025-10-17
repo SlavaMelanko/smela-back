@@ -1,12 +1,12 @@
 import type { Context } from 'hono'
 
-import { setAccessCookie } from '@/lib/cookie'
-import HttpStatus from '@/lib/http-status'
+import { HttpStatus, setAccessCookie } from '@/net/http'
+import verifyEmail from '@/use-cases/auth/verify-email'
 
-import verifyEmail from './verify-email'
+import type { VerifyEmailBody } from './schema'
 
 const verifyEmailHandler = async (c: Context) => {
-  const { token } = await c.req.json()
+  const { token } = await c.req.json<VerifyEmailBody>()
 
   const result = await verifyEmail(token)
 

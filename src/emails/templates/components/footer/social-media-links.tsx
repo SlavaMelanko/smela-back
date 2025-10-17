@@ -4,6 +4,8 @@ import {
   Link,
 } from '@react-email/components'
 
+import type { ThemeStyles } from '../../../styles'
+
 import { getThemeStyles } from '../../../styles'
 
 interface SocialLink {
@@ -12,7 +14,7 @@ interface SocialLink {
   label: string
 }
 
-const getIcon = (platform: string, style: any): React.ReactNode | null => {
+const getIcon = (platform: string, style: ThemeStyles['icon']): React.ReactNode | null => {
   const icons: Record<string, React.ReactNode> = {
     facebook: (
       <svg
@@ -68,7 +70,7 @@ const getIcon = (platform: string, style: any): React.ReactNode | null => {
 
 const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1)
 
-const mapIcons = (links: Record<string, string>, style: any): SocialLink[] =>
+const mapIcons = (links: Record<string, string>, style: ThemeStyles['icon']): SocialLink[] =>
   Object.entries(links).map(([platform, url]) => ({
     href: url,
     icon: getIcon(platform, style),
@@ -76,7 +78,7 @@ const mapIcons = (links: Record<string, string>, style: any): SocialLink[] =>
   }))
 
 interface Props {
-  styles: any
+  styles: ThemeStyles
   socialMediaLinks: Record<string, string>
 }
 

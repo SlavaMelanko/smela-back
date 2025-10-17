@@ -1,7 +1,10 @@
 import type { MiddlewareHandler } from 'hono'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-import logger from '@/lib/logger'
+import { createMiddleware } from 'hono/factory'
+
+import type { AppContext } from '@/context'
+
+import { AppError, ErrorCode } from '@/errors'
 
 import { validateBodySize } from './body-size-validator'
 import { DEFAULT_MAX_SIZE } from './constants'
@@ -11,12 +14,14 @@ export interface RequestSizeLimiterOptions {
   maxSize?: number
 }
 
-export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}): MiddlewareHandler => {
+export const createRequestSizeLimiter = (
+  options: RequestSizeLimiterOptions = {},
+): MiddlewareHandler<AppContext> => {
   const {
     maxSize = DEFAULT_MAX_SIZE,
   } = options
 
-  return async (c, next) => {
+  return createMiddleware<AppContext>(async (c, next) => {
     // Skip validation for methods that typically don't have a body.
     if (['GET', 'HEAD', 'DELETE', 'OPTIONS'].includes(c.req.method)) {
       return next()
@@ -31,11 +36,6 @@ export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}
 
       // Validate that Content-Length matches actual size if header was provided.
       if (contentHeader && contentLength !== null && contentLength !== bodySize) {
-        logger.warn({
-          declaredSize: contentLength,
-          actualSize: bodySize,
-        }, 'Content-Length mismatch')
-
         throw new AppError(ErrorCode.ContentLengthMismatch)
       }
     } catch (error) {
@@ -43,15 +43,9 @@ export const createRequestSizeLimiter = (options: RequestSizeLimiterOptions = {}
         throw error
       }
 
-      logger.error({
-        error,
-        path: c.req.path,
-        method: c.req.method,
-      }, 'Failed to validate request body size')
-
       throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }
 
     await next()
-  }
+  })
 }

@@ -1,4 +1,5 @@
 export type { EmailConfig } from './configs'
+export { emailAgent, EmailAgent } from './email-agent'
 export { EmailType } from './email-type'
 export { createEmailProvider, type EmailProvider, type EmailProviderType } from './providers'
 export { buildEmailRegistry, type EmailRegistry } from './registry'

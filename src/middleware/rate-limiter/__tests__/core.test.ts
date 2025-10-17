@@ -1,19 +1,26 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Hono } from 'hono'
 
-import HttpStatus from '@/lib/http-status'
+import { ModuleMocker } from '@/__tests__/module-mocker'
+import { HttpStatus } from '@/net/http'
 
 import { createRateLimiter } from '..'
 
 describe('Rate Limiter Core', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   let app: Hono
 
-  beforeEach(() => {
-    mock.module('@/lib/env', () => ({
+  beforeEach(async () => {
+    await moduleMocker.mock('@/env', () => ({
       isDevOrTestEnv: () => true,
     }))
 
     app = new Hono()
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('Basic Rate Limiting', () => {
@@ -164,7 +171,7 @@ describe('Rate Limiter Core', () => {
       app.get('/test', c => c.text('OK'))
 
       // Make many requests quickly (simulating test suite)
-      const requests = Array.from({ length: 50 }, (_, _i) =>
+      const requests = Array.from({ length: 50 }, async (_, _i) =>
         app.request('/test', { method: 'GET' }))
 
       const responses = await Promise.all(requests)

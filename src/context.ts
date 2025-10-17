@@ -1,7 +1,7 @@
-import type { UserPayload } from '@/types'
+import type { UserClaims } from '@/security/jwt'
 
 export interface Variables {
-  user: UserPayload
+  user: UserClaims
 }
 
 export interface AppContext {

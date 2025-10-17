@@ -1,12 +1,15 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { z } from 'zod'
 
-const signupSchema = buildSchema({
-  firstName: userRules.name,
-  lastName: userRules.name.opt,
-  email: userRules.email,
-  password: userRules.password,
-  role: userRules.role,
-  captchaToken: tokenRules.captchaToken,
-})
+import { dataValidationRules as rules } from '../../@shared'
+
+const signupSchema = z.object({
+  firstName: rules.name,
+  lastName: rules.name.nullish(),
+  email: rules.email,
+  password: rules.password,
+  captchaToken: rules.captchaToken,
+}).strict()
+
+export type SignupBody = z.infer<typeof signupSchema>
 
 export default signupSchema

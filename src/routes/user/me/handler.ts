@@ -2,9 +2,10 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { normalizeUser } from '@/lib/user'
+import { normalizeUser } from '@/data'
+import { getUser, updateUser } from '@/use-cases/user/me'
 
-import { getUser, updateUser } from './me'
+import type { UpdateProfileBody } from './schema'
 
 const getHandler = async (c: Context<AppContext>) => {
   const userContext = c.get('user')
@@ -16,9 +17,12 @@ const getHandler = async (c: Context<AppContext>) => {
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
-  const body = await c.req.json()
+  const { firstName, lastName } = await c.req.json<UpdateProfileBody>()
 
-  const updatedUser = await updateUser(user.id, { ...body })
+  const updatedUser = await updateUser(user.id, {
+    firstName: firstName ?? undefined,
+    lastName: lastName ?? undefined,
+  })
 
   return c.json({ user: normalizeUser(updatedUser) })
 }

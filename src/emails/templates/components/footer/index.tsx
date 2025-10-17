@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
 
+import type { ThemeStyles } from '../../../styles'
 import type { Metadata } from '../../../types'
 
 import { config } from '../../../config'
@@ -9,7 +10,7 @@ import MetadataContainer from './metadata'
 import SocialMediaLinks from './social-media-links'
 
 interface Props {
-  styles: any
+  styles: ThemeStyles
   companyName?: string
   socialMediaLinks?: Record<string, string>
   metadata?: Metadata

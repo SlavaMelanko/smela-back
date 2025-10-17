@@ -1,0 +1,18 @@
+---
+engines:
+  eslint-9:
+    enabled: true
+exclude_paths:
+  - 'src/**/*.test.ts'
+  - 'src/**/*.mock.ts'
+  - '**/__tests__/**'
+  - 'src/**/*migration*.ts'
+  - 'src/**/migrations/**'
+  - 'dist/**'
+  - 'build/**'
+  - 'coverage/**'
+  - 'node_modules/**'
+  - '*.config.js'
+  - '*.config.mjs'
+  - '*.config.ts'
+  - src/data/seed.ts

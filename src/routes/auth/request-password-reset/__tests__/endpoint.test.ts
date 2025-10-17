@@ -3,33 +3,33 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
-import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
+import { HttpStatus } from '@/net/http'
 
 import requestPasswordResetRoute from '../index'
 
 describe('Request Password Reset Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const REQUEST_PASSWORD_RESET_URL = '/api/v1/auth/request-password-reset'
 
   let app: Hono
   let mockRequestPasswordReset: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
-    mockRequestPasswordReset = mock(() => Promise.resolve({ success: true }))
+    mockRequestPasswordReset = mock(async () => ({ success: true }))
 
-    await moduleMocker.mock('../request-password-reset', () => ({
+    await moduleMocker.mock('@/use-cases/auth/request-password-reset', () => ({
       default: mockRequestPasswordReset,
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
 
     app = createTestApp('/api/v1/auth', requestPasswordResetRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/request-password-reset', () => {

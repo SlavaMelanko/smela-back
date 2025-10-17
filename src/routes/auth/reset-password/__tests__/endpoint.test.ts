@@ -3,31 +3,31 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
-import { TOKEN_LENGTH } from '@/lib/token/constants'
+import { HttpStatus } from '@/net/http'
+import { TOKEN_LENGTH } from '@/security/token'
 
 import resetPasswordRoute from '../index'
 
 describe('Reset Password Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const RESET_PASSWORD_URL = '/api/v1/auth/reset-password'
 
   let app: Hono
   let mockResetPassword: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
-    mockResetPassword = mock(() => Promise.resolve({ success: true }))
+    mockResetPassword = mock(async () => ({ success: true }))
 
-    await moduleMocker.mock('../reset-password', () => ({
+    await moduleMocker.mock('@/use-cases/auth/reset-password', () => ({
       default: mockResetPassword,
     }))
 
     app = createTestApp('/api/v1/auth', resetPasswordRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   const validPayload = {

@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
-import { exponentialBackoffDelay, sleepFor } from '@/lib/async'
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
+import { exponentialBackoffDelay, sleepFor } from '@/utils/async'
 
 import type { EmailPayload } from './payload'
 import type { EmailProvider } from './provider'

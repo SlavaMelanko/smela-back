@@ -2,7 +2,8 @@ import type { MiddlewareHandler } from 'hono'
 
 import { Hono } from 'hono'
 
-import { loggerMiddleware, onError } from '@/middleware'
+import { onError } from '@/handlers'
+import { loggerMiddleware } from '@/middleware'
 
 export const createTestApp = (
   basePath: string,

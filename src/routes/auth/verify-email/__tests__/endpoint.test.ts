@@ -3,21 +3,21 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
+import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
 import verifyEmailRoute from '../index'
 
 describe('Verify Email Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const VERIFY_EMAIL_URL = '/api/v1/auth/verify-email'
 
   let app: Hono
   let mockVerifyEmail: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
-    mockVerifyEmail = mock(() => Promise.resolve({
+    mockVerifyEmail = mock(async () => ({
       user: {
         id: 1,
         firstName: 'John',
@@ -31,15 +31,15 @@ describe('Verify Email Endpoint', () => {
       token: 'verify-jwt-token',
     }))
 
-    await moduleMocker.mock('../verify-email', () => ({
+    await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
       default: mockVerifyEmail,
     }))
 
     app = createTestApp('/api/v1/auth', verifyEmailRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/verify-email', () => {

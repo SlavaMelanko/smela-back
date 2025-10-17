@@ -1,8 +1,12 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { z } from 'zod'
 
-const requestPasswordResetSchema = buildSchema({
-  email: userRules.email,
-  captchaToken: tokenRules.captchaToken,
-})
+import { dataValidationRules as rules } from '../../@shared'
 
-export default requestPasswordResetSchema.strict()
+const requestPasswordResetSchema = z.object({
+  email: rules.email,
+  captchaToken: rules.captchaToken,
+}).strict()
+
+export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetSchema>
+
+export default requestPasswordResetSchema

@@ -1,5 +1,4 @@
-import { AppError, ErrorCode } from '@/lib/catch'
-import logger from '@/lib/logger'
+import { AppError, ErrorCode } from '@/errors'
 
 import { DEFAULT_STREAMING_THRESHOLD } from './constants'
 
@@ -36,9 +35,6 @@ const validateBodySizeStreaming = async (request: Request, maxSize: number): Pro
     }
 
     return { ok: true, bodySize: totalSize }
-  } catch (error) {
-    logger.error({ error }, 'Stream validation error')
-    throw error
   } finally {
     // Ensure reader is released
     try {
@@ -70,12 +66,6 @@ export const validateBodySize = async (
     const { ok, bodySize } = await validateBodySizeStreaming(request, maxSize)
 
     if (!ok) {
-      logger.warn({
-        actualSize,
-        maxSize,
-        contentLength: contentLength || 'not provided',
-      }, 'Request body too large (streaming validation)')
-
       throw new AppError(ErrorCode.RequestTooLarge)
     }
 
@@ -86,12 +76,6 @@ export const validateBodySize = async (
     actualSize = body.byteLength
 
     if (actualSize > maxSize) {
-      logger.warn({
-        actualSize,
-        maxSize,
-        contentLength: contentLength || 'not provided',
-      }, 'Request body too large (actual size)')
-
       throw new AppError(ErrorCode.RequestTooLarge)
     }
   }

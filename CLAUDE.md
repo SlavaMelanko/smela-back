@@ -6,53 +6,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
 
-- **Runtime:** Bun
-- **Framework:** Hono
-- **Database:** PostgreSQL
-- **ORM:** Drizzle ORM
-- **Authentication:** JWT tokens, bcrypt password hashing
-- **Validation:** Zod
-- **Testing:** Bun's built-in test runner
-- **Linting:** ESLint
+- **Runtime**: Bun with TypeScript
+- **Framework**: Hono web framework
+- **Database**: PostgreSQL (serverless)
+- **ORM**: Drizzle for type-safe queries
+- **Authentication**: JWT, bcrypt password hashing
+- **Email**: Transactional email support
+- **Validation**: Schema-based validation
+- **Security**: Rate limiting, CORS, CSP
+- **Testing**: Built-in test runner
+- **Code Quality**: ESLint & formatting
+- **CI/CD**: GitHub Actions pipeline
 
 ## Key Commands
 
-### Development
+All available commands are defined in [package.json](package.json#L3-L23). Key commands include:
 
-- `bun run dev` - Start development server with hot reload on port 3000
-- `bun run start` - Start production server (NODE_ENV=production)
-- `bun run staging` - Start staging server (NODE_ENV=staging)
-- `bun test` - Run all tests using Bun's built-in test runner
-- `bun test [file]` - Run a specific test file (e.g., `bun test src/routes/auth/login/__tests__/login.test.ts`)
-- `bun run email` - Start React Email dev server on port 3001 for email template development
-
-### Database Operations
-
-- `bun run db:generate` - Generate migration files from schema changes
-- `bun run db:migrate` - Apply migrations to database
-- `bun run db:seed` - Seed database with initial data
-- `bun run db:setup` - Run all database setup steps (generate, migrate, seed)
-- `bun run db:studio` - Open Drizzle Studio for database management
-
-### Code Quality
-
-- `bun run lint` - Run ESLint checks
-- `bun run lint:fix` - Auto-fix ESLint issues
+- **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
+- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`
+- **Database**: `bun run db:setup` (generate + migrate + seed), `bun run db:studio` (Drizzle Studio)
+- **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
+- **Email Dev**: `bun run email` (React Email dev server on port 3001)
 
 ## Architecture Overview
+
+**For detailed architecture documentation, see [src/README.md](src/README.md)** - Describes the layered architecture, module organization, and dependency rules.
 
 ### Directory Structure
 
 - `/src/app.ts` - Application entry point
 - `/src/server.ts` - Server configuration with middleware setup
-- `/src/db/` - Database layer (schema, migrations, seed data)
-- `/src/lib/` - Core utilities (crypto, validation, JWT, errors)
-- `/src/middleware/` - Express/Hono middleware (auth, logging, rate limiting)
-- `/src/repositories/` - Data access layer following repository pattern
+- `/src/data/` - Data access layer
+  - `/schema/` - Database schema (users, auth, rbac, tokens) with inline enums
+  - `/clients/` - Database clients (Neon serverless)
+  - `/repositories/` - Repository pattern for data access (auth, token, user)
+  - `/migrations/` - Drizzle ORM migrations
+  - `seed.ts` - Database seeding script
+- `/src/security/` - Security-related utilities
+  - `/jwt/` - JWT token generation and validation with claims
+  - `/password/` - Password hashing, validation, and regex patterns
+  - `/token/` - Token generation for email verification and password reset
+- `/src/crypto/` - Low-level cryptographic primitives (hashing, random bytes)
+- `/src/services/` - External service integrations
+  - `/email/` - Email provider abstraction (Ethereal, Resend)
+  - `/captcha/` - CAPTCHA verification (reCAPTCHA)
+- `/src/emails/` - Email templates and rendering
+  - `/templates/` - React Email templates and components
+  - `/renderers/` - Email renderer implementations
+  - `/content/` - Localized email content (en, uk)
+  - `/styles/` - Email styling utilities
+- `/src/middleware/` - Hono middleware stack
+  - `/dual-auth/` - JWT authentication (cookie and Bearer token support)
+  - `/captcha/` - CAPTCHA verification middleware
+  - `/rate-limiter/` - Rate limiting per endpoint
+  - `/size-limiter/` - Request size limits
+  - `/secure-headers/` - Security headers (CSP, HSTS, etc.)
+  - `/cors/` - CORS configuration
+  - `/request-validator/` - Request validation middleware
 - `/src/routes/` - API endpoint handlers organized by domain
-  - `/auth/` - Authentication routes (login, signup, password reset, etc.)
-  - `/user/` - User-specific routes (profile, settings, etc.)
-- `/src/types/` - TypeScript type definitions
+  - `/@shared/` - Shared route utilities (data validation rules)
+  - `/auth/` - Authentication routes (login, signup, password reset, email verification)
+  - `/user/` - User-specific routes (profile management)
+- `/src/lib/` - Shared utilities (email sender)
+- `/src/utils/` - Generic, reusable utilities
+  - `/async.ts` - Async/promise utilities (withTimeout, sleepFor, exponentialBackoffDelay)
+- `/src/net/http/` - HTTP utilities (cookie handling, status codes)
+- `/src/env/` - Environment variable configuration and validation
+- `/src/errors/` - Custom error classes
+- `/src/handlers/` - Global error handlers
+- `/src/logging/` - Pino logger configuration and transports
+- `/src/types/` - Shared TypeScript type definitions
 
 ### Route Organization
 
@@ -67,6 +90,7 @@ All auth routes accept POST requests:
 
 - `/api/v1/auth/signup` - User registration
 - `/api/v1/auth/login` - User authentication
+- `/api/v1/auth/logout` - User logout (clears JWT cookie)
 - `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
 - `/api/v1/auth/resend-verification-email` - Resend verification email
 - `/api/v1/auth/request-password-reset` - Request password reset
@@ -78,8 +102,13 @@ Key tables:
 
 - `users` - User accounts with roles and status
 - `auth` - Authentication providers (email/password)
-- `permissions` - Role-based access control
+- `permissions` - Available actions and resources (e.g., read:user, write:post)
+- `role_permissions` - Maps roles to permissions for RBAC
 - `tokens` - Email verification and password reset tokens
+
+### Database Connection
+
+The project uses **Neon serverless PostgreSQL** with connection pooling (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
 
 ### Authentication Flow
 
@@ -96,43 +125,179 @@ Key tables:
 - Backend API validates tokens sent in JSON body (not URL parameters)
 - This approach prevents tokens from appearing in server logs and provides better security
 
-### Testing Approach
+### Testing Philosophy
 
-- Tests use `bun:test` framework
-- Test files follow `*.test.ts` pattern in `__tests__` directories
-- Focus on unit tests for critical components (crypto, auth, rate limiting)
+🧪 Testing Guidelines
+• Use bun:test as the testing framework.
+• Place test files as `*.test.ts` inside `__tests__` directories.
+• Target 60–80% coverage — focus on important logic and edge cases, not full 100%.
+• Prioritize testing:
+  • Correct scenario(s)
+  • Error handling
+  • Boundary inputs
+  • Failure scenarios
+• Keep tests simple, clear, and reliable — avoid over-engineering or redundant mocks.
 
-#### Testing Philosophy
+⚙️ Environment & Configuration
+• Use `.env.test` for test-specific environment variables.
+• Let Bun’s native env loading handle configuration — no manual dotenv setup needed.
+• Minimize mocking `@/env` — rely on `.env.test` by default.
+• Only mock env values when testing special or invalid configurations.
+• Document all required variables inside `.env.test`.
+• Tests should run with: `bun install` -> `bun test` (after .env.test is set up).
 
-**Coverage & Focus:**
+🧱 Mocking & Isolation
+• Mock only business logic dependencies, e.g.:
+  • Repositories
+  • External APIs or integrations
+• Use global mocks for shared services (e.g., CAPTCHA, email, etc.) — don’t redefine them in each test.
+• Avoid real database or network calls — all I/O must be mocked.
+• Keep mocks minimal: only mock what’s needed to isolate the logic under test.
 
-- Target 60-80% test coverage focusing on **edge cases** rather than 100% coverage
-- Prioritize testing error conditions, boundary inputs, and failure scenarios
-- Keep tests simple and working - avoid over-engineering test complexity
+✅ Additional Suggestions
+• Use factories or fixtures for repetitive test data.
+• Prefer unit + integration tests for business logic over full E2E when not necessary.
+• Keep one clear arrange → act → assert structure per test.
+• Use descriptive test names.
+• Always clean up side effects (reset mocks, restore spies) after each test.
 
-**Environment Configuration:**
+👍 Type Safety in Tests
+• **Minimize use of `any` type**: Prefer proper TypeScript types even in test files
+• **Use type inference**: Let TypeScript infer types when possible instead of explicit `any`
+• **Type mock data**: Create proper interfaces or use `Partial<T>` for mock objects
+• **Exception**: Use `any` only for complex mocks where full typing would add unnecessary complexity
 
-- **Prefer `.env.test` for environment variables** - Let Bun's native environment loading handle test configuration
-- **Minimize mocking `@/lib/env`** - Prefer `.env.test` for standard config, but mock when testing edge cases with specific env values
-- Only mock business logic dependencies (repositories, crypto, JWT, external services)
-- Use global mocks for services (like CAPTCHA) that are already mocked globally
+**Mocking Best Practices:**
 
-**Self-Contained Tests:**
+1. **Variable Declaration Order & Grouping**:
+   - First: `moduleMocker` instance (if needed)
+   - Then: Group variables by module/domain with blank lines between groups
+   - Order groups to match their initialization order in `beforeEach`
+   - Within each group, order variables by their dependency chain (small → large)
 
-- Tests should work with `bun install` → set up `.env.test` → `bun test` with env vars
-- All required environment variables should be documented in `.env.test`
-- No external services or database connections required
-- Mock only what's necessary for isolating business logic
+   Example:
+
+   ```typescript
+   const moduleMocker = new ModuleMocker(import.meta.url)
+
+   let mockSignupParams: any // Test data group
+
+   let mockNewUser: any // @/data module group
+   let mockUserRepo: any
+   let mockAuthRepo: any
+   let mockTransaction: any
+
+   let mockToken: string // @/security/token module group
+   let mockExpiresAt: Date
+   let mockGenerateToken: any
+
+   let mockEmailAgent: any // @/lib/email-agent module group
+   ```
+
+2. **Initial Mock Setup in `beforeEach`**:
+   - **Core Principle**: Use `const` at top level for static test data that never changes, use `let` + `beforeEach` for mocks that need re-initialization
+   - **Pattern**: Follow small → large dependency chain within each module group
+   - **Goal**: Create a clear, readable flow where dependencies are obvious
+
+   Setup sequence:
+   - **Step 1**: Initialize test data and primitive constants
+   - **Step 2**: Initialize base data objects that will be used by mocks
+   - **Step 3**: Initialize mock objects that depend on the data
+   - **Step 4**: Call `moduleMocker.mock()` immediately after defining related mocks
+   - **Step 5**: Repeat for each module: primitives → mock objects → `moduleMocker.mock()`
+
+   Example:
+
+   ```typescript
+   describe('Signup', () => {
+     const moduleMocker = new ModuleMocker(import.meta.url)
+
+     // Static test data - never changes across tests
+     const VALID_EMAIL = 'test@example.com'
+     const VALID_PASSWORD = 'SecurePass123!'
+     const HASHED_PASSWORD = '$2b$10$hash123'
+
+     // Mocks that need re-initialization
+     let mockSignupParams: any
+     let mockNewUser: any
+     let mockUserRepo: any
+     let mockHashPassword: any
+
+     beforeEach(async () => {
+       // Test data
+       mockSignupParams = { firstName: 'John', email: VALID_EMAIL, ... }
+
+       // @/data module group
+       mockNewUser = { id: 1, email: VALID_EMAIL, ... }
+       mockUserRepo = { findByEmail: mock(() => ...) }
+
+       await moduleMocker.mock('@/data', () => ({
+         userRepo: mockUserRepo,
+       }))
+
+       // @/crypto module group
+       mockHashPassword = mock(async () => HASHED_PASSWORD)
+
+       await moduleMocker.mock('@/crypto', () => ({
+         hashPassword: mockHashPassword,
+       }))
+     })
+   })
+   ```
+
+3. **Module Mocking Rules**:
+   - Use `moduleMocker.mock()` ONLY in `beforeEach` for initial module mocking
+   - Never use `moduleMocker.mock()` in individual test cases
+   - Always define the mock object variable before calling `moduleMocker.mock()` with it
+   - Call `moduleMocker.mock()` immediately after defining all related mock objects
+   - **Don't mock encapsulated dependencies**: Only mock the public API/wrapper, not the underlying implementation details
+     - Example: If you have a wrapper `@/net/http/cookie` that uses `hono/cookie`, only mock the wrapper, not `hono/cookie`
+     - This prevents tight coupling to implementation details and makes tests more maintainable
+
+4. **Updating Mock Behavior**:
+   - Use `mockImplementation()` to update mock behavior in individual tests
+   - Use other mock utilities (`mockReturnValue`, `mockResolvedValue`, etc.) as needed
+   - This keeps tests clean and prevents mock setup duplication
+
+**Example Dependency Chain**:
+
+```typescript
+// Good: Clear dependency chain from small to large
+mockUser = { id: 1, email: 'test@example.com' }
+mockUserRepo = { findByEmail: mock(async () => mockUser) }
+await moduleMocker.mock('@/data', () => ({ userRepo: mockUserRepo }))
+
+mockJwtToken = 'token-123'
+mockJwt = { default: { sign: mock(async () => mockJwtToken) } }
+await moduleMocker.mock('@/lib/jwt', () => mockJwt)
+```
 
 ### Security Considerations
 
-- Passwords hashed with bcrypt (10 rounds)
-- JWT tokens for session management
+#### Authentication & Authorization
+
+- JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
+- Dual authentication support (cookies for web, Bearer tokens for API/mobile)
+- bcrypt password hashing with configurable salt rounds (default: 10 rounds)
+- Email verification and secure password reset flows
 - One-time use tokens for password reset with expiration
 - Email enumeration attack prevention (consistent error responses)
-- Rate limiting with different presets for auth vs general endpoints
 - Environment variable validation on startup
-- Role-based permissions system
+
+#### Request Protection
+
+- Rate limiting: 5 auth attempts/15min (production), 100 requests/15min (general)
+- Request size limits: 10KB (auth), 100KB (general), 5MB (uploads)
+- CORS with environment-specific origin validation
+- Input validation using Zod schemas
+- CAPTCHA protection: Google reCAPTCHA v2 (invisible) on auth endpoints
+
+#### Security Headers
+
+- Content Security Policy (CSP) with strict directives
+- HSTS, X-Frame-Options, X-Content-Type-Options
+- Permissions Policy restricting browser features
+- Environment-specific configurations (dev/staging/production)
 
 ### Development Patterns
 
@@ -217,7 +382,7 @@ Provide factory method for service creation:
 
 ```typescript
 // factory.ts
-export const createCaptcha = (): Captcha => {
+export const createCaptchaVerifier = (): Captcha => {
   return new Recaptcha(recaptchaConfig)
 }
 ```
@@ -229,7 +394,7 @@ Export only public API via index.ts:
 ```typescript
 // index.ts - Public API only
 export type { Captcha } from './captcha'
-export { createCaptcha } from './factory'
+export { createCaptchaVerifier } from './factory'
 // Implementation details (Recaptcha class) NOT exported
 ```
 
@@ -239,14 +404,14 @@ Services should be consumed via factory methods and generic interfaces:
 
 ```typescript
 // middleware/captcha.ts
-import { createCaptcha } from '@/services/captcha'
+import { createCaptchaVerifier } from '@/services/captcha'
 
 export const captchaMiddleware = (): MiddlewareHandler => {
-  const captcha = createCaptcha() // Single instance for performance
+  const captchaVerifier = createCaptchaVerifier() // Single instance for performance
 
   return async (c, next) => {
-    const { captchaToken } = await c.req.json()
-    await captcha.validate(captchaToken)
+    const { captchaToken } = await c.req.json<CaptchaRequestBody>()
+    await captchaVerifier.validate(captchaToken)
     await next()
   }
 }
@@ -271,6 +436,10 @@ export const captchaMiddleware = (): MiddlewareHandler => {
 - **Code Style**: 2-space indentation, no semicolons, single quotes
 - **Curly Braces**: Always required, even for single-line blocks
 - **Environment Variables**: Access via `env` object, not `process.env` directly
+- **Variable Naming Conventions**:
+  - **camelCase**: Objects, arrays, and complex data structures (e.g., `tokenTypeOptions`, `userConfig`)
+  - **SCREAMING_SNAKE_CASE**: Primitives and simple constants (e.g., `MAX_RETRY_COUNT`, `API_TIMEOUT`)
+  - **PascalCase**: Classes, types, interfaces, and enums (e.g., `UserService`, `Status`, `EmailRenderer`)
 - **Export Style**: Use direct exports on declarations instead of collecting exports at the bottom of files
   - Prefer `export interface MyInterface` over `interface MyInterface` + `export { MyInterface }`
   - Prefer `export const myFunction = () => {}` over `const myFunction = () => {}` + `export { myFunction }`
@@ -298,11 +467,11 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   const hasPermission = await checkUserRole(userId)
   ```
 
-- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences
+- **Full-Line Comments (Multiple Sentences)**: Start with uppercase letter, use dots between sentences but not at the end:
 
   ```typescript
   // Initialize database connection pool. This ensures optimal performance
-  // for concurrent requests. The pool size is configured via environment variables.
+  // for concurrent requests. The pool size is configured via environment variables
   const pool = createConnectionPool()
   ```
 
@@ -345,6 +514,28 @@ src/services/email/providers/
 ```
 
 This convention groups implementations together alphabetically and makes the relationship to the interface explicit.
+
+#### Utils Directory Guidelines
+
+The `/src/utils/` directory is for **generic, reusable utilities** that meet strict acceptance criteria to prevent it from becoming a dumping ground.
+
+**Acceptance Criteria for New Utilities:**
+
+1. **Genuinely Generic**: Must not be domain-specific or tied to business logic
+2. **Multiple Usage**: Must be used in 2+ places across different modules
+3. **Single Responsibility**: Each utility file must have a clear, focused purpose
+4. **Well-Documented**: Must include JSDoc with examples and clear parameter descriptions
+
+**Organization Rules:**
+
+- Name files by specific domain: `async.ts`, `string.ts`, `date.ts`
+- Avoid vague names like `helpers.ts`, `common.ts`, or `utils.ts`
+- One file per utility domain (e.g., all async/promise utilities in `async.ts`)
+- Reject utilities that are only used once - co-locate with primary usage instead
+
+**Current Utilities:**
+
+- `async.ts` - Async/promise utilities (`withTimeout`, `sleepFor`, `exponentialBackoffDelay`)
 
 ### Environment Configuration
 
@@ -408,3 +599,4 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+ALWAYS remember our specified rules about trailing vs full-line comments formatting

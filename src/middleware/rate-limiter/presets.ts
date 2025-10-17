@@ -1,4 +1,4 @@
-import { isDevOrTestEnv } from '@/lib/env'
+import { isDevOrTestEnv } from '@/env'
 
 import { createRateLimiter } from './core'
 

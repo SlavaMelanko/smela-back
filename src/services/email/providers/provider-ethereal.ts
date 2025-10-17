@@ -1,14 +1,15 @@
 import type { Transporter } from 'nodemailer'
+import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 import nodemailer from 'nodemailer'
 
-import logger from '@/lib/logger'
+import { logger } from '@/logging'
 
 import type { EmailPayload } from './payload'
 import type { EmailProvider } from './provider'
 
 export class EtherealEmailProvider implements EmailProvider {
-  private transporter: Transporter
+  private transporter: Transporter<SMTPTransport.SentMessageInfo>
 
   constructor(
     host: string | undefined,
@@ -47,10 +48,10 @@ export class EtherealEmailProvider implements EmailProvider {
         msg: 'Ethereal email sent',
         subject: payload.subject,
         messageId: info.messageId,
-        previewUrl: previewUrl || 'No preview URL available',
+        previewUrl: previewUrl ?? 'No preview URL available',
         to: payload.to,
       })
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error({
         msg: 'Failed to send email via Ethereal',
         error: error instanceof Error ? error.message : 'Unknown error',

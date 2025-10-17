@@ -2,80 +2,93 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
+import type { User, UserRecord } from '@/data'
+import type { UserClaims } from '@/security/jwt'
+
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
-import { AppError, ErrorCode } from '@/lib/catch'
-import HttpStatus from '@/lib/http-status'
+import { AppError, ErrorCode } from '@/errors'
+import { HttpStatus } from '@/net/http'
+import { Role, Status } from '@/types'
 
 import meRoute from '../index'
 
 describe('Me Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const ME_URL = '/api/v1/protected/me'
 
   let app: Hono
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
+  let mockUpdatedUserMinimal: User
 
-  const mockJwtPayload = {
-    id: 1,
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    v: 1, // token version in JWT
-  }
+  let mockFullUser: User
+  let mockGetUser: any
+  let mockUpdatedUser: User
+  let mockUpdateUser: any
 
-  const mockFullUser = {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  }
-
-  const mockUpdatedUser = {
-    id: 1,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  }
-
-  const mockUpdatedUserMinimal = {
-    id: 1,
-    firstName: 'Jo',
-    lastName: 'Do',
-    email: 'test@example.com',
-    role: 'user',
-    status: 'active',
-    tokenVersion: 1,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  }
+  let mockUserClaims: UserClaims
 
   beforeEach(async () => {
-    await moduleMocker.mock('../me', () => ({
-      getUser: mock(() => Promise.resolve(mockFullUser)),
-      updateUser: mock(() => Promise.resolve(mockUpdatedUser)),
+    mockUpdatedUserMinimal = {
+      id: 1,
+      firstName: 'Jo',
+      lastName: 'Do',
+      email: 'test@example.com',
+      role: Role.User,
+      status: Status.Active,
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFullUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'test@example.com',
+      role: Role.User,
+      status: Status.Active,
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+    mockGetUser = mock(async () => mockFullUser)
+    mockUpdatedUser = {
+      id: 1,
+      firstName: 'Jane',
+      lastName: 'Smith',
+      email: 'test@example.com',
+      role: Role.User,
+      status: Status.Active,
+      tokenVersion: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
+    }
+    mockUpdateUser = mock(async () => mockUpdatedUser)
+
+    await moduleMocker.mock('@/use-cases/user/me', () => ({
+      getUser: mockGetUser,
+      updateUser: mockUpdateUser,
     }))
 
-    // Create middleware that sets user from JWT
+    mockUserClaims = {
+      id: 1,
+      email: 'test@example.com',
+      role: Role.User,
+      status: Status.Active,
+      tokenVersion: 1,
+    }
+
     const userMiddleware: any = async (c: any, next: any) => {
-      c.set('user', mockJwtPayload)
+      c.set('user', mockUserClaims)
       await next()
     }
 
     app = createTestApp('/api/v1/protected', meRoute, [userMiddleware])
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('GET /me', () => {
@@ -96,8 +109,8 @@ describe('Me Endpoint', () => {
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
-          role: 'user',
-          status: 'active',
+          role: Role.User,
+          status: Status.Active,
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
@@ -117,17 +130,15 @@ describe('Me Endpoint', () => {
       expect(data.user).toHaveProperty('updatedAt')
 
       // Verify getUser was called with correct user ID
-      const { getUser } = await import('../me')
+      const { getUser } = await import('@/use-cases/user/me')
       expect(getUser).toHaveBeenCalledWith(1)
       expect(getUser).toHaveBeenCalledTimes(1)
     })
 
     it('should handle user not found as data inconsistency', async () => {
-      // Mock getUser to throw internal error for data inconsistency
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Internal server error.'))),
-        updateUser: mock(() => Promise.resolve(null)),
-      }))
+      mockGetUser.mockImplementation(async () => {
+        throw new AppError(ErrorCode.InternalError, 'Internal server error.')
+      })
 
       const res = await app.request(ME_URL, {
         method: 'GET',
@@ -183,8 +194,8 @@ describe('Me Endpoint', () => {
           firstName: 'Jane',
           lastName: 'Smith',
           email: 'test@example.com',
-          role: 'user',
-          status: 'active',
+          role: Role.User,
+          status: Status.Active,
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-02T00:00:00.000Z',
         },
@@ -194,7 +205,7 @@ describe('Me Endpoint', () => {
       expect(data.user).not.toHaveProperty('tokenVersion')
 
       // Verify updateUser was called with correct parameters
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
         lastName: 'Smith',
@@ -203,11 +214,9 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle update failure', async () => {
-      // Mock updateUser to throw error
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.resolve(mockFullUser)),
-        updateUser: mock(() => Promise.reject(new AppError(ErrorCode.InternalError, 'Failed to update user.'))),
-      }))
+      mockUpdateUser.mockImplementation(async () => {
+        throw new AppError(ErrorCode.InternalError, 'Failed to update user.')
+      })
 
       const res = await post(app, ME_URL, { firstName: 'Jane', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
@@ -245,20 +254,19 @@ describe('Me Endpoint', () => {
       expect(data.user.firstName).toBe('Jane')
 
       // Verify updateUser was called with only firstName
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
       })
     })
 
     it('should handle valid names with minimum length', async () => {
-      // Mock updateUser to return user with minimal names
-      await moduleMocker.mock('../me', () => ({
-        getUser: mock(() => Promise.resolve(mockFullUser)),
-        updateUser: mock(() => Promise.resolve(mockUpdatedUserMinimal)),
-      }))
+      mockUpdateUser.mockImplementation(async () => mockUpdatedUserMinimal)
 
-      const res = await post(app, ME_URL, { firstName: 'Jo', lastName: 'Do' }, { // minimum valid length
+      const res = await post(app, ME_URL, {
+        firstName: mockUpdatedUserMinimal.firstName,
+        lastName: mockUpdatedUserMinimal.lastName,
+      }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -271,10 +279,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle empty body (no updates)', async () => {
-      // Mock to simulate the actual implementation behavior
-      const mockGetUser = mock(() => Promise.resolve(mockFullUser))
-      const mockUpdateUser = mock((_userId: number, updates: any) => {
-        // Simulate prepareValidUpdates behavior
+      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -283,20 +288,14 @@ describe('Me Endpoint', () => {
           validUpdates.lastName = updates.lastName.trim()
         }
 
-        // If no valid updates, return current user (simulating getUser call)
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser()
+          return mockGetUser() as Promise<UserRecord>
         }
 
-        return Promise.resolve(mockUpdatedUser)
+        return mockUpdatedUser
       })
 
-      await moduleMocker.mock('../me', () => ({
-        getUser: mockGetUser,
-        updateUser: mockUpdateUser,
-      }))
-
-      const res = await post(app, ME_URL, {}, { // no fields to update
+      const res = await post(app, ME_URL, {}, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -309,7 +308,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Doe')
 
       // Verify updateUser was called
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {})
     })
 
@@ -322,10 +321,10 @@ describe('Me Endpoint', () => {
       expect(res.status).toBe(HttpStatus.OK)
 
       // Verify updateUser was called with both fields (validation layer handles null)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
-        lastName: null,
+        lastName: undefined, // null is converted to undefined
       })
     })
 
@@ -341,7 +340,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called only with lastName
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         lastName: 'Smith',
       })
@@ -360,10 +359,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle whitespace-only strings as empty', async () => {
-      // Mock to simulate the actual implementation behavior
-      const mockGetUser = mock(() => Promise.resolve(mockFullUser))
-      const mockUpdateUser = mock((_userId: number, updates: any) => {
-        // Simulate prepareValidUpdates behavior
+      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -372,20 +368,14 @@ describe('Me Endpoint', () => {
           validUpdates.lastName = updates.lastName.trim()
         }
 
-        // If no valid updates, return current user
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser()
+          return mockGetUser() as Promise<UserRecord>
         }
 
-        return Promise.resolve(mockUpdatedUser)
+        return mockUpdatedUser
       })
 
-      await moduleMocker.mock('../me', () => ({
-        getUser: mockGetUser,
-        updateUser: mockUpdateUser,
-      }))
-
-      const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, { // whitespace-only firstName
+      const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -397,7 +387,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called with whitespace string (prepareValidUpdates will filter it)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: '   ',
         lastName: 'Smith',
@@ -417,7 +407,7 @@ describe('Me Endpoint', () => {
       expect(data.user.lastName).toBe('Smith')
 
       // Verify updateUser was called with untrimmed values (trimming happens inside updateUser)
-      const { updateUser } = await import('../me')
+      const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: '  Jane  ',
         lastName: '  Smith  ',

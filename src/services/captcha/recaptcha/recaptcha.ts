@@ -1,7 +1,5 @@
-import { ApiClient } from '@/lib/api-client'
-import AppError from '@/lib/catch/app-error'
-import ErrorCode from '@/lib/catch/codes'
-import logger from '@/lib/logger'
+import { AppError, ErrorCode } from '@/errors'
+import { HttpClient } from '@/net/http/client'
 
 import type { Captcha } from '../captcha'
 import type { Config } from '../config'
@@ -13,12 +11,12 @@ import type { Result } from './result'
  * Implements the Captcha interface for Google's reCAPTCHA service.
  */
 export class Recaptcha implements Captcha {
-  private apiClient: ApiClient
+  private httpClient: HttpClient
   private config: Config
 
   constructor(config: Config) {
     this.config = config
-    this.apiClient = new ApiClient(
+    this.httpClient = new HttpClient(
       config.baseUrl,
       config.options,
     )
@@ -37,18 +35,14 @@ export class Recaptcha implements Captcha {
     }
 
     const body = this.createBody(token)
-    const result = await this.apiClient.post<Result>(this.config.path, body)
+    const result = await this.httpClient.post<Result>(this.config.path, body)
 
     if (!result.success) {
-      logger.warn({ data: result }, 'reCAPTCHA token validation failed')
-
       const errorCodes = result['error-codes'] || []
       const hostname = result.hostname || 'unknown'
       const message = `reCAPTCHA token validation failed. Error codes: ${errorCodes.join(', ')}. Hostname: ${hostname}`
 
       throw new AppError(ErrorCode.CaptchaValidationFailed, message)
     }
-
-    logger.debug({ data: result }, 'reCAPTCHA token validated successfully')
   }
 }

@@ -3,32 +3,33 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
-import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
+import { HttpStatus } from '@/net/http'
 
 import resendVerificationEmailRoute from '../index'
 
 describe('Resend Verification Email Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const RESEND_VERIFICATION_EMAIL_URL = '/api/v1/auth/resend-verification-email'
 
   let app: Hono
   let mockResendVerificationEmail: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
-    mockResendVerificationEmail = mock(() => Promise.resolve({ success: true }))
+    mockResendVerificationEmail = mock(async () => ({ success: true }))
 
-    await moduleMocker.mock('../resend-verification-email', () => ({
+    await moduleMocker.mock('@/use-cases/auth/resend-verification-email', () => ({
       default: mockResendVerificationEmail,
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
+
     app = createTestApp('/api/v1/auth', resendVerificationEmailRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/resend-verification-email', () => {

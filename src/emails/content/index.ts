@@ -6,12 +6,14 @@ import * as uk from './uk'
 export type { default as PasswordResetEmailContent } from './password-reset'
 export type { default as WelcomeEmailContent } from './welcome'
 
-const content: Record<SupportedLocale, any> = {
+export type LocaleContent = typeof en
+
+const content: Record<SupportedLocale, LocaleContent> = {
   en,
   uk,
 }
 
-export const getContent = (locale?: SupportedLocale) => {
+export const getContent = (locale?: SupportedLocale): LocaleContent => {
   const l = locale || 'en'
 
   if (l in content) {

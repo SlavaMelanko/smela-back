@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
-import { userRepo } from '@/repositories'
+import { userRepo } from '@/data'
+import { AppError, ErrorCode } from '@/errors'
+import { signJwt, verifyJwt } from '@/security/jwt'
 import { isActive, Role, Status } from '@/types'
+
+import { jwtOptions } from './jwt-utils'
 
 describe('Auth Middleware Logic - Token Version Validation', () => {
   const mockUserId = 123
@@ -14,19 +16,19 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
   // Simulate the core auth logic from the middleware
   const simulateAuthLogic = async (token: string) => {
     try {
-      const payload = await jwt.verify(token)
+      const userClaims = await verifyJwt(token, jwtOptions)
 
-      if (!isActive(payload.status as Status)) {
+      if (!isActive(userClaims.status)) {
         throw new AppError(ErrorCode.Forbidden)
       }
 
       // Fetch current user to validate token version
-      const user = await userRepo.findById(payload.id as number)
-      if (!user || user.tokenVersion !== (payload.v as number)) {
+      const user = await userRepo.findById(userClaims.id)
+      if (!user || user.tokenVersion !== userClaims.tokenVersion) {
         throw new AppError(ErrorCode.Unauthorized)
       }
 
-      return { success: true, user: payload }
+      return { success: true, user: userClaims }
     } catch (error) {
       return { success: false, error }
     }
@@ -42,12 +44,15 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion, email: mockEmail }
 
       // Create JWT with current tokenVersion
-      const validToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, tokenVersion)
+      const validToken = await signJwt(
+        { id: mockUserId, email: mockEmail, role: mockRole, status: mockStatus, tokenVersion },
+        jwtOptions,
+      )
 
       // Mock userRepo to return user with matching tokenVersion
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -55,7 +60,7 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
 
       expect(result.success).toBe(true)
       expect(result.user).toBeDefined()
-      expect(result.user?.v).toBe(tokenVersion)
+      expect(result.user?.tokenVersion).toBe(tokenVersion)
       expect(userRepo.findById).toHaveBeenCalledWith(mockUserId)
     })
 
@@ -66,11 +71,20 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion: currentTokenVersion }
 
       // Create JWT with old tokenVersion (user has reset password since)
-      const outdatedToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, oldTokenVersion)
+      const outdatedToken = await signJwt(
+        {
+          id: mockUserId,
+          email: mockEmail,
+          role: mockRole,
+          status: mockStatus,
+          tokenVersion: oldTokenVersion,
+        },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -89,11 +103,20 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion: currentTokenVersion }
 
       // Create JWT with higher tokenVersion (shouldn't happen in practice)
-      const invalidToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, highTokenVersion)
+      const invalidToken = await signJwt(
+        {
+          id: mockUserId,
+          email: mockEmail,
+          role: mockRole,
+          status: mockStatus,
+          tokenVersion: highTokenVersion,
+        },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -109,12 +132,15 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const tokenVersion = 3
 
       // Create valid JWT
-      const validToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, tokenVersion)
+      const validToken = await signJwt(
+        { id: mockUserId, email: mockEmail, role: mockRole, status: mockStatus, tokenVersion },
+        jwtOptions,
+      )
 
       // Mock userRepo to return null (user not found)
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(null)),
+          findById: mock(async () => null),
         },
       }))
 
@@ -131,11 +157,20 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const mockUser = { id: mockUserId, tokenVersion, status: Status.Suspended }
 
       // Create JWT with valid tokenVersion but inactive user
-      const inactiveToken = await jwt.sign(mockUserId, mockEmail, mockRole, Status.Suspended, tokenVersion)
+      const inactiveToken = await signJwt(
+        {
+          id: mockUserId,
+          email: mockEmail,
+          role: mockRole,
+          status: Status.Suspended,
+          tokenVersion,
+        },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -152,11 +187,14 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const tokenVersion = 0
       const mockUser = { id: mockUserId, tokenVersion }
 
-      const validToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, tokenVersion)
+      const validToken = await signJwt(
+        { id: mockUserId, email: mockEmail, role: mockRole, status: mockStatus, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -170,11 +208,14 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const tokenVersion = 999999999
       const mockUser = { id: mockUserId, tokenVersion }
 
-      const validToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, tokenVersion)
+      const validToken = await signJwt(
+        { id: mockUserId, email: mockEmail, role: mockRole, status: mockStatus, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -187,12 +228,15 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
     it('should handle database errors gracefully', async () => {
       const tokenVersion = 3
 
-      const validToken = await jwt.sign(mockUserId, mockEmail, mockRole, mockStatus, tokenVersion)
+      const validToken = await signJwt(
+        { id: mockUserId, email: mockEmail, role: mockRole, status: mockStatus, tokenVersion },
+        jwtOptions,
+      )
 
       // Mock userRepo to throw database error
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.reject(new Error('Database connection failed'))),
+          findById: mock(async () => { throw new Error('Database connection failed') }),
         },
       }))
 
@@ -209,9 +253,9 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
     it('should handle invalid JWT tokens', async () => {
       const invalidToken = 'invalid.jwt.token'
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve({ id: mockUserId, tokenVersion: 1 })),
+          findById: mock(async () => ({ id: mockUserId, tokenVersion: 1 })),
         },
       }))
 
@@ -230,14 +274,23 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       const newTokenVersion = 3
 
       // Step 1: User has a valid JWT before password reset
-      const oldToken = await jwt.sign(userId, email, mockRole, mockStatus, initialTokenVersion)
+      const oldToken = await signJwt(
+        {
+          id: userId,
+          email,
+          role: mockRole,
+          status: mockStatus,
+          tokenVersion: initialTokenVersion,
+        },
+        jwtOptions,
+      )
 
       // Step 2: Password reset increments tokenVersion
       const userAfterReset = { id: userId, tokenVersion: newTokenVersion }
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(userAfterReset)),
+          findById: mock(async () => userAfterReset),
         },
       }))
 
@@ -250,7 +303,10 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       expect(userRepo.findById).toHaveBeenCalledWith(userId)
 
       // Step 4: New token with updated version should work
-      const newToken = await jwt.sign(userId, email, mockRole, mockStatus, newTokenVersion)
+      const newToken = await signJwt(
+        { id: userId, email, role: mockRole, status: mockStatus, tokenVersion: newTokenVersion },
+        jwtOptions,
+      )
       const newResult = await simulateAuthLogic(newToken)
 
       expect(newResult.success).toBe(true)
@@ -267,21 +323,33 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
         const currentVersion = tokenVersions[i]
         const user = { id: userId, tokenVersion: currentVersion }
 
-        mock.module('@/repositories', () => ({
+        await mock.module('@/data', () => ({
           userRepo: {
-            findById: mock(() => Promise.resolve(user)),
+            findById: mock(async () => user),
           },
         }))
 
         // Current version token should work
-        const currentToken = await jwt.sign(userId, email, mockRole, mockStatus, currentVersion)
+        const currentToken = await signJwt(
+          { id: userId, email, role: mockRole, status: mockStatus, tokenVersion: currentVersion },
+          jwtOptions,
+        )
 
         const result = await simulateAuthLogic(currentToken)
         expect(result.success).toBe(true)
 
         // Previous version tokens should fail
         if (i > 0) {
-          const oldToken = await jwt.sign(userId, email, mockRole, mockStatus, currentVersion - 1)
+          const oldToken = await signJwt(
+            {
+              id: userId,
+              email,
+              role: mockRole,
+              status: mockStatus,
+              tokenVersion: currentVersion - 1,
+            },
+            jwtOptions,
+          )
           const oldResult = await simulateAuthLogic(oldToken)
           expect(oldResult.success).toBe(false)
           expect((oldResult.error as AppError).code).toBe(ErrorCode.Unauthorized)
@@ -297,13 +365,22 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       // Step 1: User logs in - gets JWT with tokenVersion 1
       const user = { id: userId, tokenVersion: currentTokenVersion }
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(user)),
+          findById: mock(async () => user),
         },
       }))
 
-      const loginToken = await jwt.sign(userId, email, mockRole, mockStatus, currentTokenVersion)
+      const loginToken = await signJwt(
+        {
+          id: userId,
+          email,
+          role: mockRole,
+          status: mockStatus,
+          tokenVersion: currentTokenVersion,
+        },
+        jwtOptions,
+      )
       const loginResult = await simulateAuthLogic(loginToken)
 
       expect(loginResult.success).toBe(true)
@@ -312,9 +389,9 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       currentTokenVersion = 2
       const userAfterReset = { id: userId, tokenVersion: currentTokenVersion }
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(userAfterReset)),
+          findById: mock(async () => userAfterReset),
         },
       }))
 
@@ -324,7 +401,16 @@ describe('Auth Middleware Logic - Token Version Validation', () => {
       expect((oldTokenResult.error as AppError).code).toBe(ErrorCode.Unauthorized)
 
       // Step 4: New login with updated tokenVersion should succeed
-      const newLoginToken = await jwt.sign(userId, email, mockRole, mockStatus, currentTokenVersion)
+      const newLoginToken = await signJwt(
+        {
+          id: userId,
+          email,
+          role: mockRole,
+          status: mockStatus,
+          tokenVersion: currentTokenVersion,
+        },
+        jwtOptions,
+      )
       const newLoginResult = await simulateAuthLogic(newLoginToken)
 
       expect(newLoginResult.success).toBe(true)

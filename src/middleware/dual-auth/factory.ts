@@ -5,9 +5,10 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
-import { userRepo } from '@/repositories'
+import { userRepo } from '@/data'
+import env from '@/env'
+import { AppError, ErrorCode } from '@/errors'
+import { verifyJwt } from '@/security/jwt'
 
 import extractToken from './token'
 
@@ -27,24 +28,22 @@ const createDualAuthMiddleware = (
   }
 
   try {
-    const payload = await jwt.verify(token)
+    const userClaims = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
 
-    if (!statusValidator(payload.status)) {
+    if (!statusValidator(userClaims.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
     }
 
-    if (!roleValidator(payload.role)) {
+    if (!roleValidator(userClaims.role)) {
       throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
     }
 
-    const user = await userRepo.findById(payload.id)
-    if (!user || user.tokenVersion !== payload.v) {
+    const user = await userRepo.findById(userClaims.id)
+    if (!user || user.tokenVersion !== userClaims.tokenVersion) {
       throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
     }
 
-    c.set('user', payload)
-
-    await next()
+    c.set('user', userClaims)
   } catch (error) {
     if (error instanceof AppError) {
       throw error
@@ -52,6 +51,8 @@ const createDualAuthMiddleware = (
 
     throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
   }
+
+  await next()
 })
 
 export default createDualAuthMiddleware

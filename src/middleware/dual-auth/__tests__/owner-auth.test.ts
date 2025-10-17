@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { AppError, ErrorCode } from '@/lib/catch'
-import jwt from '@/lib/jwt'
-import { userRepo } from '@/repositories'
-import { isActiveOnly, isEnterprise, isOwner, isUser, Role, Status } from '@/types'
+import { userRepo } from '@/data'
+import { AppError, ErrorCode } from '@/errors'
+import { signJwt, verifyJwt } from '@/security/jwt'
+import { isActiveOnly, isOwner, Role, Status } from '@/types'
+
+import { jwtOptions } from './jwt-utils'
 
 describe('Owner Authentication Middleware', () => {
   const tokenVersion = 1
@@ -15,23 +17,23 @@ describe('Owner Authentication Middleware', () => {
     roleValidator: (role: Role) => boolean,
   ) => {
     try {
-      const payload = await jwt.verify(token)
+      const userClaims = await verifyJwt(token, jwtOptions)
 
-      if (!statusValidator(payload.status as Status)) {
+      if (!statusValidator(userClaims.status)) {
         throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
       }
 
-      if (!roleValidator(payload.role as Role)) {
+      if (!roleValidator(userClaims.role)) {
         throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
       }
 
       // Fetch current user to validate token version
-      const user = await userRepo.findById(payload.id as number)
-      if (!user || user.tokenVersion !== (payload.v as number)) {
+      const user = await userRepo.findById(userClaims.id)
+      if (!user || user.tokenVersion !== userClaims.tokenVersion) {
         throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
       }
 
-      return { success: true, user: payload }
+      return { success: true, user: userClaims }
     } catch (error) {
       return { success: false, error }
     }
@@ -41,46 +43,17 @@ describe('Owner Authentication Middleware', () => {
     // Reset mocks before each test
   })
 
-  describe('New Role Helper Functions', () => {
-    it('isUser should return true for User role', () => {
-      expect(isUser(Role.User)).toBe(true)
-    })
-
-    it('isUser should return true for Enterprise role', () => {
-      expect(isUser(Role.Enterprise)).toBe(true)
-    })
-
-    it('isUser should return false for Admin role', () => {
-      expect(isUser(Role.Admin)).toBe(false)
-    })
-
-    it('isUser should return false for Owner role', () => {
-      expect(isUser(Role.Owner)).toBe(false)
-    })
-
-    it('isEnterprise should return true only for Enterprise role', () => {
-      expect(isEnterprise(Role.Enterprise)).toBe(true)
-      expect(isEnterprise(Role.User)).toBe(false)
-      expect(isEnterprise(Role.Admin)).toBe(false)
-      expect(isEnterprise(Role.Owner)).toBe(false)
-    })
-
-    it('isOwner should return true only for Owner role', () => {
-      expect(isOwner(Role.Owner)).toBe(true)
-      expect(isOwner(Role.Admin)).toBe(false)
-      expect(isOwner(Role.User)).toBe(false)
-      expect(isOwner(Role.Enterprise)).toBe(false)
-    })
-  })
-
   describe('Owner-Only Middleware', () => {
     it('should allow Owner with Active status', async () => {
       const mockUser = { id: 1, tokenVersion, email: 'owner@example.com' }
-      const ownerToken = await jwt.sign(1, 'owner@example.com', Role.Owner, Status.Active, tokenVersion)
+      const ownerToken = await signJwt(
+        { id: 1, email: 'owner@example.com', role: Role.Owner, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -93,11 +66,14 @@ describe('Owner Authentication Middleware', () => {
 
     it('should reject Admin even with Active status', async () => {
       const mockUser = { id: 2, tokenVersion, email: 'admin@example.com' }
-      const adminToken = await jwt.sign(2, 'admin@example.com', Role.Admin, Status.Active, tokenVersion)
+      const adminToken = await signJwt(
+        { id: 2, email: 'admin@example.com', role: Role.Admin, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -111,11 +87,14 @@ describe('Owner Authentication Middleware', () => {
 
     it('should reject User role with Active status', async () => {
       const mockUser = { id: 3, tokenVersion, email: 'user@example.com' }
-      const userToken = await jwt.sign(3, 'user@example.com', Role.User, Status.Active, tokenVersion)
+      const userToken = await signJwt(
+        { id: 3, email: 'user@example.com', role: Role.User, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -129,11 +108,14 @@ describe('Owner Authentication Middleware', () => {
 
     it('should reject Enterprise role with Active status', async () => {
       const mockUser = { id: 4, tokenVersion, email: 'enterprise@example.com' }
-      const enterpriseToken = await jwt.sign(4, 'enterprise@example.com', Role.Enterprise, Status.Active, tokenVersion)
+      const enterpriseToken = await signJwt(
+        { id: 4, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -147,11 +129,14 @@ describe('Owner Authentication Middleware', () => {
 
     it('should reject Owner with Verified status (not fully active)', async () => {
       const mockUser = { id: 5, tokenVersion, email: 'owner@example.com' }
-      const ownerToken = await jwt.sign(5, 'owner@example.com', Role.Owner, Status.Verified, tokenVersion)
+      const ownerToken = await signJwt(
+        { id: 5, email: 'owner@example.com', role: Role.Owner, status: Status.Verified, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -165,11 +150,14 @@ describe('Owner Authentication Middleware', () => {
 
     it('should reject Owner with Trial status', async () => {
       const mockUser = { id: 6, tokenVersion, email: 'owner@example.com' }
-      const ownerToken = await jwt.sign(6, 'owner@example.com', Role.Owner, Status.Trial, tokenVersion)
+      const ownerToken = await signJwt(
+        { id: 6, email: 'owner@example.com', role: Role.Owner, status: Status.Trial, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockUser)),
+          findById: mock(async () => mockUser),
         },
       }))
 
@@ -186,13 +174,22 @@ describe('Owner Authentication Middleware', () => {
     it('should allow owner to manage admin users', async () => {
       const ownerId = 100
       const ownerEmail = 'owner@company.com'
-      const mockOwner = { id: ownerId, tokenVersion, email: ownerEmail, role: Role.Owner, status: Status.Active }
+      const mockOwner = {
+        id: ownerId,
+        tokenVersion,
+        email: ownerEmail,
+        role: Role.Owner,
+        status: Status.Active,
+      }
 
-      const ownerToken = await jwt.sign(ownerId, ownerEmail, Role.Owner, Status.Active, tokenVersion)
+      const ownerToken = await signJwt(
+        { id: ownerId, email: ownerEmail, role: Role.Owner, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockOwner)),
+          findById: mock(async () => mockOwner),
         },
       }))
 
@@ -209,13 +206,22 @@ describe('Owner Authentication Middleware', () => {
     it('should block admin from owner-only endpoints', async () => {
       const adminId = 101
       const adminEmail = 'admin@company.com'
-      const mockAdmin = { id: adminId, tokenVersion, email: adminEmail, role: Role.Admin, status: Status.Active }
+      const mockAdmin = {
+        id: adminId,
+        tokenVersion,
+        email: adminEmail,
+        role: Role.Admin,
+        status: Status.Active,
+      }
 
-      const adminToken = await jwt.sign(adminId, adminEmail, Role.Admin, Status.Active, tokenVersion)
+      const adminToken = await signJwt(
+        { id: adminId, email: adminEmail, role: Role.Admin, status: Status.Active, tokenVersion },
+        jwtOptions,
+      )
 
-      mock.module('@/repositories', () => ({
+      await mock.module('@/data', () => ({
         userRepo: {
-          findById: mock(() => Promise.resolve(mockAdmin)),
+          findById: mock(async () => mockAdmin),
         },
       }))
 

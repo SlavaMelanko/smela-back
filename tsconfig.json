@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["src/*"]
     },
@@ -13,10 +13,10 @@
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "outDir": "dist",
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src", "drizzle.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

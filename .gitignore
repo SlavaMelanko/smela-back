@@ -171,4 +171,4 @@ Thumbs.db
 coverage/
 
 # Environment backups
-backup/
+backup*/

@@ -1,4 +1,4 @@
-import env from '@/lib/env'
+import env from '@/env'
 
 export enum SenderProfile {
   SYSTEM = 'system',
@@ -14,7 +14,7 @@ export interface EmailSender {
 
 export const getSenderDetails = (senderProfile: SenderProfile): EmailSender => {
   const profiles = env.EMAIL_SENDER_PROFILES
-  const profile = profiles[senderProfile] || profiles[SenderProfile.SYSTEM]
+  const profile = profiles[senderProfile] ?? profiles[SenderProfile.SYSTEM]
 
   return {
     email: profile.email,

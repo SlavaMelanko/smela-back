@@ -1,14 +1,14 @@
 import type { Context } from 'hono'
 
-import { setAccessCookie } from '@/lib/cookie'
-import HttpStatus from '@/lib/http-status'
+import { HttpStatus, setAccessCookie } from '@/net/http'
+import signUpWithEmail from '@/use-cases/auth/signup'
 
-import signUpWithEmail from './signup'
+import type { SignupBody } from './schema'
 
 const signupHandler = async (c: Context) => {
-  const { firstName, lastName, email, password, role } = await c.req.json()
+  const { firstName, lastName, email, password } = await c.req.json<SignupBody>()
 
-  const result = await signUpWithEmail({ firstName, lastName, email, password, role })
+  const result = await signUpWithEmail({ firstName, lastName: lastName ?? '', email, password })
 
   setAccessCookie(c, result.token)
 

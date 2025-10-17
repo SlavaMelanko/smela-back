@@ -4,6 +4,7 @@ import { requestId } from 'hono/request-id'
 
 import type { AppContext } from '@/context'
 
+import { notFound, onError } from '@/handlers'
 import {
   authRateLimiter,
   authRequestSizeLimiter,
@@ -11,8 +12,7 @@ import {
   generalRateLimiter,
   generalRequestSizeLimiter,
   loggerMiddleware,
-  onError,
-  securityHeadersMiddleware,
+  secureHeadersMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
@@ -25,12 +25,12 @@ class Server {
     this.app = new Hono<AppContext>({ strict: false })
     this.setupMiddleware()
     this.setupRoutes()
-    this.setupErrorHandler()
+    this.setupHandlers()
   }
 
   private setupMiddleware() {
     this.app
-      .use(securityHeadersMiddleware)
+      .use(secureHeadersMiddleware)
       .use(corsMiddleware)
       .use(requestId())
       .use(loggerMiddleware)
@@ -57,7 +57,8 @@ class Server {
     })
   }
 
-  private setupErrorHandler() {
+  private setupHandlers() {
+    this.app.notFound(notFound)
     this.app.onError(onError)
   }
 

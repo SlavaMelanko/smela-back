@@ -7,16 +7,16 @@ interface CompanyEnv {
 
 const DEFAULT_SOCIAL_LINKS = {} as const
 
-const parseSocialLinks = (jsonString?: string): Record<string, string> => {
+const parseSocialLinks = (jsonString?: string) => {
   if (!jsonString) {
     return DEFAULT_SOCIAL_LINKS
   }
 
   try {
-    const parsed = JSON.parse(jsonString)
+    const parsed = JSON.parse(jsonString) as unknown
 
-    return (typeof parsed === 'object' && parsed !== null)
-      ? parsed
+    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+      ? parsed as CompanyEnv['companySocialLinks']
       : DEFAULT_SOCIAL_LINKS
   } catch {
     return DEFAULT_SOCIAL_LINKS

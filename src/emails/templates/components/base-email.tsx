@@ -8,6 +8,7 @@ import {
   Preview,
 } from '@react-email/components'
 
+import type { ThemeStyles } from '../../styles'
 import type { Metadata } from '../../types'
 
 import { Footer, Header } from '.'
@@ -16,12 +17,12 @@ import { getThemeStyles } from '../../styles'
 export interface Props {
   subject: string
   previewText: string
-  styles: any
+  styles: ThemeStyles
   metadata?: Metadata
   children: React.ReactNode
 }
 
-const getStyles = (styles: any) => ({
+const getStyles = (styles: ThemeStyles) => ({
   main: {
     backgroundColor: styles.color.background.primary,
     fontFamily: styles.font.family.sans,

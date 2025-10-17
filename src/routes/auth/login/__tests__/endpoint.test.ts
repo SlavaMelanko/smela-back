@@ -3,22 +3,23 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
-import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/__tests__/mocks/captcha'
+import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
+import { HttpStatus } from '@/net/http'
 
 import loginRoute from '../index'
 
 describe('Login Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const LOGIN_URL = '/api/v1/auth/login'
 
   let app: Hono
   let mockLogInWithEmail: any
+  let mockSetAccessCookie: any
   let mockSetCookie: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
-    mockLogInWithEmail = mock(() => Promise.resolve({
+    mockLogInWithEmail = mock(async () => ({
       user: {
         id: 1,
         firstName: 'Test',
@@ -32,38 +33,35 @@ describe('Login Endpoint', () => {
       token: 'login-jwt-token',
     }))
 
-    mockSetCookie = mock(() => {})
-
-    await moduleMocker.mock('../login', () => ({
+    await moduleMocker.mock('@/use-cases/auth/login', () => ({
       default: mockLogInWithEmail,
     }))
 
-    await moduleMocker.mock('hono/cookie', () => ({
-      setCookie: mockSetCookie,
-      getCookie: mock(() => undefined),
-      deleteCookie: mock(() => {}),
-    }))
+    mockSetCookie = mock(() => {})
 
-    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
-      setAccessCookie: mock((c: any, token: string) => {
-        mockSetCookie(c, 'auth-token-test', token, {
-          httpOnly: true,
-          secure: false, // false in test environment
-          sameSite: 'lax',
-          maxAge: 3600,
-          path: '/',
-        })
-      }),
+    mockSetAccessCookie = mock((c: any, token: string) => {
+      mockSetCookie(c, 'auth-token-test', token, {
+        httpOnly: true,
+        secure: false, // false in test environment
+        sameSite: 'lax',
+        maxAge: 3600,
+        path: '/',
+      })
+    })
+
+    await moduleMocker.mock('@/net/http/cookie', () => ({
+      setAccessCookie: mockSetAccessCookie,
       getAccessCookie: mock(() => undefined),
       deleteAccessCookie: mock(() => {}),
     }))
 
-    mockCaptchaSuccess()
+    await mockCaptchaSuccess()
+
     app = createTestApp('/api/v1/auth', loginRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/login', () => {
@@ -208,22 +206,15 @@ describe('Login Endpoint', () => {
     })
 
     it('should set secure cookie in production environment', async () => {
-      // Override the access cookie mock to simulate production environment
-      await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
-        setAccessCookie: mock((c: any, token: string) => {
-          mockSetCookie(c, 'auth-token-test', token, {
-            httpOnly: true,
-            secure: true, // true in production environment
-            sameSite: 'lax',
-            maxAge: 3600,
-            path: '/',
-          })
-        }),
-        getAccessCookie: mock(() => undefined),
-        deleteAccessCookie: mock(() => {}),
-      }))
-
-      app = createTestApp('/api/v1/auth', loginRoute)
+      mockSetAccessCookie.mockImplementation((c: any, token: string) => {
+        mockSetCookie(c, 'auth-token-test', token, {
+          httpOnly: true,
+          secure: true, // true in production environment
+          sameSite: 'lax',
+          maxAge: 3600,
+          path: '/',
+        })
+      })
 
       const res = await post(app, LOGIN_URL, {
         email: 'test@example.com',

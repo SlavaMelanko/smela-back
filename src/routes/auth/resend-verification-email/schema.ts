@@ -1,8 +1,12 @@
-import { buildSchema, tokenRules, userRules } from '@/lib/validation'
+import { z } from 'zod'
 
-const resendVerificationEmailSchema = buildSchema({
-  email: userRules.email,
-  captchaToken: tokenRules.captchaToken,
-})
+import { dataValidationRules as rules } from '../../@shared'
+
+const resendVerificationEmailSchema = z.object({
+  email: rules.email,
+  captchaToken: rules.captchaToken,
+}).strict()
+
+export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>
 
 export default resendVerificationEmailSchema

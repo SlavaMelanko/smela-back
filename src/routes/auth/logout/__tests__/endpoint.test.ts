@@ -3,36 +3,32 @@ import type { Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
-import HttpStatus from '@/lib/http-status'
+import { HttpStatus } from '@/net/http'
 
 import logoutRoute from '../index'
 
 describe('Logout Endpoint', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
   const LOGOUT_URL = '/api/v1/auth/logout'
 
   let app: Hono
   let mockDeleteAccessCookie: any
 
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
   beforeEach(async () => {
     mockDeleteAccessCookie = mock(() => {})
 
-    await moduleMocker.mock('@/lib/cookie/access-cookie', () => ({
+    await moduleMocker.mock('@/net/http/cookie', () => ({
       deleteAccessCookie: mockDeleteAccessCookie,
       getAccessCookie: mock(() => undefined),
       setAccessCookie: mock(() => {}),
     }))
 
-    await moduleMocker.mock('@/lib/cookie', () => ({
-      deleteAccessCookie: mockDeleteAccessCookie,
-    }))
-
     app = createTestApp('/api/v1/auth', logoutRoute)
   })
 
-  afterEach(() => {
-    moduleMocker.clear()
+  afterEach(async () => {
+    await moduleMocker.clear()
   })
 
   describe('POST /auth/logout', () => {
