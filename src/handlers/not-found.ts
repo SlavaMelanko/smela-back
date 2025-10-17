@@ -14,9 +14,9 @@ const notFound: NotFoundHandler<AppContext> = (c) => {
 
   return c.json(
     {
+      name: APP_ERROR_NAME,
       code,
       error,
-      name: APP_ERROR_NAME,
       path: c.req.path,
     },
     status as ContentfulStatusCode,

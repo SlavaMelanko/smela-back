@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { ErrorCode } from '@/errors'
+import { APP_ERROR_NAME, ErrorCode } from '@/errors'
 import { HttpStatus } from '@/net/http'
 
 import onError from '../on-error'
@@ -25,7 +25,7 @@ describe('onError handler', () => {
     expect(body).toMatchObject({
       code: ErrorCode.InternalError,
       error: 'Something went wrong',
-      name: 'Error',
+      name: APP_ERROR_NAME,
     })
   })
 
@@ -48,7 +48,7 @@ describe('onError handler', () => {
     expect(body).toMatchObject({
       code: ErrorCode.BadRequest,
       error: 'Custom error',
-      name: 'Error',
+      name: APP_ERROR_NAME,
     })
   })
 
