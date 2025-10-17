@@ -6,7 +6,7 @@ import { HTTPException } from 'hono/http-exception'
 import { isDevEnv } from '@/env'
 import { ErrorCode, ErrorRegistry } from '@/errors'
 import { logger } from '@/logging'
-import HttpStatus, { getReasonPhrase } from '@/types/http-status'
+import { getReasonPhrase, HttpStatus } from '@/net/http'
 
 import { getHttpStatus } from './http-status-mapper'
 

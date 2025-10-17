@@ -1,6 +1,5 @@
 export { default as Action } from './action'
 export { default as AuthProvider } from './auth-providers'
-export { getReasonPhrase, default as HttpStatus } from './http-status'
 export { default as Resource } from './resource'
 export { isAdmin, isEnterprise, isOwner, isUser, default as Role } from './role'
 export { isActive, isActiveOnly, isNewOrActive, default as Status } from './status'

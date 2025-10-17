@@ -1,5 +1,5 @@
 import ErrorCode from '@/errors/codes'
-import HttpStatus from '@/types/http-status'
+import { HttpStatus } from '@/net/http'
 
 const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   // Auth errors

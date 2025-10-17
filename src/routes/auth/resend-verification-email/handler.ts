@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import HttpStatus from '@/types/http-status'
+import { HttpStatus } from '@/net/http'
 import resendVerificationEmail from '@/use-cases/auth/resend-verification-email'
 
 import type { ResendVerificationEmailBody } from './schema'

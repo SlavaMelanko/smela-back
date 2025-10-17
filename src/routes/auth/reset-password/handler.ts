@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import HttpStatus from '@/types/http-status'
+import { HttpStatus } from '@/net/http'
 import resetPassword from '@/use-cases/auth/reset-password'
 
 import type { ResetPasswordBody } from './schema'
