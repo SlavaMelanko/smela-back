@@ -8,6 +8,8 @@ import { ErrorCode, ErrorRegistry } from '@/errors'
 import { logger } from '@/logging'
 import HttpStatus, { getReasonPhrase } from '@/types/http-status'
 
+import { getHttpStatus } from './http-status-mapper'
+
 const getErrorCode = (err: unknown): ErrorCode => {
   if (err instanceof HTTPException) {
     if (err.status >= HttpStatus.BAD_REQUEST
@@ -31,17 +33,15 @@ const onError: ErrorHandler = (err, c) => {
   logger.error(err)
 
   const code = getErrorCode(err)
-
-  const error = ErrorRegistry[code]
-  const status = error.status
-  const message = err.message || error.error || getReasonPhrase(status)
+  const error = err.message || ErrorRegistry[code].error || getReasonPhrase(getHttpStatus(code))
   const name = err.name
   const stack = isDevEnv() ? err.stack : undefined
+  const status = getHttpStatus(code)
 
   return c.json(
     {
       code,
-      error: message,
+      error,
       name,
       stack,
     },
