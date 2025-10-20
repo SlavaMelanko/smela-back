@@ -15,17 +15,17 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 
 ## 🛠️ Installation
 
-### 1. Install
+### 1. Install dependencies
 
 ```bash
 bun install
 ```
 
-### 2. Environment Setup
+### 2. Environment setup
 
 See [`.env.example`](.env.example) to configure required variables.
 
-### 3. Database Setup
+### 3. Database setup
 
 Run all database setup steps at once (generate → migrate → seed):
 
@@ -35,7 +35,7 @@ bun db:setup
 
 Or look at [`package.json`](package.json) for individual steps.
 
-### 4. Start Development Server
+### 4. Start development server
 
 ```bash
 bun dev
