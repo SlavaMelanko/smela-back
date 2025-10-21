@@ -13,7 +13,7 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 - PostgreSQL database (local or cloud)
 - Email service account ([Resend](https://resend.com/) for production, [Ethereal](https://ethereal.email/) for development)
 
-## 🛠️ Installation
+## 🛠️ Build and Run
 
 ### 1. Install dependencies
 

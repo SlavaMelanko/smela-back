@@ -49,44 +49,56 @@ jobs:
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request and provide a quality assessment score (1-10) for each of these criteria:
+            Please review this pull request and provide a quality assessment score (1–10) for each of the following criteria:
 
-            - **Architecture** (1-10): Check system design for modularity (loose coupling between modules and high cohesion within each module), clear separation of concerns, and proper abstractions (hide implementation details and export only necessary interfaces). Ensure each component aligns with SOLID best practices — especially the Single Responsibility Principle
-            - **Security** (1-10): Check that inputs are validated, auth & permissions are enforced (including role-based access control), sensitive data is protected, and no obvious vulnerabilities (injection, XSS, CSRF) exist. Errors don't leak sensitive information
-            - **Testing** (1-10): Check that tests cover at least the main logic (~60%), are clear, reliable, and easy to maintain. Focus on meaningful coverage and critical paths (main user flows and business logic) rather than chasing 100%
-            - **Performance** (1-10): Check this update for efficiency, resource usage, and scalability. Identify any optimization opportunities or performance implications, especially under high load or large data scenarios
-            - **Code Quality** (1-10): Check this code for readability, maintainability, adherence to ESLint and CLAUDE.md standards, and naming clarity. Favor clarity over cleverness and ensure names express intent clearly
+            - **Architecture** (1–10):
+
+              Each dimension is scored 1–10 and averaged:
+                1. **DRY Principle** — Avoids duplication; variables/functions/classes/modules reused appropriately. Lower score for duplicated code blocks.
+                2. **SOLID Principles** — Each principle contributes up to 2 points (S, O, L, I, D). Partial implementation = 1; not applicable or nicely implemented = 2; violation = 0.
+                3. **Design Patterns & Simplicity** — Appropriate use of creational/structural/behavioral patterns or clean simplicity if no pattern is needed. Lower score for over-engineering or missing abstraction are now acceptable.
+                4. **Modularity, Coupling & Cohesion** — Modules have single, focused purposes; minimal cross-dependencies. Higher score for clear boundaries and well-defined interfaces, lower score for circular imports or mixed logic.
+
+              Optional backend modifiers:
+                If relevant, adjust ±1–2 points based on backend considerations:
+                  - Data layer design (schema quality, transactions, indexing).
+                  - Infrastructure integration (cache, queues, 3rd-party services).
+                  - Scalability & fault isolation (read/write separation, retries, timeouts)
+
+              **Scoring interpretation**
+                - 10 (Excellent) - fully aligned with best practices (DRY + SOLID + modular + patterns where appropriate).
+                - 8–9 (Strong) - minor issues but overall clean and well-designed.
+                - 6–7 (Moderate) - some inconsistencies or partial adherence to principles.
+                - 4–5 (Weak) - architectural problems (duplication, unclear boundaries, tight coupling).
+                - 1–3 (Poor) - serious structural issues; likely needs refactoring.
+
+            - **Security** (1–10): Check that inputs are validated, authentication and permissions are enforced (including role-based access control), sensitive data is protected, and no obvious vulnerabilities exist (injection, XSS, CSRF). Ensure errors don’t leak sensitive information.
+            - **Testing** (1–10): Check that tests cover at least the main logic (~60%), are clear, reliable, and easy to maintain. Focus on meaningful coverage and critical paths (main user flows and business logic) rather than chasing 100%.
+            - **Performance** (1–10): Check this update for efficiency, resource usage, and scalability. Identify any optimization opportunities or performance implications, especially under high load or large data scenarios.
+            - **Code Quality** (1–10): Check this code for readability, maintainability, adherence to ESLint and CLAUDE.md standards, and naming clarity. Favor clarity over cleverness, and ensure names express intent clearly.
 
             Format the assessment as:
+
             ```md
             ## Quality Assessment:
 
-            ### **🏗️ Architecture**: X/10
-            [Brief justification (2-3 sentences)]
+            <!-- Use the same "Brief justification" and "Optional suggestions for improvement" format for all sections below except "Overall". -->
 
-            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
+            ### 🏗️ Architecture: X/10
+            [Brief justification — keep it short and clear.]
 
-            ### **🛡️ Security**: X/10
-            [Brief justification (2-3 sentences)]
+            [Optional suggestions for improvement — list specific actions or issues that, if fixed, would increase the score.
+            Use an enumerated list ordered by priority, with 🔴 for critical issues, 🟠 for medium, and 🟢 for low.]
 
-            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
+            ### 🛡️ Security: X/10
 
-            ### **🧪 Testing**: X/10
-            [Brief justification (2-3 sentences)]
+            ### 🧪 Testing: X/10
 
-            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
+            ### ⚡ Performance: X/10
 
-            ### **⚡ Performance**: X/10
-            [Brief justification (2-3 sentences)]
+            ### 💎 Code Quality: X/10
 
-            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
-
-            ### **💎 Code Quality**: X/10
-            [Brief justification (2-3 sentences)]
-
-            [Optional suggestions for improvement as an enumerated list (1., 2., …) to make a better score]
-
-            ### **🌟 Overall**: X/10 -> "✅ Approve" if score 8+ overall or "⚠️ Request changes" if score <8 overall
+            ### [Use ✅ if overall score ≥ 8 or ⚠️ if score < 8] Overall: X/10
             ```
 
           # Optional: Different prompts for different authors
