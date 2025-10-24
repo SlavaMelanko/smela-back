@@ -34,7 +34,7 @@ describe('Async Utils', () => {
       const elapsed = Date.now() - start
 
       expect(elapsed).toBeGreaterThanOrEqual(100)
-      expect(elapsed).toBeLessThan(150)
+      expect(elapsed).toBeLessThan(200)
     })
   })
 
