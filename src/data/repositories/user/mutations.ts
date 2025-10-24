@@ -2,14 +2,14 @@ import { eq } from 'drizzle-orm'
 
 import { AppError, ErrorCode } from '@/errors'
 
-import type { Transaction } from '../../clients'
+import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
 import { findUserById, toTypeSafeUser } from './queries'
 
-export const createUser = async (user: CreateUserInput, tx?: Transaction): Promise<User> => {
+export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
 
   const [createdUser] = await executor
@@ -27,7 +27,7 @@ export const createUser = async (user: CreateUserInput, tx?: Transaction): Promi
 export const updateUser = async (
   userId: number,
   updates: UpdateUserInput,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<User> => {
   const executor = tx || db
 
@@ -44,7 +44,7 @@ export const updateUser = async (
   return toTypeSafeUser(updatedUser) as User
 }
 
-export const incrementTokenVersion = async (userId: number, tx?: Transaction): Promise<void> => {
+export const incrementTokenVersion = async (userId: number, tx?: Database): Promise<void> => {
   const user = await findUserById(userId, tx)
 
   if (!user) {

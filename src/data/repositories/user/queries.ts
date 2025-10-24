@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 
 import type { Role, Status } from '@/types'
 
-import type { Transaction } from '../../clients'
+import type { Database } from '../../clients'
 import type { User, UserRecord } from './types'
 
 import { db } from '../../clients'
@@ -22,7 +22,7 @@ export const toTypeSafeUser = (user: UserRecord): User | undefined => {
 
 export const findUserById = async (
   userId: number,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<User | undefined> => {
   const executor = tx || db
 
@@ -36,7 +36,7 @@ export const findUserById = async (
 
 export const findUserByEmail = async (
   email: string,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<User | undefined> => {
   const executor = tx || db
 

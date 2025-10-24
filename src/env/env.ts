@@ -2,7 +2,7 @@ import { z, ZodError } from 'zod'
 
 import { companyEnvVars } from './company'
 import { coreEnvVars } from './core'
-import { dbEnvVars } from './db'
+import { createDbUrl, dbEnvVars } from './db'
 import { emailEnvVars } from './email'
 import { createNetworkEnvVars } from './network'
 import { captchaEnvVars } from './services'
@@ -20,7 +20,21 @@ export const validateEnvVars = (envVars: typeof Bun.env = Bun.env) => {
       ...captchaEnvVars,
     })
 
-    return envSchema.parse(envVars)
+    const parsedEnv = envSchema.parse(envVars)
+
+    // Construct POSTGRES_URL from individual POSTGRES_* variables
+    const POSTGRES_URL = createDbUrl(
+      parsedEnv.POSTGRES_USER,
+      parsedEnv.POSTGRES_PASSWORD,
+      parsedEnv.POSTGRES_HOST,
+      parsedEnv.POSTGRES_PORT,
+      parsedEnv.POSTGRES_DB,
+    )
+
+    return {
+      ...parsedEnv,
+      POSTGRES_URL,
+    }
   } catch (error: unknown) {
     console.error(
       '❌ Failed to parse environment variables:',

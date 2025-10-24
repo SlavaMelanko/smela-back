@@ -1,20 +1,21 @@
-import type { NeonDatabase } from 'drizzle-orm/neon-serverless'
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 
-import { Pool } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-serverless'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
 
 import env, { isDevEnv } from '@/env'
 
 import * as schema from '../schema'
 
-export type Transaction = NeonDatabase<typeof schema>
+export type Database = NodePgDatabase<typeof schema>
 
 const pool = new Pool({
-  connectionString: env.DB_URL,
-  max: env.DB_MAX_CONNECTIONS,
+  connectionString: env.POSTGRES_URL,
+  max: env.POSTGRES_MAX_CONNECTIONS,
 })
 
-export const db = drizzle(pool, {
+export const db: Database = drizzle(pool, {
   schema,
+  casing: 'snake_case',
   logger: isDevEnv(),
 })

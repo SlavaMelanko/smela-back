@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 
-import type { Transaction } from '../../clients'
+import type { Database } from '../../clients'
 import type { AuthRecord } from './types'
 
 import { db } from '../../clients'
@@ -8,7 +8,7 @@ import { authTable } from '../../schema'
 
 export const findByUserId = async (
   userId: number,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<AuthRecord | undefined> => {
   const executor = tx || db
 
