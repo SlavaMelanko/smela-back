@@ -1,10 +1,10 @@
-CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> statement-breakpoint
 CREATE TYPE "public"."auth_provider" AS ENUM('local', 'google', 'github');--> statement-breakpoint
+CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> statement-breakpoint
 CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user', 'enterprise');--> statement-breakpoint
-CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
-CREATE TYPE "public"."token" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
 CREATE TYPE "public"."token_status" AS ENUM('pending', 'used', 'deprecated');--> statement-breakpoint
+CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
+CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE "role_permissions" (
 CREATE TABLE "tokens" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"type" "token" NOT NULL,
+	"type" "token_type" NOT NULL,
 	"status" "token_status" DEFAULT 'pending' NOT NULL,
 	"token" varchar(255) NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
@@ -47,6 +47,7 @@ CREATE TABLE "users" (
 	"email" varchar(255) NOT NULL,
 	"role" "role" DEFAULT 'user' NOT NULL,
 	"status" "status" DEFAULT 'new' NOT NULL,
+	"token_version" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")

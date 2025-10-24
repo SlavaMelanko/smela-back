@@ -1,1 +1,0 @@
-ALTER TYPE "public"."token" RENAME TO "token_type";

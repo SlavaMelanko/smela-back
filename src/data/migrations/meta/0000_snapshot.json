@@ -1,5 +1,5 @@
 {
-  "id": "e6011d0b-5a61-4601-a504-de4fb021e3b1",
+  "id": "429fedf6-eaa5-4f1b-9a0a-de2ff0e631fa",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -239,7 +239,7 @@
         },
         "type": {
           "name": "type",
-          "type": "token",
+          "type": "token_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -395,6 +395,13 @@
           "notNull": true,
           "default": "'new'"
         },
+        "token_version": {
+          "name": "token_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -444,6 +451,15 @@
     }
   },
   "enums": {
+    "public.auth_provider": {
+      "name": "auth_provider",
+      "schema": "public",
+      "values": [
+        "local",
+        "google",
+        "github"
+      ]
+    },
     "public.action": {
       "name": "action",
       "schema": "public",
@@ -452,15 +468,6 @@
         "create",
         "edit",
         "delete"
-      ]
-    },
-    "public.auth_provider": {
-      "name": "auth_provider",
-      "schema": "public",
-      "values": [
-        "local",
-        "google",
-        "github"
       ]
     },
     "public.resource": {
@@ -481,6 +488,23 @@
         "enterprise"
       ]
     },
+    "public.token_status": {
+      "name": "token_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "used",
+        "deprecated"
+      ]
+    },
+    "public.token_type": {
+      "name": "token_type",
+      "schema": "public",
+      "values": [
+        "email_verification",
+        "password_reset"
+      ]
+    },
     "public.status": {
       "name": "status",
       "schema": "public",
@@ -492,23 +516,6 @@
         "suspended",
         "archived",
         "pending"
-      ]
-    },
-    "public.token": {
-      "name": "token",
-      "schema": "public",
-      "values": [
-        "email_verification",
-        "password_reset"
-      ]
-    },
-    "public.token_status": {
-      "name": "token_status",
-      "schema": "public",
-      "values": [
-        "pending",
-        "used",
-        "deprecated"
       ]
     }
   },
