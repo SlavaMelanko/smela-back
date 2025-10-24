@@ -1,11 +1,8 @@
-import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
 
-// Load environment-specific .env file
+// Bun automatically loads .env.${NODE_ENV} files
 // eslint-disable-next-line node/no-process-env
 const nodeEnv = process.env.NODE_ENV || 'development'
-
-config({ path: `.env.${nodeEnv}` })
 
 const createDbUrl = () => {
   const {
