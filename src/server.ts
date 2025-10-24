@@ -6,6 +6,7 @@ import type { AppContext } from '@/context'
 
 import { notFound, onError } from '@/handlers'
 import {
+  adminAuthMiddleware,
   authRateLimiter,
   authRequestSizeLimiter,
   corsMiddleware,
@@ -16,7 +17,7 @@ import {
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
-import { authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
+import { adminRoutes, authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>
@@ -40,6 +41,7 @@ class Server {
       .use('/api/v1/auth/*', authRateLimiter)
       .use('/api/v1/protected/*', userRelaxedAuthMiddleware)
       .use('/api/v1/private/*', userStrictAuthMiddleware)
+      .use('/api/v1/admin/*', adminAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 
@@ -54,6 +56,10 @@ class Server {
 
     protectedRoutesVerifiedOnly.forEach((route) => {
       this.app.route('/api/v1/private', route)
+    })
+
+    adminRoutes.forEach((route) => {
+      this.app.route('/api/v1/admin', route)
     })
   }
 
