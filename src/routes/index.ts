@@ -29,4 +29,7 @@ export const protectedRoutesAllowNew = [meRoute]
 // Routes that require verified users only (status: verified, trial, active)
 export const protectedRoutesVerifiedOnly: Hono<AppContext>[] = []
 
+// Routes that require admin privileges (role: admin, owner)
+export const adminRoutes = [meRoute]
+
 export const publicRoutes: Hono<AppContext>[] = []

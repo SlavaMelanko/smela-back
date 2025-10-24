@@ -68,7 +68,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -77,7 +78,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+54@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+57@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -103,7 +104,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+52@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+56@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -164,7 +165,8 @@
 							"});"
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -173,7 +175,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"fb53bc3b4e7b95ecff3663dbacbab53968f290b7fe46a48f6f014afab719ce63\"\n}",
+					"raw": "{\n    \"token\": \"9f744e1c0b5bb557709c8507469cca6d4fbf73bf3eb2e06981d76f9403cf8616\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -207,7 +209,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -216,7 +219,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+52@gmail.com\",\n    \"password\": \"P@ssw0rd!!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"email\": \"jason@example.com\",\n    \"password\": \"Passw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -269,7 +272,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"lastName\": \"Melankoo\"\n}\n",
+					"raw": "{\n    \"lastName\": \"Melanko\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -364,6 +367,23 @@
 					],
 					"path": [
 						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "admin/me",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{admin_api_url}}/me",
+					"host": [
+						"{{admin_api_url}}"
+					],
+					"path": [
+						"me"
 					]
 				}
 			},
