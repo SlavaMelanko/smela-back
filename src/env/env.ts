@@ -1,3 +1,4 @@
+import { config } from 'dotenv'
 import { z, ZodError } from 'zod'
 
 import { companyEnvVars } from './company'
@@ -7,7 +8,13 @@ import { emailEnvVars } from './email'
 import { createNetworkEnvVars } from './network'
 import { captchaEnvVars } from './services'
 
-export const validateEnvVars = (envVars: typeof Bun.env = Bun.env) => {
+// Load env vars for Drizzle Kit (runs under Node.js, not Bun)
+// eslint-disable-next-line node/no-process-env
+const nodeEnv = process.env.NODE_ENV || 'development'
+config({ path: `.env.${nodeEnv}` })
+
+// eslint-disable-next-line node/no-process-env
+export const validateEnvVars = (envVars: NodeJS.ProcessEnv = process.env) => {
   try {
     const nodeEnv = envVars.NODE_ENV
 
