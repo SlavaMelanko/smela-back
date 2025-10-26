@@ -10,6 +10,6 @@ export interface EmailRenderer<T = any> {
   render: (
     data: T,
     userPreferences?: UserPreferences,
-    metadata?: Metadata
+    metadata?: Metadata,
   ) => Promise<RenderedEmail>
 }
