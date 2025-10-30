@@ -49,7 +49,6 @@ describe('Verify Email', () => {
       email: 'john@example.com',
       status: Status.Verified,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     }

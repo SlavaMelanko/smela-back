@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
+TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL with Drizzle ORM.
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
-- **Database**: PostgreSQL (serverless)
+- **Database**: PostgreSQL (Docker)
 - **ORM**: Drizzle for type-safe queries
 - **Authentication**: JWT, bcrypt password hashing
 - **Email**: Transactional email support
@@ -38,7 +38,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 - `/src/server.ts` - Server configuration with middleware setup
 - `/src/data/` - Data access layer
   - `/schema/` - Database schema (users, auth, rbac, tokens) with inline enums
-  - `/clients/` - Database clients (Neon serverless)
+  - `/clients/` - Database clients (PostgreSQL via postgres.js)
   - `/repositories/` - Repository pattern for data access (auth, token, user)
   - `/migrations/` - Drizzle ORM migrations
   - `seed.ts` - Database seeding script
@@ -108,7 +108,7 @@ Key tables:
 
 ### Database Connection
 
-The project uses **Neon serverless PostgreSQL** with connection pooling (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
+The project uses **PostgreSQL running in Docker** with connection pooling via postgres.js (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
 
 ### Authentication Flow
 

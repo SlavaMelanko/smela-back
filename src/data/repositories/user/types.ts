@@ -14,5 +14,3 @@ export type User = Omit<UserRecord, 'role' | 'status'> & {
   role: Role
   status: Status
 }
-
-export type NormalizedUser = Omit<User, 'tokenVersion'>

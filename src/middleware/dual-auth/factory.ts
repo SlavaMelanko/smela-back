@@ -5,7 +5,6 @@ import { createMiddleware } from 'hono/factory'
 import type { AppContext } from '@/context'
 import type { Role, Status } from '@/types'
 
-import { userRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { verifyJwt } from '@/security/jwt'
@@ -36,11 +35,6 @@ const createDualAuthMiddleware = (
 
     if (!roleValidator(userClaims.role)) {
       throw new AppError(ErrorCode.Forbidden, 'Role validation failure')
-    }
-
-    const user = await userRepo.findById(userClaims.id)
-    if (!user || user.tokenVersion !== userClaims.tokenVersion) {
-      throw new AppError(ErrorCode.Unauthorized, 'Token version mismatch')
     }
 
     c.set('user', userClaims)

@@ -7,7 +7,7 @@ import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
-import { findUserById, toTypeSafeUser } from './queries'
+import { toTypeSafeUser } from './queries'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -42,16 +42,4 @@ export const updateUser = async (
   }
 
   return toTypeSafeUser(updatedUser) as User
-}
-
-export const incrementTokenVersion = async (userId: number, tx?: Database): Promise<void> => {
-  const user = await findUserById(userId, tx)
-
-  if (!user) {
-    throw new AppError(ErrorCode.NotFound, 'User not found')
-  }
-
-  await updateUser(userId, {
-    tokenVersion: user.tokenVersion + 1,
-  }, tx)
 }

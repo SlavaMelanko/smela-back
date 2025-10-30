@@ -1,6 +1,6 @@
 import type { User } from '@/data'
 
-import { authRepo, db, normalizeUser, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
@@ -56,7 +56,6 @@ const createJwtToken = async (user: User) => signJwt(
     email: user.email,
     role: user.role,
     status: user.status,
-    tokenVersion: user.tokenVersion,
   },
 )
 
@@ -89,7 +88,7 @@ const signUpWithEmail = async (
 
   const jwtToken = await createJwtToken(newUser)
 
-  return { user: normalizeUser(newUser), token: jwtToken }
+  return { user: newUser, token: jwtToken }
 }
 
 export default signUpWithEmail

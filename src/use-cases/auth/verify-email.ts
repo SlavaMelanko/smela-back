@@ -1,12 +1,12 @@
 import type { User } from '@/data'
 
-import { db, normalizeUser, tokenRepo, userRepo } from '@/data'
+import { db, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
 import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
 
 export interface VerifyEmailResult {
-  user: ReturnType<typeof normalizeUser>
+  user: User
   token: string
 }
 
@@ -22,7 +22,6 @@ const createJwtToken = async (user: User) => signJwt(
     email: user.email,
     role: user.role,
     status: user.status,
-    tokenVersion: user.tokenVersion,
   },
 )
 
@@ -42,7 +41,7 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
 
   const jwtToken = await createJwtToken(updatedUser)
 
-  return { user: normalizeUser(updatedUser), token: jwtToken }
+  return { user: updatedUser, token: jwtToken }
 }
 
 export default verifyEmail

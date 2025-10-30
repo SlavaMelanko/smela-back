@@ -34,7 +34,6 @@ describe('Request Password Reset', () => {
       role: Role.User,
       createdAt: new Date(),
       updatedAt: new Date(),
-      tokenVersion: 0,
     })!
     mockUserRepo = {
       findByEmail: mock(async () => mockUser),

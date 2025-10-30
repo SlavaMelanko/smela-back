@@ -51,7 +51,6 @@ describe('Signup with Email', () => {
       email: 'john@example.com',
       status: Status.New,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     })!
@@ -131,7 +130,7 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
-      const { tokenVersion, ...expectedUser } = mockNewUser
+      const expectedUser = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result).toHaveProperty('token')
       expect(result.token).toBe(mockJwtToken)
@@ -344,7 +343,7 @@ describe('Signup with Email', () => {
 
       expect(result).toHaveProperty('user')
       expect(result).toHaveProperty('token')
-      const { tokenVersion, ...expectedUser } = mockNewUser
+      const expectedUser = mockNewUser
       expect(result.user).toEqual(expectedUser)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
@@ -375,7 +374,7 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      const { tokenVersion, ...expectedUser } = mockNewUser
+      const expectedUser = mockNewUser
       expect(result.user).toEqual(expectedUser)
     })
 
@@ -412,6 +411,7 @@ describe('Signup with Email', () => {
     it('should always assign user role regardless of input', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
+      const expectedUser = mockNewUser
       expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
@@ -422,7 +422,6 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      const { tokenVersion: _, ...expectedUser } = mockNewUser
       expect(result.user).toEqual(expectedUser)
       expect(result.user.role).toBe(Role.User)
     })
