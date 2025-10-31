@@ -26,8 +26,8 @@ export const tokensTable = pgTable('tokens', {
   usedAt: timestamp('used_at', { withTimezone: true }),
   metadata: json('metadata'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, table => ({
-  userTypeIndex: index('user_type_index').on(table.userId, table.type),
-  expiresAtIndex: index('tokens_expires_at_index').on(table.expiresAt),
-  statusExpiresIndex: index('tokens_status_expires_index').on(table.status, table.expiresAt),
-}))
+}, table => [
+  index('user_type_index').on(table.userId, table.type),
+  index('tokens_expires_at_index').on(table.expiresAt),
+  index('tokens_status_expires_index').on(table.status, table.expiresAt),
+])
