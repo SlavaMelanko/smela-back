@@ -23,8 +23,9 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 All available commands are defined in [package.json](package.json#L3-L23). Key commands include:
 
 - **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
-- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`
-- **Database**: `bun run db:setup` (generate + migrate + seed), `bun run db:studio` (Drizzle Studio)
+- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`, `bun run test:with-db` (start test DB and run tests)
+- **Database Dev**: `bun run db:up:dev` (start dev DB), `bun run db:down:dev` (stop dev DB), `bun run db:reset:dev` (reset dev DB), `bun run db:setup` (generate + migrate + seed), `bun run db:ui` (Drizzle Studio)
+- **Database Test**: `bun run db:up:test` (start test DB on port 5433), `bun run db:down:test` (stop test DB), `bun run db:reset:test` (reset test DB)
 - **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
 - **Email Dev**: `bun run email` (React Email dev server on port 3001)
 
@@ -109,6 +110,28 @@ Key tables:
 ### Database Connection
 
 The project uses **PostgreSQL running in Docker** with connection pooling via postgres.js (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
+
+#### Separate Dev and Test Databases
+
+The project maintains separate Docker Compose configurations for development and testing:
+
+- **Development Database** (`docker-compose-dev.yml`)
+  - Port: 5432
+  - Container: `smela-dev-db`
+  - Credentials from `.env.development`
+  - Volume: `postgres_data`
+
+- **Test Database** (`docker-compose-test.yml`)
+  - Port: 5433 (different from dev to avoid conflicts)
+  - Container: `smela-db-test`
+  - Credentials from `.env.test`
+  - Volume: `postgres_test_data`
+
+This separation allows:
+- Running tests while dev server is active
+- Independent database states
+- Parallel execution in CI/CD pipelines
+- Clean test isolation without affecting development data
 
 ### Authentication Flow
 
