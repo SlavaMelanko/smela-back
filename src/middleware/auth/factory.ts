@@ -9,7 +9,7 @@ import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { verifyJwt } from '@/security/jwt'
 
-import extractToken from './token'
+import extractAccessToken from './access-token'
 
 /**
  * Factory function to create authentication middleware with configurable validation.
@@ -20,14 +20,14 @@ const createAuthMiddleware = (
   statusValidator: (status: Status) => boolean,
   roleValidator: (role: Role) => boolean,
 ): MiddlewareHandler<AppContext> => createMiddleware<AppContext>(async (c, next) => {
-  const token = extractToken(c)
+  const accessToken = extractAccessToken(c)
 
-  if (!token) {
+  if (!accessToken) {
     throw new AppError(ErrorCode.Unauthorized, 'No authentication token provided')
   }
 
   try {
-    const userClaims = await verifyJwt(token, { secret: env.JWT_ACCESS_SECRET })
+    const userClaims = await verifyJwt(accessToken, { secret: env.JWT_ACCESS_SECRET })
 
     if (!statusValidator(userClaims.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
