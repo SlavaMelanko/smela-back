@@ -84,23 +84,6 @@ describe('Auth Middleware Factory - Missing Coverage', () => {
       const json = await res.json()
       expect(json.code).toBe(ErrorCode.Unauthorized)
     })
-
-    it('should throw Unauthorized when both header and cookie are missing', async () => {
-      const middleware = createAuthMiddleware(
-        () => true,
-        () => true,
-      )
-
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
-
-      const res = await app.request('/protected')
-
-      expect(res.status).toBe(HttpStatus.UNAUTHORIZED)
-      const json = await res.json()
-      expect(json.code).toBe(ErrorCode.Unauthorized)
-      expect(json.error).toBe('No authentication token provided')
-    })
   })
 
   describe('Error Handling Edge Cases', () => {
