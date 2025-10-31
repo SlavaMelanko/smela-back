@@ -12,7 +12,7 @@ import { Role, Status } from '@/types'
 
 import { userRelaxedAuthMiddleware, userStrictAuthMiddleware } from '../index'
 
-describe('Dual Auth Middleware - New User Access', () => {
+describe('Auth Middleware - New User Access', () => {
   let app: Hono<AppContext>
 
   beforeEach(() => {

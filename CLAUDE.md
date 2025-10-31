@@ -56,7 +56,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/content/` - Localized email content (en, uk)
   - `/styles/` - Email styling utilities
 - `/src/middleware/` - Hono middleware stack
-  - `/dual-auth/` - JWT authentication (cookie and Bearer token support)
+  - `/auth/` - JWT access token authentication via Authorization header
   - `/captcha/` - CAPTCHA verification middleware
   - `/rate-limiter/` - Rate limiting per endpoint
   - `/size-limiter/` - Request size limits
@@ -277,7 +277,7 @@ await moduleMocker.mock('@/lib/jwt', () => mockJwt)
 #### Authentication & Authorization
 
 - JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
-- Dual authentication support (cookies for web, Bearer tokens for API/mobile)
+- Flexible authentication support (cookies for web, Bearer tokens for API/mobile)
 - bcrypt password hashing with configurable salt rounds (default: 10 rounds)
 - Email verification and secure password reset flows
 - One-time use tokens for password reset with expiration
