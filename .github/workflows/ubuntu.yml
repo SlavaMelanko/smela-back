@@ -61,10 +61,10 @@ jobs:
         run: bun install
 
       - name: Run linting
-        run: bun lint
+        run: bun run lint
 
       - name: Run tests with coverage
-        run: bun coverage
+        run: bun run coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
