@@ -2,6 +2,7 @@ import {
   integer,
   pgTable,
   serial,
+  timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
@@ -17,14 +18,16 @@ export const permissionsTable = pgTable('permissions', {
   id: serial('id').primaryKey(),
   action: actionEnum('action').notNull(),
   resource: resourceEnum('resource').notNull(),
-}, table => ({
-  uniquePermission: uniqueIndex('unique_permission').on(table.action, table.resource),
-}))
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => [
+  uniqueIndex('unique_permission').on(table.action, table.resource),
+])
 
 export const rolePermissionsTable = pgTable('role_permissions', {
   id: serial('id').primaryKey(),
   role: roleEnum('role').notNull(),
-  permissionId: integer('permission_id').notNull().references(() => permissionsTable.id),
-}, table => ({
-  uniqueRolePermission: uniqueIndex('unique_role_permission').on(table.role, table.permissionId),
-}))
+  permissionId: integer('permission_id').notNull().references(() => permissionsTable.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => [
+  uniqueIndex('unique_role_permission').on(table.role, table.permissionId),
+])

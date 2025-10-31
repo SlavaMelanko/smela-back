@@ -1,5 +1,4 @@
 import {
-  index,
   pgTable,
   serial,
   timestamp,
@@ -22,6 +21,4 @@ export const usersTable = pgTable('users', {
   status: statusEnum('status').notNull().default(Status.New),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, table => ({
-  emailIndex: index('email_index').on(table.email),
-}))
+})
