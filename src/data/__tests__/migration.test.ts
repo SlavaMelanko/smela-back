@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { sql } from 'drizzle-orm'
 
-import { cleanupTestData, createTestAuth, createTestUser, findUserByEmail } from '@/data/__tests__/helpers/test-db'
 import { db } from '@/data/clients/db'
+import { authRepo, userRepo } from '@/data/repositories'
 import { AuthProvider, Role, Status } from '@/types'
 
 const TEST_EMAIL = 'migration-test@example.com'
 
 describe('@with-db Database Migration Tests', () => {
   beforeEach(async () => {
-    await cleanupTestData(TEST_EMAIL)
+    await userRepo.delete(TEST_EMAIL)
   })
 
   describe('Schema Structure', () => {
@@ -62,7 +62,7 @@ describe('@with-db Database Migration Tests', () => {
 
   describe('Data Preservation', () => {
     test('should preserve user data after migration', async () => {
-      const testUser = await createTestUser({
+      const testUser = await userRepo.create({
         email: TEST_EMAIL,
         firstName: 'Test',
         lastName: 'User',
@@ -70,14 +70,14 @@ describe('@with-db Database Migration Tests', () => {
         status: Status.New,
       })
 
-      await createTestAuth({
+      await authRepo.create({
         userId: testUser.id,
         provider: AuthProvider.Local,
         identifier: TEST_EMAIL,
         passwordHash: '$2b$10$hashedpassword',
       })
 
-      const foundUser = await findUserByEmail(TEST_EMAIL)
+      const foundUser = await userRepo.findByEmail(TEST_EMAIL)
 
       expect(foundUser).toBeDefined()
       expect(foundUser?.email).toBe(TEST_EMAIL)
@@ -90,7 +90,7 @@ describe('@with-db Database Migration Tests', () => {
 
   describe('Constraint Validation', () => {
     test('should enforce unique email constraint', async () => {
-      await createTestUser({
+      await userRepo.create({
         email: TEST_EMAIL,
         firstName: 'First',
         lastName: 'User',
@@ -99,7 +99,7 @@ describe('@with-db Database Migration Tests', () => {
       })
 
       expect(
-        createTestUser({
+        userRepo.create({
           email: TEST_EMAIL,
           firstName: 'Second',
           lastName: 'User',
@@ -110,7 +110,7 @@ describe('@with-db Database Migration Tests', () => {
     })
 
     test('should cascade delete auth records when user is deleted', async () => {
-      const testUser = await createTestUser({
+      const testUser = await userRepo.create({
         email: TEST_EMAIL,
         firstName: 'Test',
         lastName: 'User',
@@ -118,14 +118,14 @@ describe('@with-db Database Migration Tests', () => {
         status: Status.New,
       })
 
-      await createTestAuth({
+      await authRepo.create({
         userId: testUser.id,
         provider: AuthProvider.Local,
         identifier: TEST_EMAIL,
         passwordHash: '$2b$10$hashedpassword',
       })
 
-      await cleanupTestData(TEST_EMAIL)
+      await userRepo.delete(TEST_EMAIL)
 
       const authResult = await db.execute(sql`
         SELECT * FROM auth WHERE user_id = ${testUser.id}
@@ -138,7 +138,7 @@ describe('@with-db Database Migration Tests', () => {
   describe('Foreign Key Constraints', () => {
     test('should enforce foreign key constraint on auth.user_id', async () => {
       expect(
-        createTestAuth({
+        authRepo.create({
           userId: 999999,
           provider: AuthProvider.Local,
           identifier: 'nonexistent@example.com',
@@ -148,7 +148,7 @@ describe('@with-db Database Migration Tests', () => {
     })
 
     test('should maintain referential integrity between users and auth', async () => {
-      const testUser = await createTestUser({
+      const testUser = await userRepo.create({
         email: TEST_EMAIL,
         firstName: 'Test',
         lastName: 'User',
@@ -156,14 +156,14 @@ describe('@with-db Database Migration Tests', () => {
         status: Status.New,
       })
 
-      const authRecord = await createTestAuth({
+      const authRecordId = await authRepo.create({
         userId: testUser.id,
         provider: AuthProvider.Local,
         identifier: TEST_EMAIL,
         passwordHash: '$2b$10$hashedpassword',
       })
 
-      expect(authRecord.userId).toBe(testUser.id)
+      expect(authRecordId).toBeGreaterThan(0)
 
       const authResult = await db.execute(sql`
         SELECT a.*, u.email

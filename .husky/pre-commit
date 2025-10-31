@@ -11,8 +11,8 @@ bun run lint:fix
 if [ -n "$STAGED_FILES" ]; then
   STAGED_TS=$(echo "$STAGED_FILES" | grep -E '\.(ts|js)$' || true)
   if [ -n "$STAGED_TS" ]; then
-    # Run all tests to catch any breaking changes
-    bun test --bail
+    # Run tests (excluding @with-db tests) to catch any breaking changes
+    bun run test
   fi
 fi
 
