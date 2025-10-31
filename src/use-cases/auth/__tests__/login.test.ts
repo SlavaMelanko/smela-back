@@ -38,7 +38,6 @@ describe('Login with Email', () => {
       email: 'test@example.com',
       status: Status.Verified,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }

@@ -32,7 +32,6 @@ describe('Resend Verification Email', () => {
       email: 'john@example.com',
       status: Status.New,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     })!

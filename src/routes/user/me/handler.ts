@@ -2,7 +2,6 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { normalizeUser } from '@/data'
 import { getUser, updateUser } from '@/use-cases/user/me'
 
 import type { UpdateProfileBody } from './schema'
@@ -12,7 +11,7 @@ const getHandler = async (c: Context<AppContext>) => {
 
   const user = await getUser(userContext.id)
 
-  return c.json({ user: normalizeUser(user) })
+  return c.json({ user })
 }
 
 const postHandler = async (c: Context<AppContext>) => {
@@ -24,7 +23,7 @@ const postHandler = async (c: Context<AppContext>) => {
     lastName: lastName ?? undefined,
   })
 
-  return c.json({ user: normalizeUser(updatedUser) })
+  return c.json({ user: updatedUser })
 }
 
 export { getHandler, postHandler }

@@ -39,7 +39,6 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
-          tokenVersion: 5,
         },
         { secret: 'test-secret' },
       )
@@ -54,7 +53,6 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
-        tokenVersion: 5,
       })
       expect(payload.iat).toBeGreaterThanOrEqual(now - 1)
       expect(payload.nbf).toBeGreaterThanOrEqual(now - 1)

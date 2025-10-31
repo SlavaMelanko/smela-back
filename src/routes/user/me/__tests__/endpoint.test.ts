@@ -36,7 +36,6 @@ describe('Me Endpoint', () => {
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
-      tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
@@ -48,7 +47,6 @@ describe('Me Endpoint', () => {
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
-      tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
@@ -60,7 +58,6 @@ describe('Me Endpoint', () => {
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
-      tokenVersion: 1,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
     }
@@ -76,7 +73,6 @@ describe('Me Endpoint', () => {
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
-      tokenVersion: 1,
     }
 
     const userMiddleware: any = async (c: any, next: any) => {
