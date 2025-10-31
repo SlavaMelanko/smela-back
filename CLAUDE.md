@@ -56,7 +56,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/content/` - Localized email content (en, uk)
   - `/styles/` - Email styling utilities
 - `/src/middleware/` - Hono middleware stack
-  - `/auth/` - JWT authentication (cookie and Bearer token support)
+  - `/auth/` - JWT access token authentication via Authorization header
   - `/captcha/` - CAPTCHA verification middleware
   - `/rate-limiter/` - Rate limiting per endpoint
   - `/size-limiter/` - Request size limits
