@@ -21,7 +21,7 @@
     "db:reset:test": "bun run db:down:test && bun run db:up:test && NODE_ENV=test bun run db:init",
     "test": "NODE_ENV=test bun test --test-name-pattern '^(?!.*@with-db)'",
     "test:with-db": "NODE_ENV=test bun test --test-name-pattern '@with-db'",
-    "coverage": "NODE_ENV=test bun test --coverage",
+    "coverage": "NODE_ENV=test bun test --test-name-pattern '^(?!.*@with-db)' --coverage",
     "lint": "bunx eslint ./src",
     "lint:fix": "bunx eslint --fix ./src",
     "check": "bun run lint && bun run test",
