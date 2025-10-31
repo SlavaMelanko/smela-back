@@ -29,11 +29,28 @@ jobs:
     runs-on: ubuntu-latest
     container: oven/bun:latest
     environment: test
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
+          TZ: UTC
+        options: >-
+          --health-cmd "pg_isready -U ${{ vars.POSTGRES_USER }} -d ${{ vars.POSTGRES_DB }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 10s
+
     env:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       POSTGRES_USER: ${{ vars.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
       POSTGRES_DB: ${{ vars.POSTGRES_DB }}
       JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
@@ -60,8 +77,22 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U ${{ vars.POSTGRES_USER }} && break
+            echo "Waiting for PostgreSQL... ($i/10)"
+            sleep 1
+          done
+
+      - name: Run database migrations
+        run: bun run db:generate && bun run db:migrate
+
       - name: Run linting
         run: bun run lint
+
+      - name: Run all tests
+        run: bun run test:all
 
       - name: Run tests with coverage
         run: bun run coverage
