@@ -14,7 +14,7 @@
     "db:ui": "drizzle-kit studio",
     "db:up:dev": "docker compose --env-file .env.development up -d",
     "db:down": "docker compose down",
-    "db:reset:dev": "docker compose --env-file .env.development down -v",
+    "db:reset:dev": "docker compose --env-file .env.development down -v && bun run db:setup",
     "test": "NODE_ENV=test bun test",
     "coverage": "NODE_ENV=test bun test --coverage",
     "lint": "bunx eslint ./src",
