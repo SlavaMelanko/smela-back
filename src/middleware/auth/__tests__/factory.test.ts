@@ -10,9 +10,9 @@ import HttpStatus from '@/net/http/status'
 import { signJwt } from '@/security/jwt'
 import { Role, Status } from '@/types'
 
-import createDualAuthMiddleware from '../factory'
+import createAuthMiddleware from '../factory'
 
-describe('Dual Auth Middleware Factory - Missing Coverage', () => {
+describe('Auth Middleware Factory - Missing Coverage', () => {
   let app: Hono<AppContext>
 
   const mockUser = {
@@ -29,7 +29,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
 
   describe('Token Extraction Failures', () => {
     it('should throw Unauthorized when no token is provided', async () => {
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -46,7 +46,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     })
 
     it('should throw Unauthorized when Authorization header is malformed', async () => {
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -66,7 +66,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     })
 
     it('should throw Unauthorized when Authorization header has wrong format', async () => {
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -86,7 +86,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     })
 
     it('should throw Unauthorized when both header and cookie are missing', async () => {
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -107,7 +107,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     it('should re-throw AppError instances from validators', async () => {
       const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => false, // status validator fails
         () => true,
       )
@@ -130,7 +130,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     it('should re-throw AppError from role validator', async () => {
       const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => false, // role validator fails
       )
@@ -155,7 +155,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     it('should handle invalid JWT signature', async () => {
       const invalidToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature'
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -180,7 +180,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
         expiresIn: -1,
       })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -204,7 +204,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
         secret: 'wrong-secret-key',
       })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -228,7 +228,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     it('should successfully authenticate with valid Bearer token', async () => {
       const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )
@@ -252,7 +252,7 @@ describe('Dual Auth Middleware Factory - Missing Coverage', () => {
     it('should set user claims in context for downstream handlers', async () => {
       const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
 
-      const middleware = createDualAuthMiddleware(
+      const middleware = createAuthMiddleware(
         () => true,
         () => true,
       )

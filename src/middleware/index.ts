@@ -1,6 +1,6 @@
+export { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './auth'
 export { default as captchaMiddleware } from './captcha/captcha'
 export { default as corsMiddleware } from './cors'
-export { adminAuthMiddleware, enterpriseStrictAuthMiddleware, ownerAuthMiddleware, userRelaxedAuthMiddleware, userStrictAuthMiddleware } from './dual-auth'
 export { default as loggerMiddleware } from './logger'
 export { authRateLimiter, generalRateLimiter, default as rateLimiterMiddleware } from './rate-limiter'
 export { requestValidator } from './request-validator'

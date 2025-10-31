@@ -1,6 +1,6 @@
 import { isActive, isActiveOnly, isAdmin, isEnterprise, isNewOrActive, isOwner, isUser } from '@/types'
 
-import createDualAuthMiddleware from './factory'
+import createAuthMiddleware from './factory'
 
 /**
  * Strict user authentication middleware - requires verified users only.
@@ -9,7 +9,7 @@ import createDualAuthMiddleware from './factory'
  * - Requires user status to be Verified, Trial, or Active.
  * - Requires user role to be User or Enterprise.
  */
-export const userStrictAuthMiddleware = createDualAuthMiddleware(isActive, isUser)
+export const userStrictAuthMiddleware = createAuthMiddleware(isActive, isUser)
 
 /**
  * Relaxed user authentication middleware - allows new users.
@@ -17,7 +17,7 @@ export const userStrictAuthMiddleware = createDualAuthMiddleware(isActive, isUse
  * - Allows users with status New, Verified, Trial, or Active.
  * - Requires user role to be User or Enterprise.
  */
-export const userRelaxedAuthMiddleware = createDualAuthMiddleware(isNewOrActive, isUser)
+export const userRelaxedAuthMiddleware = createAuthMiddleware(isNewOrActive, isUser)
 
 /**
  * Strict enterprise authentication middleware - requires fully active enterprise users only.
@@ -26,7 +26,7 @@ export const userRelaxedAuthMiddleware = createDualAuthMiddleware(isNewOrActive,
  * - Requires user status to be exactly Active (not Verified or Trial).
  * - Requires user role to be Enterprise only (not User).
  */
-export const enterpriseStrictAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isEnterprise)
+export const enterpriseStrictAuthMiddleware = createAuthMiddleware(isActiveOnly, isEnterprise)
 
 /**
  * Admin authentication middleware - requires admin privileges.
@@ -35,7 +35,7 @@ export const enterpriseStrictAuthMiddleware = createDualAuthMiddleware(isActiveO
  * - Requires user status to be exactly Active (not Verified or Trial).
  * - Requires user role to be Admin or Owner.
  */
-export const adminAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isAdmin)
+export const adminAuthMiddleware = createAuthMiddleware(isActiveOnly, isAdmin)
 
 /**
  * Owner authentication middleware - requires owner privileges.
@@ -45,4 +45,4 @@ export const adminAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isAdmi
  * - Requires user role to be Owner only.
  * - Use this for critical operations like adding/removing admins.
  */
-export const ownerAuthMiddleware = createDualAuthMiddleware(isActiveOnly, isOwner)
+export const ownerAuthMiddleware = createAuthMiddleware(isActiveOnly, isOwner)

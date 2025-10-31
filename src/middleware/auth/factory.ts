@@ -12,11 +12,11 @@ import { verifyJwt } from '@/security/jwt'
 import extractToken from './token'
 
 /**
- * Factory function to create dual authentication middleware with configurable validation.
+ * Factory function to create authentication middleware with configurable validation.
  * @param statusValidator Function to validate if user status is acceptable.
  * @param roleValidator Function to validate if user role is acceptable.
  */
-const createDualAuthMiddleware = (
+const createAuthMiddleware = (
   statusValidator: (status: Status) => boolean,
   roleValidator: (role: Role) => boolean,
 ): MiddlewareHandler<AppContext> => createMiddleware<AppContext>(async (c, next) => {
@@ -49,4 +49,4 @@ const createDualAuthMiddleware = (
   await next()
 })
 
-export default createDualAuthMiddleware
+export default createAuthMiddleware
