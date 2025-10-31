@@ -3,14 +3,6 @@ name: Code Quality
 on:
   pull_request:
     types: [opened, synchronize]
-    paths-ignore:
-      - '**.md'
-      - '**.yml'
-      - '**.yaml'
-      - '**.txt'
-      - '**.json'
-      - 'LICENSE'
-      - '.gitignore'
 
 jobs:
   claude-code-review:

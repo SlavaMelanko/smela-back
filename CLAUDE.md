@@ -24,7 +24,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 
 - **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
 - **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`, `bun run test:with-db` (start test DB and run tests)
-- **Database Dev**: `bun run db:up:dev` (start dev DB), `bun run db:down:dev` (stop dev DB), `bun run db:reset:dev` (reset dev DB), `bun run db:setup` (generate + migrate + seed), `bun run db:ui` (Drizzle Studio)
+- **Database Dev**: `bun run db:up:dev` (start dev DB), `bun run db:down:dev` (stop dev DB), `bun run db:reset:dev` (reset dev DB), `bun run db:init` (generate + migrate + seed), `bun run db:ui` (Drizzle Studio)
 - **Database Test**: `bun run db:up:test` (start test DB on port 5433), `bun run db:down:test` (stop test DB), `bun run db:reset:test` (reset test DB)
 - **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
 - **Email Dev**: `bun run email` (React Email dev server on port 3001)

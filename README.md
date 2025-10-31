@@ -30,7 +30,7 @@ See [`.env.example`](.env.example) to configure required variables.
 Run all database setup steps at once (generate → migrate → seed):
 
 ```bash
-bun db:setup
+bun db:init
 ```
 
 Or look at [`package.json`](package.json) for individual steps.
