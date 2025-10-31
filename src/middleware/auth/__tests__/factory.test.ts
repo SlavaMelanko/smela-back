@@ -12,7 +12,7 @@ import { Role, Status } from '@/types'
 
 import createAuthMiddleware from '../factory'
 
-describe('Auth Middleware Factory - Missing Coverage', () => {
+describe('Auth Middleware Factory', () => {
   let app: Hono<AppContext>
 
   const mockUser = {
