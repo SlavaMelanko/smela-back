@@ -1,5 +1,7 @@
 import type { Context } from 'hono'
 
+const BEARER_PREFIX = 'Bearer '
+
 /**
  * Extracts access token from Authorization header.
  * @param c Hono context object.
@@ -12,13 +14,13 @@ const extractAccessToken = (c: Context): string | null => {
     return null
   }
 
-  const parts = authHeader.split(' ')
-
-  if (parts.length === 2 && parts[0] === 'Bearer') {
-    return parts[1]
+  if (!authHeader.startsWith(BEARER_PREFIX)) {
+    return null
   }
 
-  return null
+  const token = authHeader.slice(BEARER_PREFIX.length).trim()
+
+  return token || null
 }
 
 export default extractAccessToken
