@@ -17,7 +17,7 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 
 ### 1. Install dependencies
 
-```bash
+```zsh
 bun install
 ```
 
@@ -27,18 +27,24 @@ See [`.env.example`](.env.example) to configure required variables.
 
 ### 3. Database setup
 
+Start the development PostgreSQL container:
+
+```zsh
+bun run db:up:dev
+```
+
 Run all database setup steps at once (generate → migrate → seed):
 
-```bash
-bun db:init
+```zsh
+bun run db:init
 ```
 
 Or look at [`package.json`](package.json) for individual steps.
 
 ### 4. Start development server
 
-```bash
-bun dev
+```zsh
+bun run dev
 ```
 
 Server will start on <http://localhost:3000> by default.
