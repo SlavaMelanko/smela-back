@@ -1,6 +1,7 @@
 import type { Options } from './options'
 import type { TokenType } from './types'
 
+import { hashToken } from './hash'
 import { getDefaultOptions } from './options'
 import CryptoTokenGenerator from './token-generator-crypto'
 
@@ -16,4 +17,30 @@ export const generateToken = (type: TokenType, options?: Options): GeneratedToke
   const { token, expiresAt } = tokenGenerator.generateWithExpiry()
 
   return { type, token, expiresAt }
+}
+
+interface HashedToken {
+  type: TokenType
+  token: {
+    raw: string
+    hashed: string
+  }
+  expiresAt: Date
+}
+
+export const generateHashedToken = async (
+  type: TokenType,
+  options?: Options,
+): Promise<HashedToken> => {
+  const { token: raw, expiresAt } = generateToken(type, options)
+  const hashed = await hashToken(raw)
+
+  return {
+    type,
+    token: {
+      raw,
+      hashed,
+    },
+    expiresAt,
+  }
 }
