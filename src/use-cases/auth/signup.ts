@@ -1,4 +1,5 @@
 import type { Database, User } from '@/data'
+import type { DeviceInfo } from '@/net/http'
 
 import { authRepo, db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
@@ -14,6 +15,7 @@ export interface SignupParams {
   lastName?: string
   email: string
   password: string
+  deviceInfo?: DeviceInfo
 }
 
 const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
@@ -50,7 +52,11 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, tx?: Database) => {
+const createRefreshToken = async (
+  userId: number,
+  deviceInfo?: DeviceInfo,
+  tx?: Database,
+) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )
@@ -59,13 +65,17 @@ const createRefreshToken = async (userId: number, tx?: Database) => {
     userId,
     tokenHash: hashed,
     expiresAt,
+    ...(deviceInfo && {
+      ipAddress: deviceInfo.ipAddress,
+      userAgent: deviceInfo.userAgent,
+    }),
   }, tx)
 
   return raw
 }
 
 const signUpWithEmail = async (
-  { firstName, lastName, email, password }: SignupParams,
+  { firstName, lastName, email, password, deviceInfo }: SignupParams,
 ) => {
   // Check if user exists (outside transaction for fast fail)
   const existingUser = await userRepo.findByEmail(email)
@@ -105,7 +115,7 @@ const signUpWithEmail = async (
 
   // Generate tokens
   const accessToken = await createAccessToken(newUser)
-  const refreshToken = await createRefreshToken(newUser.id)
+  const refreshToken = await createRefreshToken(newUser.id, deviceInfo)
 
   return { data: { user: newUser, accessToken }, refreshToken }
 }

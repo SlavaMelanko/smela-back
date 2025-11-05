@@ -103,7 +103,7 @@ describe('Verify Email', () => {
 
   describe('when token is valid and active', () => {
     it('should mark token as used, update user status, and return user with JWT token', async () => {
-      const result = await verifyEmail(mockTokenString)
+      const result = await verifyEmail({ token: mockTokenString })
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.findByToken).toHaveBeenCalledTimes(1)
@@ -152,7 +152,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -179,7 +179,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -205,7 +205,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -231,7 +231,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -257,7 +257,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -279,7 +279,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -297,7 +297,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -315,7 +315,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -335,7 +335,7 @@ describe('Verify Email', () => {
       })
 
       try {
-        await verifyEmail(mockTokenString)
+        await verifyEmail({ token: mockTokenString })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -400,7 +400,7 @@ describe('Verify Email', () => {
         mockTokenRepo.findByToken.mockImplementation(async () => testTokenRecord)
         mockTokenValidator.validate.mockImplementation(() => testTokenRecord)
 
-        const result = await verifyEmail(testToken)
+        const result = await verifyEmail({ token: testToken })
 
         expect(result).toHaveProperty('data')
         expect(result).toHaveProperty('refreshToken')

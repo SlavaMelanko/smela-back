@@ -1,9 +1,15 @@
 import type { Database, User } from '@/data'
+import type { DeviceInfo } from '@/net/http'
 
 import { db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
+
+export interface VerifyEmailParams {
+  token: string
+  deviceInfo?: DeviceInfo
+}
 
 export interface VerifyEmailResult {
   data: {
@@ -28,7 +34,11 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, tx?: Database) => {
+const createRefreshToken = async (
+  userId: number,
+  deviceInfo?: DeviceInfo,
+  tx?: Database,
+) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )
@@ -37,12 +47,18 @@ const createRefreshToken = async (userId: number, tx?: Database) => {
     userId,
     tokenHash: hashed,
     expiresAt,
+    ...(deviceInfo && {
+      ipAddress: deviceInfo.ipAddress,
+      userAgent: deviceInfo.userAgent,
+    }),
   }, tx)
 
   return raw
 }
 
-const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
+const verifyEmail = async (
+  { token, deviceInfo }: VerifyEmailParams,
+): Promise<VerifyEmailResult> => {
   const validatedToken = await validateToken(token)
 
   const updatedUser = await db.transaction(async (tx) => {
@@ -57,7 +73,7 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   })
 
   const accessToken = await createAccessToken(updatedUser)
-  const refreshToken = await createRefreshToken(updatedUser.id)
+  const refreshToken = await createRefreshToken(updatedUser.id, deviceInfo)
 
   return { data: { user: updatedUser, accessToken }, refreshToken }
 }

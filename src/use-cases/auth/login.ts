@@ -1,4 +1,5 @@
 import type { Database, User } from '@/data'
+import type { DeviceInfo } from '@/net/http'
 
 import { authRepo, refreshTokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
@@ -9,6 +10,7 @@ import { generateHashedToken, TokenType } from '@/security/token'
 export interface LoginParams {
   email: string
   password: string
+  deviceInfo?: DeviceInfo
 }
 
 const createAccessToken = async (user: User) => signJwt(
@@ -20,7 +22,11 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, tx?: Database) => {
+const createRefreshToken = async (
+  userId: number,
+  deviceInfo?: DeviceInfo,
+  tx?: Database,
+) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )
@@ -29,12 +35,16 @@ const createRefreshToken = async (userId: number, tx?: Database) => {
     userId,
     tokenHash: hashed,
     expiresAt,
+    ...(deviceInfo && {
+      ipAddress: deviceInfo.ipAddress,
+      userAgent: deviceInfo.userAgent,
+    }),
   }, tx)
 
   return raw
 }
 
-const logInWithEmail = async ({ email, password }: LoginParams) => {
+const logInWithEmail = async ({ email, password, deviceInfo }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
@@ -54,7 +64,7 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
   }
 
   const accessToken = await createAccessToken(user)
-  const refreshToken = await createRefreshToken(user.id)
+  const refreshToken = await createRefreshToken(user.id, deviceInfo)
 
   return { data: { user, accessToken }, refreshToken }
 }

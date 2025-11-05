@@ -16,6 +16,7 @@ describe('Login Endpoint', () => {
   let app: Hono
   let mockLogInWithEmail: any
   let mockSetRefreshCookie: any
+  let mockExtractDeviceInfo: any
 
   beforeEach(async () => {
     mockLogInWithEmail = mock(async () => ({
@@ -39,11 +40,21 @@ describe('Login Endpoint', () => {
       default: mockLogInWithEmail,
     }))
 
+    mockExtractDeviceInfo = mock(() => ({
+      ipAddress: null,
+      userAgent: null,
+    }))
+
     mockSetRefreshCookie = mock(() => {})
 
-    await moduleMocker.mock('@/net/http/cookie', () => ({
-      deleteRefreshCookie: mock(() => {}),
-      getRefreshCookie: mock(() => undefined),
+    await moduleMocker.mock('@/net/http', () => ({
+      extractDeviceInfo: mockExtractDeviceInfo,
+      HttpStatus: {
+        OK: 200,
+        BAD_REQUEST: 400,
+        INTERNAL_SERVER_ERROR: 500,
+        NOT_FOUND: 404,
+      },
       setRefreshCookie: mockSetRefreshCookie,
     }))
 
@@ -82,11 +93,15 @@ describe('Login Endpoint', () => {
         accessToken: 'login-jwt-token',
       })
 
-      // Verify login function was called
+      // Verify login function was called with device info
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
       expect(mockLogInWithEmail).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'ValidPass123!',
+        deviceInfo: {
+          ipAddress: null,
+          userAgent: null,
+        },
       })
 
       // Verify refresh token cookie was set
@@ -175,6 +190,10 @@ describe('Login Endpoint', () => {
       expect(mockLogInWithEmail).toHaveBeenCalledWith({
         email: 'inactive@example.com',
         password: 'ValidPass123!',
+        deviceInfo: {
+          ipAddress: null,
+          userAgent: null,
+        },
       })
     })
 
