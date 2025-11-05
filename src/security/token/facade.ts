@@ -1,3 +1,5 @@
+import { createHasher } from '@/crypto'
+
 import type { Options } from './options'
 import type { TokenType } from './types'
 
@@ -16,4 +18,36 @@ export const generateToken = (type: TokenType, options?: Options): GeneratedToke
   const { token, expiresAt } = tokenGenerator.generateWithExpiry()
 
   return { type, token, expiresAt }
+}
+
+interface HashedToken {
+  type: TokenType
+  token: {
+    raw: string
+    hashed: string
+  }
+  expiresAt: Date
+}
+
+export const hashToken = async (token: string): Promise<string> => {
+  const hasher = createHasher('sha256')
+
+  return hasher.hash(token)
+}
+
+export const generateHashedToken = async (
+  type: TokenType,
+  options?: Options,
+): Promise<HashedToken> => {
+  const { token: raw, expiresAt } = generateToken(type, options)
+  const hashed = await hashToken(raw)
+
+  return {
+    type,
+    token: {
+      raw,
+      hashed,
+    },
+    expiresAt,
+  }
 }

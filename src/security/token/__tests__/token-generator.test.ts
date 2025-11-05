@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 
-import { hour, hours } from '@/utils/chrono'
+import { seconds } from '@/utils/chrono'
 
 import CryptoTokenGenerator from '../token-generator-crypto'
 
@@ -72,27 +72,27 @@ describe('Token Generator', () => {
       expect(/^[0-9a-f]+$/.test(result.token)).toBe(true)
     })
 
-    it('should set expiry date to default hours in the future', () => {
+    it('should set expiry date to default seconds in the future', () => {
       const beforeGeneration = new Date()
       const result = generator.generateWithExpiry()
       const afterGeneration = new Date()
 
-      const expectedMinExpiry = new Date(beforeGeneration.getTime() + hours(24))
-      const expectedMaxExpiry = new Date(afterGeneration.getTime() + hours(24))
+      const expectedMinExpiry = new Date(beforeGeneration.getTime() + seconds(86400))
+      const expectedMaxExpiry = new Date(afterGeneration.getTime() + seconds(86400))
 
       expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry.getTime())
     })
 
-    it('should set expiry date to custom hours in the future', () => {
-      const customHours = 12
-      const customGenerator = new CryptoTokenGenerator({ expiryHours: customHours })
+    it('should set expiry date to custom seconds in the future', () => {
+      const customSeconds = 43200 // 12 hours
+      const customGenerator = new CryptoTokenGenerator({ expirySeconds: customSeconds })
       const beforeGeneration = new Date()
       const result = customGenerator.generateWithExpiry()
       const afterGeneration = new Date()
 
-      const expectedMinExpiry = new Date(beforeGeneration.getTime() + hours(customHours))
-      const expectedMaxExpiry = new Date(afterGeneration.getTime() + hours(customHours))
+      const expectedMinExpiry = new Date(beforeGeneration.getTime() + seconds(customSeconds))
+      const expectedMaxExpiry = new Date(afterGeneration.getTime() + seconds(customSeconds))
 
       expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry.getTime())
@@ -106,24 +106,24 @@ describe('Token Generator', () => {
       expect(result1.expiresAt.getTime()).toBeGreaterThanOrEqual(result2.expiresAt.getTime())
     })
 
-    it('should handle zero expiry hours', () => {
-      const zeroHoursGenerator = new CryptoTokenGenerator({ expiryHours: 0 })
+    it('should handle zero expiry seconds', () => {
+      const zeroSecondsGenerator = new CryptoTokenGenerator({ expirySeconds: 0 })
       const beforeGeneration = new Date()
-      const result = zeroHoursGenerator.generateWithExpiry()
+      const result = zeroSecondsGenerator.generateWithExpiry()
       const afterGeneration = new Date()
 
       expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(beforeGeneration.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(afterGeneration.getTime())
     })
 
-    it('should handle negative expiry hours', () => {
-      const negativeHoursGenerator = new CryptoTokenGenerator({ expiryHours: -1 })
+    it('should handle negative expiry seconds', () => {
+      const negativeSecondsGenerator = new CryptoTokenGenerator({ expirySeconds: -3600 })
       const beforeGeneration = new Date()
-      const result = negativeHoursGenerator.generateWithExpiry()
+      const result = negativeSecondsGenerator.generateWithExpiry()
       const afterGeneration = new Date()
 
-      const expectedMinExpiry = new Date(beforeGeneration.getTime() - hour())
-      const expectedMaxExpiry = new Date(afterGeneration.getTime() - hour())
+      const expectedMinExpiry = new Date(beforeGeneration.getTime() - seconds(3600))
+      const expectedMaxExpiry = new Date(afterGeneration.getTime() - seconds(3600))
 
       expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry.getTime())
@@ -146,15 +146,15 @@ describe('Token Generator', () => {
       expect(token.length).toBe(customLength)
     })
 
-    it('should accept custom expiry hours', () => {
-      const customHours = 6
-      const customGenerator = new CryptoTokenGenerator({ expiryHours: customHours })
+    it('should accept custom expiry seconds', () => {
+      const customSeconds = 21600 // 6 hours
+      const customGenerator = new CryptoTokenGenerator({ expirySeconds: customSeconds })
       const beforeGeneration = new Date()
       const result = customGenerator.generateWithExpiry()
       const afterGeneration = new Date()
 
-      const expectedMinExpiry = new Date(beforeGeneration.getTime() + hours(customHours))
-      const expectedMaxExpiry = new Date(afterGeneration.getTime() + hours(customHours))
+      const expectedMinExpiry = new Date(beforeGeneration.getTime() + seconds(customSeconds))
+      const expectedMaxExpiry = new Date(afterGeneration.getTime() + seconds(customSeconds))
 
       expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry.getTime())
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry.getTime())

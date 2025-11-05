@@ -1,8 +1,9 @@
-export { generateToken } from './facade'
+export { generateHashedToken, generateToken, hashToken } from './facade'
 export {
-  DEFAULT_EXPIRY_HOURS,
-  EMAIL_VERIFICATION_EXPIRY_HOURS,
-  PASSWORD_RESET_EXPIRY_HOURS,
+  DEFAULT_EXPIRY_SECONDS,
+  EMAIL_VERIFICATION_EXPIRY_SECONDS,
+  PASSWORD_RESET_EXPIRY_SECONDS,
+  REFRESH_TOKEN_EXPIRY_SECONDS,
   TOKEN_LENGTH,
 } from './options'
 export type { Options } from './options'

@@ -1,12 +1,12 @@
 import type { RandomBytesGenerator } from '@/crypto'
 
 import { createRandomBytesGenerator } from '@/crypto'
-import { hours, nowPlus } from '@/utils/chrono'
+import { nowPlus, seconds } from '@/utils/chrono'
 
 import type { Options } from './options'
 import type TokenGenerator from './token-generator'
 
-import { DEFAULT_EXPIRY_HOURS, TOKEN_LENGTH } from './options'
+import { DEFAULT_EXPIRY_SECONDS, TOKEN_LENGTH } from './options'
 
 class CryptoTokenGenerator implements TokenGenerator {
   private readonly options: Required<Options>
@@ -14,7 +14,7 @@ class CryptoTokenGenerator implements TokenGenerator {
 
   constructor(options?: Options) {
     this.options = {
-      expiryHours: options?.expiryHours ?? DEFAULT_EXPIRY_HOURS,
+      expirySeconds: options?.expirySeconds ?? DEFAULT_EXPIRY_SECONDS,
       tokenLength: options?.tokenLength ?? TOKEN_LENGTH,
     }
     this.cryptoGenerator = createRandomBytesGenerator()
@@ -28,7 +28,7 @@ class CryptoTokenGenerator implements TokenGenerator {
 
   generateWithExpiry(): { token: string, expiresAt: Date } {
     const token = this.generate()
-    const expiresAt = nowPlus(hours(this.options.expiryHours))
+    const expiresAt = nowPlus(seconds(this.options.expirySeconds))
 
     return { token, expiresAt }
   }

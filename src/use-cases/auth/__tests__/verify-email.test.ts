@@ -25,6 +25,10 @@ describe('Verify Email', () => {
   let mockJwtToken: string
   let mockCreateJwt: any
 
+  let mockRefreshToken: string
+  let mockRefreshTokenRepo: any
+  let mockGenerateHashedToken: any
+
   beforeEach(async () => {
     mockTokenString = 'a'.repeat(TOKEN_LENGTH)
     mockTokenRecord = {
@@ -55,6 +59,9 @@ describe('Verify Email', () => {
     mockUserRepo = {
       update: mock(async () => mockUser),
     }
+    mockRefreshTokenRepo = {
+      create: mock(async () => ({})),
+    }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
@@ -63,6 +70,7 @@ describe('Verify Email', () => {
       tokenRepo: mockTokenRepo,
       userRepo: mockUserRepo,
       authRepo: {},
+      refreshTokenRepo: mockRefreshTokenRepo,
       db: mockTransaction,
     }))
 
@@ -70,8 +78,15 @@ describe('Verify Email', () => {
       validate: mock(() => mockTokenRecord),
     }
 
+    mockRefreshToken = 'refresh-token-123'
+    mockGenerateHashedToken = mock(async () => ({
+      token: { raw: mockRefreshToken, hashed: 'hashed-refresh-token' },
+      expiresAt: new Date(),
+    }))
+
     await moduleMocker.mock('@/security/token', () => ({
       TokenValidator: mockTokenValidator,
+      generateHashedToken: mockGenerateHashedToken,
     }))
 
     mockJwtToken = 'mock-verify-jwt-token'
@@ -106,11 +121,14 @@ describe('Verify Email', () => {
       }, {})
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user).not.toHaveProperty('tokenVersion')
-      expect(result.user.email).toBe(mockUser.email)
-      expect(result.token).toBe(mockJwtToken)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data).toHaveProperty('user')
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user.email).toBe(mockUser.email)
+      expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.refreshToken).toBe(mockRefreshToken)
     })
 
     it('should set correct timestamp when marking token as used', async () => {
@@ -342,9 +360,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -360,9 +378,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockUserRepo.update).toHaveBeenCalledWith(999, {
         status: Status.Verified,
       }, {})
@@ -384,9 +402,9 @@ describe('Verify Email', () => {
 
         const result = await verifyEmail(testToken)
 
-        expect(result).toHaveProperty('user')
-        expect(result).toHaveProperty('token')
-        expect(result.user.email).toBe(mockUser.email)
+        expect(result).toHaveProperty('data')
+        expect(result).toHaveProperty('refreshToken')
+        expect(result.data.user.email).toBe(mockUser.email)
         expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(testToken)
       }
     })
@@ -402,9 +420,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),

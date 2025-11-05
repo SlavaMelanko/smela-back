@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'bun:test'
 
-import BcryptHasher from '../hasher-bcrypt'
+import Sha256Hasher from '../hasher-sha256'
 
-describe('Hasher', () => {
-  const hasher = new BcryptHasher()
+describe('Sha256Hasher', () => {
+  const hasher = new Sha256Hasher()
 
   describe('hash', () => {
-    it('should hash a normal string', async () => {
+    it('should hash a normal string with SHA-256 hex format', async () => {
       const plainText = 'password123'
       const hashedText = await hasher.hash(plainText)
 
       expect(hashedText).toBeDefined()
       expect(hashedText).not.toBe(plainText)
-      expect(hashedText.length).toBeGreaterThan(50)
-      expect(hashedText.startsWith('$2b$10$')).toBe(true)
+      expect(hashedText.length).toBe(64) // SHA-256 produces 64 hex characters
+      expect(hashedText).toMatch(/^[a-f0-9]{64}$/) // hex format
     })
 
     it('should hash an empty string', async () => {
@@ -22,7 +22,7 @@ describe('Hasher', () => {
 
       expect(hashedText).toBeDefined()
       expect(hashedText).not.toBe(plainText)
-      expect(hashedText.startsWith('$2b$10$')).toBe(true)
+      expect(hashedText.length).toBe(64)
     })
 
     it('should hash a long string', async () => {
@@ -31,15 +31,15 @@ describe('Hasher', () => {
 
       expect(hashedText).toBeDefined()
       expect(hashedText).not.toBe(plainText)
-      expect(hashedText.startsWith('$2b$10$')).toBe(true)
+      expect(hashedText.length).toBe(64)
     })
 
-    it('should produce different hashes for the same string', async () => {
+    it('should produce identical hashes for the same string', async () => {
       const plainText = 'sameText'
       const hash1 = await hasher.hash(plainText)
       const hash2 = await hasher.hash(plainText)
 
-      expect(hash1).not.toBe(hash2)
+      expect(hash1).toBe(hash2) // SHA-256 is deterministic
     })
 
     it('should hash special characters', async () => {
@@ -48,7 +48,7 @@ describe('Hasher', () => {
 
       expect(hashedText).toBeDefined()
       expect(hashedText).not.toBe(plainText)
-      expect(hashedText.startsWith('$2b$10$')).toBe(true)
+      expect(hashedText.length).toBe(64)
     })
   })
 

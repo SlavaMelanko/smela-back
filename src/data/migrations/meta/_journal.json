@@ -8,6 +8,13 @@
       "when": 1761911761709,
       "tag": "0000_spicy_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762258743993,
+      "tag": "0001_cuddly_beast",
+      "breakpoints": true
     }
   ]
 }

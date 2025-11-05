@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 
-import { HttpStatus, setAccessCookie } from '@/net/http'
+import { HttpStatus, setRefreshCookie } from '@/net/http'
 import signUpWithEmail from '@/use-cases/auth/signup'
 
 import type { SignupBody } from './schema'
@@ -10,9 +10,9 @@ const signupHandler = async (c: Context) => {
 
   const result = await signUpWithEmail({ firstName, lastName: lastName ?? '', email, password })
 
-  setAccessCookie(c, result.token)
+  setRefreshCookie(c, result.refreshToken)
 
-  return c.json(result, HttpStatus.CREATED)
+  return c.json(result.data, HttpStatus.CREATED)
 }
 
 export default signupHandler

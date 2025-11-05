@@ -1,13 +1,16 @@
-import type { User } from '@/data'
+import type { Database, User } from '@/data'
 
-import { db, tokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
-import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
 
 export interface VerifyEmailResult {
-  user: User
-  token: string
+  data: {
+    user: User
+    accessToken: string
+  }
+  refreshToken: string
 }
 
 const validateToken = async (token: string) => {
@@ -16,7 +19,7 @@ const validateToken = async (token: string) => {
   return TokenValidator.validate(tokenRecord, TokenType.EmailVerification)
 }
 
-const createJwtToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
     email: user.email,
@@ -24,6 +27,20 @@ const createJwtToken = async (user: User) => signJwt(
     status: user.status,
   },
 )
+
+const createRefreshToken = async (userId: number, tx?: Database) => {
+  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
+    TokenType.RefreshToken,
+  )
+
+  await refreshTokenRepo.create({
+    userId,
+    tokenHash: hashed,
+    expiresAt,
+  }, tx)
+
+  return raw
+}
 
 const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
   const validatedToken = await validateToken(token)
@@ -39,9 +56,10 @@ const verifyEmail = async (token: string): Promise<VerifyEmailResult> => {
     return userRepo.update(validatedToken.userId, { status: Status.Verified }, tx)
   })
 
-  const jwtToken = await createJwtToken(updatedUser)
+  const accessToken = await createAccessToken(updatedUser)
+  const refreshToken = await createRefreshToken(updatedUser.id)
 
-  return { user: updatedUser, token: jwtToken }
+  return { data: { user: updatedUser, accessToken }, refreshToken }
 }
 
 export default verifyEmail

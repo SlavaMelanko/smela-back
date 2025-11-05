@@ -15,44 +15,36 @@ describe('Login Endpoint', () => {
 
   let app: Hono
   let mockLogInWithEmail: any
-  let mockSetAccessCookie: any
-  let mockSetCookie: any
+  let mockSetRefreshCookie: any
 
   beforeEach(async () => {
     mockLogInWithEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        role: 'user',
-        status: 'active',
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          role: 'user',
+          status: 'active',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
+        accessToken: 'login-jwt-token',
       },
-      token: 'login-jwt-token',
+      refreshToken: 'login-refresh-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/login', () => ({
       default: mockLogInWithEmail,
     }))
 
-    mockSetCookie = mock(() => {})
-
-    mockSetAccessCookie = mock((c: any, token: string) => {
-      mockSetCookie(c, 'auth-token-test', token, {
-        httpOnly: true,
-        secure: false, // false in test environment
-        sameSite: 'lax',
-        maxAge: 3600,
-        path: '/',
-      })
-    })
+    mockSetRefreshCookie = mock(() => {})
 
     await moduleMocker.mock('@/net/http/cookie', () => ({
-      setAccessCookie: mockSetAccessCookie,
-      getAccessCookie: mock(() => undefined),
-      deleteAccessCookie: mock(() => {}),
+      deleteRefreshCookie: mock(() => {}),
+      getRefreshCookie: mock(() => undefined),
+      setRefreshCookie: mockSetRefreshCookie,
     }))
 
     await mockCaptchaSuccess()
@@ -65,7 +57,7 @@ describe('Login Endpoint', () => {
   })
 
   describe('POST /auth/login', () => {
-    it('should set cookie and return user/token on successful login', async () => {
+    it('should return user and token in response body on successful login', async () => {
       const res = await post(app, LOGIN_URL, {
         email: 'test@example.com',
         password: 'ValidPass123!',
@@ -74,7 +66,7 @@ describe('Login Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.OK)
 
-      // Check response body
+      // Check response body - token returned for client to store in memory
       const data = await res.json()
       expect(data).toEqual({
         user: {
@@ -87,23 +79,8 @@ describe('Login Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'login-jwt-token',
+        accessToken: 'login-jwt-token',
       })
-
-      // Verify cookie was set with correct options
-      expect(mockSetCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetCookie).toHaveBeenCalledWith(
-        expect.any(Object), // context
-        expect.any(String), // cookie name
-        'login-jwt-token', // token value
-        expect.objectContaining({
-          httpOnly: true,
-          secure: false, // false in test environment
-          sameSite: 'lax',
-          maxAge: expect.any(Number),
-          path: '/',
-        }),
-      )
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
@@ -111,9 +88,13 @@ describe('Login Endpoint', () => {
         email: 'test@example.com',
         password: 'ValidPass123!',
       })
+
+      // Verify refresh token cookie was set
+      expect(mockSetRefreshCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetRefreshCookie).toHaveBeenCalledWith(expect.any(Object), 'login-refresh-token')
     })
 
-    it('should handle login errors without setting cookie', async () => {
+    it('should handle login errors', async () => {
       mockLogInWithEmail.mockImplementationOnce(() => {
         throw new Error('Login failed')
       })
@@ -125,9 +106,6 @@ describe('Login Endpoint', () => {
       })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
-
-      // Verify cookie was NOT set due to error
-      expect(mockSetCookie).not.toHaveBeenCalled()
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
@@ -161,7 +139,6 @@ describe('Login Endpoint', () => {
         const json = await res.json()
         expect(json).toHaveProperty('error')
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
-        expect(mockSetCookie).not.toHaveBeenCalled()
       }
     })
 
@@ -177,7 +154,6 @@ describe('Login Endpoint', () => {
 
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockLogInWithEmail).not.toHaveBeenCalled()
-        expect(mockSetCookie).not.toHaveBeenCalled()
       }
     })
 
@@ -194,54 +170,12 @@ describe('Login Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
-      // Verify cookie was NOT set for inactive users
-      expect(mockSetCookie).not.toHaveBeenCalled()
-
       // Verify login function was called but failed
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
       expect(mockLogInWithEmail).toHaveBeenCalledWith({
         email: 'inactive@example.com',
         password: 'ValidPass123!',
       })
-    })
-
-    it('should set secure cookie in production environment', async () => {
-      mockSetAccessCookie.mockImplementation((c: any, token: string) => {
-        mockSetCookie(c, 'auth-token-test', token, {
-          httpOnly: true,
-          secure: true, // true in production environment
-          sameSite: 'lax',
-          maxAge: 3600,
-          path: '/',
-        })
-      })
-
-      const res = await post(app, LOGIN_URL, {
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        captchaToken: VALID_CAPTCHA_TOKEN,
-      })
-
-      expect(res.status).toBe(HttpStatus.OK)
-
-      const data = await res.json()
-      expect(data.token).toBe('login-jwt-token')
-      expect(data.user).toHaveProperty('email', 'test@example.com')
-
-      // Verify cookie was set with secure flag in production environment
-      expect(mockSetCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetCookie).toHaveBeenCalledWith(
-        expect.any(Object), // context
-        expect.any(String), // cookie name
-        'login-jwt-token', // token value
-        expect.objectContaining({
-          httpOnly: true,
-          secure: true, // true in production for HTTPS-only
-          sameSite: 'lax',
-          maxAge: expect.any(Number),
-          path: '/',
-        }),
-      )
     })
 
     it('should only accept POST method', async () => {

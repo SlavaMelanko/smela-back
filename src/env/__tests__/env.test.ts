@@ -42,8 +42,8 @@ describe('Environment Configuration', () => {
       expect(env.LOG_LEVEL).toBe('info')
       expect(env.POSTGRES_MAX_CONNECTIONS).toBe(2)
       expect(env.JWT_ACCESS_EXPIRATION).toBe(3600)
-      expect(env.COOKIE_NAME).toBe('access-token')
-      expect(env.COOKIE_EXPIRATION).toBe(3600)
+      expect(env.COOKIE_NAME).toBe('refresh_token')
+      expect(env.COOKIE_EXPIRATION).toBe(2592000)
       expect(env.BE_BASE_URL).toBe('http://localhost:3000')
       expect(env.FE_BASE_URL).toBe('http://localhost:5173')
       expect(env.COMPANY_NAME).toBe('SMELA')
@@ -69,7 +69,7 @@ describe('Environment Configuration', () => {
         LOG_LEVEL: 'debug',
         POSTGRES_MAX_CONNECTIONS: '5',
         JWT_ACCESS_EXPIRATION: '7200',
-        COOKIE_NAME: 'custom-token',
+        COOKIE_NAME: 'custom-refresh-token',
         BE_BASE_URL: 'http://localhost:8000',
         COMPANY_NAME: 'CustomCompany',
       }
@@ -79,7 +79,7 @@ describe('Environment Configuration', () => {
       expect(env.LOG_LEVEL).toBe('debug')
       expect(env.POSTGRES_MAX_CONNECTIONS).toBe(5)
       expect(env.JWT_ACCESS_EXPIRATION).toBe(7200)
-      expect(env.COOKIE_NAME).toBe('custom-token')
+      expect(env.COOKIE_NAME).toBe('custom-refresh-token')
       expect(env.BE_BASE_URL).toBe('http://localhost:8000')
       expect(env.COMPANY_NAME).toBe('CustomCompany')
     })
@@ -181,7 +181,7 @@ describe('Environment Configuration', () => {
         POSTGRES_DB: 'prod_db',
         POSTGRES_MAX_CONNECTIONS: '10',
         JWT_ACCESS_EXPIRATION: '3600',
-        COOKIE_NAME: 'prod-token',
+        COOKIE_NAME: 'prod-refresh-token',
         COOKIE_DOMAIN: '.example.com',
         ALLOWED_ORIGINS: 'https://example.com,https://www.example.com',
         BE_BASE_URL: 'https://api.example.com',

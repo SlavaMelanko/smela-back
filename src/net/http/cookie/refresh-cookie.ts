@@ -4,21 +4,25 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
 import env, { isDevOrTestEnv } from '@/env'
 
-const options = ({
+const getOptions = () => ({
   name: env.COOKIE_NAME,
   maxAge: env.COOKIE_EXPIRATION,
   domain: env.COOKIE_DOMAIN && !isDevOrTestEnv() ? env.COOKIE_DOMAIN : undefined,
   httpOnly: true,
   secure: !isDevOrTestEnv(),
-  sameSite: 'lax' as const,
+  sameSite: 'strict' as const,
   path: '/',
 })
 
-export const getAccessCookie = (c: Context): string | undefined => {
+export const getRefreshCookie = (c: Context): string | undefined => {
+  const options = getOptions()
+
   return getCookie(c, options.name)
 }
 
-export const setAccessCookie = (c: Context, token: string): void => {
+export const setRefreshCookie = (c: Context, token: string): void => {
+  const options = getOptions()
+
   setCookie(c, options.name, token, {
     httpOnly: options.httpOnly,
     secure: options.secure,
@@ -29,7 +33,9 @@ export const setAccessCookie = (c: Context, token: string): void => {
   })
 }
 
-export const deleteAccessCookie = (c: Context): void => {
+export const deleteRefreshCookie = (c: Context): void => {
+  const options = getOptions()
+
   deleteCookie(c, options.name, {
     path: options.path,
     ...(options.domain && { domain: options.domain }),

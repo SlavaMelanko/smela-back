@@ -16,31 +16,36 @@ describe('Signup Endpoint', () => {
 
   let app: Hono
   let mockSignUpWithEmail: any
-  let mockSetAccessCookie: any
+  let mockSetRefreshCookie: any
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        role: Role.User,
-        status: Status.New,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+          role: Role.User,
+          status: Status.New,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
+        accessToken: 'signup-jwt-token',
       },
-      token: 'signup-jwt-token',
+      refreshToken: 'refresh-token-123',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/signup', () => ({
       default: mockSignUpWithEmail,
     }))
 
-    mockSetAccessCookie = mock(() => {})
+    mockSetRefreshCookie = mock(() => {})
 
     await moduleMocker.mock('@/net/http/cookie', () => ({
-      setAccessCookie: mockSetAccessCookie,
+      deleteRefreshCookie: mock(() => {}),
+      getRefreshCookie: mock(() => undefined),
+      setRefreshCookie: mockSetRefreshCookie,
     }))
 
     await mockCaptchaSuccess()
@@ -53,7 +58,7 @@ describe('Signup Endpoint', () => {
   })
 
   describe('POST /auth/signup', () => {
-    it('should set cookie with JWT token on successful signup', async () => {
+    it('should return JWT token in response body on successful signup', async () => {
       const validPayload = {
         firstName: 'John',
         lastName: 'Doe',
@@ -78,11 +83,8 @@ describe('Signup Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'signup-jwt-token',
+        accessToken: 'signup-jwt-token',
       })
-
-      expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetAccessCookie).toHaveBeenCalledWith(expect.any(Object), 'signup-jwt-token')
 
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
       expect(mockSignUpWithEmail).toHaveBeenCalledWith({
@@ -91,6 +93,10 @@ describe('Signup Endpoint', () => {
         email: 'test@example.com',
         password: 'ValidPass123!',
       })
+
+      // Verify refresh token cookie was set
+      expect(mockSetRefreshCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetRefreshCookie).toHaveBeenCalledWith(expect.any(Object), 'refresh-token-123')
     })
 
     it('should validate required field formats', async () => {
@@ -152,7 +158,7 @@ describe('Signup Endpoint', () => {
       }
     })
 
-    it('should handle signup errors and not set cookie', async () => {
+    it('should handle signup errors', async () => {
       mockSignUpWithEmail.mockImplementationOnce(() => {
         throw new Error('Signup failed')
       })
@@ -166,7 +172,6 @@ describe('Signup Endpoint', () => {
       })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
-      expect(mockSetAccessCookie).not.toHaveBeenCalled()
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
     })
 

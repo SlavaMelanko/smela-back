@@ -15,24 +15,36 @@ describe('Verify Email Endpoint', () => {
 
   let app: Hono
   let mockVerifyEmail: any
+  let mockSetRefreshCookie: any
 
   beforeEach(async () => {
     mockVerifyEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com',
-        role: Role.User,
-        status: Status.Verified,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          role: Role.User,
+          status: Status.Verified,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
+        accessToken: 'verify-jwt-token',
       },
-      token: 'verify-jwt-token',
+      refreshToken: 'verify-refresh-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
       default: mockVerifyEmail,
+    }))
+
+    mockSetRefreshCookie = mock(() => {})
+
+    await moduleMocker.mock('@/net/http/cookie', () => ({
+      deleteRefreshCookie: mock(() => {}),
+      getRefreshCookie: mock(() => undefined),
+      setRefreshCookie: mockSetRefreshCookie,
     }))
 
     app = createTestApp('/api/v1/auth', verifyEmailRoute)
@@ -62,11 +74,15 @@ describe('Verify Email Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'verify-jwt-token',
+        accessToken: 'verify-jwt-token',
       })
 
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
       expect(mockVerifyEmail).toHaveBeenCalledWith(validToken)
+
+      // Verify refresh token cookie was set
+      expect(mockSetRefreshCookie).toHaveBeenCalledTimes(1)
+      expect(mockSetRefreshCookie).toHaveBeenCalledWith(expect.any(Object), 'verify-refresh-token')
     })
 
     it('should require token parameter', async () => {

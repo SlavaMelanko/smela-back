@@ -25,6 +25,10 @@ describe('Login with Email', () => {
   let mockJwtToken: string
   let mockCreateJwt: any
 
+  let mockRefreshToken: string
+  let mockRefreshTokenRepo: any
+  let mockGenerateHashedToken: any
+
   beforeEach(async () => {
     mockLoginParams = {
       email: 'test@example.com',
@@ -56,10 +60,14 @@ describe('Login with Email', () => {
     mockAuthRepo = {
       findById: mock(async () => mockAuthRecord),
     }
+    mockRefreshTokenRepo = {
+      create: mock(async () => ({})),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
+      refreshTokenRepo: mockRefreshTokenRepo,
     }))
 
     mockComparePasswords = mock(async () => true)
@@ -74,6 +82,16 @@ describe('Login with Email', () => {
     await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
+
+    mockRefreshToken = 'refresh-token-123'
+    mockGenerateHashedToken = mock(async () => ({
+      token: { raw: mockRefreshToken, hashed: 'hashed-refresh-token' },
+      expiresAt: new Date(),
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      generateHashedToken: mockGenerateHashedToken,
+    }))
   })
 
   afterEach(async () => {
@@ -84,11 +102,14 @@ describe('Login with Email', () => {
     it('should return user and token for valid credentials', async () => {
       const result = await logInWithEmail(mockLoginParams)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.token).toBe(mockJwtToken)
-      expect(result.user).not.toHaveProperty('tokenVersion')
-      expect(result.user.email).toBe(mockLoginParams.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data).toHaveProperty('user')
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.refreshToken).toBe(mockRefreshToken)
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user.email).toBe(mockLoginParams.email)
     })
 
     it('should handle different user roles correctly', async () => {
@@ -97,7 +118,7 @@ describe('Login with Email', () => {
       mockUserRepo.findByEmail.mockImplementation(async () => adminUser)
 
       const result = await logInWithEmail(mockLoginParams)
-      expect(result.user.role).toBe(Role.Admin)
+      expect(result.data.user.role).toBe(Role.Admin)
     })
   })
 
@@ -116,8 +137,8 @@ describe('Login with Email', () => {
 
       // Should still work with different case
       const result = await logInWithEmail({ ...mockLoginParams, email: upperCaseEmail })
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
     })
   })
 
@@ -210,8 +231,8 @@ describe('Login with Email', () => {
     testCases.forEach(({ name, params }) => {
       it(`should handle ${name}`, async () => {
         const result = await logInWithEmail({ ...mockLoginParams, ...params })
-        expect(result).toHaveProperty('user')
-        expect(result).toHaveProperty('token')
+        expect(result).toHaveProperty('data')
+        expect(result).toHaveProperty('refreshToken')
       })
     })
   })
@@ -264,13 +285,13 @@ describe('Login with Email', () => {
     it('should ensure user normalization removes sensitive fields', async () => {
       const result = await logInWithEmail(mockLoginParams)
 
-      expect(result.user).not.toHaveProperty('tokenVersion')
-      expect(result.user).toHaveProperty('id')
-      expect(result.user).toHaveProperty('email')
-      expect(result.user).toHaveProperty('firstName')
-      expect(result.user).toHaveProperty('lastName')
-      expect(result.user).toHaveProperty('role')
-      expect(result.user).toHaveProperty('status')
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user).toHaveProperty('id')
+      expect(result.data.user).toHaveProperty('email')
+      expect(result.data.user).toHaveProperty('firstName')
+      expect(result.data.user).toHaveProperty('lastName')
+      expect(result.data.user).toHaveProperty('role')
+      expect(result.data.user).toHaveProperty('status')
     })
 
     it('should handle user with all possible roles', async () => {
@@ -281,7 +302,7 @@ describe('Login with Email', () => {
         mockUserRepo.findByEmail.mockImplementation(async () => userWithRole)
 
         const result = await logInWithEmail(mockLoginParams)
-        expect(result.user.role).toBe(role)
+        expect(result.data.user.role).toBe(role)
       }
     })
 
