@@ -2,11 +2,15 @@ import { compare as bcryptCompare, hash as bcryptHash } from 'bcrypt'
 
 import type Hasher from './hasher'
 
-const SALT_ROUNDS = 10
-
 class BcryptHasher implements Hasher {
+  private readonly saltRounds: number
+
+  constructor(saltRounds: number = 10) {
+    this.saltRounds = saltRounds
+  }
+
   async hash(plain: string): Promise<string> {
-    return bcryptHash(plain, SALT_ROUNDS)
+    return bcryptHash(plain, this.saltRounds)
   }
 
   async compare(plain: string, hashed: string): Promise<boolean> {
