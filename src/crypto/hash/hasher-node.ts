@@ -1,4 +1,5 @@
-import { createHash } from 'node:crypto'
+import { Buffer } from 'node:buffer'
+import { createHash, timingSafeEqual } from 'node:crypto'
 
 import type Hasher from './hasher'
 
@@ -22,7 +23,14 @@ class NodeHasher implements Hasher {
   async compare(plain: string, hashed: string): Promise<boolean> {
     const plainHashed = await this.hash(plain)
 
-    return plainHashed === hashed
+    const a = Buffer.from(plainHashed)
+    const b = Buffer.from(hashed)
+
+    if (a.length !== b.length) {
+      return false
+    }
+
+    return timingSafeEqual(a, b)
   }
 }
 
