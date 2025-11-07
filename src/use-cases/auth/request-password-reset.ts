@@ -31,7 +31,7 @@ const requestPasswordReset = async (email: string) => {
     })
   }
 
-  return { success: true }
+  return { data: { success: true } }
 }
 
 export default requestPasswordReset

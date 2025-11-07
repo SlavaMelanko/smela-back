@@ -20,17 +20,19 @@ describe('Login Endpoint', () => {
 
   beforeEach(async () => {
     mockLogInWithEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        role: 'user',
-        status: 'active',
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          role: 'user',
+          status: 'active',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
       },
-      token: 'login-jwt-token',
+      accessToken: 'login-jwt-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/login', () => ({
@@ -87,7 +89,6 @@ describe('Login Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'login-jwt-token',
       })
 
       // Verify cookie was set with correct options
@@ -225,7 +226,7 @@ describe('Login Endpoint', () => {
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
-      expect(data.token).toBe('login-jwt-token')
+      expect(data).not.toHaveProperty('token')
       expect(data.user).toHaveProperty('email', 'test@example.com')
 
       // Verify cookie was set with secure flag in production environment

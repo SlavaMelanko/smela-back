@@ -32,7 +32,9 @@ const getCsp = () => (isDevOrTestEnv() ? getDevAndTestCsp() : getStagingAndProdC
 const getStrictTransportSecurity = () => {
   const oneYearInSeconds = 31536000
 
-  return isStagingOrProdEnv() ? `max-age=${oneYearInSeconds}; includeSubDomains; preload` : undefined
+  return isStagingOrProdEnv()
+    ? `max-age=${oneYearInSeconds}; includeSubDomains; preload`
+    : undefined
 }
 
 export const createSecureHeadersConfig = () => ({

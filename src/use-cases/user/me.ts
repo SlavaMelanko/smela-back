@@ -21,7 +21,7 @@ export const getUser = async (userId: number) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  return user
+  return { data: { user } }
 }
 
 export const updateUser = async (userId: number, updates: UpdateUserInput) => {
@@ -36,5 +36,5 @@ export const updateUser = async (userId: number, updates: UpdateUserInput) => {
     updatedAt: new Date(),
   })
 
-  return updatedUser
+  return { data: { user: updatedUser } }
 }

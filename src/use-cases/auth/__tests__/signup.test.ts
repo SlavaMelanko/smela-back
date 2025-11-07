@@ -131,9 +131,9 @@ describe('Signup with Email', () => {
       )
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       const expectedUser = mockNewUser
-      expect(result.user).toEqual(expectedUser)
-      expect(result).toHaveProperty('token')
-      expect(result.token).toBe(mockJwtToken)
+      expect(result.data.user).toEqual(expectedUser)
+      expect(result).toHaveProperty('accessToken')
+      expect(result.accessToken).toBe(mockJwtToken)
     })
 
     it('should create auth record with hashed password', async () => {
@@ -197,27 +197,27 @@ describe('Signup with Email', () => {
     it('should generate JWT token for immediate authentication', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(result).toHaveProperty('token')
-      expect(result.token).toBe(mockJwtToken)
-      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('accessToken')
+      expect(result.accessToken).toBe(mockJwtToken)
+      expect(result).toHaveProperty('data')
     })
 
     it('should not return sensitive fields in the response', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       // Ensure tokenVersion is not included in the response
-      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
       // createdAt and updatedAt are now included in the response
-      expect(result.user).toHaveProperty('createdAt')
-      expect(result.user).toHaveProperty('updatedAt')
+      expect(result.data.user).toHaveProperty('createdAt')
+      expect(result.data.user).toHaveProperty('updatedAt')
 
       // Ensure expected fields are present
-      expect(result.user).toHaveProperty('id')
-      expect(result.user).toHaveProperty('firstName')
-      expect(result.user).toHaveProperty('lastName')
-      expect(result.user).toHaveProperty('email')
-      expect(result.user).toHaveProperty('status')
-      expect(result.user).toHaveProperty('role')
+      expect(result.data.user).toHaveProperty('id')
+      expect(result.data.user).toHaveProperty('firstName')
+      expect(result.data.user).toHaveProperty('lastName')
+      expect(result.data.user).toHaveProperty('email')
+      expect(result.data.user).toHaveProperty('status')
+      expect(result.data.user).toHaveProperty('role')
     })
 
     it('should check for existing user first', async () => {
@@ -341,10 +341,10 @@ describe('Signup with Email', () => {
 
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('accessToken')
       const expectedUser = mockNewUser
-      expect(result.user).toEqual(expectedUser)
+      expect(result.data.user).toEqual(expectedUser)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
@@ -375,7 +375,7 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
       const expectedUser = mockNewUser
-      expect(result.user).toEqual(expectedUser)
+      expect(result.data.user).toEqual(expectedUser)
     })
 
     it('should handle users with minimal names', async () => {
@@ -422,8 +422,8 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(result.user).toEqual(expectedUser)
-      expect(result.user.role).toBe(Role.User)
+      expect(result.data.user).toEqual(expectedUser)
+      expect(result.data.user.role).toBe(Role.User)
     })
 
     it('should handle complex passwords', async () => {

@@ -8,13 +8,11 @@ import type { LoginBody } from './schema'
 const loginHandler = async (c: Context) => {
   const { email, password } = await c.req.json<LoginBody>()
 
-  const result = await logInWithEmail({ email, password })
+  const { data, accessToken } = await logInWithEmail({ email, password })
 
-  // Set cookie for web browser clients
-  setAccessCookie(c, result.token)
+  setAccessCookie(c, accessToken)
 
-  // Return user and token in response body for CLI/mobile clients (same as signup)
-  return c.json(result, HttpStatus.OK)
+  return c.json(data, HttpStatus.OK)
 }
 
 export default loginHandler

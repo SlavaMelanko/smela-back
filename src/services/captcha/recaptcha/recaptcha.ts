@@ -40,7 +40,8 @@ export class Recaptcha implements Captcha {
     if (!result.success) {
       const errorCodes = result['error-codes'] || []
       const hostname = result.hostname || 'unknown'
-      const message = `reCAPTCHA token validation failed. Error codes: ${errorCodes.join(', ')}. Hostname: ${hostname}`
+      const message
+        = `reCAPTCHA token validation failed. Error codes: ${errorCodes.join(', ')}. Hostname: ${hostname}`
 
       throw new AppError(ErrorCode.CaptchaValidationFailed, message)
     }

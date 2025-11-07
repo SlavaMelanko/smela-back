@@ -20,17 +20,19 @@ describe('Signup Endpoint', () => {
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        role: Role.User,
-        status: Status.New,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+          role: Role.User,
+          status: Status.New,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
       },
-      token: 'signup-jwt-token',
+      accessToken: 'signup-jwt-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/signup', () => ({
@@ -78,7 +80,6 @@ describe('Signup Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'signup-jwt-token',
       })
 
       expect(mockSetAccessCookie).toHaveBeenCalledTimes(1)

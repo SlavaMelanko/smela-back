@@ -17,7 +17,12 @@ import {
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
-import { adminRoutes, authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
+import {
+  adminRoutes,
+  authRoutes,
+  protectedRoutesAllowNew,
+  protectedRoutesVerifiedOnly,
+} from '@/routes'
 
 class Server {
   readonly app: Hono<AppContext>

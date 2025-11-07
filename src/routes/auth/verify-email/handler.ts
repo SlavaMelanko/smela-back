@@ -8,11 +8,11 @@ import type { VerifyEmailBody } from './schema'
 const verifyEmailHandler = async (c: Context) => {
   const { token } = await c.req.json<VerifyEmailBody>()
 
-  const result = await verifyEmail(token)
+  const { data, accessToken } = await verifyEmail(token)
 
-  setAccessCookie(c, result.token)
+  setAccessCookie(c, accessToken)
 
-  return c.json(result, HttpStatus.OK)
+  return c.json(data, HttpStatus.OK)
 }
 
 export default verifyEmailHandler

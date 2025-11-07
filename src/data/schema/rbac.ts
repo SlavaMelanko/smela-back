@@ -26,7 +26,9 @@ export const permissionsTable = pgTable('permissions', {
 export const rolePermissionsTable = pgTable('role_permissions', {
   id: serial('id').primaryKey(),
   role: roleEnum('role').notNull(),
-  permissionId: integer('permission_id').notNull().references(() => permissionsTable.id, { onDelete: 'cascade' }),
+  permissionId: integer('permission_id')
+    .notNull()
+    .references(() => permissionsTable.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => [
   uniqueIndex('unique_role_permission').on(table.role, table.permissionId),

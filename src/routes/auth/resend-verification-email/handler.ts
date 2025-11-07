@@ -8,9 +8,9 @@ import type { ResendVerificationEmailBody } from './schema'
 const resendVerificationEmailHandler = async (c: Context) => {
   const { email } = await c.req.json<ResendVerificationEmailBody>()
 
-  const result = await resendVerificationEmail(email)
+  const { data } = await resendVerificationEmail(email)
 
-  return c.json(result, HttpStatus.ACCEPTED)
+  return c.json(data, HttpStatus.ACCEPTED)
 }
 
 export default resendVerificationEmailHandler
