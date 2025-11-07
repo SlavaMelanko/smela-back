@@ -18,7 +18,12 @@ export interface SignupParams {
   deviceInfo: DeviceInfo
 }
 
-const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
+const createNewUser = async (
+  firstName: string,
+  lastName: string | undefined,
+  email: string,
+  password: string,
+) => {
   const hashedPassword = await hashPassword(password)
 
   const { type, token: verificationToken, expiresAt } = generateToken(TokenType.EmailVerification)
@@ -88,12 +93,12 @@ const signUpWithEmail = async (
   }
 
   // Create new user, verification token, etc. in a single transaction
-  const { newUser, verificationToken } = await createNewUser({
+  const { newUser, verificationToken } = await createNewUser(
     firstName,
     lastName,
     email,
     password,
-  })
+  )
 
   // Send welcome email (fire-and-forget, outside transaction)
   emailAgent.sendWelcomeEmail({
