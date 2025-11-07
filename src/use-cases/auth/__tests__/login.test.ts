@@ -19,16 +19,23 @@ describe('Login with Email', () => {
   let mockUserRepo: any
   let mockAuthRecord: AuthRecord
   let mockAuthRepo: any
+  let mockRefreshTokenRepo: any
 
   let mockComparePasswords: any
 
   let mockJwtToken: string
   let mockCreateJwt: any
 
+  let mockGenerateHashedToken: any
+
   beforeEach(async () => {
     mockLoginParams = {
       email: 'test@example.com',
       password: 'ValidPass123!',
+      deviceInfo: {
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0 (Test)',
+      },
     }
 
     mockUser = {
@@ -56,10 +63,14 @@ describe('Login with Email', () => {
     mockAuthRepo = {
       findById: mock(async () => mockAuthRecord),
     }
+    mockRefreshTokenRepo = {
+      create: mock(async () => 1),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
+      refreshTokenRepo: mockRefreshTokenRepo,
     }))
 
     mockComparePasswords = mock(async () => true)
@@ -74,6 +85,17 @@ describe('Login with Email', () => {
     await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockCreateJwt,
     }))
+
+    mockGenerateHashedToken = mock(async () => ({
+      token: { raw: 'refresh_token_123', hashed: 'hashed_refresh_token_123' },
+      expiresAt: new Date('2024-02-01'),
+      type: 'refresh_token',
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      generateHashedToken: mockGenerateHashedToken,
+      TokenType: { RefreshToken: 'refresh_token' },
+    }))
   })
 
   afterEach(async () => {
@@ -85,8 +107,9 @@ describe('Login with Email', () => {
       const result = await logInWithEmail(mockLoginParams)
 
       expect(result).toHaveProperty('data')
-      expect(result).toHaveProperty('accessToken')
-      expect(result.accessToken).toBe(mockJwtToken)
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)
     })
@@ -117,7 +140,7 @@ describe('Login with Email', () => {
       // Should still work with different case
       const result = await logInWithEmail({ ...mockLoginParams, email: upperCaseEmail })
       expect(result).toHaveProperty('data')
-      expect(result).toHaveProperty('accessToken')
+      expect(result).toHaveProperty('refreshToken')
     })
   })
 
@@ -211,7 +234,7 @@ describe('Login with Email', () => {
       it(`should handle ${name}`, async () => {
         const result = await logInWithEmail({ ...mockLoginParams, ...params })
         expect(result).toHaveProperty('data')
-        expect(result).toHaveProperty('accessToken')
+        expect(result).toHaveProperty('refreshToken')
       })
     })
   })

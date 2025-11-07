@@ -1,16 +1,17 @@
 import type { Context } from 'hono'
 
-import { HttpStatus, setAccessCookie } from '@/net/http'
+import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import logInWithEmail from '@/use-cases/auth/login'
 
 import type { LoginBody } from './schema'
 
 const loginHandler = async (c: Context) => {
   const { email, password } = await c.req.json<LoginBody>()
+  const deviceInfo = getDeviceInfo(c)
 
-  const { data, accessToken } = await logInWithEmail({ email, password })
+  const { data, refreshToken } = await logInWithEmail({ email, password, deviceInfo })
 
-  setAccessCookie(c, accessToken)
+  setRefreshCookie(c, refreshToken)
 
   return c.json(data, HttpStatus.OK)
 }
