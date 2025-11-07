@@ -1,8 +1,9 @@
 import type { User } from '@/data'
+import type { DeviceInfo } from '@/net/http/device'
 
-import { db, tokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
-import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
 
 const validateToken = async (token: string) => {
@@ -11,7 +12,7 @@ const validateToken = async (token: string) => {
   return TokenValidator.validate(tokenRecord, TokenType.EmailVerification)
 }
 
-const createJwtToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
     email: user.email,
@@ -20,7 +21,23 @@ const createJwtToken = async (user: User) => signJwt(
   },
 )
 
-const verifyEmail = async (token: string) => {
+const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
+    TokenType.RefreshToken,
+  )
+
+  await refreshTokenRepo.create({
+    userId,
+    tokenHash: hashed,
+    ipAddress: deviceInfo.ipAddress,
+    userAgent: deviceInfo.userAgent,
+    expiresAt,
+  })
+
+  return raw
+}
+
+const verifyEmail = async (token: string, deviceInfo: DeviceInfo) => {
   const validatedToken = await validateToken(token)
 
   const updatedUser = await db.transaction(async (tx) => {
@@ -34,11 +51,12 @@ const verifyEmail = async (token: string) => {
     return userRepo.update(validatedToken.userId, { status: Status.Verified }, tx)
   })
 
-  const jwtToken = await createJwtToken(updatedUser)
+  const accessToken = await createAccessToken(updatedUser)
+  const refreshToken = await createRefreshToken(updatedUser.id, deviceInfo)
 
   return {
-    data: { user: updatedUser },
-    accessToken: jwtToken,
+    data: { user: updatedUser, accessToken },
+    refreshToken,
   }
 }
 
