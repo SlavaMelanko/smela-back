@@ -53,4 +53,19 @@ describe('getDeviceInfo', () => {
       userAgent: 'Safari/537.36',
     })
   })
+
+  test('returns null values when headers are missing', () => {
+    const mockContext = {
+      req: {
+        header: () => undefined,
+      },
+    } as unknown as Context
+
+    const result = getDeviceInfo(mockContext)
+
+    expect(result).toEqual({
+      ipAddress: null,
+      userAgent: null,
+    })
+  })
 })
