@@ -130,7 +130,7 @@ describe('Logout Endpoint', () => {
         // (checked collectively after the loop)
       }
 
-      // Verify deleteAccessCookie was called for each logout attempt
+      // Verify deleteRefreshCookie was called for each logout attempt
       expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(numCalls)
 
       // Verify all calls were made with the correct context

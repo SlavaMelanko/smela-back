@@ -7,9 +7,6 @@ on:
       - '**.md'
       - '**.txt'
       - '**.json'
-      - '**.yml'
-      - '!.github/workflows/ubuntu.yml'
-      - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
   push:
@@ -18,9 +15,6 @@ on:
       - '**.md'
       - '**.txt'
       - '**.json'
-      - '**.yml'
-      - '!.github/workflows/ubuntu.yml'
-      - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
 
@@ -51,11 +45,10 @@ jobs:
       POSTGRES_USER: ${{ vars.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_HOST: postgres
-      POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
       POSTGRES_DB: ${{ vars.POSTGRES_DB }}
       JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-      COOKIE_NAME: ${{ vars.COOKIE_NAME }}
-      COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
+      COOKIE_REFRESH_TOKEN_NAME: ${{ vars.COOKIE_REFRESH_TOKEN_NAME }}
+      COOKIE_REFRESH_TOKEN_EXPIRATION: ${{ vars.COOKIE_REFRESH_TOKEN_EXPIRATION }}
       BE_BASE_URL: ${{ vars.BE_BASE_URL }}
       FE_BASE_URL: ${{ vars.FE_BASE_URL }}
       EMAIL_SENDER_PROFILES: ${{ vars.EMAIL_SENDER_PROFILES }}
