@@ -13,15 +13,15 @@ describe('Logout Endpoint', () => {
   const LOGOUT_URL = '/api/v1/auth/logout'
 
   let app: Hono
-  let mockDeleteAccessCookie: any
+  let mockDeleteRefreshCookie: any
 
   beforeEach(async () => {
-    mockDeleteAccessCookie = mock(() => {})
+    mockDeleteRefreshCookie = mock(() => {})
 
     await moduleMocker.mock('@/net/http/cookie', () => ({
-      deleteAccessCookie: mockDeleteAccessCookie,
-      getAccessCookie: mock(() => undefined),
-      setAccessCookie: mock(() => {}),
+      deleteRefreshCookie: mockDeleteRefreshCookie,
+      getRefreshCookie: mock(() => undefined),
+      setRefreshCookie: mock(() => {}),
     }))
 
     app = createTestApp('/api/v1/auth', logoutRoute)
@@ -32,9 +32,9 @@ describe('Logout Endpoint', () => {
   })
 
   describe('POST /auth/logout', () => {
-    it('should delete access cookie and return 204 No Content', async () => {
+    it('should delete refresh cookie and return 204 No Content', async () => {
       const res = await post(app, LOGOUT_URL, undefined, {
-        Cookie: 'auth-token=existing-token',
+        Cookie: 'refresh-token=existing-token',
       })
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT)
@@ -47,9 +47,9 @@ describe('Logout Endpoint', () => {
 
       // Verify cookie deletion was called
       // Note: In integration testing, you would also verify:
-      // expect(res.headers.get('Set-Cookie')).toContain('auth-token=;')
-      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
-      expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
+      // expect(res.headers.get('Set-Cookie')).toContain('refresh-token=;')
+      expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(1)
+      expect(mockDeleteRefreshCookie).toHaveBeenCalledWith(expect.any(Object))
     })
 
     it('should handle different cookie headers', async () => {
@@ -57,8 +57,8 @@ describe('Logout Endpoint', () => {
         { name: 'no cookie header', headers: undefined },
         { name: 'empty cookie header', headers: { Cookie: '' } },
         { name: 'unrelated cookies', headers: { Cookie: 'other=value; session=abc123' } },
-        { name: 'auth token cookie', headers: { Cookie: 'auth-token=jwt-token-value' } },
-        { name: 'multiple cookies with auth', headers: { Cookie: 'auth-token=jwt-token; other=value' } },
+        { name: 'refresh token cookie', headers: { Cookie: 'refresh-token=jwt-token-value' } },
+        { name: 'multiple cookies with refresh token', headers: { Cookie: 'refresh-token=jwt-token; other=value' } },
       ]
 
       let callCount = 0
@@ -73,8 +73,8 @@ describe('Logout Endpoint', () => {
         const contentLength = res.headers.get('content-length')
         expect(contentLength === '0' || contentLength === null).toBe(true)
 
-        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
-        expect(mockDeleteAccessCookie).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(++callCount)
+        expect(mockDeleteRefreshCookie).toHaveBeenCalledWith(expect.any(Object))
       }
     })
 
@@ -92,12 +92,12 @@ describe('Logout Endpoint', () => {
         expect(res.status).toBe(HttpStatus.NO_CONTENT)
         expect(await res.text()).toBe('')
         expect(res.headers.get('content-type')).toBeNull()
-        expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(++callCount)
+        expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(++callCount)
       }
     })
 
     it('should handle logout errors gracefully', async () => {
-      mockDeleteAccessCookie.mockImplementationOnce(() => {
+      mockDeleteRefreshCookie.mockImplementationOnce(() => {
         throw new Error('Cookie deletion failed')
       })
 
@@ -107,7 +107,7 @@ describe('Logout Endpoint', () => {
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       // Verify the function was called despite the error
-      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(1)
+      expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(1)
     })
 
     it('should handle multiple consecutive logout calls gracefully', async () => {
@@ -117,7 +117,7 @@ describe('Logout Endpoint', () => {
       // Simulate rapid consecutive logout button clicks
       for (let i = 0; i < numCalls; i++) {
         const res = await post(app, LOGOUT_URL, undefined, {
-          Cookie: 'auth-token=jwt-token-value',
+          Cookie: 'refresh-token=jwt-token-value',
         })
 
         responses.push(res)
@@ -131,11 +131,11 @@ describe('Logout Endpoint', () => {
       }
 
       // Verify deleteAccessCookie was called for each logout attempt
-      expect(mockDeleteAccessCookie).toHaveBeenCalledTimes(numCalls)
+      expect(mockDeleteRefreshCookie).toHaveBeenCalledTimes(numCalls)
 
       // Verify all calls were made with the correct context
       for (let i = 0; i < numCalls; i++) {
-        expect(mockDeleteAccessCookie).toHaveBeenNthCalledWith(i + 1, expect.any(Object))
+        expect(mockDeleteRefreshCookie).toHaveBeenNthCalledWith(i + 1, expect.any(Object))
       }
     })
 
@@ -147,7 +147,7 @@ describe('Logout Endpoint', () => {
 
         expect(res.status).toBe(HttpStatus.NOT_FOUND)
         // Verify cookie deletion is NOT called for invalid methods
-        expect(mockDeleteAccessCookie).not.toHaveBeenCalled()
+        expect(mockDeleteRefreshCookie).not.toHaveBeenCalled()
       }
     })
   })
