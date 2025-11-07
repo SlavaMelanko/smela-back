@@ -22,6 +22,7 @@ describe('Signup with Email', () => {
   let mockUserRepo: any
   let mockAuthRepo: any
   let mockTokenRepo: any
+  let mockRefreshTokenRepo: any
   let mockTransaction: any
 
   let mockHashedPassword: string
@@ -30,6 +31,11 @@ describe('Signup with Email', () => {
   let mockTokenString: string
   let mockExpiresAt: Date
   let mockGenerateToken: any
+
+  let mockRefreshToken: string
+  let mockRefreshTokenHash: string
+  let mockRefreshExpiresAt: Date
+  let mockGenerateHashedToken: any
 
   let mockEmailAgent: any
 
@@ -42,6 +48,10 @@ describe('Signup with Email', () => {
       lastName: 'Doe',
       email: 'john@example.com',
       password: 'ValidPass123!',
+      deviceInfo: {
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0 (Test)',
+      },
     }
 
     mockNewUser = toTypeSafeUser({
@@ -64,6 +74,9 @@ describe('Signup with Email', () => {
     mockTokenRepo = {
       replace: mock(async () => {}),
     }
+    mockRefreshTokenRepo = {
+      create: mock(async () => 1),
+    }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
@@ -72,6 +85,7 @@ describe('Signup with Email', () => {
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
       tokenRepo: mockTokenRepo,
+      refreshTokenRepo: mockRefreshTokenRepo,
       db: mockTransaction,
     }))
 
@@ -90,8 +104,19 @@ describe('Signup with Email', () => {
       expiresAt: mockExpiresAt,
     }))
 
+    mockRefreshToken = 'refresh_token_123'
+    mockRefreshTokenHash = 'hashed_refresh_token_123'
+    mockRefreshExpiresAt = nowPlus(hours(168)) // 7 days
+    mockGenerateHashedToken = mock(async () => ({
+      token: { raw: mockRefreshToken, hashed: mockRefreshTokenHash },
+      expiresAt: mockRefreshExpiresAt,
+      type: 'refresh_token',
+    }))
+
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: mockGenerateToken,
+      generateHashedToken: mockGenerateHashedToken,
+      TokenType: { EmailVerification: 'email_verification', RefreshToken: 'refresh_token' },
     }))
 
     mockEmailAgent = {
@@ -132,8 +157,10 @@ describe('Signup with Email', () => {
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       const expectedUser = mockNewUser
       expect(result.data.user).toEqual(expectedUser)
-      expect(result).toHaveProperty('accessToken')
-      expect(result.accessToken).toBe(mockJwtToken)
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
     })
 
     it('should create auth record with hashed password', async () => {
@@ -197,9 +224,24 @@ describe('Signup with Email', () => {
     it('should generate JWT token for immediate authentication', async () => {
       const result = await signUpWithEmail(mockSignupParams)
 
-      expect(result).toHaveProperty('accessToken')
-      expect(result.accessToken).toBe(mockJwtToken)
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
       expect(result).toHaveProperty('data')
+    })
+
+    it('should create refresh token with device info', async () => {
+      await signUpWithEmail(mockSignupParams)
+
+      expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith({
+        userId: mockNewUser.id,
+        tokenHash: mockRefreshTokenHash,
+        ipAddress: mockSignupParams.deviceInfo.ipAddress,
+        userAgent: mockSignupParams.deviceInfo.userAgent,
+        expiresAt: mockRefreshExpiresAt,
+      })
+      expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
     })
 
     it('should not return sensitive fields in the response', async () => {
@@ -342,7 +384,8 @@ describe('Signup with Email', () => {
       const result = await signUpWithEmail(mockSignupParams)
 
       expect(result).toHaveProperty('data')
-      expect(result).toHaveProperty('accessToken')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
       const expectedUser = mockNewUser
       expect(result.data.user).toEqual(expectedUser)
 

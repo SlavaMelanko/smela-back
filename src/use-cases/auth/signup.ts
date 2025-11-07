@@ -1,11 +1,12 @@
 import type { User } from '@/data'
+import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, db, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
-import { generateToken, TokenType } from '@/security/token'
+import { generateHashedToken, generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { AuthProvider, Role, Status } from '@/types'
 
@@ -14,6 +15,7 @@ export interface SignupParams {
   lastName?: string
   email: string
   password: string
+  deviceInfo: DeviceInfo
 }
 
 const createNewUser = async ({ firstName, lastName, email, password }: SignupParams) => {
@@ -50,7 +52,7 @@ const createNewUser = async ({ firstName, lastName, email, password }: SignupPar
   return { newUser, verificationToken }
 }
 
-const createJwtToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
     email: user.email,
@@ -59,8 +61,24 @@ const createJwtToken = async (user: User) => signJwt(
   },
 )
 
+const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
+    TokenType.RefreshToken,
+  )
+
+  await refreshTokenRepo.create({
+    userId,
+    tokenHash: hashed,
+    ipAddress: deviceInfo.ipAddress,
+    userAgent: deviceInfo.userAgent,
+    expiresAt,
+  })
+
+  return raw
+}
+
 const signUpWithEmail = async (
-  { firstName, lastName, email, password }: SignupParams,
+  { firstName, lastName, email, password, deviceInfo }: SignupParams,
 ) => {
   // Check if user exists (outside transaction for fast fail)
   const existingUser = await userRepo.findByEmail(email)
@@ -86,11 +104,12 @@ const signUpWithEmail = async (
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 
-  const jwtToken = await createJwtToken(newUser)
+  const accessToken = await createAccessToken(newUser)
+  const refreshToken = await createRefreshToken(newUser.id, deviceInfo)
 
   return {
-    data: { user: newUser },
-    accessToken: jwtToken,
+    data: { user: newUser, accessToken },
+    refreshToken,
   }
 }
 
