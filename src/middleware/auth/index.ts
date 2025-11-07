@@ -1,4 +1,12 @@
-import { isActive, isActiveOnly, isAdmin, isEnterprise, isNewOrActive, isOwner, isUser } from '@/types'
+import {
+  isActive,
+  isActiveOnly,
+  isAdmin,
+  isEnterprise,
+  isNewOrActive,
+  isOwner,
+  isUser,
+} from '@/types'
 
 import createAuthMiddleware from './factory'
 

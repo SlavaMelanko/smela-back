@@ -8,11 +8,16 @@ import type { SignupBody } from './schema'
 const signupHandler = async (c: Context) => {
   const { firstName, lastName, email, password } = await c.req.json<SignupBody>()
 
-  const result = await signUpWithEmail({ firstName, lastName: lastName ?? '', email, password })
+  const { data, accessToken } = await signUpWithEmail({
+    firstName,
+    lastName: lastName ?? '',
+    email,
+    password,
+  })
 
-  setAccessCookie(c, result.token)
+  setAccessCookie(c, accessToken)
 
-  return c.json(result, HttpStatus.CREATED)
+  return c.json(data, HttpStatus.CREATED)
 }
 
 export default signupHandler

@@ -100,7 +100,7 @@ describe('Reset Password', () => {
       }, {})
       expect(mockAuthRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
     })
   })
 
@@ -260,7 +260,7 @@ describe('Reset Password', () => {
 
       const result = await resetPassword({ token: mockTokenString, password: longPassword })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
 
       expect(mockHashPassword).toHaveBeenCalledWith(longPassword)
       expect(mockHashPassword).toHaveBeenCalledTimes(1)

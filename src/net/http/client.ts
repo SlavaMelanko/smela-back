@@ -52,7 +52,10 @@ export class HttpClient {
     )
 
     if (!response.ok) {
-      throw new AppError(ErrorCode.InternalError, `API request failed: ${response.status} ${response.statusText}`)
+      throw new AppError(
+        ErrorCode.InternalError,
+        `API request failed: ${response.status} ${response.statusText}`,
+      )
     }
 
     return response.json() as Promise<T>

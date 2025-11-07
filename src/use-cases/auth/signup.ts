@@ -88,7 +88,10 @@ const signUpWithEmail = async (
 
   const jwtToken = await createJwtToken(newUser)
 
-  return { user: newUser, token: jwtToken }
+  return {
+    data: { user: newUser },
+    accessToken: jwtToken,
+  }
 }
 
 export default signUpWithEmail

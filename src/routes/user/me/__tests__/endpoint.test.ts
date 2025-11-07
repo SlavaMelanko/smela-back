@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { User, UserRecord } from '@/data'
+import type { User } from '@/data'
 import type { UserClaims } from '@/security/jwt'
 
 import { createTestApp, ModuleMocker, post } from '@/__tests__'
@@ -50,7 +50,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
-    mockGetUser = mock(async () => mockFullUser)
+    mockGetUser = mock(async () => ({ data: { user: mockFullUser } }))
     mockUpdatedUser = {
       id: 1,
       firstName: 'Jane',
@@ -61,7 +61,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
     }
-    mockUpdateUser = mock(async () => mockUpdatedUser)
+    mockUpdateUser = mock(async () => ({ data: { user: mockUpdatedUser } }))
 
     await moduleMocker.mock('@/use-cases/user/me', () => ({
       getUser: mockGetUser,
@@ -257,7 +257,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle valid names with minimum length', async () => {
-      mockUpdateUser.mockImplementation(async () => mockUpdatedUserMinimal)
+      mockUpdateUser.mockImplementation(async () => ({ data: { user: mockUpdatedUserMinimal } }))
 
       const res = await post(app, ME_URL, {
         firstName: mockUpdatedUserMinimal.firstName,
@@ -285,10 +285,11 @@ describe('Me Endpoint', () => {
         }
 
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser() as Promise<UserRecord>
+          // eslint-disable-next-line ts/no-unsafe-return
+          return mockGetUser()
         }
 
-        return mockUpdatedUser
+        return { data: { user: mockUpdatedUser } }
       })
 
       const res = await post(app, ME_URL, {}, {
@@ -365,10 +366,11 @@ describe('Me Endpoint', () => {
         }
 
         if (Object.keys(validUpdates).length === 0) {
-          return mockGetUser() as Promise<UserRecord>
+          // eslint-disable-next-line ts/no-unsafe-return
+          return mockGetUser()
         }
 
-        return mockUpdatedUser
+        return { data: { user: mockUpdatedUser } }
       })
 
       const res = await post(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, {

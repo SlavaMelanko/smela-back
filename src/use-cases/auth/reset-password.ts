@@ -15,7 +15,7 @@ const validateToken = async (token: string) => {
 
 const resetPassword = async (
   { token, password }: ResetPasswordParams,
-): Promise<{ success: boolean }> => {
+) => {
   const validatedToken = await validateToken(token)
 
   await db.transaction(async (tx) => {
@@ -30,7 +30,7 @@ const resetPassword = async (
     await authRepo.update(validatedToken.userId, { passwordHash }, tx)
   })
 
-  return { success: true }
+  return { data: { success: true } }
 }
 
 export default resetPassword

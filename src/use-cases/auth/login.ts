@@ -40,7 +40,10 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
 
   const token = await createJwtToken(user)
 
-  return { user, token }
+  return {
+    data: { user },
+    accessToken: token,
+  }
 }
 
 export default logInWithEmail

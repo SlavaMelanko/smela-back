@@ -18,7 +18,8 @@ export const dataValidationRules = {
     .string()
     .min(8)
     .regex(PASSWORD_REGEX, {
-      message: 'Minimum eight characters, at least one letter, one number and one special character',
+      message:
+        'Minimum eight characters, at least one letter, one number and one special character',
     }),
 
   name: z.string().min(2).max(50),

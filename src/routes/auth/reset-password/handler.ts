@@ -8,9 +8,9 @@ import type { ResetPasswordBody } from './schema'
 const resetPasswordHandler = async (c: Context) => {
   const { token, password } = await c.req.json<ResetPasswordBody>()
 
-  const result = await resetPassword({ token, password })
+  const { data } = await resetPassword({ token, password })
 
-  return c.json(result, HttpStatus.OK)
+  return c.json(data, HttpStatus.OK)
 }
 
 export default resetPasswordHandler

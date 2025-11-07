@@ -40,9 +40,11 @@ export class ResendEmailProvider implements EmailProvider {
       }
 
       if (attempt === maxRetries) {
-        logger.error(error, `Failed to send email after ${attempt + 1}/${maxRetries + 1} attempts`, {
-          subject: payload.subject,
-        })
+        logger.error(
+          error,
+          `Failed to send email after ${attempt + 1}/${maxRetries + 1} attempts`,
+          { subject: payload.subject },
+        )
 
         return
       }

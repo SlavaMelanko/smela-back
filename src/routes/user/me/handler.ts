@@ -9,21 +9,21 @@ import type { UpdateProfileBody } from './schema'
 const getHandler = async (c: Context<AppContext>) => {
   const userContext = c.get('user')
 
-  const user = await getUser(userContext.id)
+  const { data } = await getUser(userContext.id)
 
-  return c.json({ user })
+  return c.json(data)
 }
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
   const { firstName, lastName } = await c.req.json<UpdateProfileBody>()
 
-  const updatedUser = await updateUser(user.id, {
+  const { data } = await updateUser(user.id, {
     firstName: firstName ?? undefined,
     lastName: lastName ?? undefined,
   })
 
-  return c.json({ user: updatedUser })
+  return c.json(data)
 }
 
 export { getHandler, postHandler }

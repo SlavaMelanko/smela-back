@@ -4,7 +4,12 @@ import { cors } from 'hono/cors'
 
 import { isLocalhost, isValidOrigin, normalizeOrigin } from '@/net/url'
 
-import { ALLOWED_HEADERS, ALLOWED_METHODS, EXPOSED_HEADERS, MAX_AGE_TEN_MINUTES } from '../constants'
+import {
+  ALLOWED_HEADERS,
+  ALLOWED_METHODS,
+  EXPOSED_HEADERS,
+  MAX_AGE_TEN_MINUTES,
+} from '../constants'
 
 const devCors = (): MiddlewareHandler => {
   return cors({

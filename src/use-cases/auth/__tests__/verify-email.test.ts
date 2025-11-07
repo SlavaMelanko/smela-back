@@ -106,11 +106,11 @@ describe('Verify Email', () => {
       }, {})
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user).not.toHaveProperty('tokenVersion')
-      expect(result.user.email).toBe(mockUser.email)
-      expect(result.token).toBe(mockJwtToken)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('accessToken')
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user.email).toBe(mockUser.email)
+      expect(result.accessToken).toBe(mockJwtToken)
     })
 
     it('should set correct timestamp when marking token as used', async () => {
@@ -342,9 +342,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('accessToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
     })
@@ -360,9 +360,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('accessToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockUserRepo.update).toHaveBeenCalledWith(999, {
         status: Status.Verified,
       }, {})
@@ -384,9 +384,9 @@ describe('Verify Email', () => {
 
         const result = await verifyEmail(testToken)
 
-        expect(result).toHaveProperty('user')
-        expect(result).toHaveProperty('token')
-        expect(result.user.email).toBe(mockUser.email)
+        expect(result).toHaveProperty('data')
+        expect(result).toHaveProperty('accessToken')
+        expect(result.data.user.email).toBe(mockUser.email)
         expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(testToken)
       }
     })
@@ -402,9 +402,9 @@ describe('Verify Email', () => {
 
       const result = await verifyEmail(mockTokenString)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      expect(result.user.email).toBe(mockUser.email)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('accessToken')
+      expect(result.data.user.email).toBe(mockUser.email)
       expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
         status: TokenStatus.Used,
         usedAt: expect.any(Date),

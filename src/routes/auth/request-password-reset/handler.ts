@@ -8,9 +8,9 @@ import type { RequestPasswordResetBody } from './schema'
 const requestPasswordResetHandler = async (c: Context) => {
   const { email } = await c.req.json<RequestPasswordResetBody>()
 
-  const result = await requestPasswordReset(email)
+  const { data } = await requestPasswordReset(email)
 
-  return c.json({ ...result }, HttpStatus.ACCEPTED)
+  return c.json(data, HttpStatus.ACCEPTED)
 }
 
 export default requestPasswordResetHandler

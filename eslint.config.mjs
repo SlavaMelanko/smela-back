@@ -31,7 +31,7 @@ export default antfu({
     }],
     'prefer-arrow-callback': ['error'],
     'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
-    'style/max-len': ['warn', {
+    'style/max-len': ['error', {
       code: 100,
       ignoreUrls: true,
       ignoreStrings: true,

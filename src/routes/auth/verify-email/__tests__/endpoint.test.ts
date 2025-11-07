@@ -18,17 +18,19 @@ describe('Verify Email Endpoint', () => {
 
   beforeEach(async () => {
     mockVerifyEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com',
-        role: Role.User,
-        status: Status.Verified,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          role: Role.User,
+          status: Status.Verified,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
       },
-      token: 'verify-jwt-token',
+      accessToken: 'verify-jwt-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
@@ -62,7 +64,6 @@ describe('Verify Email Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'verify-jwt-token',
       })
 
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
