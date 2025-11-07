@@ -55,7 +55,7 @@ describe('Refresh Token Repository @with-db', () => {
         expiresAt,
       })
 
-      const revoked = await refreshTokenRepo.revokeByTokenHash(tokenHash)
+      const revoked = await refreshTokenRepo.revokeByHash(tokenHash)
 
       expect(revoked).toBe(true)
 
