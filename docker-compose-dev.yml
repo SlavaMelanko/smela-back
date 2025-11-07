@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18
-    container_name: smela-dev-db
+    container_name: smela-db-dev
     restart: unless-stopped
     ports:
       - "${POSTGRES_PORT}:5432"
