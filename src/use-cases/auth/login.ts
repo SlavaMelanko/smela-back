@@ -1,16 +1,19 @@
 import type { User } from '@/data'
+import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, userRepo } from '@/data'
+import { authRepo, refreshTokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { comparePasswords } from '@/security/password'
+import { generateHashedToken, TokenType } from '@/security/token'
 
 export interface LoginParams {
   email: string
   password: string
+  deviceInfo: DeviceInfo
 }
 
-const createJwtToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
     email: user.email,
@@ -19,7 +22,23 @@ const createJwtToken = async (user: User) => signJwt(
   },
 )
 
-const logInWithEmail = async ({ email, password }: LoginParams) => {
+const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
+    TokenType.RefreshToken,
+  )
+
+  await refreshTokenRepo.create({
+    userId,
+    tokenHash: hashed,
+    ipAddress: deviceInfo.ipAddress,
+    userAgent: deviceInfo.userAgent,
+    expiresAt,
+  })
+
+  return raw
+}
+
+const logInWithEmail = async ({ email, password, deviceInfo }: LoginParams) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
@@ -38,11 +57,12 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
     throw new AppError(ErrorCode.BadCredentials)
   }
 
-  const token = await createJwtToken(user)
+  const accessToken = await createAccessToken(user)
+  const refreshToken = await createRefreshToken(user.id, deviceInfo)
 
   return {
-    data: { user },
-    accessToken: token,
+    data: { user, accessToken },
+    refreshToken,
   }
 }
 

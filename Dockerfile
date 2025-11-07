@@ -18,4 +18,4 @@ FROM base AS test
 COPY --from=install /temp/test/node_modules ./node_modules
 COPY . .
 
-CMD ["bun", "test"]
+CMD ["bun", "run", "test"]

@@ -51,8 +51,8 @@ export const revokeRefreshToken = async (
     .where(eq(refreshTokensTable.id, id))
 }
 
-export const revokeByTokenHash = async (
-  tokenHash: string,
+export const revokeByHash = async (
+  hash: string,
   tx?: Database,
 ): Promise<boolean> => {
   const executor = tx || db
@@ -65,7 +65,7 @@ export const revokeByTokenHash = async (
     })
     .where(
       and(
-        eq(refreshTokensTable.tokenHash, tokenHash),
+        eq(refreshTokensTable.tokenHash, hash),
         isNull(refreshTokensTable.revokedAt),
       ),
     )

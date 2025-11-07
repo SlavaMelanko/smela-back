@@ -29,8 +29,9 @@ describe('Verify Email Endpoint', () => {
           createdAt: new Date('2024-01-01'),
           updatedAt: new Date('2024-01-01'),
         },
+        accessToken: 'verify-jwt-token',
       },
-      accessToken: 'verify-jwt-token',
+      refreshToken: 'verify-refresh-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
@@ -64,10 +65,14 @@ describe('Verify Email Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
+        accessToken: 'verify-jwt-token',
       })
 
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
-      expect(mockVerifyEmail).toHaveBeenCalledWith(validToken)
+      expect(mockVerifyEmail).toHaveBeenCalledWith(validToken, {
+        ipAddress: null,
+        userAgent: null,
+      })
     })
 
     it('should require token parameter', async () => {

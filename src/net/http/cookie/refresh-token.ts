@@ -5,9 +5,12 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import env, { isDevOrTestEnv } from '@/env'
 
 const options = ({
-  name: 'refresh-token',
-  maxAge: env.COOKIE_EXPIRATION,
-  domain: env.COOKIE_DOMAIN && !isDevOrTestEnv() ? env.COOKIE_DOMAIN : undefined,
+  name: env.COOKIE_REFRESH_TOKEN_NAME,
+  maxAge: env.COOKIE_REFRESH_TOKEN_EXPIRATION,
+  domain:
+    env.COOKIE_REFRESH_TOKEN_DOMAIN && !isDevOrTestEnv()
+      ? env.COOKIE_REFRESH_TOKEN_DOMAIN
+      : undefined,
   httpOnly: true,
   secure: !isDevOrTestEnv(),
   sameSite: 'strict' as const,

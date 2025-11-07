@@ -11,12 +11,12 @@ const createDbUrl = () => {
     POSTGRES_USER,
     POSTGRES_PASSWORD,
     POSTGRES_HOST,
-    POSTGRES_PORT,
+    POSTGRES_PORT = '5432',
     POSTGRES_DB,
     // eslint-disable-next-line node/no-process-env
   } = process.env
 
-  if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_HOST || !POSTGRES_PORT || !POSTGRES_DB) {
+  if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_HOST || !POSTGRES_DB) {
     throw new Error('Missing required POSTGRES_* environment variable')
   }
 
