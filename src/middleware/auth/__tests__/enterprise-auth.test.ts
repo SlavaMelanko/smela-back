@@ -24,7 +24,7 @@ describe('Enterprise Authentication Middleware', () => {
     it('should allow Enterprise with Active status', async () => {
       const enterpriseToken = await signJwt(
         { id: 1, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/enterprise', enterpriseStrictAuthMiddleware)
@@ -44,7 +44,7 @@ describe('Enterprise Authentication Middleware', () => {
     it('should reject User role even with Active status', async () => {
       const userToken = await signJwt(
         { id: 4, email: 'user@example.com', role: Role.User, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/enterprise', enterpriseStrictAuthMiddleware)
@@ -65,7 +65,7 @@ describe('Enterprise Authentication Middleware', () => {
     it('should reject Admin role with Active status', async () => {
       const adminToken = await signJwt(
         { id: 5, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/enterprise', enterpriseStrictAuthMiddleware)
@@ -86,7 +86,7 @@ describe('Enterprise Authentication Middleware', () => {
     it('should reject Owner role with Active status', async () => {
       const ownerToken = await signJwt(
         { id: 6, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/enterprise', enterpriseStrictAuthMiddleware)
@@ -115,7 +115,7 @@ describe('Enterprise Authentication Middleware', () => {
 
         const token = await signJwt(
           { id: 7, email: 'enterprise@example.com', role: Role.Enterprise, status },
-          { secret: env.JWT_ACCESS_SECRET },
+          { secret: env.JWT_SECRET },
         )
 
         testApp.use('/enterprise', enterpriseStrictAuthMiddleware)

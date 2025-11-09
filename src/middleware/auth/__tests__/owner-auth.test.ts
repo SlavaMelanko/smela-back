@@ -24,7 +24,7 @@ describe('Owner Authentication Middleware', () => {
     it('should allow Owner with Active status', async () => {
       const ownerToken = await signJwt(
         { id: 1, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/owner', ownerAuthMiddleware)
@@ -44,7 +44,7 @@ describe('Owner Authentication Middleware', () => {
     it('should reject Admin even with Active status', async () => {
       const adminToken = await signJwt(
         { id: 2, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/owner', ownerAuthMiddleware)
@@ -65,7 +65,7 @@ describe('Owner Authentication Middleware', () => {
     it('should reject User role with Active status', async () => {
       const userToken = await signJwt(
         { id: 3, email: 'user@example.com', role: Role.User, status: Status.Active },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/owner', ownerAuthMiddleware)
@@ -94,7 +94,7 @@ describe('Owner Authentication Middleware', () => {
 
         const token = await signJwt(
           { id: 4, email: 'owner@example.com', role: Role.Owner, status },
-          { secret: env.JWT_ACCESS_SECRET },
+          { secret: env.JWT_SECRET },
         )
 
         testApp.use('/owner', ownerAuthMiddleware)

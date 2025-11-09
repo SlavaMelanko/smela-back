@@ -24,7 +24,7 @@ describe('Auth Middleware - New User Access', () => {
     it('should reject New status', async () => {
       const token = await signJwt(
         { id: 1, email: 'user@example.com', role: Role.User, status: Status.New },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/strict', userStrictAuthMiddleware)
@@ -51,7 +51,7 @@ describe('Auth Middleware - New User Access', () => {
 
         const token = await signJwt(
           { id: 2, email: 'user@example.com', role: Role.User, status },
-          { secret: env.JWT_ACCESS_SECRET },
+          { secret: env.JWT_SECRET },
         )
 
         testApp.use('/strict', userStrictAuthMiddleware)
@@ -80,7 +80,7 @@ describe('Auth Middleware - New User Access', () => {
 
         const token = await signJwt(
           { id: 5, email: 'user@example.com', role: Role.User, status },
-          { secret: env.JWT_ACCESS_SECRET },
+          { secret: env.JWT_SECRET },
         )
 
         testApp.use('/relaxed', userRelaxedAuthMiddleware)
@@ -101,7 +101,7 @@ describe('Auth Middleware - New User Access', () => {
     it('should reject Suspended status', async () => {
       const token = await signJwt(
         { id: 9, email: 'user@example.com', role: Role.User, status: Status.Suspended },
-        { secret: env.JWT_ACCESS_SECRET },
+        { secret: env.JWT_SECRET },
       )
 
       app.use('/relaxed', userRelaxedAuthMiddleware)
