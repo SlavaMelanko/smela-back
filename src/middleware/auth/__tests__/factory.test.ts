@@ -88,7 +88,7 @@ describe('Auth Middleware Factory', () => {
 
   describe('Error Handling Edge Cases', () => {
     it('should re-throw AppError instances from validators', async () => {
-      const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
+      const validToken = await signJwt(mockUser, { secret: env.JWT_SECRET })
 
       const middleware = createAuthMiddleware(
         () => false, // status validator fails
@@ -111,7 +111,7 @@ describe('Auth Middleware Factory', () => {
     })
 
     it('should re-throw AppError from role validator', async () => {
-      const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
+      const validToken = await signJwt(mockUser, { secret: env.JWT_SECRET })
 
       const middleware = createAuthMiddleware(
         () => true,
@@ -159,7 +159,7 @@ describe('Auth Middleware Factory', () => {
 
     it('should handle expired JWT tokens', async () => {
       const expiredToken = await signJwt(mockUser, {
-        secret: env.JWT_ACCESS_SECRET,
+        secret: env.JWT_SECRET,
         expiresIn: -1,
       })
 
@@ -209,7 +209,7 @@ describe('Auth Middleware Factory', () => {
 
   describe('Successful Authentication Flow', () => {
     it('should successfully authenticate with valid Bearer token', async () => {
-      const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
+      const validToken = await signJwt(mockUser, { secret: env.JWT_SECRET })
 
       const middleware = createAuthMiddleware(
         () => true,
@@ -233,7 +233,7 @@ describe('Auth Middleware Factory', () => {
     })
 
     it('should set user claims in context for downstream handlers', async () => {
-      const validToken = await signJwt(mockUser, { secret: env.JWT_ACCESS_SECRET })
+      const validToken = await signJwt(mockUser, { secret: env.JWT_SECRET })
 
       const middleware = createAuthMiddleware(
         () => true,

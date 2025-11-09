@@ -15,7 +15,7 @@ describe('Environment Configuration', () => {
     POSTGRES_HOST: 'localhost',
     POSTGRES_PORT: '5432',
     POSTGRES_DB: 'test_db',
-    JWT_ACCESS_SECRET: 'test-jwt-secret-key-min-10-chars',
+    JWT_SECRET: 'test-jwt-secret-key-min-10-chars',
     EMAIL_SENDER_PROFILES: '{"system":{"email":"test@example.com","name":"Test System"}}',
     CAPTCHA_SECRET_KEY: '1234567890123456789012345678901234567890',
   })
@@ -49,7 +49,7 @@ describe('Environment Configuration', () => {
     expect(testEnv.POSTGRES_MAX_CONNECTIONS).toBe(2)
 
     // Network defaults
-    expect(devEnv.JWT_ACCESS_EXPIRATION).toBe(3600)
+    expect(devEnv.JWT_EXPIRATION).toBe(3600)
     expect(devEnv.COOKIE_REFRESH_TOKEN_NAME).toBe('refresh-token')
     expect(devEnv.COOKIE_REFRESH_TOKEN_EXPIRATION).toBe(86400)
     expect(devEnv.BE_BASE_URL).toBe('http://localhost:3000')
@@ -68,7 +68,7 @@ describe('Environment Configuration', () => {
       ...createBaseEnv('development'),
       LOG_LEVEL: 'debug',
       POSTGRES_MAX_CONNECTIONS: '5',
-      JWT_ACCESS_EXPIRATION: '7200',
+      JWT_EXPIRATION: '7200',
       COOKIE_REFRESH_TOKEN_NAME: 'custom-token',
       BE_BASE_URL: 'http://localhost:8000',
       COMPANY_NAME: 'CustomCompany',
@@ -78,7 +78,7 @@ describe('Environment Configuration', () => {
 
     expect(env.LOG_LEVEL).toBe('debug')
     expect(env.POSTGRES_MAX_CONNECTIONS).toBe(5)
-    expect(env.JWT_ACCESS_EXPIRATION).toBe(7200)
+    expect(env.JWT_EXPIRATION).toBe(7200)
     expect(env.COOKIE_REFRESH_TOKEN_NAME).toBe('custom-token')
     expect(env.BE_BASE_URL).toBe('http://localhost:8000')
     expect(env.COMPANY_NAME).toBe('CustomCompany')
@@ -175,8 +175,8 @@ describe('Environment Configuration', () => {
 
   test('should validate other required fields', () => {
     const testCases = [
-      { field: 'JWT_ACCESS_SECRET', value: undefined, desc: 'missing JWT secret' },
-      { field: 'JWT_ACCESS_SECRET', value: 'short', desc: 'JWT secret too short' },
+      { field: 'JWT_SECRET', value: undefined, desc: 'missing JWT secret' },
+      { field: 'JWT_SECRET', value: 'short', desc: 'JWT secret too short' },
       { field: 'NODE_ENV', value: 'invalid-env', desc: 'invalid NODE_ENV' },
       { field: 'LOG_LEVEL', value: 'invalid-level', desc: 'invalid LOG_LEVEL' },
       { field: 'EMAIL_SENDER_PROFILES', value: 'invalid-json', desc: 'invalid EMAIL_SENDER_PROFILES JSON' },

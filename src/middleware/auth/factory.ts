@@ -27,7 +27,7 @@ const createAuthMiddleware = (
   }
 
   try {
-    const userClaims = await verifyJwt(accessToken, { secret: env.JWT_ACCESS_SECRET })
+    const userClaims = await verifyJwt(accessToken, { secret: env.JWT_SECRET })
 
     if (!statusValidator(userClaims.status)) {
       throw new AppError(ErrorCode.Forbidden, 'Status validation failure')
