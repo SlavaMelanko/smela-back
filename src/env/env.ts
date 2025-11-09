@@ -4,7 +4,7 @@ import { companyEnvVars } from './company'
 import { coreEnvVars } from './core'
 import { createDbUrl, dbEnvVars } from './db'
 import { emailEnvVars } from './email'
-import { createNetworkEnvVars } from './network'
+import { networkEnvVars } from './network'
 import { captchaEnvVars } from './services'
 
 // eslint-disable-next-line node/no-process-env
@@ -15,8 +15,8 @@ export const validateEnvVars = (envVars: NodeJS.ProcessEnv = process.env) => {
     const envSchema = z.object({
       ...coreEnvVars,
       ...dbEnvVars,
-      ...createNetworkEnvVars(nodeEnv),
-      ...emailEnvVars,
+      ...emailEnvVars(nodeEnv),
+      ...networkEnvVars(nodeEnv),
       ...companyEnvVars,
       ...captchaEnvVars,
     })
