@@ -106,10 +106,12 @@ describe('Environment Configuration', () => {
     const stagingEnv = {
       ...createBaseEnv('staging'),
       ALLOWED_ORIGINS: 'https://staging.example.com',
+      EMAIL_RESEND_API_KEY: 'test-resend-key',
     }
     const prodEnv = {
       ...createBaseEnv('production'),
       ALLOWED_ORIGINS: 'https://example.com,https://www.example.com',
+      EMAIL_RESEND_API_KEY: 'test-resend-key',
     }
 
     const validStaging = validateEnvVars(stagingEnv)
@@ -130,6 +132,49 @@ describe('Environment Configuration', () => {
     processExitMock.mockClear()
     validateEnvVars({ ...createBaseEnv('staging'), ALLOWED_ORIGINS: '   ' })
     expect(processExitMock).toHaveBeenCalledWith(1)
+  })
+
+  test('should require EMAIL_RESEND_API_KEY for staging/production environments', () => {
+    // Should work without EMAIL_RESEND_API_KEY in development
+    const devEnv = validateEnvVars(createBaseEnv('development'))
+    expect(devEnv.EMAIL_RESEND_API_KEY).toBeUndefined()
+    expect(processExitMock).not.toHaveBeenCalled()
+
+    // Should work without EMAIL_RESEND_API_KEY in test
+    processExitMock.mockClear()
+    const testEnv = validateEnvVars(createBaseEnv('test'))
+    expect(testEnv.EMAIL_RESEND_API_KEY).toBeUndefined()
+    expect(processExitMock).not.toHaveBeenCalled()
+
+    // Should fail without EMAIL_RESEND_API_KEY in staging
+    processExitMock.mockClear()
+    validateEnvVars({ ...createBaseEnv('staging'), ALLOWED_ORIGINS: 'https://staging.example.com' })
+    expect(processExitMock).toHaveBeenCalledWith(1)
+
+    // Should fail without EMAIL_RESEND_API_KEY in production
+    processExitMock.mockClear()
+    validateEnvVars({ ...createBaseEnv('production'), ALLOWED_ORIGINS: 'https://example.com' })
+    expect(processExitMock).toHaveBeenCalledWith(1)
+
+    // Should work with EMAIL_RESEND_API_KEY in staging
+    processExitMock.mockClear()
+    const validStagingEnv = validateEnvVars({
+      ...createBaseEnv('staging'),
+      ALLOWED_ORIGINS: 'https://staging.example.com',
+      EMAIL_RESEND_API_KEY: 'test-key',
+    })
+    expect(validStagingEnv.EMAIL_RESEND_API_KEY).toBe('test-key')
+    expect(processExitMock).not.toHaveBeenCalled()
+
+    // Should work with EMAIL_RESEND_API_KEY in production
+    processExitMock.mockClear()
+    const validProdEnv = validateEnvVars({
+      ...createBaseEnv('production'),
+      ALLOWED_ORIGINS: 'https://example.com',
+      EMAIL_RESEND_API_KEY: 'test-key',
+    })
+    expect(validProdEnv.EMAIL_RESEND_API_KEY).toBe('test-key')
+    expect(processExitMock).not.toHaveBeenCalled()
   })
 
   test('should validate database field requirements', () => {

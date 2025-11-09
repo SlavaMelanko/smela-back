@@ -51,11 +51,8 @@ jobs:
       COOKIE_REFRESH_TOKEN_EXPIRATION: ${{ vars.COOKIE_REFRESH_TOKEN_EXPIRATION }}
       BE_BASE_URL: ${{ vars.BE_BASE_URL }}
       FE_BASE_URL: ${{ vars.FE_BASE_URL }}
+      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
       EMAIL_SENDER_PROFILES: ${{ vars.EMAIL_SENDER_PROFILES }}
-      EMAIL_ETHEREAL_HOST: ${{ vars.EMAIL_ETHEREAL_HOST }}
-      EMAIL_ETHEREAL_PORT: ${{ vars.EMAIL_ETHEREAL_PORT }}
-      EMAIL_ETHEREAL_USERNAME: ${{ vars.EMAIL_ETHEREAL_USERNAME }}
-      EMAIL_ETHEREAL_PASSWORD: ${{ secrets.EMAIL_ETHEREAL_PASSWORD }}
       COMPANY_NAME: ${{ vars.COMPANY_NAME }}
       COMPANY_SOCIAL_LINKS: ${{ vars.COMPANY_SOCIAL_LINKS }}
       CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
@@ -70,6 +67,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Run linting
+        run: bun run lint
+
       - name: Wait for PostgreSQL
         run: |
           for i in {1..10}; do
@@ -80,9 +80,6 @@ jobs:
 
       - name: Setup test database
         run: bun run db:init
-
-      - name: Run linting
-        run: bun run lint
 
       - name: Run all tests
         run: bun run test:all
