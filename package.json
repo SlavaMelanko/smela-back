@@ -26,7 +26,7 @@
     "lint": "bunx eslint --cache ./src",
     "lint:fix": "bunx eslint --cache --fix ./src",
     "check": "bun run lint && bun run test",
-    "email": "email dev --dir src/emails --port 3001",
+    "emails": "email dev --dir src/emails --port 3001",
     "docker:build": "docker build -t smela-back .",
     "docker:test": "docker run --rm -it smela-back"
   },
