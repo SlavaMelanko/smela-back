@@ -42,6 +42,20 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Token type mismatch.',
   },
 
+  // Refresh token errors
+  [ErrorCode.InvalidRefreshToken]: {
+    error: 'Invalid refresh token.',
+  },
+  [ErrorCode.RefreshTokenExpired]: {
+    error: 'Refresh token has expired.',
+  },
+  [ErrorCode.RefreshTokenRevoked]: {
+    error: 'Refresh token has been revoked.',
+  },
+  [ErrorCode.MissingRefreshToken]: {
+    error: 'Refresh token is missing.',
+  },
+
   // Captcha errors
   [ErrorCode.CaptchaInvalidToken]: {
     error: 'Invalid reCAPTCHA token.',

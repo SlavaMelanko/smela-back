@@ -12,6 +12,11 @@ enum ErrorCode {
   TokenNotFound = 'token/not-found',
   TokenTypeMismatch = 'token/type-mismatch',
 
+  InvalidRefreshToken = 'refresh-token/invalid',
+  RefreshTokenExpired = 'refresh-token/expired',
+  RefreshTokenRevoked = 'refresh-token/revoked',
+  MissingRefreshToken = 'refresh-token/missing',
+
   CaptchaInvalidToken = 'captcha/invalid-token',
   CaptchaValidationFailed = 'captcha/validation-failed',
 
