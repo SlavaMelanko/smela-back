@@ -62,7 +62,7 @@ const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParam
   }
 
   const tokenHash = await hashToken(refreshToken)
-  const storedToken = await refreshTokenRepo.findByTokenHash(tokenHash)
+  const storedToken = await refreshTokenRepo.findByHash(tokenHash)
 
   if (!storedToken) {
     throw new AppError(ErrorCode.InvalidRefreshToken)

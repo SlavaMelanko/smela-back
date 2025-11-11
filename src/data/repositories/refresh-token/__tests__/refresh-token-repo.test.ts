@@ -42,7 +42,7 @@ describe('Refresh Token Repository @with-db', () => {
       expect(tokenId).toBeTypeOf('number')
       expect(tokenId).toBeGreaterThan(0)
 
-      const found = await refreshTokenRepo.findByTokenHash(tokenHash)
+      const found = await refreshTokenRepo.findByHash(tokenHash)
       expect(found).toBeDefined()
       expect(found?.userId).toBe(userId)
       expect(found?.tokenHash).toBe(tokenHash)
@@ -59,7 +59,7 @@ describe('Refresh Token Repository @with-db', () => {
 
       expect(revoked).toBe(true)
 
-      const found = await refreshTokenRepo.findByTokenHash(tokenHash)
+      const found = await refreshTokenRepo.findByHash(tokenHash)
       expect(found?.revokedAt).toBeDefined()
     })
 
@@ -101,16 +101,16 @@ describe('Refresh Token Repository @with-db', () => {
 
       expect(deletedCount).toBe(1)
 
-      const found = await refreshTokenRepo.findByTokenHash(expiredTokenHash)
+      const found = await refreshTokenRepo.findByHash(expiredTokenHash)
       expect(found).toBeUndefined()
 
-      const validFound = await refreshTokenRepo.findByTokenHash(validTokenHash)
+      const validFound = await refreshTokenRepo.findByHash(validTokenHash)
       expect(validFound).toBeDefined()
     })
   })
 
   describe('queries', () => {
-    it('findByTokenHash - finds existing token', async () => {
+    it('findByHash - finds existing token', async () => {
       await refreshTokenRepo.create({
         userId,
         tokenHash,
@@ -118,7 +118,7 @@ describe('Refresh Token Repository @with-db', () => {
         ipAddress: '192.168.1.1',
       })
 
-      const found = await refreshTokenRepo.findByTokenHash(tokenHash)
+      const found = await refreshTokenRepo.findByHash(tokenHash)
 
       expect(found).toBeDefined()
       expect(found?.tokenHash).toBe(tokenHash)
@@ -128,6 +128,7 @@ describe('Refresh Token Repository @with-db', () => {
 
     it('findActiveByUserId - gets active tokens for user', async () => {
       const activeTokenHash = `active-token-${Date.now()}`
+      const revokedTokenHash = `revoked-token-${Date.now()}`
 
       await refreshTokenRepo.create({
         userId,
@@ -135,12 +136,12 @@ describe('Refresh Token Repository @with-db', () => {
         expiresAt,
       })
 
-      const revokedTokenId = await refreshTokenRepo.create({
+      await refreshTokenRepo.create({
         userId,
-        tokenHash: `revoked-token-${Date.now()}`,
+        tokenHash: revokedTokenHash,
         expiresAt,
       })
-      await refreshTokenRepo.revoke(revokedTokenId)
+      await refreshTokenRepo.revokeByHash(revokedTokenHash)
 
       const activeTokens = await refreshTokenRepo.findActiveByUserId(userId)
 

@@ -61,7 +61,7 @@ describe('Refresh Auth Tokens', () => {
       updatedAt: new Date('2024-01-01'),
     }
     mockRefreshTokenRepo = {
-      findByTokenHash: mock(async () => mockStoredToken),
+      findByHash: mock(async () => mockStoredToken),
       create: mock(async () => 1),
       revokeByHash: mock(async () => true),
     }
@@ -166,7 +166,7 @@ describe('Refresh Auth Tokens', () => {
 
   describe('invalid refresh token scenarios', () => {
     it('should throw InvalidRefreshToken when token not found in database', async () => {
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => null)
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => null)
 
       expect(refreshAuthTokens(mockRefreshTokenParams)).rejects.toMatchObject({
         name: 'AppError',
@@ -184,7 +184,7 @@ describe('Refresh Auth Tokens', () => {
 
   describe('revoked refresh token scenarios', () => {
     it('should throw RefreshTokenRevoked when token has revokedAt timestamp', async () => {
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => ({
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => ({
         ...mockStoredToken,
         revokedAt: new Date('2024-01-15'),
       }))
@@ -197,7 +197,7 @@ describe('Refresh Auth Tokens', () => {
 
     it('should check revoked status before expiration check', async () => {
       const pastDate = new Date('2023-01-01')
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => ({
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => ({
         ...mockStoredToken,
         revokedAt: new Date('2024-01-15'),
         expiresAt: pastDate,
@@ -213,7 +213,7 @@ describe('Refresh Auth Tokens', () => {
   describe('expired refresh token scenarios', () => {
     it('should throw RefreshTokenExpired when token has expired', async () => {
       const pastDate = new Date('2023-01-01')
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => ({
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => ({
         ...mockStoredToken,
         expiresAt: pastDate,
       }))
@@ -226,7 +226,7 @@ describe('Refresh Auth Tokens', () => {
 
     it('should consider token expired at exact expiration time', async () => {
       const now = new Date()
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => ({
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => ({
         ...mockStoredToken,
         expiresAt: new Date(now.getTime() - 1),
       }))
@@ -329,7 +329,7 @@ describe('Refresh Auth Tokens', () => {
     })
 
     it('should handle null device info gracefully', async () => {
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => ({
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => ({
         ...mockStoredToken,
         ipAddress: null,
         userAgent: null,
@@ -384,7 +384,7 @@ describe('Refresh Auth Tokens', () => {
 
   describe('repository error scenarios', () => {
     it('should handle token lookup database failure', async () => {
-      mockRefreshTokenRepo.findByTokenHash.mockImplementation(async () => {
+      mockRefreshTokenRepo.findByHash.mockImplementation(async () => {
         throw new Error('Database connection failed')
       })
 
