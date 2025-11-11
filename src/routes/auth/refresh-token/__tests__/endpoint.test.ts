@@ -14,12 +14,12 @@ describe('Refresh Token Endpoint', () => {
   const REFRESH_TOKEN_URL = '/api/v1/auth/refresh-token'
 
   let app: Hono
-  let mockRefreshAccessToken: any
+  let mockRefreshAuthTokens: any
   let mockSetRefreshCookie: any
   let mockGetRefreshCookie: any
 
   beforeEach(async () => {
-    mockRefreshAccessToken = mock(async () => ({
+    mockRefreshAuthTokens = mock(async () => ({
       data: {
         user: {
           id: 1,
@@ -37,7 +37,7 @@ describe('Refresh Token Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth', () => ({
-      refreshAccessToken: mockRefreshAccessToken,
+      refreshAuthTokens: mockRefreshAuthTokens,
     }))
 
     mockSetRefreshCookie = mock(() => {})
@@ -86,8 +86,8 @@ describe('Refresh Token Endpoint', () => {
         'new_refresh_token_456',
       )
 
-      expect(mockRefreshAccessToken).toHaveBeenCalledTimes(1)
-      expect(mockRefreshAccessToken).toHaveBeenCalledWith({
+      expect(mockRefreshAuthTokens).toHaveBeenCalledTimes(1)
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
         refreshToken: 'refresh_token_123',
         deviceInfo: {
           ipAddress: null,
@@ -98,7 +98,7 @@ describe('Refresh Token Endpoint', () => {
 
     it('should handle missing refresh token cookie', async () => {
       mockGetRefreshCookie.mockImplementation(() => undefined)
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Missing refresh token')
       })
 
@@ -107,11 +107,11 @@ describe('Refresh Token Endpoint', () => {
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
-      expect(mockRefreshAccessToken).toHaveBeenCalledTimes(1)
+      expect(mockRefreshAuthTokens).toHaveBeenCalledTimes(1)
     })
 
     it('should handle invalid refresh token', async () => {
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Invalid refresh token')
       })
 
@@ -122,11 +122,11 @@ describe('Refresh Token Endpoint', () => {
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
 
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
-      expect(mockRefreshAccessToken).toHaveBeenCalledTimes(1)
+      expect(mockRefreshAuthTokens).toHaveBeenCalledTimes(1)
     })
 
     it('should handle expired refresh token', async () => {
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Refresh token expired')
       })
 
@@ -140,7 +140,7 @@ describe('Refresh Token Endpoint', () => {
     })
 
     it('should handle revoked refresh token', async () => {
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Refresh token revoked')
       })
 

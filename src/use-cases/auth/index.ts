@@ -1,5 +1,5 @@
 export { type LoginParams, default as logInWithEmail } from './login'
-export { default as refreshAccessToken, type RefreshTokenParams } from './refresh-token'
+export { default as refreshAuthTokens, type RefreshTokenParams } from './refresh-token'
 export { default as requestPasswordReset } from './request-password-reset'
 export { default as resendVerificationEmail } from './resend-verification-email'
 export { default as resetPassword } from './reset-password'

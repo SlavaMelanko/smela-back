@@ -56,7 +56,7 @@ const validateDeviceChange = (
   }
 }
 
-const refreshAccessToken = async ({ refreshToken, deviceInfo }: RefreshTokenParams) => {
+const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParams) => {
   if (!refreshToken) {
     throw new AppError(ErrorCode.MissingRefreshToken)
   }
@@ -95,4 +95,4 @@ const refreshAccessToken = async ({ refreshToken, deviceInfo }: RefreshTokenPara
   }
 }
 
-export default refreshAccessToken
+export default refreshAuthTokens

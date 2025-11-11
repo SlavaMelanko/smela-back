@@ -19,7 +19,7 @@ describe('Refresh Token Handler', () => {
   let mockSetRefreshCookie: any
   let mockGetDeviceInfo: any
 
-  let mockRefreshAccessToken: any
+  let mockRefreshAuthTokens: any
 
   beforeEach(async () => {
     // Mock context and response
@@ -45,7 +45,7 @@ describe('Refresh Token Handler', () => {
     }))
 
     // @/use-cases/auth module group
-    mockRefreshAccessToken = mock(async () => ({
+    mockRefreshAuthTokens = mock(async () => ({
       data: {
         user: {
           id: 1,
@@ -63,7 +63,7 @@ describe('Refresh Token Handler', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth', () => ({
-      refreshAccessToken: mockRefreshAccessToken,
+      refreshAuthTokens: mockRefreshAuthTokens,
     }))
   })
 
@@ -77,7 +77,7 @@ describe('Refresh Token Handler', () => {
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
       expect(mockGetDeviceInfo).toHaveBeenCalledWith(mockContext)
-      expect(mockRefreshAccessToken).toHaveBeenCalledWith({
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
         refreshToken: mockRefreshToken,
         deviceInfo: {
           ipAddress: '192.168.1.1',
@@ -109,7 +109,7 @@ describe('Refresh Token Handler', () => {
 
       const result = await refreshTokenHandler(mockContext)
 
-      expect(mockRefreshAccessToken).toHaveBeenCalledWith({
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
         refreshToken: mockRefreshToken,
         deviceInfo: {
           ipAddress: null,
@@ -123,14 +123,14 @@ describe('Refresh Token Handler', () => {
   describe('error handling', () => {
     it('should propagate error when refresh token is missing', async () => {
       mockGetRefreshCookie.mockImplementation(() => undefined)
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Missing refresh token')
       })
 
       expect(refreshTokenHandler(mockContext)).rejects.toThrow('Missing refresh token')
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
-      expect(mockRefreshAccessToken).toHaveBeenCalledWith({
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
         refreshToken: undefined,
         deviceInfo: {
           ipAddress: '192.168.1.1',
@@ -142,19 +142,19 @@ describe('Refresh Token Handler', () => {
     })
 
     it('should propagate error when refresh token is invalid', async () => {
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Invalid refresh token')
       })
 
       expect(refreshTokenHandler(mockContext)).rejects.toThrow('Invalid refresh token')
 
-      expect(mockRefreshAccessToken).toHaveBeenCalled()
+      expect(mockRefreshAuthTokens).toHaveBeenCalled()
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
       expect(mockJson).not.toHaveBeenCalled()
     })
 
     it('should propagate error when refresh token is expired', async () => {
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         throw new Error('Refresh token expired')
       })
 
@@ -172,7 +172,7 @@ describe('Refresh Token Handler', () => {
       expect(refreshTokenHandler(mockContext)).rejects.toThrow('Cookie parsing failed')
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
-      expect(mockRefreshAccessToken).not.toHaveBeenCalled()
+      expect(mockRefreshAuthTokens).not.toHaveBeenCalled()
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
       expect(mockJson).not.toHaveBeenCalled()
     })
@@ -184,7 +184,7 @@ describe('Refresh Token Handler', () => {
 
       expect(refreshTokenHandler(mockContext)).rejects.toThrow('Cookie setting failed')
 
-      expect(mockRefreshAccessToken).toHaveBeenCalled()
+      expect(mockRefreshAuthTokens).toHaveBeenCalled()
       expect(mockSetRefreshCookie).toHaveBeenCalled()
       expect(mockJson).not.toHaveBeenCalled()
     })
@@ -206,7 +206,7 @@ describe('Refresh Token Handler', () => {
         return { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' }
       })
 
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         callOrder.push('refreshAccessToken')
 
         return {
@@ -263,7 +263,7 @@ describe('Refresh Token Handler', () => {
         return { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' }
       })
 
-      mockRefreshAccessToken.mockImplementation(async () => {
+      mockRefreshAuthTokens.mockImplementation(async () => {
         callOrder.push('refreshAccessToken')
         throw new Error('Token refresh failed')
       })
