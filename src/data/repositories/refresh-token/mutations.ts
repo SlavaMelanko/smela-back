@@ -111,18 +111,3 @@ export const cleanupExpiredTokens = async (
 
   return result.length
 }
-
-export const updateLastUsedAt = async (
-  id: number,
-  tx?: Database,
-): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .update(refreshTokensTable)
-    .set({
-      lastUsedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(refreshTokensTable.id, id))
-}

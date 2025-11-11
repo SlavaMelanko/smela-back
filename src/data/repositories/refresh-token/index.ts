@@ -4,7 +4,6 @@ import {
   revokeAllUserTokens,
   revokeByHash,
   revokeRefreshToken,
-  updateLastUsedAt,
   updateRefreshToken,
 } from './mutations'
 import {
@@ -19,7 +18,6 @@ export * from './types'
 export const refreshTokenRepo = {
   create: createRefreshToken,
   update: updateRefreshToken,
-  updateLastUsedAt,
   revoke: revokeRefreshToken,
   revokeByHash,
   revokeAllUserTokens,
