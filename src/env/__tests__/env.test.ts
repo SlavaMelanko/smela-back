@@ -49,7 +49,7 @@ describe('Environment Configuration', () => {
     expect(testEnv.POSTGRES_MAX_CONNECTIONS).toBe(2)
 
     // Network defaults
-    expect(devEnv.JWT_EXPIRATION).toBe(3600)
+    expect(devEnv.JWT_EXPIRATION).toBe(900)
     expect(devEnv.COOKIE_REFRESH_TOKEN_NAME).toBe('refresh-token')
     expect(devEnv.COOKIE_REFRESH_TOKEN_EXPIRATION).toBe(86400)
     expect(devEnv.BE_BASE_URL).toBe('http://localhost:3000')
@@ -68,7 +68,7 @@ describe('Environment Configuration', () => {
       ...createBaseEnv('development'),
       LOG_LEVEL: 'debug',
       POSTGRES_MAX_CONNECTIONS: '5',
-      JWT_EXPIRATION: '7200',
+      JWT_EXPIRATION: '3600',
       COOKIE_REFRESH_TOKEN_NAME: 'custom-token',
       BE_BASE_URL: 'http://localhost:8000',
       COMPANY_NAME: 'CustomCompany',
@@ -78,7 +78,7 @@ describe('Environment Configuration', () => {
 
     expect(env.LOG_LEVEL).toBe('debug')
     expect(env.POSTGRES_MAX_CONNECTIONS).toBe(5)
-    expect(env.JWT_EXPIRATION).toBe(7200)
+    expect(env.JWT_EXPIRATION).toBe(3600)
     expect(env.COOKIE_REFRESH_TOKEN_NAME).toBe('custom-token')
     expect(env.BE_BASE_URL).toBe('http://localhost:8000')
     expect(env.COMPANY_NAME).toBe('CustomCompany')

@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const networkEnvVars = (nodeEnv?: string) => ({
   // JWT configuration
   JWT_SECRET: z.string().min(10),
-  JWT_EXPIRATION: z.coerce.number().int().positive().default(3600),
+  JWT_EXPIRATION: z.coerce.number().int().positive().default(900),
   JWT_SIGNATURE_ALGORITHM: z.enum(['HS256', 'HS512']).default('HS256'),
 
   // Refresh token cookie configuration
