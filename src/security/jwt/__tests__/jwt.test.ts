@@ -69,7 +69,6 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
-        v: 0,
         exp: nowInSeconds() + 3600,
       }))
 
@@ -123,7 +122,6 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
-          v: 0,
           exp: nowInSeconds() + 3600,
         }
 
@@ -154,7 +152,6 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
-          v: 0,
           exp: nowInSeconds() + 3600,
         }
 
