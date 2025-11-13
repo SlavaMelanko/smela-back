@@ -24,6 +24,10 @@ export const dataValidationRules = {
 
   name: z.string().min(2).max(50),
 
+  optionalName: z.string().min(2).max(50).nullable().optional().transform((val) => {
+    return val === null ? undefined : val
+  }),
+
   role: z.nativeEnum(Role),
 
   securityToken: z.string().length(

@@ -4,7 +4,7 @@ import { dataValidationRules as rules } from '../../@shared'
 
 const signupSchema = z.object({
   firstName: rules.name,
-  lastName: rules.name.nullish(),
+  lastName: rules.optionalName,
   email: rules.email,
   password: rules.password,
   captchaToken: rules.captchaToken,
