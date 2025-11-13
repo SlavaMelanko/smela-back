@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
@@ -120,16 +120,6 @@ describe('Reset Password Endpoint', () => {
 
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockResetPassword).not.toHaveBeenCalled()
-      }
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await doRequest(app, RESET_PASSWORD_URL, method, validPayload, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

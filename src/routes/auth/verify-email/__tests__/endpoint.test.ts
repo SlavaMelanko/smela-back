@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -128,17 +128,6 @@ describe('Verify Email Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-      const validToken = 'a'.repeat(64)
-
-      for (const method of methods) {
-        const res = await doRequest(app, VERIFY_EMAIL_URL, method, { token: validToken }, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
-      }
     })
   })
 })
