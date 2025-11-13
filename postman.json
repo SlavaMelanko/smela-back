@@ -344,6 +344,24 @@
 		},
 		{
 			"name": "refresh-token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()",
+							"",
+							"if (response.accessToken) {",
+							"  pm.environment.set('access_token', response.accessToken)",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
