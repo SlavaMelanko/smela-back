@@ -17,6 +17,12 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   [ErrorCode.TokenNotFound]: HttpStatus.BAD_REQUEST,
   [ErrorCode.TokenTypeMismatch]: HttpStatus.BAD_REQUEST,
 
+  // Refresh token errors
+  [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.RefreshTokenExpired]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.RefreshTokenRevoked]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.MissingRefreshToken]: HttpStatus.BAD_REQUEST,
+
   // Captcha errors
   [ErrorCode.CaptchaInvalidToken]: HttpStatus.BAD_REQUEST,
   [ErrorCode.CaptchaValidationFailed]: HttpStatus.BAD_REQUEST,
