@@ -12,6 +12,29 @@ export interface RefreshTokenParams {
   deviceInfo: DeviceInfo
 }
 
+const validateToken = async (refreshToken: string | undefined) => {
+  if (!refreshToken) {
+    throw new AppError(ErrorCode.MissingRefreshToken)
+  }
+
+  const hashedToken = await hashToken(refreshToken)
+  const storedToken = await refreshTokenRepo.findByHash(hashedToken)
+
+  if (!storedToken) {
+    throw new AppError(ErrorCode.InvalidRefreshToken)
+  }
+
+  if (storedToken.revokedAt) {
+    throw new AppError(ErrorCode.RefreshTokenRevoked)
+  }
+
+  if (storedToken.expiresAt < new Date()) {
+    throw new AppError(ErrorCode.RefreshTokenExpired)
+  }
+
+  return { storedToken, hashedToken }
+}
+
 const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
@@ -37,7 +60,7 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
   return raw
 }
 
-const validateDeviceChange = (
+const validateDevice = (
   storedToken: { ipAddress: string | null, userAgent: string | null },
   deviceInfo: DeviceInfo,
   userId: number,
@@ -57,24 +80,7 @@ const validateDeviceChange = (
 }
 
 const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParams) => {
-  if (!refreshToken) {
-    throw new AppError(ErrorCode.MissingRefreshToken)
-  }
-
-  const tokenHash = await hashToken(refreshToken)
-  const storedToken = await refreshTokenRepo.findByHash(tokenHash)
-
-  if (!storedToken) {
-    throw new AppError(ErrorCode.InvalidRefreshToken)
-  }
-
-  if (storedToken.revokedAt) {
-    throw new AppError(ErrorCode.RefreshTokenRevoked)
-  }
-
-  if (storedToken.expiresAt < new Date()) {
-    throw new AppError(ErrorCode.RefreshTokenExpired)
-  }
+  const { storedToken, hashedToken } = await validateToken(refreshToken)
 
   const user = await userRepo.findById(storedToken.userId)
 
@@ -82,9 +88,9 @@ const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParam
     throw new AppError(ErrorCode.InvalidRefreshToken)
   }
 
-  validateDeviceChange(storedToken, deviceInfo, user.id)
+  validateDevice(storedToken, deviceInfo, user.id)
 
-  await refreshTokenRepo.revokeByHash(tokenHash)
+  await refreshTokenRepo.revokeByHash(hashedToken)
 
   const accessToken = await createAccessToken(user)
   const newRefreshToken = await createRefreshToken(user.id, deviceInfo)
