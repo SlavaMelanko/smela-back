@@ -19,6 +19,7 @@ describe('Refresh Auth Tokens', () => {
   let mockUserRepo: any
   let mockStoredToken: RefreshToken
   let mockRefreshTokenRepo: any
+  let mockDb: any
 
   let mockHashToken: any
 
@@ -65,8 +66,16 @@ describe('Refresh Auth Tokens', () => {
       create: mock(async () => 1),
       revokeByHash: mock(async () => true),
     }
+    mockDb = {
+      transaction: mock(async <T>(callback: (tx: any) => Promise<T>): Promise<T> => {
+        const mockTx = Symbol('transaction')
+
+        return callback(mockTx)
+      }),
+    }
 
     await moduleMocker.mock('@/data', () => ({
+      db: mockDb,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
     }))
@@ -118,20 +127,53 @@ describe('Refresh Auth Tokens', () => {
       await refreshAuthTokens(mockRefreshTokenParams)
 
       expect(mockRefreshTokenRepo.revokeByHash).toHaveBeenCalledTimes(1)
-      expect(mockRefreshTokenRepo.revokeByHash).toHaveBeenCalledWith('hashed_token_123')
+      expect(mockRefreshTokenRepo.revokeByHash).toHaveBeenCalledWith(
+        'hashed_token_123',
+        expect.any(Symbol),
+      )
     })
 
     it('should create new refresh token with device info', async () => {
       await refreshAuthTokens(mockRefreshTokenParams)
 
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith({
-        userId: mockUser.id,
-        tokenHash: 'new_hashed_token_456',
-        ipAddress: mockRefreshTokenParams.deviceInfo.ipAddress,
-        userAgent: mockRefreshTokenParams.deviceInfo.userAgent,
-        expiresAt: new Date('2025-03-01'),
+      expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith(
+        {
+          userId: mockUser.id,
+          tokenHash: 'new_hashed_token_456',
+          ipAddress: mockRefreshTokenParams.deviceInfo.ipAddress,
+          userAgent: mockRefreshTokenParams.deviceInfo.userAgent,
+          expiresAt: new Date('2025-03-01'),
+        },
+        expect.any(Symbol),
+      )
+    })
+
+    it('should use transaction for token rotation', async () => {
+      await refreshAuthTokens(mockRefreshTokenParams)
+
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1)
+      expect(mockDb.transaction).toHaveBeenCalledWith(expect.any(Function))
+    })
+
+    it('should create new tokens before revoking old token (correct order)', async () => {
+      const callOrder: string[] = []
+
+      mockRefreshTokenRepo.create.mockImplementation(async () => {
+        callOrder.push('create')
+
+        return 1
       })
+
+      mockRefreshTokenRepo.revokeByHash.mockImplementation(async () => {
+        callOrder.push('revoke')
+
+        return true
+      })
+
+      await refreshAuthTokens(mockRefreshTokenParams)
+
+      expect(callOrder).toEqual(['create', 'revoke'])
     })
   })
 
@@ -422,6 +464,34 @@ describe('Refresh Auth Tokens', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Token creation failed')
+      }
+    })
+
+    it('should not revoke old token if new token creation fails (transaction rollback)', async () => {
+      mockRefreshTokenRepo.create.mockImplementation(async () => {
+        throw new Error('Token creation failed')
+      })
+
+      try {
+        await refreshAuthTokens(mockRefreshTokenParams)
+        expect(true).toBe(false) // should not reach here
+      } catch {
+        // Transaction should rollback, so revokeByHash should not be called
+        expect(mockRefreshTokenRepo.revokeByHash).not.toHaveBeenCalled()
+      }
+    })
+
+    it('should rollback transaction if revocation fails', async () => {
+      mockRefreshTokenRepo.revokeByHash.mockImplementation(async () => {
+        throw new Error('Revocation failed')
+      })
+
+      try {
+        await refreshAuthTokens(mockRefreshTokenParams)
+        expect(true).toBe(false) // should not reach here
+      } catch {
+        // Verify transaction was attempted
+        expect(mockDb.transaction).toHaveBeenCalledTimes(1)
       }
     })
   })

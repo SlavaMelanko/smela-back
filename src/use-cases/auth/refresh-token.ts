@@ -1,7 +1,7 @@
-import type { User } from '@/data'
+import type { Database, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { refreshTokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
@@ -44,7 +44,11 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+const createRefreshToken = async (
+  userId: number,
+  deviceInfo: DeviceInfo,
+  tx?: Database,
+) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )
@@ -55,7 +59,7 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
     ipAddress: deviceInfo.ipAddress,
     userAgent: deviceInfo.userAgent,
     expiresAt,
-  })
+  }, tx)
 
   return raw
 }
@@ -90,15 +94,19 @@ const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParam
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  await refreshTokenRepo.revokeByHash(hashedToken)
+  return db.transaction(async (tx) => {
+    // Create new tokens first (OAuth 2.0 best practice)
+    const accessToken = await createAccessToken(user)
+    const newRefreshToken = await createRefreshToken(user.id, deviceInfo, tx)
 
-  const accessToken = await createAccessToken(user)
-  const newRefreshToken = await createRefreshToken(user.id, deviceInfo)
+    // Revoke old token last to prevent user lockout on failures
+    await refreshTokenRepo.revokeByHash(hashedToken, tx)
 
-  return {
-    data: { user, accessToken },
-    refreshToken: newRefreshToken,
-  }
+    return {
+      data: { user, accessToken },
+      refreshToken: newRefreshToken,
+    }
+  })
 }
 
 export default refreshAuthTokens
