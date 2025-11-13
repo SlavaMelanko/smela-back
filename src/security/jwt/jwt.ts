@@ -28,15 +28,19 @@ export const verifyJwt = async (
   token: string,
   userOptions?: Partial<Options>,
 ): Promise<UserClaims> => {
-  try {
-    const options = mergeWithDefaults(userOptions)
+  const options = mergeWithDefaults(userOptions)
+  const secrets = [options.secret, options.previousSecret].filter(Boolean) as string[]
 
-    const payload = await verify(token, options.secret, options.signatureAlgorithm)
+  for (const secret of secrets) {
+    try {
+      const payload = await verify(token, secret, options.signatureAlgorithm)
+      const { userClaims } = parse(payload)
 
-    const { userClaims } = parse(payload)
-
-    return userClaims
-  } catch {
-    throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
+      return userClaims
+    } catch {
+      // try next secret
+    }
   }
+
+  throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
 }

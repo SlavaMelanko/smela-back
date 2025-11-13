@@ -243,6 +243,30 @@ describe('Environment Configuration', () => {
     })
   })
 
+  test('should validate JWT_SECRET_PREVIOUS as optional field', () => {
+    // Should work without JWT_SECRET_PREVIOUS (optional)
+    const envWithoutPrevious = validateEnvVars(createBaseEnv())
+    expect(envWithoutPrevious.JWT_SECRET_PREVIOUS).toBeUndefined()
+    expect(processExitMock).not.toHaveBeenCalled()
+
+    // Should work with valid JWT_SECRET_PREVIOUS
+    processExitMock.mockClear()
+    const envWithPrevious = validateEnvVars({
+      ...createBaseEnv(),
+      JWT_SECRET_PREVIOUS: 'previous-secret-key-min-10-chars',
+    })
+    expect(envWithPrevious.JWT_SECRET_PREVIOUS).toBe('previous-secret-key-min-10-chars')
+    expect(processExitMock).not.toHaveBeenCalled()
+
+    // Should fail with too short JWT_SECRET_PREVIOUS
+    processExitMock.mockClear()
+    validateEnvVars({
+      ...createBaseEnv(),
+      JWT_SECRET_PREVIOUS: 'short',
+    })
+    expect(processExitMock).toHaveBeenCalledWith(1)
+  })
+
   test('should parse valid JSON configurations', () => {
     const customEnv = {
       ...createBaseEnv('development'),
