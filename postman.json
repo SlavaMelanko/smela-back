@@ -15,12 +15,11 @@
 						"exec": [
 							"var responseData = pm.response.json();",
 							"// Save the token as an environment variable",
-							"pm.environment.set(\"access_token\", responseData.token);",
+							"pm.environment.set(\"access_token\", responseData.accessToken);",
 							"",
 							"pm.test(\"Response status code is 201\", function () {",
 							"    pm.expect(pm.response.code).to.eql(201);",
 							"});",
-							"",
 							"",
 							"pm.test(\"Validate the user object schema\", function () {",
 							"    const responseData = pm.response.json();",
@@ -78,7 +77,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"\",\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -104,7 +103,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -132,7 +131,7 @@
 						"exec": [
 							"var responseData = pm.response.json();",
 							"// Save the token as an environment variable",
-							"pm.environment.set(\"access_token\", responseData.token);",
+							"pm.environment.set(\"access_token\", responseData.accessToken);",
 							"",
 							"// Existing tests",
 							"pm.test(\"Response status code is 200\", function () {",
@@ -175,7 +174,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"28bd8b3c36af648f70f3c586db4984a0851ba4f780fd021abf9fc52f22b1deb2\"\n}",
+					"raw": "{\n    \"token\": \"65598cbd37a40aee901dc4ad8e723a6e8e34644beef62d679a40854e3aa06bb5\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -203,8 +202,8 @@
 						"exec": [
 							"const response = pm.response.json()",
 							"",
-							"if (response.token) {",
-							"  pm.environment.set('access_token', response.token)",
+							"if (response.accessToken) {",
+							"  pm.environment.set('access_token', response.accessToken)",
 							"}",
 							""
 						],
@@ -219,7 +218,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -272,7 +271,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Viacheslav\"\n}\n",
+					"raw": "{\n    \"lastName\": \"Melanko\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -298,7 +297,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+1@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -324,7 +323,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"87ab1dc99d21b0053ae6dd1c7af21dbb8ff89a204227d8f95a45a283cb717cd4\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
+					"raw": "{\n    \"token\": \"94d58c586dd0fbb301b5250405c55bc2dd084efceb9301735b2136726b440f6a\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
