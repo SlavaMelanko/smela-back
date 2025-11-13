@@ -5,6 +5,7 @@ import type { AppContext } from '@/context'
 import {
   loginRoute,
   logoutRoute,
+  refreshTokenRoute,
   requestPasswordResetRoute,
   resendVerificationEmailRoute,
   resetPasswordRoute,
@@ -16,6 +17,7 @@ import { meRoute } from './user'
 export const authRoutes = [
   loginRoute,
   logoutRoute,
+  refreshTokenRoute,
   signupRoute,
   verifyEmailRoute,
   resendVerificationEmailRoute,

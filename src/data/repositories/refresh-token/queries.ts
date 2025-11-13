@@ -38,26 +38,6 @@ export const findActiveByUserId = async (
     )
 }
 
-export const findByUserAndHash = async (
-  userId: number,
-  tokenHash: string,
-  tx?: Database,
-): Promise<RefreshToken | undefined> => {
-  const executor = tx || db
-
-  const [foundToken] = await executor
-    .select()
-    .from(refreshTokensTable)
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        eq(refreshTokensTable.tokenHash, tokenHash),
-      ),
-    )
-
-  return foundToken
-}
-
 export const countActiveByUserId = async (
   userId: number,
   tx?: Database,

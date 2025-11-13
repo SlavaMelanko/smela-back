@@ -300,6 +300,11 @@ await moduleMocker.mock('@/lib/jwt', () => mockJwt)
 #### Authentication & Authorization
 
 - JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
+- **Token Expiration Strategy**:
+  - Access tokens: 15 minutes (configurable via JWT_EXPIRATION) - Short-lived for security
+  - Refresh tokens: 30 days (configurable via COOKIE_REFRESH_TOKEN_EXPIRATION) - Stored in httpOnly cookies
+  - Token rotation: New refresh token generated on each use, old token revoked
+  - Rationale: Reduces attack surface, aligns with OAuth 2.0 best practices
 - Flexible authentication support (cookies for web, Bearer tokens for API/mobile)
 - bcrypt password hashing with configurable salt rounds (default: 10 rounds)
 - Email verification and secure password reset flows

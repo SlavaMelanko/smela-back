@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 
 import { ModuleMocker } from '@/__tests__'
+import { TOKEN_LENGTH } from '@/security/token'
 import { seconds } from '@/utils/chrono'
 
 import { generateHashedToken, generateToken } from '../facade'
@@ -21,7 +22,7 @@ describe('Token Facade', () => {
       expect(result.type).toBe(TokenType.EmailVerification)
       expect(result.token).toBeDefined()
       expect(typeof result.token).toBe('string')
-      expect(result.token.length).toBe(64)
+      expect(result.token.length).toBe(TOKEN_LENGTH)
       expect(/^[0-9a-f]+$/.test(result.token)).toBe(true)
 
       const expectedMinExpiry = new Date(
@@ -43,7 +44,7 @@ describe('Token Facade', () => {
       expect(result.type).toBe(TokenType.PasswordReset)
       expect(result.token).toBeDefined()
       expect(typeof result.token).toBe('string')
-      expect(result.token.length).toBe(64)
+      expect(result.token.length).toBe(TOKEN_LENGTH)
       expect(/^[0-9a-f]+$/.test(result.token)).toBe(true)
 
       const expectedMinExpiry = new Date(
@@ -114,7 +115,7 @@ describe('Token Facade', () => {
       expect(typeof result.token.raw).toBe('string')
       expect(typeof result.token.hashed).toBe('string')
       expect(result.token.raw).not.toBe(result.token.hashed)
-      expect(result.token.raw.length).toBe(64)
+      expect(result.token.raw.length).toBe(TOKEN_LENGTH)
       expect(/^[0-9a-f]+$/.test(result.token.raw)).toBe(true)
       expect(/^[0-9a-f]+$/.test(result.token.hashed)).toBe(true)
 

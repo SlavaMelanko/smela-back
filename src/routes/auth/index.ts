@@ -1,5 +1,6 @@
 export { default as loginRoute } from './login'
 export { default as logoutRoute } from './logout'
+export { default as refreshTokenRoute } from './refresh-token'
 export { default as requestPasswordResetRoute } from './request-password-reset'
 export { default as resendVerificationEmailRoute } from './resend-verification-email'
 export { default as resetPasswordRoute } from './reset-password'
