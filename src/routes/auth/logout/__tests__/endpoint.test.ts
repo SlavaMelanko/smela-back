@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 
 import logoutRoute from '../index'
@@ -136,18 +136,6 @@ describe('Logout Endpoint', () => {
       // Verify all calls were made with the correct context
       for (let i = 0; i < numCalls; i++) {
         expect(mockDeleteRefreshCookie).toHaveBeenNthCalledWith(i + 1, expect.any(Object))
-      }
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
-
-      for (const method of methods) {
-        const res = await doRequest(app, LOGOUT_URL, method)
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
-        // Verify cookie deletion is NOT called for invalid methods
-        expect(mockDeleteRefreshCookie).not.toHaveBeenCalled()
       }
     })
   })

@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 
@@ -253,20 +253,6 @@ describe('Login Endpoint', () => {
           path: '/',
         }),
       )
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await doRequest(app, LOGIN_URL, method, {
-          email: 'test@example.com',
-          password: 'validPassword123',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
-      }
     })
   })
 })

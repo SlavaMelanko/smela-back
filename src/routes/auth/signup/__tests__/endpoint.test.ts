@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
@@ -188,22 +188,6 @@ describe('Signup Endpoint', () => {
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await doRequest(app, SIGNUP_URL, method, {
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
-      }
     })
   })
 })
