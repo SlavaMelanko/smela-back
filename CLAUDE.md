@@ -306,6 +306,19 @@ await moduleMocker.mock('@/lib/jwt', () => mockJwt)
   - Refresh tokens: 30 days (configurable via COOKIE_REFRESH_TOKEN_EXPIRATION) - Stored in httpOnly cookies
   - Token rotation: New refresh token generated on each use, old token revoked
   - Rationale: Reduces attack surface, aligns with OAuth 2.0 best practices
+- **JWT Secret Rotation Strategy**:
+  - Two-secret pattern: `JWT_SECRET` (current) and `JWT_SECRET_PREVIOUS` (optional)
+  - Signing: Always uses current secret (`JWT_SECRET`)
+  - Verification: Tries current secret first, falls back to previous secret if set
+  - Recommended rotation period: 90 days (2-3x longest token lifetime)
+  - Grace period: 37 days (30 days max refresh token lifetime + 7 day buffer)
+  - Rotation process:
+    1. Generate new secret and set as `JWT_SECRET`
+    2. Move old secret to `JWT_SECRET_PREVIOUS`
+    3. Deploy changes
+    4. Wait grace period (37 days)
+    5. Remove `JWT_SECRET_PREVIOUS`
+  - Zero breaking changes: System works without `JWT_SECRET_PREVIOUS` for backward compatibility
 - Flexible authentication support (cookies for web, Bearer tokens for API/mobile)
 - bcrypt password hashing with configurable salt rounds (default: 10 rounds)
 - Email verification and secure password reset flows
