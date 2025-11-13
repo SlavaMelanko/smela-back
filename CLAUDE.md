@@ -92,6 +92,7 @@ All auth routes accept POST requests:
 - `/api/v1/auth/signup` - User registration
 - `/api/v1/auth/login` - User authentication
 - `/api/v1/auth/logout` - User logout (clears JWT cookie)
+- `/api/v1/auth/refresh-token` - Refresh access token (requires refresh token in cookie)
 - `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
 - `/api/v1/auth/resend-verification-email` - Resend verification email
 - `/api/v1/auth/request-password-reset` - Request password reset
