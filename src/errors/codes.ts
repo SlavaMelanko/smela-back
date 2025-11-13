@@ -1,3 +1,6 @@
+// IMPORTANT: When adding, removing, or updating error codes in this enum,
+// you must also update the httpStatusMap in @/handlers/http-status-mapper.ts
+// to ensure all error codes have corresponding HTTP status mappings
 enum ErrorCode {
   AlreadyVerified = 'auth/already-verified',
   BadCredentials = 'auth/bad-credentials',

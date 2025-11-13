@@ -6,6 +6,8 @@
 | ------ | ---------------------------------------- | ---------------------------------- | -------------- |
 | `POST` | `/api/v1/auth/signup`                    | User registration                  | Public         |
 | `POST` | `/api/v1/auth/login`                     | User login                         | Public         |
+| `POST` | `/api/v1/auth/logout`                    | User logout                        | Public         |
+| `POST` | `/api/v1/auth/refresh-token`             | Refresh access token               | Public         |
 | `POST` | `/api/v1/auth/verify-email`              | Email verification (token in body) | Public         |
 | `POST` | `/api/v1/auth/resend-verification-email` | Resend verification email          | Public         |
 | `POST` | `/api/v1/auth/request-password-reset`    | Request password reset             | Public         |
