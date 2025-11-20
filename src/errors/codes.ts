@@ -3,7 +3,6 @@
 // to ensure all error codes have corresponding HTTP status mappings
 enum ErrorCode {
   AlreadyVerified = 'auth/already-verified',
-  BadCredentials = 'auth/bad-credentials',
   EmailAlreadyInUse = 'auth/email-already-in-use',
   Forbidden = 'auth/unverified-account',
   InvalidCredentials = 'auth/invalid-credentials',
