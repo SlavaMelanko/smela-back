@@ -4,7 +4,6 @@ import { HttpStatus } from '@/net/http'
 const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   // Auth errors
   [ErrorCode.AlreadyVerified]: HttpStatus.BAD_REQUEST,
-  [ErrorCode.BadCredentials]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.EmailAlreadyInUse]: HttpStatus.CONFLICT,
   [ErrorCode.Forbidden]: HttpStatus.FORBIDDEN,
   [ErrorCode.InvalidCredentials]: HttpStatus.UNAUTHORIZED,

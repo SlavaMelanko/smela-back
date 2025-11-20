@@ -54,7 +54,7 @@ const logInWithEmail = async ({ email, password, deviceInfo }: LoginParams) => {
   const isPasswordValid = await comparePasswords(password, auth.passwordHash)
 
   if (!isPasswordValid) {
-    throw new AppError(ErrorCode.BadCredentials)
+    throw new AppError(ErrorCode.InvalidCredentials)
   }
 
   const accessToken = await createAccessToken(user)

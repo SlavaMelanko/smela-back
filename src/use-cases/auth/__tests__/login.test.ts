@@ -167,12 +167,12 @@ describe('Login with Email', () => {
   })
 
   describe('password validation scenarios', () => {
-    it('should throw BadCredentials for incorrect password', async () => {
+    it('should throw InvalidCredentials for incorrect password', async () => {
       mockComparePasswords.mockImplementation(async () => false)
 
       expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
         name: 'AppError',
-        code: ErrorCode.BadCredentials,
+        code: ErrorCode.InvalidCredentials,
       })
     })
 
@@ -181,7 +181,7 @@ describe('Login with Email', () => {
 
       expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
         name: 'AppError',
-        code: ErrorCode.BadCredentials,
+        code: ErrorCode.InvalidCredentials,
       })
     })
 

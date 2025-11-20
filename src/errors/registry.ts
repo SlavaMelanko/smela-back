@@ -9,9 +9,6 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.AlreadyVerified]: {
     error: 'User is already verified.',
   },
-  [ErrorCode.BadCredentials]: {
-    error: 'Invalid email or password.',
-  },
   [ErrorCode.EmailAlreadyInUse]: {
     error: 'Email is already in use.',
   },
@@ -19,7 +16,7 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Unverified account.',
   },
   [ErrorCode.InvalidCredentials]: {
-    error: 'Invalid credentials.',
+    error: 'Invalid email or password.',
   },
   [ErrorCode.Unauthorized]: {
     error: 'Unauthorized access.',
