@@ -34,10 +34,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected')
+      const res = await app.request('/')
 
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED)
       const json = await res.json()
@@ -51,10 +51,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: 'not-bearer-format',
         },
@@ -71,10 +71,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: 'BearerTokenWithoutSpace',
         },
@@ -95,10 +95,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${validToken}`,
         },
@@ -118,10 +118,10 @@ describe('Auth Middleware Factory', () => {
         () => false, // role validator fails
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${validToken}`,
         },
@@ -143,10 +143,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${invalidToken}`,
         },
@@ -168,10 +168,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${expiredToken}`,
         },
@@ -192,10 +192,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success' }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success' }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${tokenWithWrongSecret}`,
         },
@@ -216,10 +216,10 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', c => c.json({ message: 'success', user: c.get('user') }))
+      app.use('/', middleware)
+      app.get('/', c => c.json({ message: 'success', user: c.get('user') }))
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${validToken}`,
         },
@@ -240,8 +240,8 @@ describe('Auth Middleware Factory', () => {
         () => true,
       )
 
-      app.use('/protected', middleware)
-      app.get('/protected', (c) => {
+      app.use('/', middleware)
+      app.get('/', (c) => {
         const user = c.get('user')
 
         return c.json({
@@ -253,7 +253,7 @@ describe('Auth Middleware Factory', () => {
         })
       })
 
-      const res = await app.request('/protected', {
+      const res = await app.request('/', {
         headers: {
           Authorization: `Bearer ${validToken}`,
         },

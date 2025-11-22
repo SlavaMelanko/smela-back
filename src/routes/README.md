@@ -13,18 +13,24 @@
 | `POST` | `/api/v1/auth/request-password-reset`    | Request password reset             | Public         |
 | `POST` | `/api/v1/auth/reset-password`            | Reset password with token          | Public         |
 
-## Protected Routes (Allow New Users)
+## User Routes (Allow New)
 
 | Method | Endpoint               | Description              | Authentication      |
 | ------ | ---------------------- | ------------------------ | ------------------- |
-| `GET`  | `/api/v1/protected/me` | Get current user profile | JWT Required (New+) |
-| `POST` | `/api/v1/protected/me` | Update user profile      | JWT Required (New+) |
+| `GET`  | `/api/v1/user/me` | Get current user profile | JWT Required (New+) |
+| `POST` | `/api/v1/user/me` | Update user profile      | JWT Required (New+) |
 
-## Private Routes (Verified Users Only)
+## User Routes (Verified Only)
 
 | Method | Endpoint | Description     | Authentication           |
 | ------ | -------- | --------------- | ------------------------ |
 | -      | -        | Currently empty | JWT Required (Verified+) |
+
+## Admin Routes
+
+| Method | Endpoint | Description     | Authentication        |
+| ------ | -------- | --------------- | --------------------- |
+| -      | -        | Currently empty | JWT Required (Admin+) |
 
 ## API Testing
 

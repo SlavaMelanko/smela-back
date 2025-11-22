@@ -15,7 +15,7 @@ import meRoute from '../index'
 describe('Me Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  const ME_URL = '/api/v1/protected/me'
+  const ME_URL = '/api/v1/user/me'
 
   let app: Hono
 
@@ -80,7 +80,7 @@ describe('Me Endpoint', () => {
       await next()
     }
 
-    app = createTestApp('/api/v1/protected', meRoute, [userMiddleware])
+    app = createTestApp('/api/v1/user', meRoute, [userMiddleware])
   })
 
   afterEach(async () => {

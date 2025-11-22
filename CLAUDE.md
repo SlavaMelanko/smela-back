@@ -82,8 +82,9 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 
 - Public routes: `/` (currently empty)
 - Auth routes: `/api/v1/auth/*` (login, signup, email verification, resend verification, password reset)
-- Protected routes: `/api/v1/protected/*` (JWT-protected endpoints, allows new users)
-- Private routes: `/api/v1/private/*` (JWT-protected endpoints, requires verified users)
+- User routes: `/api/v1/user/*` (JWT-protected endpoints, allows new users)
+- User verified routes: `/api/v1/user/verified/*` (JWT-protected endpoints, requires verified users)
+- Admin routes: `/api/v1/admin/*` (JWT-protected endpoints, admin roles only)
 
 ### Auth Routes Details
 
@@ -625,8 +626,9 @@ Middleware is applied in this specific order in `server.ts`:
 7. **Auth-specific middleware** (for `/api/v1/auth/*`):
    - Size Limiter: 10KB for auth endpoints
    - Rate Limiter: 5 attempts per 15 minutes
-8. **Protected route auth** (for `/api/v1/protected/*`): JWT validation, allows new users
-9. **Private route auth** (for `/api/v1/private/*`): JWT validation, requires verified users
+8. **User route auth** (for `/api/v1/user/*`): JWT validation, allows new users
+9. **User verified route auth** (for `/api/v1/user/verified/*`): JWT validation, requires verified users
+10. **Admin route auth** (for `/api/v1/admin/*`): JWT validation, admin roles only
 
 ### CORS Configuration
 

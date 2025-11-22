@@ -14,7 +14,7 @@ import {
 } from './auth'
 import { meRoute } from './user'
 
-export const authRoutes = [
+export const authPublicRoutes: Hono<AppContext>[] = [
   loginRoute,
   logoutRoute,
   refreshTokenRoute,
@@ -25,13 +25,8 @@ export const authRoutes = [
   resetPasswordRoute,
 ]
 
-// Routes that allow new users (status: new, verified, trial, active)
-export const protectedRoutesAllowNew = [meRoute]
+export const userRoutesAllowNew: Hono<AppContext>[] = [meRoute]
 
-// Routes that require verified users only (status: verified, trial, active)
-export const protectedRoutesVerifiedOnly: Hono<AppContext>[] = []
+export const userRoutesVerifiedOnly: Hono<AppContext>[] = []
 
-// Routes that require admin privileges (role: admin, owner)
-export const adminRoutes = [meRoute]
-
-export const publicRoutes: Hono<AppContext>[] = []
+export const adminRoutes: Hono<AppContext>[] = []
