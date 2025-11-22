@@ -22,13 +22,6 @@ export class Recaptcha implements Captcha {
     )
   }
 
-  private createBody(token: string): URLSearchParams {
-    return new URLSearchParams({
-      secret: this.config.secret,
-      response: token,
-    })
-  }
-
   async validate(token: string): Promise<void> {
     if (!token || typeof token !== 'string') {
       throw new AppError(ErrorCode.CaptchaInvalidToken)
@@ -45,5 +38,12 @@ export class Recaptcha implements Captcha {
 
       throw new AppError(ErrorCode.CaptchaValidationFailed, message)
     }
+  }
+
+  private createBody(token: string): URLSearchParams {
+    return new URLSearchParams({
+      secret: this.config.secret,
+      response: token,
+    })
   }
 }

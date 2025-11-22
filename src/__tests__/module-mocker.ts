@@ -34,29 +34,6 @@ export class ModuleMocker {
     this.callerPath = path.dirname(new URL(callerUrl).pathname)
   }
 
-  private resolveModulePath(modulePath: string): string {
-    // If path starts with @/ or is absolute, return as-is
-    if (modulePath.startsWith('@/') || path.isAbsolute(modulePath) || !modulePath.startsWith('.')) {
-      return modulePath
-    }
-
-    // For relative paths, resolve them relative to the caller's directory
-    const resolvedPath = path.resolve(this.callerPath, modulePath)
-
-    // Convert to @/ alias path by replacing project root
-    const projectRoot = process.cwd()
-    const srcPath = path.join(projectRoot, 'src')
-
-    if (resolvedPath.startsWith(srcPath)) {
-      const relativePath = path.relative(srcPath, resolvedPath)
-
-      return `@/${relativePath.replace(/\\/g, '/')}` // Normalize path separators
-    }
-
-    // If not in src directory, return the resolved absolute path
-    return resolvedPath
-  }
-
   async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
     const resolvedPath = this.resolveModulePath(modulePath)
     const original = {
@@ -83,5 +60,28 @@ export class ModuleMocker {
     }))
 
     this.mocks = []
+  }
+
+  private resolveModulePath(modulePath: string): string {
+    // If path starts with @/ or is absolute, return as-is
+    if (modulePath.startsWith('@/') || path.isAbsolute(modulePath) || !modulePath.startsWith('.')) {
+      return modulePath
+    }
+
+    // For relative paths, resolve them relative to the caller's directory
+    const resolvedPath = path.resolve(this.callerPath, modulePath)
+
+    // Convert to @/ alias path by replacing project root
+    const projectRoot = process.cwd()
+    const srcPath = path.join(projectRoot, 'src')
+
+    if (resolvedPath.startsWith(srcPath)) {
+      const relativePath = path.relative(srcPath, resolvedPath)
+
+      return `@/${relativePath.replace(/\\/g, '/')}` // Normalize path separators
+    }
+
+    // If not in src directory, return the resolved absolute path
+    return resolvedPath
   }
 }

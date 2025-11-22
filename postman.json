@@ -253,9 +253,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{protected_api_url}}/me",
+					"raw": "{{user_allow_new_api_url}}/me",
 					"host": [
-						"{{protected_api_url}}"
+						"{{user_allow_new_api_url}}"
 					],
 					"path": [
 						"me"
@@ -279,9 +279,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{protected_api_url}}/me",
+					"raw": "{{user_allow_new_api_url}}/me",
 					"host": [
-						"{{protected_api_url}}"
+						"{{user_allow_new_api_url}}"
 					],
 					"path": [
 						"me"
@@ -420,23 +420,6 @@
 					],
 					"path": [
 						"logout"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "admin/me",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{admin_api_url}}/me",
-					"host": [
-						"{{admin_api_url}}"
-					],
-					"path": [
-						"me"
 					]
 				}
 			},
