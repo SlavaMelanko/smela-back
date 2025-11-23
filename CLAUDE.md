@@ -489,6 +489,7 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   - Prefer `export default class MyClass` over `class MyClass` + `export { MyClass as default }`
   - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
   - ESLint rule enforces blank lines between export statements for readability
+- **Class Member Ordering**: Enforced via `@typescript-eslint/member-ordering` (see `eslint.config.mjs` for exact ordering)
 
 #### Comment Formatting Standards
 
