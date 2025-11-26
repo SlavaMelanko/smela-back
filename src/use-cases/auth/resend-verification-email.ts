@@ -29,12 +29,12 @@ const resendVerificationEmail = async ({ email, preferences }: ResendVerificatio
   if (user && user.status === Status.New) {
     const token = await createEmailVerificationToken(user.id)
 
-    emailAgent.sendWelcomeEmail({
-      firstName: user.firstName,
-      email: user.email,
+    emailAgent.sendWelcomeEmail(
+      user.firstName,
+      user.email,
       token,
       preferences,
-    }).catch((error: unknown) => {
+    ).catch((error: unknown) => {
       logger.error({ error }, `Failed to send email verification email to ${user.email}`)
     })
   }

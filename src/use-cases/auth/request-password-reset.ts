@@ -29,12 +29,12 @@ const requestPasswordReset = async ({ email, preferences }: RequestPasswordReset
   if (user && isActive(user.status)) {
     const token = await createPasswordResetToken(user.id)
 
-    emailAgent.sendResetPasswordEmail({
-      firstName: user.firstName,
-      email: user.email,
+    emailAgent.sendResetPasswordEmail(
+      user.firstName,
+      user.email,
       token,
       preferences,
-    }).catch((error: unknown) => {
+    ).catch((error: unknown) => {
       logger.error({ error }, `Failed to send password reset email to ${user.email}`)
     })
   }

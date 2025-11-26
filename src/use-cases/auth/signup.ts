@@ -103,12 +103,12 @@ const signUpWithEmail = async (
   )
 
   // Send welcome email (fire-and-forget, outside transaction)
-  emailAgent.sendWelcomeEmail({
-    firstName: newUser.firstName,
-    email: newUser.email,
-    token: verificationToken,
+  emailAgent.sendWelcomeEmail(
+    newUser.firstName,
+    newUser.email,
+    verificationToken,
     preferences,
-  }).catch((error: unknown) => {
+  ).catch((error: unknown) => {
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })
 
