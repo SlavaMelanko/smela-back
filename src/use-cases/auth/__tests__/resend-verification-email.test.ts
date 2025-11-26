@@ -79,7 +79,7 @@ describe('Resend Verification Email', () => {
 
   describe('when user exists and is not verified', () => {
     it('should replace token with new verification token', async () => {
-      const result = await resendVerificationEmail(mockUser.email)
+      const result = await resendVerificationEmail({ email: mockUser.email })
 
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
@@ -95,7 +95,7 @@ describe('Resend Verification Email', () => {
     })
 
     it('should send a welcome email with the new token', async () => {
-      await resendVerificationEmail(mockUser.email)
+      await resendVerificationEmail({ email: mockUser.email })
 
       expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
         firstName: mockUser.firstName,
@@ -110,7 +110,7 @@ describe('Resend Verification Email', () => {
     it('should return success response to prevent email enumeration', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => null)
 
-      const result = await resendVerificationEmail('nonexistent@example.com')
+      const result = await resendVerificationEmail({ email: 'nonexistent@example.com' })
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -127,7 +127,7 @@ describe('Resend Verification Email', () => {
 
       mockUserRepo.findByEmail.mockImplementation(async () => verifiedUser)
 
-      const result = await resendVerificationEmail(verifiedUser.email)
+      const result = await resendVerificationEmail({ email: verifiedUser.email })
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -144,7 +144,7 @@ describe('Resend Verification Email', () => {
 
       mockUserRepo.findByEmail.mockImplementation(async () => suspendedUser)
 
-      const result = await resendVerificationEmail(suspendedUser.email)
+      const result = await resendVerificationEmail({ email: suspendedUser.email })
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -159,7 +159,7 @@ describe('Resend Verification Email', () => {
       })
 
       try {
-        await resendVerificationEmail(mockUser.email)
+        await resendVerificationEmail({ email: mockUser.email })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -174,7 +174,7 @@ describe('Resend Verification Email', () => {
   describe('edge cases', () => {
     it('should handle email with different cases', async () => {
       const upperCaseEmail = 'JOHN@EXAMPLE.COM'
-      const result = await resendVerificationEmail(upperCaseEmail)
+      const result = await resendVerificationEmail({ email: upperCaseEmail })
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(upperCaseEmail)
       expect(result.data.success).toBe(true)
@@ -193,7 +193,7 @@ describe('Resend Verification Email', () => {
 
         mockUserRepo.findByEmail.mockImplementation(async () => userWithStatus)
 
-        const result = await resendVerificationEmail(userWithStatus.email)
+        const result = await resendVerificationEmail({ email: userWithStatus.email })
 
         expect(result).toEqual({ data: { success: true } })
         expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -208,7 +208,7 @@ describe('Resend Verification Email', () => {
         throw new Error('Email service unavailable')
       })
 
-      const result = await resendVerificationEmail(mockUser.email)
+      const result = await resendVerificationEmail({ email: mockUser.email })
 
       expect(result).toEqual({ data: { success: true } })
 
@@ -224,7 +224,7 @@ describe('Resend Verification Email', () => {
       })
 
       try {
-        await resendVerificationEmail(mockUser.email)
+        await resendVerificationEmail({ email: mockUser.email })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)

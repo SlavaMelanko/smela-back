@@ -1,5 +1,6 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
+import type { UserPreferences } from '@/types'
 
 import { authRepo, db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
@@ -16,6 +17,7 @@ export interface SignupParams {
   email: string
   password: string
   deviceInfo: DeviceInfo
+  preferences?: UserPreferences
 }
 
 const createNewUser = async (
@@ -83,7 +85,7 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
 }
 
 const signUpWithEmail = async (
-  { firstName, lastName, email, password, deviceInfo }: SignupParams,
+  { firstName, lastName, email, password, deviceInfo, preferences }: SignupParams,
 ) => {
   // Check if user exists (outside transaction for fast fail)
   const existingUser = await userRepo.findByEmail(email)
@@ -105,6 +107,7 @@ const signUpWithEmail = async (
     firstName: newUser.firstName,
     email: newUser.email,
     token: verificationToken,
+    preferences,
   }).catch((error: unknown) => {
     logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
   })

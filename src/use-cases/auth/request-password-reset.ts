@@ -1,8 +1,15 @@
+import type { UserPreferences } from '@/types'
+
 import { db, tokenRepo, userRepo } from '@/data'
 import { logger } from '@/logging'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { isActive } from '@/types'
+
+export interface RequestPasswordResetParams {
+  email: string
+  preferences?: UserPreferences
+}
 
 const createPasswordResetToken = async (userId: number) => {
   const { type, token, expiresAt } = generateToken(TokenType.PasswordReset)
@@ -14,7 +21,7 @@ const createPasswordResetToken = async (userId: number) => {
   return token
 }
 
-const requestPasswordReset = async (email: string) => {
+const requestPasswordReset = async ({ email, preferences }: RequestPasswordResetParams) => {
   const user = await userRepo.findByEmail(email)
 
   // Always return success to prevent email enumeration
@@ -26,6 +33,7 @@ const requestPasswordReset = async (email: string) => {
       firstName: user.firstName,
       email: user.email,
       token,
+      preferences,
     }).catch((error: unknown) => {
       logger.error({ error }, `Failed to send password reset email to ${user.email}`)
     })
