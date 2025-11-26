@@ -1,18 +1,13 @@
 import { z } from 'zod'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const resendVerificationEmailSchema = z.object({
   data: z.object({
     email: rules.data.email,
   }).strict(),
-  captcha: z.object({
-    token: rules.captcha.token,
-  }).strict(),
-  preferences: z.object({
-    locale: rules.preferences.locale,
-    theme: rules.preferences.theme,
-  }).optional(),
+  captcha: nested.captcha.strict(),
+  preferences: nested.preferences.optional(),
 }).strict()
 
 export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>

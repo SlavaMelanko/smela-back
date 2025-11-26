@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const signupSchema = z.object({
   data: z.object({
@@ -9,13 +9,8 @@ const signupSchema = z.object({
     email: rules.data.email,
     password: rules.data.password,
   }).strict(),
-  captcha: z.object({
-    token: rules.captcha.token,
-  }).strict(),
-  preferences: z.object({
-    locale: rules.preferences.locale,
-    theme: rules.preferences.theme,
-  }).optional(),
+  captcha: nested.captcha.strict(),
+  preferences: nested.preferences.optional(),
 }).strict()
 
 export type SignupBody = z.infer<typeof signupSchema>
