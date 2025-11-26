@@ -78,7 +78,7 @@ describe('Request Password Reset', () => {
 
   describe('successful password reset request', () => {
     it('should replace token and send reset email', async () => {
-      const result = await requestPasswordReset(mockUser.email)
+      const result = await requestPasswordReset({ email: mockUser.email })
 
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
@@ -92,11 +92,12 @@ describe('Request Password Reset', () => {
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
       // Send reset email
-      expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith({
-        firstName: mockUser.firstName,
-        email: mockUser.email,
-        token: mockTokenString,
-      })
+      expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith(
+        mockUser.firstName,
+        mockUser.email,
+        mockTokenString,
+        undefined,
+      )
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ data: { success: true } })
@@ -105,7 +106,7 @@ describe('Request Password Reset', () => {
     it('should return success when user not found', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => null)
 
-      const result = await requestPasswordReset('nonexistent@example.com')
+      const result = await requestPasswordReset({ email: 'nonexistent@example.com' })
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -121,7 +122,7 @@ describe('Request Password Reset', () => {
         const inactiveUser = { ...mockUser, status }
         mockUserRepo.findByEmail.mockImplementation(async () => inactiveUser)
 
-        const result = await requestPasswordReset(mockUser.email)
+        const result = await requestPasswordReset({ email: mockUser.email })
 
         expect(result).toEqual({ data: { success: true } })
         expect(mockTokenRepo.replace).not.toHaveBeenCalled()
@@ -138,7 +139,7 @@ describe('Request Password Reset', () => {
       })
 
       try {
-        await requestPasswordReset(mockUser.email)
+        await requestPasswordReset({ email: mockUser.email })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -156,7 +157,7 @@ describe('Request Password Reset', () => {
         throw new Error('Email service unavailable')
       })
 
-      const result = await requestPasswordReset(mockUser.email)
+      const result = await requestPasswordReset({ email: mockUser.email })
 
       expect(result).toEqual({ data: { success: true } })
 

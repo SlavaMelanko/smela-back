@@ -70,9 +70,11 @@ describe('Login Endpoint', () => {
   describe('POST /auth/login', () => {
     it('should set cookie and return user/token on successful login', async () => {
       const res = await post(app, LOGIN_URL, {
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        captchaToken: VALID_CAPTCHA_TOKEN,
+        data: {
+          email: 'test@example.com',
+          password: 'ValidPass123!',
+        },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
       expect(res.status).toBe(HttpStatus.OK)
@@ -126,9 +128,11 @@ describe('Login Endpoint', () => {
       })
 
       const res = await post(app, '/api/v1/auth/login', {
-        email: 'test@example.com',
-        password: 'WrongPass123!',
-        captchaToken: VALID_CAPTCHA_TOKEN,
+        data: {
+          email: 'test@example.com',
+          password: 'WrongPass123!',
+        },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -143,21 +147,22 @@ describe('Login Endpoint', () => {
     it('should validate required fields', async () => {
       const invalidRequests = [
         // Email validation
-        { name: 'empty email', body: { email: '', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'invalid email format', body: { email: 'invalid', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'incomplete email', body: { email: 'test@', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'email missing local part', body: { email: '@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'empty email', body: { data: { email: '', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'invalid email format', body: { data: { email: 'invalid', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'incomplete email', body: { data: { email: 'test@', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'email missing local part', body: { data: { email: '@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
 
         // Password validation
-        { name: 'empty password', body: { email: 'test@example.com', password: '', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'short password', body: { email: 'test@example.com', password: '123', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'password without numbers', body: { email: 'test@example.com', password: 'NoNumbers!', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'password without special chars', body: { email: 'test@example.com', password: 'NoSpecial123', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'empty password', body: { data: { email: 'test@example.com', password: '' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'short password', body: { data: { email: 'test@example.com', password: '123' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'password without numbers', body: { data: { email: 'test@example.com', password: 'NoNumbers!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'password without special chars', body: { data: { email: 'test@example.com', password: 'NoSpecial123' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
 
         // Missing fields
-        { name: 'missing password', body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'missing email', body: { password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
-        { name: 'missing both email and password', body: { captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'missing password', body: { data: { email: 'test@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing email', body: { data: { password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing both email and password', body: { data: {}, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing data object', body: { captcha: { token: VALID_CAPTCHA_TOKEN } } },
         { name: 'missing all fields', body: {} },
       ]
 
@@ -174,7 +179,7 @@ describe('Login Endpoint', () => {
 
     it('should handle malformed requests', async () => {
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', password: 'ValidPass123!', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'missing Content-Type', headers: {}, body: { data: { email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: undefined },
       ]
@@ -194,9 +199,11 @@ describe('Login Endpoint', () => {
       })
 
       const res = await post(app, '/api/v1/auth/login', {
-        email: 'inactive@example.com',
-        password: 'ValidPass123!',
-        captchaToken: VALID_CAPTCHA_TOKEN,
+        data: {
+          email: 'inactive@example.com',
+          password: 'ValidPass123!',
+        },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -228,9 +235,11 @@ describe('Login Endpoint', () => {
       })
 
       const res = await post(app, LOGIN_URL, {
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        captchaToken: VALID_CAPTCHA_TOKEN,
+        data: {
+          email: 'test@example.com',
+          password: 'ValidPass123!',
+        },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
       expect(res.status).toBe(HttpStatus.OK)

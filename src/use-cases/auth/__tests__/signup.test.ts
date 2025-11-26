@@ -213,11 +213,12 @@ describe('Signup with Email', () => {
     it('should send welcome email with verification token', async () => {
       await signUpWithEmail(mockSignupParams)
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: mockNewUser.firstName,
-        email: mockNewUser.email,
-        token: mockTokenString,
-      })
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+        mockNewUser.firstName,
+        mockNewUser.email,
+        mockTokenString,
+        undefined,
+      )
       expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
 
@@ -444,11 +445,12 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: 'Al',
-        email: mockSignupParams.email,
-        token: mockTokenString,
-      })
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+        'Al',
+        mockSignupParams.email,
+        mockTokenString,
+        undefined,
+      )
     })
 
     it('should always assign user role regardless of input', async () => {

@@ -6,5 +6,3 @@ export interface UserPreferences {
   locale: SupportedLocale
   theme: Theme
 }
-
-export default UserPreferences

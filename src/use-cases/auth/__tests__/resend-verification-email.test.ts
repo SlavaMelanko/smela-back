@@ -97,11 +97,12 @@ describe('Resend Verification Email', () => {
     it('should send a welcome email with the new token', async () => {
       await resendVerificationEmail({ email: mockUser.email })
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: mockUser.firstName,
-        email: mockUser.email,
-        token: mockTokenString,
-      })
+      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+        mockUser.firstName,
+        mockUser.email,
+        mockTokenString,
+        undefined,
+      )
       expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
     })
   })
