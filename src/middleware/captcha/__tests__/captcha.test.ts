@@ -7,6 +7,7 @@ import { onError } from '@/handlers'
 import { HttpStatus } from '@/net/http'
 
 import captchaMiddleware from '../captcha'
+import { invalidCaptchaTokens } from './captcha.mock'
 
 describe('Captcha Middleware', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -37,7 +38,7 @@ describe('Captcha Middleware', () => {
       const response = await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'valid-token-123' }),
+        body: JSON.stringify({ captcha: { token: 'valid-token-123' } }),
       })
 
       expect(response.status).toBe(HttpStatus.OK)
@@ -57,7 +58,7 @@ describe('Captcha Middleware', () => {
       await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'test-token', otherField: 'data' }),
+        body: JSON.stringify({ captcha: { token: 'test-token' }, otherField: 'data' }),
       })
 
       expect(mockCaptchaValidate).toHaveBeenCalledWith('test-token')
@@ -90,7 +91,7 @@ describe('Captcha Middleware', () => {
       const response = await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'invalid-token' }),
+        body: JSON.stringify({ captcha: { token: 'invalid-token' } }),
       })
 
       expect(response.status).toBe(HttpStatus.BAD_REQUEST)
@@ -107,7 +108,7 @@ describe('Captcha Middleware', () => {
       const response = await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'invalid-token' }),
+        body: JSON.stringify({ captcha: { token: 'invalid-token' } }),
       })
 
       const json = await response.json()
@@ -129,7 +130,7 @@ describe('Captcha Middleware', () => {
       await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'invalid-token' }),
+        body: JSON.stringify({ captcha: { token: 'invalid-token' } }),
       })
 
       expect(mockHandler).not.toHaveBeenCalled()
@@ -162,29 +163,15 @@ describe('Captcha Middleware', () => {
       const response = await app.request('/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'any-token' }),
+        body: JSON.stringify({ captcha: { token: 'any-token' } }),
       })
 
       expect(response.status).toBe(HttpStatus.BAD_REQUEST)
+      expect(mockCaptchaValidate).toHaveBeenCalledTimes(1)
 
       const json = await response.json()
       expect(json).toHaveProperty('code', ErrorCode.CaptchaValidationFailed)
       expect(json).toHaveProperty('error')
-    })
-
-    it('should log unexpected errors', async () => {
-      const app = new Hono()
-      app.onError(onError)
-      app.use('*', captchaMiddleware())
-      app.post('/test', c => c.json({ success: true }))
-
-      await app.request('/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: 'any-token' }),
-      })
-
-      expect(mockCaptchaValidate).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -203,51 +190,21 @@ describe('Captcha Middleware', () => {
       await moduleMocker.clear()
     })
 
-    it('should handle empty captcha token', async () => {
-      const app = new Hono()
-      app.onError(onError)
-      app.use('*', captchaMiddleware())
-      app.post('/test', c => c.json({ success: true }))
+    for (const [name, token] of Object.entries(invalidCaptchaTokens)) {
+      it(`should handle ${name} token`, async () => {
+        const app = new Hono()
+        app.onError(onError)
+        app.use('*', captchaMiddleware())
+        app.post('/test', c => c.json({ success: true }))
 
-      await app.request('/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: '' }),
+        await app.request('/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ captcha: { token } }),
+        })
+
+        expect(mockCaptchaValidate).toHaveBeenCalledWith(token)
       })
-
-      expect(mockCaptchaValidate).toHaveBeenCalledWith('')
-    })
-
-    it('should handle very long captcha token', async () => {
-      const longToken = 'a'.repeat(2000)
-      const app = new Hono()
-      app.onError(onError)
-      app.use('*', captchaMiddleware())
-      app.post('/test', c => c.json({ success: true }))
-
-      await app.request('/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: longToken }),
-      })
-
-      expect(mockCaptchaValidate).toHaveBeenCalledWith(longToken)
-    })
-
-    it('should handle special characters in token', async () => {
-      const specialToken = 'token-with-!@#$%^&*()_+={}'
-      const app = new Hono()
-      app.onError(onError)
-      app.use('*', captchaMiddleware())
-      app.post('/test', c => c.json({ success: true }))
-
-      await app.request('/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ captchaToken: specialToken }),
-      })
-
-      expect(mockCaptchaValidate).toHaveBeenCalledWith(specialToken)
-    })
+    }
   })
 })
