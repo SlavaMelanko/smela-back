@@ -26,17 +26,12 @@ export class EmailAgent {
     return EmailAgent.instance
   }
 
-  async sendWelcomeEmail({
-    firstName,
-    email,
-    token,
-    preferences,
-  }: {
-    firstName: string
-    email: string
-    token: string
-    preferences?: UserPreferences
-  }) {
+  async sendWelcomeEmail(
+    firstName: string,
+    email: string,
+    token: string,
+    preferences?: UserPreferences,
+  ) {
     const verificationUrl = `${env.FE_BASE_URL}/verify-email?token=${token}`
 
     await this.service.send(EmailType.WELCOME, email, {
@@ -45,17 +40,12 @@ export class EmailAgent {
     }, preferences)
   }
 
-  async sendResetPasswordEmail({
-    firstName,
-    email,
-    token,
-    preferences,
-  }: {
-    firstName: string
-    email: string
-    token: string
-    preferences?: UserPreferences
-  }) {
+  async sendResetPasswordEmail(
+    firstName: string,
+    email: string,
+    token: string,
+    preferences?: UserPreferences,
+  ) {
     const resetUrl = `${env.FE_BASE_URL}/reset-password?token=${token}`
 
     await this.service.send(EmailType.PASSWORD_RESET, email, {
