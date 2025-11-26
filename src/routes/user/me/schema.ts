@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { dataValidationRules as rules } from '../../@shared'
+import { requestValidationRules as rules } from '../../@shared'
 
 const updateProfileSchema = z.object({
-  firstName: rules.optionalName,
-  lastName: rules.optionalName,
+  firstName: rules.data.optionalName,
+  lastName: rules.data.optionalName,
 })
 
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
