@@ -77,7 +77,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"\",\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"firstName\": \"Slava\",\n        \"email\": \"slava.melanko+3@gmail.com\",\n        \"password\": \"P@ssw0rd!\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -103,7 +103,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"email\": \"slava.melanko+3@gmail.com\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -174,7 +174,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"65598cbd37a40aee901dc4ad8e723a6e8e34644beef62d679a40854e3aa06bb5\"\n}",
+					"raw": "{\n    \"data\": {\n        \"token\": \"2a1ef8755dbd669d6388725d60c72470ef137f93c4cb59acc3e55cb423154084\"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -218,7 +218,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"password\": \"P@ssw0rd!\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"email\": \"slava.melanko+3@gmail.com\",\n        \"password\": \"P@ssw0rd!!\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -271,7 +271,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"lastName\": \"Melanko\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -297,7 +297,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"slava.melanko+3@gmail.com\",\n    \"captchaToken\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"email\": \"slava.melanko+3@gmail.com\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -323,7 +323,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"token\": \"94d58c586dd0fbb301b5250405c55bc2dd084efceb9301735b2136726b440f6a\",\n    \"password\": \"P@ssw0rd!!\"\n}\n",
+					"raw": "{\n    \"data\": {\n        \"token\": \"374bcc07ab0f8849a978d5ba33d49e1958ee720d871918b35b64c2fdc8c6f830\",\n        \"password\": \"P@ssw0rd!!\"\n    }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
