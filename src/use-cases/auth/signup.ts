@@ -31,7 +31,7 @@ const createNewUser = async (
   const newUser = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({
       firstName,
-      ...(lastName && { lastName }),
+      lastName,
       email,
       role: Role.User,
       status: Status.New,

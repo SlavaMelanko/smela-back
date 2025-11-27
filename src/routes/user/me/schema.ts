@@ -6,8 +6,8 @@ const updateProfileSchema = z.object({
   data: z.object({
     firstName: rules.data.optionalName,
     lastName: rules.data.optionalName,
-  }),
-})
+  }).strict(),
+}).strict()
 
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
 
