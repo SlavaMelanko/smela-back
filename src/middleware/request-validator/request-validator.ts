@@ -18,9 +18,9 @@ const makeErrorMessage = (issues: ZodIssue[]): string => {
   return errorMessage
 }
 
-const requestValidator = <T extends ZodSchema, Target extends keyof ValidationTargets>(
+const requestValidator = <Target extends keyof ValidationTargets, Schema extends ZodSchema>(
   target: Target,
-  schema: T,
+  schema: Schema,
 ) =>
   zValidator(target, schema, (result, _c) => {
     if (!result.success) {
