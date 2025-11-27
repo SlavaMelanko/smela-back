@@ -7,11 +7,6 @@ import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, hashToken, TokenType } from '@/security/token'
 
-export interface RefreshTokenParams {
-  refreshToken: string | undefined
-  deviceInfo: DeviceInfo
-}
-
 const validateToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
     throw new AppError(ErrorCode.MissingRefreshToken)
@@ -83,7 +78,10 @@ const validateDevice = (
   }
 }
 
-const refreshAuthTokens = async ({ refreshToken, deviceInfo }: RefreshTokenParams) => {
+const refreshAuthTokens = async (
+  refreshToken: string | undefined,
+  deviceInfo: DeviceInfo,
+) => {
   const { storedToken, hashedToken } = await validateToken(refreshToken)
 
   const user = await userRepo.findById(storedToken.userId)

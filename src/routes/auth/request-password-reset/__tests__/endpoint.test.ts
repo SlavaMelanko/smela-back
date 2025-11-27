@@ -45,10 +45,10 @@ describe('Request Password Reset Endpoint', () => {
       expect(data).toEqual({ success: true })
 
       expect(mockRequestPasswordReset).toHaveBeenCalledTimes(1)
-      expect(mockRequestPasswordReset).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        preferences: undefined,
-      })
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        undefined,
+      )
     })
 
     it('should pass preferences to use-case when provided', async () => {
@@ -60,10 +60,10 @@ describe('Request Password Reset Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.ACCEPTED)
 
-      expect(mockRequestPasswordReset).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        preferences: { locale: 'uk', theme: 'dark' },
-      })
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        { locale: 'uk', theme: 'dark' },
+      )
     })
 
     it('should validate required fields', async () => {

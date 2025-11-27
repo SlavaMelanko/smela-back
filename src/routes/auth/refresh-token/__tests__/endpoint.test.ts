@@ -87,13 +87,10 @@ describe('Refresh Token Endpoint', () => {
       )
 
       expect(mockRefreshAuthTokens).toHaveBeenCalledTimes(1)
-      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
-        refreshToken: 'refresh_token_123',
-        deviceInfo: {
-          ipAddress: null,
-          userAgent: null,
-        },
-      })
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
+        'refresh_token_123',
+        { ipAddress: null, userAgent: null },
+      )
     })
 
     it('should handle missing refresh token cookie', async () => {

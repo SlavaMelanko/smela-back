@@ -45,10 +45,10 @@ describe('Resend Verification Email Endpoint', () => {
       expect(data).toEqual({ success: true })
 
       expect(mockResendVerificationEmail).toHaveBeenCalledTimes(1)
-      expect(mockResendVerificationEmail).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        preferences: undefined,
-      })
+      expect(mockResendVerificationEmail).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        undefined,
+      )
     })
 
     it('should pass preferences to use-case when provided', async () => {
@@ -60,10 +60,10 @@ describe('Resend Verification Email Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.ACCEPTED)
 
-      expect(mockResendVerificationEmail).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        preferences: { locale: 'uk', theme: 'dark' },
-      })
+      expect(mockResendVerificationEmail).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        { locale: 'uk', theme: 'dark' },
+      )
     })
 
     it('should handle errors from resend verification email logic', async () => {

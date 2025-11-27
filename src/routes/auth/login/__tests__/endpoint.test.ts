@@ -112,14 +112,10 @@ describe('Login Endpoint', () => {
 
       // Verify login function was called
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
-      expect(mockLogInWithEmail).toHaveBeenCalledWith({
-        deviceInfo: {
-          ipAddress: null,
-          userAgent: null,
-        },
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-      })
+      expect(mockLogInWithEmail).toHaveBeenCalledWith(
+        { email: 'test@example.com', password: 'ValidPass123!' },
+        { ipAddress: null, userAgent: null },
+      )
     })
 
     it('should handle login errors without setting cookie', async () => {
@@ -213,14 +209,10 @@ describe('Login Endpoint', () => {
 
       // Verify login function was called but failed
       expect(mockLogInWithEmail).toHaveBeenCalledTimes(1)
-      expect(mockLogInWithEmail).toHaveBeenCalledWith({
-        deviceInfo: {
-          ipAddress: null,
-          userAgent: null,
-        },
-        email: 'inactive@example.com',
-        password: 'ValidPass123!',
-      })
+      expect(mockLogInWithEmail).toHaveBeenCalledWith(
+        { email: 'inactive@example.com', password: 'ValidPass123!' },
+        { ipAddress: null, userAgent: null },
+      )
     })
 
     it('should set secure cookie in production environment', async () => {

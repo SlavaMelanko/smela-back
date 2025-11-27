@@ -6,6 +6,10 @@ import { signJwt } from '@/security/jwt'
 import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
 
+export interface VerifyEmailParams {
+  token: string
+}
+
 const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
@@ -37,7 +41,7 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
   return raw
 }
 
-const verifyEmail = async (token: string, deviceInfo: DeviceInfo) => {
+const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo) => {
   const validatedToken = await validateToken(token)
 
   const updatedUser = await db.transaction(async (tx) => {

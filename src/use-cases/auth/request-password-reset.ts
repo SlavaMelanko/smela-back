@@ -8,7 +8,6 @@ import { isActive } from '@/types'
 
 export interface RequestPasswordResetParams {
   email: string
-  preferences?: UserPreferences
 }
 
 const createPasswordResetToken = async (userId: number) => {
@@ -21,7 +20,10 @@ const createPasswordResetToken = async (userId: number) => {
   return token
 }
 
-const requestPasswordReset = async ({ email, preferences }: RequestPasswordResetParams) => {
+const requestPasswordReset = async (
+  { email }: RequestPasswordResetParams,
+  preferences?: UserPreferences,
+) => {
   const user = await userRepo.findByEmail(email)
 
   // Always return success to prevent email enumeration

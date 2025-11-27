@@ -8,7 +8,6 @@ import { Status } from '@/types'
 
 export interface ResendVerificationEmailParams {
   email: string
-  preferences?: UserPreferences
 }
 
 const createEmailVerificationToken = async (userId: number) => {
@@ -21,7 +20,10 @@ const createEmailVerificationToken = async (userId: number) => {
   return token
 }
 
-const resendVerificationEmail = async ({ email, preferences }: ResendVerificationEmailParams) => {
+const resendVerificationEmail = async (
+  { email }: ResendVerificationEmailParams,
+  preferences?: UserPreferences,
+) => {
   const user = await userRepo.findByEmail(email)
 
   // Always return success to prevent email enumeration

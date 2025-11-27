@@ -103,17 +103,11 @@ describe('Signup Endpoint', () => {
       expect(mockSetRefreshCookie).toHaveBeenCalledWith(expect.any(Object), 'refresh-token-123')
 
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
-      expect(mockSignUpWithEmail).toHaveBeenCalledWith({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        deviceInfo: {
-          ipAddress: '192.168.1.1',
-          userAgent: 'Mozilla/5.0 (Test)',
-        },
-        preferences: undefined,
-      })
+      expect(mockSignUpWithEmail).toHaveBeenCalledWith(
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' },
+        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
+        undefined,
+      )
     })
 
     it('should pass preferences to use-case when provided', async () => {
@@ -132,17 +126,11 @@ describe('Signup Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.CREATED)
 
-      expect(mockSignUpWithEmail).toHaveBeenCalledWith({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        password: 'ValidPass123!',
-        deviceInfo: {
-          ipAddress: '192.168.1.1',
-          userAgent: 'Mozilla/5.0 (Test)',
-        },
-        preferences: { locale: 'uk', theme: 'dark' },
-      })
+      expect(mockSignUpWithEmail).toHaveBeenCalledWith(
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' },
+        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
+        { locale: 'uk', theme: 'dark' },
+      )
     })
 
     it('should validate required field formats', async () => {

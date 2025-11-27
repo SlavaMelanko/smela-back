@@ -7,14 +7,11 @@ const refreshTokenHandler = async (c: Context) => {
   const refreshToken = getRefreshCookie(c)
   const deviceInfo = getDeviceInfo(c)
 
-  const { data, refreshToken: newRefreshToken } = await refreshAuthTokens({
-    refreshToken,
-    deviceInfo,
-  })
+  const result = await refreshAuthTokens(refreshToken, deviceInfo)
 
-  setRefreshCookie(c, newRefreshToken)
+  setRefreshCookie(c, result.refreshToken)
 
-  return c.json(data, HttpStatus.OK)
+  return c.json(result.data, HttpStatus.OK)
 }
 
 export default refreshTokenHandler

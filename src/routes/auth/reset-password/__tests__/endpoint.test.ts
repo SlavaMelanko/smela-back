@@ -31,8 +31,10 @@ describe('Reset Password Endpoint', () => {
   })
 
   const validPayload = {
-    token: '1'.repeat(TOKEN_LENGTH),
-    password: 'NewSecure@123',
+    data: {
+      token: '1'.repeat(TOKEN_LENGTH),
+      password: 'NewSecure@123',
+    },
   }
 
   describe('POST /auth/reset-password', () => {
@@ -45,8 +47,8 @@ describe('Reset Password Endpoint', () => {
       expect(data).toEqual({ success: true })
 
       expect(mockResetPassword).toHaveBeenCalledWith({
-        token: validPayload.token,
-        password: validPayload.password,
+        token: validPayload.data.token,
+        password: validPayload.data.password,
       })
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
     })
@@ -70,11 +72,11 @@ describe('Reset Password Endpoint', () => {
       ]
 
       for (const testCase of invalidTokens) {
-        const payload: any = { ...validPayload }
+        const payload: any = { data: { ...validPayload.data } }
         if (testCase.token !== null) {
-          payload.token = testCase.token
+          payload.data.token = testCase.token
         } else {
-          delete payload.token
+          delete payload.data.token
         }
 
         const res = await post(app, RESET_PASSWORD_URL, payload)
@@ -94,11 +96,11 @@ describe('Reset Password Endpoint', () => {
       ]
 
       for (const testCase of invalidPasswords) {
-        const payload: any = { ...validPayload }
+        const payload: any = { data: { ...validPayload.data } }
         if (testCase.password !== null) {
-          payload.password = testCase.password
+          payload.data.password = testCase.password
         } else {
-          delete payload.password
+          delete payload.data.password
         }
 
         const res = await post(app, RESET_PASSWORD_URL, payload)

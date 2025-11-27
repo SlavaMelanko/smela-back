@@ -7,14 +7,14 @@ import verifyEmail from '@/use-cases/auth/verify-email'
 import type { VerifyEmailBody } from './schema'
 
 const verifyEmailHandler = async (c: Context) => {
-  const { token } = await c.req.json<VerifyEmailBody>()
+  const payload = await c.req.json<VerifyEmailBody>()
   const deviceInfo = getDeviceInfo(c)
 
-  const { data, refreshToken } = await verifyEmail(token, deviceInfo)
+  const result = await verifyEmail(payload.data, deviceInfo)
 
-  setRefreshCookie(c, refreshToken)
+  setRefreshCookie(c, result.refreshToken)
 
-  return c.json(data, HttpStatus.OK)
+  return c.json(result.data, HttpStatus.OK)
 }
 
 export default verifyEmailHandler

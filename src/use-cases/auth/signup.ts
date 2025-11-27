@@ -16,8 +16,6 @@ export interface SignupParams {
   lastName?: string
   email: string
   password: string
-  deviceInfo: DeviceInfo
-  preferences?: UserPreferences
 }
 
 const createNewUser = async (
@@ -33,7 +31,7 @@ const createNewUser = async (
   const newUser = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({
       firstName,
-      lastName,
+      ...(lastName && { lastName }),
       email,
       role: Role.User,
       status: Status.New,
@@ -85,7 +83,9 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
 }
 
 const signUpWithEmail = async (
-  { firstName, lastName, email, password, deviceInfo, preferences }: SignupParams,
+  { firstName, lastName, email, password }: SignupParams,
+  deviceInfo: DeviceInfo,
+  preferences?: UserPreferences,
 ) => {
   // Check if user exists (outside transaction for fast fail)
   const existingUser = await userRepo.findByEmail(email)
