@@ -1,4 +1,4 @@
-import type { Theme } from '../types'
+import type { Theme } from '@/types'
 
 import { get } from './mixins'
 import { color } from './themes'

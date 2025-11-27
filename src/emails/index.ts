@@ -1,3 +1,5 @@
+export type { Metadata } from './metadata'
+
 export * from './renderers'
 
-export type { Metadata, UserPreferences } from './types'
+export type { UserPreferences } from '@/types'

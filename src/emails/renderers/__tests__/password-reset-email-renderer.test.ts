@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 
-import type { Metadata, UserPreferences } from '../../../emails/types'
+import type { UserPreferences } from '@/types'
+
+import type { Metadata } from '../../metadata'
 import type { PasswordResetEmailData } from '../email-renderer-password-reset'
 
 import PasswordResetEmailRenderer from '../email-renderer-password-reset'

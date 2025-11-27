@@ -1,4 +1,4 @@
-import type { Theme } from '../types'
+import type { Theme } from '@/types'
 
 import { color } from './themes'
 import { font } from './variables'

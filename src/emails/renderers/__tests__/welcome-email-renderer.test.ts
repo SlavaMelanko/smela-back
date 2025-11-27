@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 
-import type { Metadata, UserPreferences } from '../../../emails/types'
+import type { UserPreferences } from '@/types'
+
+import type { Metadata } from '../../metadata'
 import type { WelcomeEmailData } from '../email-renderer-welcome'
 
 import WelcomeEmailRenderer from '../email-renderer-welcome'
