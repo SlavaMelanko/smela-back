@@ -6,8 +6,8 @@ import {
 } from '@react-email/components'
 
 import type { WelcomeEmailContent } from '../content'
+import type { Metadata } from '../metadata'
 import type { ThemeStyles } from '../styles'
-import type { Metadata } from '../types'
 
 import getContent from '../content'
 import { getThemeStyles } from '../styles'
