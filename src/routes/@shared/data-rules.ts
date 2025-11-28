@@ -6,7 +6,7 @@ import { Role } from '@/types'
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
-export const dataValidationRules = {
+export const dataRules = {
   email: z
     .string()
     .transform(normalizeEmail)
@@ -22,11 +22,15 @@ export const dataValidationRules = {
         'Minimum eight characters, at least one letter, one number and one special character',
     }),
 
-  name: z.string().min(2).max(50),
+  // Required for signup, add .optional() for updates
+  firstName: z.string().trim().min(2).max(50),
 
-  optionalName: z.string().min(2).max(50).nullable().optional().transform((val) => {
-    return val === null ? undefined : val
-  }),
+  // Normalizes null/'' → "", valid string → trimmed
+  // undefined means "don't touch the field"
+  lastName: z.preprocess(
+    val => (val === null || val === '') ? '' : val,
+    z.union([z.literal(''), z.string().trim().min(2).max(50)]),
+  ),
 
   role: z.nativeEnum(Role),
 
@@ -34,10 +38,4 @@ export const dataValidationRules = {
     TOKEN_LENGTH,
     `Token must be exactly ${TOKEN_LENGTH} characters long`,
   ),
-
-  captchaToken: z.string()
-    .min(1, 'reCAPTCHA token is required')
-    .min(20, 'reCAPTCHA token is too short')
-    .max(2000, 'reCAPTCHA token is too long')
-    .regex(/^[\w-]+$/, 'reCAPTCHA token contains invalid characters'),
 }

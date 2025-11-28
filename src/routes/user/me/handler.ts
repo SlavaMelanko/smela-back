@@ -7,23 +7,21 @@ import { getUser, updateUser } from '@/use-cases/user/me'
 import type { UpdateProfileBody } from './schema'
 
 const getHandler = async (c: Context<AppContext>) => {
-  const userContext = c.get('user')
+  const user = c.get('user')
 
-  const { data } = await getUser(userContext.id)
+  const result = await getUser(user.id)
 
-  return c.json(data)
+  return c.json(result.data)
 }
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
-  const { firstName, lastName } = await c.req.json<UpdateProfileBody>()
+  // @ts-expect-error Hono validation type inference
+  const payload = c.req.valid('json') as UpdateProfileBody
 
-  const { data } = await updateUser(user.id, {
-    firstName: firstName ?? undefined,
-    lastName: lastName ?? undefined,
-  })
+  const result = await updateUser(user.id, payload.data)
 
-  return c.json(data)
+  return c.json(result.data)
 }
 
 export { getHandler, postHandler }

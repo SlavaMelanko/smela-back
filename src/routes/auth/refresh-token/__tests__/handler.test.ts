@@ -77,13 +77,10 @@ describe('Refresh Token Handler', () => {
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
       expect(mockGetDeviceInfo).toHaveBeenCalledWith(mockContext)
-      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
-        refreshToken: mockRefreshToken,
-        deviceInfo: {
-          ipAddress: '192.168.1.1',
-          userAgent: 'Mozilla/5.0 (Test)',
-        },
-      })
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
+        mockRefreshToken,
+        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
+      )
       expect(mockSetRefreshCookie).toHaveBeenCalledWith(mockContext, 'new_refresh_token_456')
       expect(mockJson).toHaveBeenCalledWith({
         user: {
@@ -109,13 +106,10 @@ describe('Refresh Token Handler', () => {
 
       const result = await refreshTokenHandler(mockContext)
 
-      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
-        refreshToken: mockRefreshToken,
-        deviceInfo: {
-          ipAddress: null,
-          userAgent: null,
-        },
-      })
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
+        mockRefreshToken,
+        { ipAddress: null, userAgent: null },
+      )
       expect(result.status).toBe(HttpStatus.OK)
     })
   })
@@ -130,13 +124,10 @@ describe('Refresh Token Handler', () => {
       expect(refreshTokenHandler(mockContext)).rejects.toThrow('Missing refresh token')
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
-      expect(mockRefreshAuthTokens).toHaveBeenCalledWith({
-        refreshToken: undefined,
-        deviceInfo: {
-          ipAddress: '192.168.1.1',
-          userAgent: 'Mozilla/5.0 (Test)',
-        },
-      })
+      expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
+        undefined,
+        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
+      )
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()
       expect(mockJson).not.toHaveBeenCalled()
     })

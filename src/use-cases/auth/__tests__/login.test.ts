@@ -14,6 +14,7 @@ describe('Login with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockLoginParams: LoginParams
+  let mockDeviceInfo: { ipAddress: string, userAgent: string }
 
   let mockUser: User
   let mockUserRepo: any
@@ -32,10 +33,10 @@ describe('Login with Email', () => {
     mockLoginParams = {
       email: 'test@example.com',
       password: 'ValidPass123!',
-      deviceInfo: {
-        ipAddress: '192.168.1.1',
-        userAgent: 'Mozilla/5.0 (Test)',
-      },
+    }
+    mockDeviceInfo = {
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla/5.0 (Test)',
     }
 
     mockUser = {
@@ -104,7 +105,7 @@ describe('Login with Email', () => {
 
   describe('successful login', () => {
     it('should return user and token for valid credentials', async () => {
-      const result = await logInWithEmail(mockLoginParams)
+      const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
@@ -119,7 +120,7 @@ describe('Login with Email', () => {
 
       mockUserRepo.findByEmail.mockImplementation(async () => adminUser)
 
-      const result = await logInWithEmail(mockLoginParams)
+      const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
       expect(result.data.user.role).toBe(Role.Admin)
     })
   })
@@ -128,7 +129,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when user does not exist', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => null)
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -138,7 +139,10 @@ describe('Login with Email', () => {
       const upperCaseEmail = mockLoginParams.email.toUpperCase()
 
       // Should still work with different case
-      const result = await logInWithEmail({ ...mockLoginParams, email: upperCaseEmail })
+      const result = await logInWithEmail(
+        { ...mockLoginParams, email: upperCaseEmail },
+        mockDeviceInfo,
+      )
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
     })
@@ -148,7 +152,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials when auth record not found', async () => {
       mockAuthRepo.findById.mockImplementation(async () => null)
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -159,7 +163,7 @@ describe('Login with Email', () => {
         async () => ({ ...mockAuthRecord, passwordHash: null }),
       )
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -170,7 +174,7 @@ describe('Login with Email', () => {
     it('should throw InvalidCredentials for incorrect password', async () => {
       mockComparePasswords.mockImplementation(async () => false)
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toMatchObject({
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -179,7 +183,7 @@ describe('Login with Email', () => {
     it('should handle empty password input', async () => {
       mockComparePasswords.mockImplementation(async () => false)
 
-      expect(logInWithEmail({ ...mockLoginParams, password: '' })).rejects.toMatchObject({
+      expect(logInWithEmail({ ...mockLoginParams, password: '' }, mockDeviceInfo)).rejects.toMatchObject({
         name: 'AppError',
         code: ErrorCode.InvalidCredentials,
       })
@@ -190,7 +194,7 @@ describe('Login with Email', () => {
         throw new Error('Password comparison failed')
       })
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toThrow(
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toThrow(
         'Password comparison failed',
       )
     })
@@ -202,7 +206,7 @@ describe('Login with Email', () => {
         throw new Error('JWT signing failed')
       })
 
-      expect(logInWithEmail(mockLoginParams)).rejects.toThrow('JWT signing failed')
+      expect(logInWithEmail(mockLoginParams, mockDeviceInfo)).rejects.toThrow('JWT signing failed')
     })
   })
 
@@ -232,7 +236,7 @@ describe('Login with Email', () => {
 
     testCases.forEach(({ name, params }) => {
       it(`should handle ${name}`, async () => {
-        const result = await logInWithEmail({ ...mockLoginParams, ...params })
+        const result = await logInWithEmail({ ...mockLoginParams, ...params }, mockDeviceInfo)
         expect(result).toHaveProperty('data')
         expect(result).toHaveProperty('refreshToken')
       })
@@ -246,7 +250,7 @@ describe('Login with Email', () => {
       })
 
       try {
-        await logInWithEmail(mockLoginParams)
+        await logInWithEmail(mockLoginParams, mockDeviceInfo)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -260,7 +264,7 @@ describe('Login with Email', () => {
       })
 
       try {
-        await logInWithEmail(mockLoginParams)
+        await logInWithEmail(mockLoginParams, mockDeviceInfo)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -274,7 +278,7 @@ describe('Login with Email', () => {
       )
 
       try {
-        await logInWithEmail(mockLoginParams)
+        await logInWithEmail(mockLoginParams, mockDeviceInfo)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -285,7 +289,7 @@ describe('Login with Email', () => {
 
   describe('data consistency and normalization', () => {
     it('should ensure user normalization removes sensitive fields', async () => {
-      const result = await logInWithEmail(mockLoginParams)
+      const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user).toHaveProperty('id')
@@ -303,7 +307,7 @@ describe('Login with Email', () => {
         const userWithRole = { ...mockUser, role }
         mockUserRepo.findByEmail.mockImplementation(async () => userWithRole)
 
-        const result = await logInWithEmail(mockLoginParams)
+        const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
         expect(result.data.user.role).toBe(role)
       }
     })
@@ -315,7 +319,7 @@ describe('Login with Email', () => {
         const userWithStatus = { ...mockUser, status }
         mockUserRepo.findByEmail.mockImplementation(async () => userWithStatus)
 
-        await logInWithEmail(mockLoginParams)
+        await logInWithEmail(mockLoginParams, mockDeviceInfo)
         // Test passes if no error is thrown
       }
     })

@@ -8,7 +8,9 @@ import { AppError, ErrorCode } from '@/errors'
 import { createCaptchaVerifier } from '@/services'
 
 interface CaptchaRequestBody {
-  captchaToken: string
+  captcha: {
+    token: string
+  }
 }
 
 /**
@@ -17,7 +19,7 @@ interface CaptchaRequestBody {
  * Validates CAPTCHA token from request body using the CAPTCHA service.
  * Should be applied after request validation but before the main handler.
  *
- * Expects `captchaToken` to be present in the validated request body.
+ * Expects `captcha.token` to be present in the validated request body.
  */
 const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
   const captchaVerifier = createCaptchaVerifier()
@@ -25,10 +27,10 @@ const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
   return createMiddleware<AppContext>(async (c, next) => {
     try {
       // At this point, the request has already been validated by requestValidator
-      // So we know captchaToken exists and is properly formatted
-      const { captchaToken } = await c.req.json<CaptchaRequestBody>()
+      // So we know captcha.token exists and is properly formatted
+      const { captcha } = await c.req.json<CaptchaRequestBody>()
 
-      await captchaVerifier.validate(captchaToken)
+      await captchaVerifier.validate(captcha.token)
     } catch (error) {
       if (error instanceof AppError) {
         throw error

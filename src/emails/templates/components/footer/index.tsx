@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
 
+import type { Metadata } from '../../../metadata'
 import type { ThemeStyles } from '../../../styles'
-import type { Metadata } from '../../../types'
 
 import { config } from '../../../config'
 import { getThemeStyles } from '../../../styles'

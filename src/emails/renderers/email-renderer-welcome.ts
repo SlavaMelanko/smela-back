@@ -1,4 +1,6 @@
-import type { Metadata, UserPreferences } from '../types'
+import type { UserPreferences } from '@/types'
+
+import type { Metadata } from '../metadata'
 import type { EmailRenderer, RenderedEmail } from './email-renderer'
 
 import getContent from '../content'

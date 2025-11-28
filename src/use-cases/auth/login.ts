@@ -10,7 +10,6 @@ import { generateHashedToken, TokenType } from '@/security/token'
 export interface LoginParams {
   email: string
   password: string
-  deviceInfo: DeviceInfo
 }
 
 const createAccessToken = async (user: User) => signJwt(
@@ -38,7 +37,10 @@ const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
   return raw
 }
 
-const logInWithEmail = async ({ email, password, deviceInfo }: LoginParams) => {
+const logInWithEmail = async (
+  { email, password }: LoginParams,
+  deviceInfo: DeviceInfo,
+) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {

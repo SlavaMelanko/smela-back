@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
-import { dataValidationRules as rules } from '../../@shared'
+import { requestValidationRules as rules } from '../../@shared'
 
 const verifyEmailSchema = z.object({
-  token: rules.securityToken,
+  data: z.object({
+    token: rules.data.securityToken,
+  }).strict(),
 }).strict()
 
 export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>

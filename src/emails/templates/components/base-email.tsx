@@ -8,8 +8,8 @@ import {
   Preview,
 } from '@react-email/components'
 
+import type { Metadata } from '../../metadata'
 import type { ThemeStyles } from '../../styles'
-import type { Metadata } from '../../types'
 
 import { Footer, Header } from '.'
 import { getThemeStyles } from '../../styles'
