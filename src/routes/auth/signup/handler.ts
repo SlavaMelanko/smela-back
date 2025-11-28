@@ -6,7 +6,8 @@ import signUpWithEmail from '@/use-cases/auth/signup'
 import type { SignupBody } from './schema'
 
 const signupHandler = async (c: Context) => {
-  const payload = await c.req.json<SignupBody>()
+  // @ts-expect-error Hono validation type inference
+  const payload = c.req.valid('json') as SignupBody
   const deviceInfo = getDeviceInfo(c)
 
   const result = await signUpWithEmail(

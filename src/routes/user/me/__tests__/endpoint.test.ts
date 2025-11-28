@@ -311,19 +311,19 @@ describe('Me Endpoint', () => {
       expect(updateUser).toHaveBeenCalledWith(1, {})
     })
 
-    it('should handle null values properly', async () => {
-      const res = await post(app, ME_URL, { data: { firstName: 'Jane', lastName: null } }, { // lastName is null
+    it('should normalize null lastName to empty string', async () => {
+      const res = await post(app, ME_URL, { data: { firstName: 'Jane', lastName: null } }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
 
       expect(res.status).toBe(HttpStatus.OK)
 
-      // Verify updateUser was called with both fields
+      // Verify updateUser was called with lastName normalized to ""
       const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
         firstName: 'Jane',
-        lastName: null,
+        lastName: '',
       })
     })
 
@@ -357,45 +357,18 @@ describe('Me Endpoint', () => {
       expect(data.error).toBe('[data.firstName]: string must contain at least 2 character(s)')
     })
 
-    it('should handle whitespace-only strings as empty', async () => {
-      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
-        const validUpdates: any = {}
-        if (updates.firstName && updates.firstName.trim()) {
-          validUpdates.firstName = updates.firstName.trim()
-        }
-        if (updates.lastName && updates.lastName.trim()) {
-          validUpdates.lastName = updates.lastName.trim()
-        }
-
-        if (Object.keys(validUpdates).length === 0) {
-          // eslint-disable-next-line ts/no-unsafe-return
-          return mockGetUser()
-        }
-
-        return { data: { user: mockUpdatedUser } }
-      })
-
+    it('should reject whitespace-only strings at validation level', async () => {
       const res = await post(app, ME_URL, { data: { firstName: '   ', lastName: 'Smith' } }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
 
-      expect(res.status).toBe(HttpStatus.OK)
-
-      const data = await res.json()
-      // Should update only lastName since firstName is whitespace-only
-      expect(data.user.lastName).toBe('Smith')
-
-      // Verify updateUser was called with whitespace string (prepareValidUpdates will filter it)
-      const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
-        firstName: '   ',
-        lastName: 'Smith',
-      })
+      // Whitespace-only firstName trims to '' which fails min(2) validation
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST)
     })
 
-    it('should trim valid strings before updating', async () => {
-      const res = await post(app, ME_URL, { data: { firstName: '  Jane  ', lastName: '  Smith  ' } }, { // strings with extra spaces
+    it('should trim valid strings at validation layer', async () => {
+      const res = await post(app, ME_URL, { data: { firstName: '  Jane  ', lastName: '  Smith  ' } }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -406,11 +379,11 @@ describe('Me Endpoint', () => {
       expect(data.user.firstName).toBe('Jane')
       expect(data.user.lastName).toBe('Smith')
 
-      // Verify updateUser was called with untrimmed values (trimming happens inside updateUser)
+      // Verify updateUser was called with already trimmed values (trimming happens at schema layer)
       const { updateUser } = await import('@/use-cases/user/me')
       expect(updateUser).toHaveBeenCalledWith(1, {
-        firstName: '  Jane  ',
-        lastName: '  Smith  ',
+        firstName: 'Jane',
+        lastName: 'Smith',
       })
     })
   })

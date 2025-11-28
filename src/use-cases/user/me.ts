@@ -4,12 +4,9 @@ import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
-  const validUpdates: UpdateUserInput = {
-    ...(updates.firstName && { firstName: updates.firstName.trim() }),
-    ...(updates.lastName && { lastName: updates.lastName.trim() }),
-  }
-
-  return validUpdates
+  return Object.fromEntries(
+    Object.entries(updates).filter(([_, v]) => v !== undefined),
+  ) as UpdateUserInput
 }
 
 export const getUser = async (userId: number) => {

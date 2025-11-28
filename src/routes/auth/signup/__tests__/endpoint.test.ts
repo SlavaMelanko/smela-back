@@ -136,7 +136,7 @@ describe('Signup Endpoint', () => {
     it('should validate required field formats', async () => {
       const invalidData = [
         { data: { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty firstName
-        { data: { firstName: 'John', lastName: '', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty lastName
+        { data: { firstName: 'John', lastName: 'X', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // lastName too short (1 char)
         { data: { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid email format
         { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // password too short
         { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // password missing numbers

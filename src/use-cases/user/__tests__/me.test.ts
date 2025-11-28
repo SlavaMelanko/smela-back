@@ -106,44 +106,22 @@ describe('User Me Use Cases', () => {
       expect(mockUserRepo.findById).toHaveBeenCalledWith(1)
     })
 
-    it('should trim whitespace from names', async () => {
-      const result = await updateUser(1, { firstName: '  Jane  ', lastName: '  Smith  ' })
+    it('should allow clearing lastName with empty string', async () => {
+      // lastName: '' is valid (clears the field)
+      const result = await updateUser(1, { firstName: 'Jane', lastName: '' })
 
       expect(result.data.user.firstName).toBe('Jane')
-      expect(result.data.user.lastName).toBe('Smith')
-      expect(mockUserRepo.update).toHaveBeenCalledWith(1, {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        updatedAt: expect.any(Date),
-      })
-    })
-
-    it('should convert whitespace-only values to empty strings', async () => {
-      const result = await updateUser(1, { firstName: '   ', lastName: 'Smith' })
-
-      expect(result.data.user.firstName).toBe('')
-      expect(result.data.user.lastName).toBe('Smith')
-      expect(mockUserRepo.update).toHaveBeenCalledWith(1, {
-        firstName: '',
-        lastName: 'Smith',
-        updatedAt: expect.any(Date),
-      })
-    })
-
-    it('should update with empty strings when all values are whitespace-only', async () => {
-      const result = await updateUser(1, { firstName: '   ', lastName: '   ' })
-
-      expect(result.data.user.firstName).toBe('')
       expect(result.data.user.lastName).toBe('')
       expect(mockUserRepo.update).toHaveBeenCalledWith(1, {
-        firstName: '',
+        firstName: 'Jane',
         lastName: '',
         updatedAt: expect.any(Date),
       })
     })
 
-    it('should ignore empty string values', async () => {
-      const result = await updateUser(1, { firstName: '', lastName: 'Smith' })
+    it('should filter undefined values only', async () => {
+      // undefined = don't touch, empty string = include
+      const result = await updateUser(1, { firstName: undefined, lastName: 'Smith' })
 
       expect(result.data.user.lastName).toBe('Smith')
       expect(mockUserRepo.update).toHaveBeenCalledWith(1, {

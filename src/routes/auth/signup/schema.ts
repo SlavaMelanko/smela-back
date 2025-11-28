@@ -4,8 +4,8 @@ import { nestedSchemas as nested, requestValidationRules as rules } from '../../
 
 const signupSchema = z.object({
   data: z.object({
-    firstName: rules.data.name,
-    lastName: rules.data.optionalName,
+    firstName: rules.data.firstName,
+    lastName: rules.data.lastName.optional(),
     email: rules.data.email,
     password: rules.data.password,
   }).strict(),

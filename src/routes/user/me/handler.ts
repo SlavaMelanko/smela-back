@@ -16,7 +16,8 @@ const getHandler = async (c: Context<AppContext>) => {
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
-  const payload = await c.req.json<UpdateProfileBody>()
+  // @ts-expect-error Hono validation type inference
+  const payload = c.req.valid('json') as UpdateProfileBody
 
   const result = await updateUser(user.id, payload.data)
 
