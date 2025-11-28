@@ -50,7 +50,7 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 
 - `services/` - External service adapters
   - `services/captcha/` - CAPTCHA verification (reCAPTCHA)
-  - `services/email/` - Email providers (Ethereal for dev, Resend for prod)
+  - `services/email/` - Email providers (Ethereal for dev, Resend for prod) + `emails/` - Email templates and rendering (React Email components)
 
 **Key Principle**: Services are "dumb adapters" that don't contain business logic.
 
@@ -96,7 +96,6 @@ The application follows **Layered Architecture** (also known as Onion Architectu
 - `types/` - Shared TypeScript type definitions (HttpStatus, Role, Status, Action, Resource)
 - `utils/` - Generic reusable utilities (async helpers, date utilities)
 - `crypto/` - Low-level cryptographic primitives (hashing, random bytes)
-- `emails/` - Email templates and rendering (React Email components)
 - `logging/` - Core logger configuration (Pino with console transport)
 
 **Key Principle**: Foundation modules are the most stable and reusable parts of the codebase.
@@ -124,7 +123,7 @@ Layer 2 (services, data)
   ↓ can depend on
 Layer 1.5 (net, security)
   ↓ can depend on
-Layer 1 (env, errors, types, utils, crypto, emails, logging)
+Layer 1 (env, errors, types, utils, crypto, logging)
   ↓ can depend on
 External Packages (npm, bun)
 ```
