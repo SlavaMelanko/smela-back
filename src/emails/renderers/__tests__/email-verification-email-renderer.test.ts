@@ -3,14 +3,14 @@ import { describe, expect, it } from 'bun:test'
 import type { UserPreferences } from '@/types'
 
 import type { Metadata } from '../../metadata'
-import type { WelcomeEmailData } from '../email-renderer-welcome'
+import type { EmailVerificationEmailData } from '../email-renderer-email-verification'
 
-import WelcomeEmailRenderer from '../email-renderer-welcome'
+import EmailVerificationEmailRenderer from '../email-renderer-email-verification'
 
-describe('Welcome Email Renderer', () => {
-  const renderer = new WelcomeEmailRenderer()
+describe('Email Verification Email Renderer', () => {
+  const renderer = new EmailVerificationEmailRenderer()
 
-  const mockData: WelcomeEmailData = {
+  const mockData: EmailVerificationEmailData = {
     firstName: 'John',
     verificationUrl: 'https://example.com/verify?token=abc123',
   }
@@ -20,7 +20,7 @@ describe('Welcome Email Renderer', () => {
     sentAt: '2024-01-01T00:00:00Z',
   }
 
-  it('should render welcome email with required fields', async () => {
+  it('should render email verification email with required fields', async () => {
     const result = await renderer.render(mockData)
 
     expect(result).toHaveProperty('subject')
@@ -47,7 +47,7 @@ describe('Welcome Email Renderer', () => {
     const result = await renderer.render(mockData)
 
     // Basic check that subject is in English (contains common English words)
-    expect(result.subject.toLowerCase()).toMatch(/welcome|verify|email|account/)
+    expect(result.subject.toLowerCase()).toMatch(/verify|email|account/)
   })
 
   it('should render with Ukrainian locale when specified', async () => {
@@ -110,7 +110,7 @@ describe('Welcome Email Renderer', () => {
   })
 
   it('should handle special characters in firstName', async () => {
-    const dataWithSpecialChars: WelcomeEmailData = {
+    const dataWithSpecialChars: EmailVerificationEmailData = {
       firstName: 'José María',
       verificationUrl: 'https://example.com/verify?token=abc123',
     }
@@ -122,7 +122,7 @@ describe('Welcome Email Renderer', () => {
   })
 
   it('should handle long verification URLs', async () => {
-    const dataWithLongUrl: WelcomeEmailData = {
+    const dataWithLongUrl: EmailVerificationEmailData = {
       firstName: 'John',
       verificationUrl: 'https://example.com/verify?token=very-long-token-that-might-be-used-in-production-environments-with-secure-random-generation-abc123def456',
     }

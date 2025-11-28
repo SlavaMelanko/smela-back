@@ -26,7 +26,7 @@ export class EmailAgent {
     return EmailAgent.instance
   }
 
-  async sendWelcomeEmail(
+  async sendEmailVerificationEmail(
     firstName: string,
     email: string,
     token: string,
@@ -34,7 +34,7 @@ export class EmailAgent {
   ) {
     const verificationUrl = `${env.FE_BASE_URL}/verify-email?token=${token}`
 
-    await this.service.send(EmailType.WELCOME, email, {
+    await this.service.send(EmailType.EMAIL_VERIFICATION, email, {
       firstName,
       verificationUrl,
     }, preferences)

@@ -121,7 +121,7 @@ describe('Signup with Email', () => {
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(async () => {}),
+      sendEmailVerificationEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/services', () => ({
@@ -211,16 +211,16 @@ describe('Signup with Email', () => {
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
     })
 
-    it('should send welcome email with verification token', async () => {
+    it('should send email verification email with verification token', async () => {
       await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
         mockNewUser.firstName,
         mockNewUser.email,
         mockTokenString,
         undefined,
       )
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
 
     it('should generate JWT token for immediate authentication', async () => {
@@ -301,7 +301,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -325,7 +325,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -349,7 +349,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -373,13 +373,13 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when email sending fails', () => {
     it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+      mockEmailAgent.sendEmailVerificationEmail.mockImplementation(async () => {
         throw new Error('Email service unavailable')
       })
 
@@ -397,7 +397,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -446,7 +446,7 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
         'Al',
         mockSignupParams.email,
         mockTokenString,
@@ -534,7 +534,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -558,7 +558,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 })

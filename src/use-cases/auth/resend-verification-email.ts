@@ -31,7 +31,7 @@ const resendVerificationEmail = async (
   if (user && user.status === Status.New) {
     const token = await createEmailVerificationToken(user.id)
 
-    emailAgent.sendWelcomeEmail(
+    emailAgent.sendEmailVerificationEmail(
       user.firstName,
       user.email,
       token,

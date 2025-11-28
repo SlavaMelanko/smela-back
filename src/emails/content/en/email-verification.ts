@@ -1,12 +1,12 @@
-import type WelcomeEmailContent from '../welcome'
+import type EmailVerificationContent from '../email-verification'
 
 import { config } from '../../config'
 
-export const content: WelcomeEmailContent = {
-  subject: `Welcome to ${config.company.name}`,
-  previewText: `Welcome to ${config.company.name} — please verify your email`,
+export const content: EmailVerificationContent = {
+  subject: `Verify your email for ${config.company.name}`,
+  previewText: `Please verify your email to complete registration with ${config.company.name}`,
   greeting: (firstName?: string) => `Hi ${firstName || 'there'} 👋`,
-  body: 'Welcome aboard! Please verify your email to get started:',
+  body: 'Please verify your email to get started:',
   ctaText: 'Verify Email Address',
   disclaimer: 'If you didn\'t create an account, you can safely ignore this email.',
   signature: {

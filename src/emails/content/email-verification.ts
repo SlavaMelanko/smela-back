@@ -1,4 +1,4 @@
-export default interface WelcomeEmailContent {
+export default interface EmailVerificationContent {
   subject: string
   previewText: string
   greeting: (firstName?: string) => string
