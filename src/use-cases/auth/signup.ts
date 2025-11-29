@@ -102,14 +102,14 @@ const signUpWithEmail = async (
     password,
   )
 
-  // Send welcome email (fire-and-forget, outside transaction)
-  emailAgent.sendWelcomeEmail(
+  // Send email verification (fire-and-forget, outside transaction)
+  emailAgent.sendEmailVerificationEmail(
     newUser.firstName,
     newUser.email,
     verificationToken,
     preferences,
   ).catch((error: unknown) => {
-    logger.error({ error }, `Failed to send welcome email to ${newUser.email}`)
+    logger.error({ error }, `Failed to send email verification email to ${newUser.email}`)
   })
 
   const accessToken = await createAccessToken(newUser)

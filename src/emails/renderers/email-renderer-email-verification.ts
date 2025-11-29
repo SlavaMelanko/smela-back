@@ -5,25 +5,29 @@ import type { EmailRenderer, RenderedEmail } from './email-renderer'
 
 import getContent from '../content'
 import { getThemeStyles } from '../styles'
-import { WelcomeEmail } from '../templates'
+import { EmailVerificationEmail } from '../templates'
 import { renderEmail } from './helper'
 
-export interface WelcomeEmailData {
+export interface EmailVerificationEmailData {
   firstName: string
   verificationUrl: string
 }
 
-export default class WelcomeEmailRenderer implements EmailRenderer<WelcomeEmailData> {
+export default class EmailVerificationEmailRenderer
+implements EmailRenderer<EmailVerificationEmailData> {
   async render(
-    data: WelcomeEmailData,
+    data: EmailVerificationEmailData,
     userPreferences?: UserPreferences,
     metadata?: Metadata,
   ): Promise<RenderedEmail> {
-    const content = getContent(userPreferences?.locale).welcome
+    const content = getContent(userPreferences?.locale).emailVerification
     const styles = getThemeStyles(userPreferences?.theme)
 
     const subject = content.subject
-    const { html, text } = await renderEmail(WelcomeEmail, { data, content, styles, metadata })
+    const { html, text } = await renderEmail(
+      EmailVerificationEmail,
+      { data, content, styles, metadata },
+    )
 
     return {
       subject,

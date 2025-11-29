@@ -3,8 +3,8 @@ import type { SupportedLocale } from '@/types'
 import * as en from './en'
 import * as uk from './uk'
 
+export type { default as EmailVerificationContent } from './email-verification'
 export type { default as PasswordResetEmailContent } from './password-reset'
-export type { default as WelcomeEmailContent } from './welcome'
 
 export type LocaleContent = typeof en
 

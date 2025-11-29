@@ -65,7 +65,7 @@ describe('Resend Verification Email', () => {
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(async () => {}),
+      sendEmailVerificationEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/services', () => ({
@@ -94,16 +94,16 @@ describe('Resend Verification Email', () => {
       expect(result).toEqual({ data: { success: true } })
     })
 
-    it('should send a welcome email with the new token', async () => {
+    it('should send an email verification email with the new token', async () => {
       await resendVerificationEmail({ email: mockUser.email })
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith(
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
         mockUser.firstName,
         mockUser.email,
         mockTokenString,
         undefined,
       )
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -115,7 +115,7 @@ describe('Resend Verification Email', () => {
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -132,7 +132,7 @@ describe('Resend Verification Email', () => {
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -149,7 +149,7 @@ describe('Resend Verification Email', () => {
 
       expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -168,7 +168,7 @@ describe('Resend Verification Email', () => {
       }
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -198,14 +198,14 @@ describe('Resend Verification Email', () => {
 
         expect(result).toEqual({ data: { success: true } })
         expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-        expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+        expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
       }
     })
   })
 
   describe('when email sending fails', () => {
     it('should complete successfully even if email fails', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+      mockEmailAgent.sendEmailVerificationEmail.mockImplementation(async () => {
         throw new Error('Email service unavailable')
       })
 
@@ -214,7 +214,7 @@ describe('Resend Verification Email', () => {
       expect(result).toEqual({ data: { success: true } })
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalled()
     })
   })
 
@@ -233,7 +233,7 @@ describe('Resend Verification Email', () => {
       }
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 })

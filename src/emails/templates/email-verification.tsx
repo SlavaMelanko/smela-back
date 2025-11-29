@@ -5,7 +5,7 @@ import {
   Text,
 } from '@react-email/components'
 
-import type { WelcomeEmailContent } from '../content'
+import type { EmailVerificationContent } from '../content'
 import type { Metadata } from '../metadata'
 import type { ThemeStyles } from '../styles'
 
@@ -19,12 +19,12 @@ interface Props {
     firstName: string
     verificationUrl: string
   }
-  content: WelcomeEmailContent
+  content: EmailVerificationContent
   styles: ThemeStyles
   metadata?: Metadata
 }
 
-const WelcomeEmail = ({
+const EmailVerificationEmail = ({
   data,
   content: c,
   styles: s,
@@ -52,6 +52,8 @@ const WelcomeEmail = ({
       </Link>
 
       <Text style={s.text.detail}>
+        {`• ${c.expiryNotice}`}
+        <br />
         {`• ${c.disclaimer}`}
       </Text>
 
@@ -60,13 +62,13 @@ const WelcomeEmail = ({
   )
 }
 
-WelcomeEmail.PreviewProps = {
+EmailVerificationEmail.PreviewProps = {
   data: {
     firstName: 'Jason',
     verificationUrl: `http://localhost:5173/auth/verify-email?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
   },
-  content: getContent('uk').welcome,
+  content: getContent('uk').emailVerification,
   styles: getThemeStyles('dark'),
 } as Props
 
-export default WelcomeEmail
+export default EmailVerificationEmail
