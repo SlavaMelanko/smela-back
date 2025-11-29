@@ -7,7 +7,7 @@ import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
-import { hour, hours, nowMinus, nowPlus } from '@/utils/chrono'
+import { days, hour, hours, nowMinus, nowPlus } from '@/utils/chrono'
 
 import verifyEmail from '../verify-email'
 
@@ -88,7 +88,7 @@ describe('Verify Email', () => {
 
     mockRefreshToken = 'refresh-token-123'
     mockRefreshTokenHash = 'hashed-refresh-token-123'
-    mockRefreshExpiresAt = nowPlus(hours(168)) // 7 days
+    mockRefreshExpiresAt = nowPlus(days(7))
     mockGenerateHashedToken = mock(async () => ({
       token: { raw: mockRefreshToken, hashed: mockRefreshTokenHash },
       expiresAt: mockRefreshExpiresAt,
