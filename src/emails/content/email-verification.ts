@@ -4,6 +4,7 @@ export default interface EmailVerificationContent {
   greeting: (firstName?: string) => string
   body: string
   ctaText: string
+  expiryNotice: string
   disclaimer: string
   signature: {
     thanks: string

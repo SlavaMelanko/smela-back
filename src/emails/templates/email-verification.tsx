@@ -52,6 +52,8 @@ const EmailVerificationEmail = ({
       </Link>
 
       <Text style={s.text.detail}>
+        {`• ${c.expiryNotice}`}
+        <br />
         {`• ${c.disclaimer}`}
       </Text>
 
