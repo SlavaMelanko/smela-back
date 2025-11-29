@@ -7,7 +7,7 @@ import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
-import { hours, nowPlus } from '@/utils/chrono'
+import { days, hours, nowPlus } from '@/utils/chrono'
 
 import type { SignupParams } from '../signup'
 
@@ -107,7 +107,7 @@ describe('Signup with Email', () => {
 
     mockRefreshToken = 'refresh_token_123'
     mockRefreshTokenHash = 'hashed_refresh_token_123'
-    mockRefreshExpiresAt = nowPlus(hours(168)) // 7 days
+    mockRefreshExpiresAt = nowPlus(days(7))
     mockGenerateHashedToken = mock(async () => ({
       token: { raw: mockRefreshToken, hashed: mockRefreshTokenHash },
       expiresAt: mockRefreshExpiresAt,
