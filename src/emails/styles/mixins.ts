@@ -15,7 +15,7 @@ export const get = (theme: Theme = 'light') => ({
     detail: {
       fontFamily: font.family.sans,
       fontSize: font.size.sm,
-      fontWeight: font.weight.normal,
+      fontWeight: font.weight.thin,
       lineHeight: font.lineHeight.normal,
       color: color[theme].text.tertiary,
     },
