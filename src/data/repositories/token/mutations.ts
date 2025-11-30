@@ -1,10 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
-import type { TokenType } from '@/security/token'
-
 import { TokenStatus } from '@/security/token'
 
-import type { Transaction } from '../../clients'
+import type { Database } from '../../clients'
 import type { CreateTokenInput, UpdateTokenInput } from './types'
 
 import { db } from '../../clients'
@@ -12,8 +10,8 @@ import { tokensTable } from '../../schema'
 
 export const deprecateOldTokens = async (
   userId: number,
-  tokenType: TokenType,
-  tx?: Transaction,
+  tokenType: string,
+  tx?: Database,
 ) => {
   const executor = tx || db
 
@@ -30,7 +28,7 @@ export const deprecateOldTokens = async (
     )
 }
 
-export const createToken = async (token: CreateTokenInput, tx?: Transaction): Promise<number> => {
+export const createToken = async (token: CreateTokenInput, tx?: Database): Promise<number> => {
   const executor = tx || db
 
   const [createdToken] = await executor
@@ -47,7 +45,7 @@ export const createToken = async (token: CreateTokenInput, tx?: Transaction): Pr
 export const replaceToken = async (
   userId: number,
   token: CreateTokenInput,
-  tx: Transaction,
+  tx: Database,
 ): Promise<void> => {
   await deprecateOldTokens(userId, token.type, tx)
   await createToken(token, tx)
@@ -56,7 +54,7 @@ export const replaceToken = async (
 export const updateToken = async (
   tokenId: number,
   updates: UpdateTokenInput,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<void> => {
   const executor = tx || db
 

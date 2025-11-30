@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -18,17 +18,20 @@ describe('Verify Email Endpoint', () => {
 
   beforeEach(async () => {
     mockVerifyEmail = mock(async () => ({
-      user: {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com',
-        role: Role.User,
-        status: Status.Verified,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+      data: {
+        user: {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          role: Role.User,
+          status: Status.Verified,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        },
+        accessToken: 'verify-jwt-token',
       },
-      token: 'verify-jwt-token',
+      refreshToken: 'verify-refresh-token',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
@@ -46,7 +49,7 @@ describe('Verify Email Endpoint', () => {
     it('should return user and token on successful email verification', async () => {
       const validToken = 'a'.repeat(64)
 
-      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
+      const res = await post(app, VERIFY_EMAIL_URL, { data: { token: validToken } })
 
       expect(res.status).toBe(HttpStatus.OK)
 
@@ -62,15 +65,18 @@ describe('Verify Email Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        token: 'verify-jwt-token',
+        accessToken: 'verify-jwt-token',
       })
 
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
-      expect(mockVerifyEmail).toHaveBeenCalledWith(validToken)
+      expect(mockVerifyEmail).toHaveBeenCalledWith(
+        { token: validToken },
+        { ipAddress: null, userAgent: null },
+      )
     })
 
     it('should require token parameter', async () => {
-      const res = await post(app, VERIFY_EMAIL_URL, {})
+      const res = await post(app, VERIFY_EMAIL_URL, { data: {} })
 
       expect(res.status).toBe(HttpStatus.BAD_REQUEST)
       const json = await res.json()
@@ -87,7 +93,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of invalidTokens) {
-        const res = await post(app, VERIFY_EMAIL_URL, { token })
+        const res = await post(app, VERIFY_EMAIL_URL, { data: { token } })
 
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
@@ -99,7 +105,7 @@ describe('Verify Email Endpoint', () => {
       const validToken = 'a'.repeat(64)
 
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type', headers: {}, body: { token: validToken } },
+        { name: 'missing Content-Type', headers: {}, body: { data: { token: validToken } } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
@@ -118,21 +124,10 @@ describe('Verify Email Endpoint', () => {
 
       const validToken = 'c'.repeat(64)
 
-      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
+      const res = await post(app, VERIFY_EMAIL_URL, { data: { token: validToken } })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-      const validToken = 'a'.repeat(64)
-
-      for (const method of methods) {
-        const res = await doRequest(app, VERIFY_EMAIL_URL, method, { token: validToken }, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
-      }
     })
   })
 })

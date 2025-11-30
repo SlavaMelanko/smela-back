@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, doRequest, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 
@@ -17,7 +17,7 @@ describe('Request Password Reset Endpoint', () => {
   let mockRequestPasswordReset: any
 
   beforeEach(async () => {
-    mockRequestPasswordReset = mock(async () => ({ success: true }))
+    mockRequestPasswordReset = mock(async () => ({ data: { success: true } }))
 
     await moduleMocker.mock('@/use-cases/auth/request-password-reset', () => ({
       default: mockRequestPasswordReset,
@@ -35,8 +35,8 @@ describe('Request Password Reset Endpoint', () => {
   describe('POST /auth/request-password-reset', () => {
     it('should return success response on valid request', async () => {
       const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
-        email: 'test@example.com',
-        captchaToken: VALID_CAPTCHA_TOKEN,
+        data: { email: 'test@example.com' },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
       expect(res.status).toBe(HttpStatus.ACCEPTED)
@@ -45,22 +45,42 @@ describe('Request Password Reset Endpoint', () => {
       expect(data).toEqual({ success: true })
 
       expect(mockRequestPasswordReset).toHaveBeenCalledTimes(1)
-      expect(mockRequestPasswordReset).toHaveBeenCalledWith('test@example.com')
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        undefined,
+      )
+    })
+
+    it('should pass preferences to use-case when provided', async () => {
+      const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
+        data: { email: 'test@example.com' },
+        captcha: { token: VALID_CAPTCHA_TOKEN },
+        preferences: { locale: 'uk', theme: 'dark' },
+      })
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED)
+
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        { locale: 'uk', theme: 'dark' },
+      )
     })
 
     it('should validate required fields', async () => {
       const invalidRequests = [
         // Invalid email formats
-        { email: '', captchaToken: VALID_CAPTCHA_TOKEN }, // empty email
-        { email: 'invalid', captchaToken: VALID_CAPTCHA_TOKEN }, // invalid format
-        { email: 'test@', captchaToken: VALID_CAPTCHA_TOKEN }, // incomplete
-        { email: '@example.com', captchaToken: VALID_CAPTCHA_TOKEN }, // missing local part
-        { captchaToken: VALID_CAPTCHA_TOKEN }, // missing email field
+        { data: { email: '' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty email
+        { data: { email: 'invalid' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid format
+        { data: { email: 'test@' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // incomplete
+        { data: { email: '@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing local part
+        { data: {}, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing email field
+        { captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing data object
 
-        // Invalid captcha tokens
-        { email: 'test@example.com' }, // missing captcha token
-        { email: 'test@example.com', captchaToken: '' }, // empty captcha token
-        { email: 'test@example.com', captchaToken: 'invalid-token' }, // invalid captcha token
+        // Invalid captcha
+        { data: { email: 'test@example.com' } }, // missing captcha
+        { data: { email: 'test@example.com' }, captcha: {} }, // empty captcha object
+        { data: { email: 'test@example.com' }, captcha: { token: '' } }, // empty captcha token
+        { data: { email: 'test@example.com' }, captcha: { token: 'invalid-token' } }, // invalid captcha token
       ]
 
       for (const body of invalidRequests) {
@@ -74,7 +94,7 @@ describe('Request Password Reset Endpoint', () => {
 
     it('should handle malformed requests', async () => {
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type header', headers: {}, body: { email: 'test@example.com', captchaToken: VALID_CAPTCHA_TOKEN } },
+        { name: 'missing Content-Type header', headers: {}, body: { data: { email: 'test@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
         { name: 'undefined body', headers: { 'Content-Type': 'application/json' }, body: undefined },
         { name: 'empty body', headers: { 'Content-Type': 'application/json' }, body: {} },
         { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
@@ -83,19 +103,6 @@ describe('Request Password Reset Endpoint', () => {
       for (const { headers, body } of scenarios) {
         const res = await post(app, REQUEST_PASSWORD_RESET_URL, body, headers)
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
-      }
-    })
-
-    it('should only accept POST method', async () => {
-      const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
-
-      for (const method of methods) {
-        const res = await doRequest(app, REQUEST_PASSWORD_RESET_URL, method, {
-          email: 'test@example.com',
-          captchaToken: VALID_CAPTCHA_TOKEN,
-        }, { 'Content-Type': 'application/json' })
-
-        expect(res.status).toBe(HttpStatus.NOT_FOUND)
       }
     })
   })

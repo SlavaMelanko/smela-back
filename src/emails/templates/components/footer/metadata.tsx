@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 
-import type { Metadata } from '../../../types'
+import type { Metadata } from '../../../metadata'
 
 interface Props extends Metadata {}
 

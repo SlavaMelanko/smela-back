@@ -39,7 +39,6 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
-          tokenVersion: 5,
         },
         { secret: 'test-secret' },
       )
@@ -54,7 +53,6 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
-        tokenVersion: 5,
       })
       expect(payload.iat).toBeGreaterThanOrEqual(now - 1)
       expect(payload.nbf).toBeGreaterThanOrEqual(now - 1)
@@ -71,7 +69,6 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
-        v: 0,
         exp: nowInSeconds() + 3600,
       }))
 
@@ -115,6 +112,113 @@ describe('JWT Unit Tests', () => {
       expect(verifyJwt('token-with-bad-payload', { secret: 'test-secret' })).rejects.toMatchObject({
         code: ErrorCode.Unauthorized,
         message: 'Invalid authentication token',
+      })
+    })
+
+    describe('Secret Rotation', () => {
+      it('should verify token with current secret successfully', async () => {
+        const mockPayload = {
+          id: 1,
+          email: 'test@example.com',
+          role: Role.User,
+          status: Status.Active,
+          exp: nowInSeconds() + 3600,
+        }
+
+        mockVerify.mockImplementation(async (token: string, secret: string) => {
+          if (secret === 'current-secret-key') {
+            return mockPayload
+          }
+          throw new Error('Invalid signature')
+        })
+
+        mockParsePayload.mockImplementation((payload: unknown) => ({
+          userClaims: payload,
+        }))
+
+        const result = await verifyJwt('valid-token', {
+          secret: 'current-secret-key',
+          previousSecret: 'previous-secret-key',
+        })
+
+        expect(result).toEqual(mockPayload)
+        expect(mockVerify).toHaveBeenCalledTimes(1)
+        expect(mockVerify).toHaveBeenCalledWith('valid-token', 'current-secret-key', 'HS256')
+      })
+
+      it('should fallback to previous secret when current secret fails', async () => {
+        const mockPayload = {
+          id: 1,
+          email: 'test@example.com',
+          role: Role.User,
+          status: Status.Active,
+          exp: nowInSeconds() + 3600,
+        }
+
+        // First call (current secret) fails, second call (previous secret) succeeds
+        mockVerify
+          .mockImplementationOnce(async () => {
+            throw new Error('Invalid signature')
+          })
+          .mockImplementationOnce(async () => mockPayload)
+
+        mockParsePayload.mockImplementation((payload: unknown) => ({
+          userClaims: payload,
+        }))
+
+        const result = await verifyJwt('old-token', {
+          secret: 'current-secret-key',
+          previousSecret: 'previous-secret-key',
+        })
+
+        expect(result).toEqual(mockPayload)
+        expect(mockVerify).toHaveBeenCalledTimes(2)
+        expect(mockVerify).toHaveBeenNthCalledWith(1, 'old-token', 'current-secret-key', 'HS256')
+        expect(mockVerify).toHaveBeenNthCalledWith(2, 'old-token', 'previous-secret-key', 'HS256')
+      })
+
+      it('should throw Unauthorized when both current and previous secrets fail', async () => {
+        mockVerify.mockImplementation(async () => {
+          throw new Error('Invalid signature')
+        })
+
+        expect(
+          verifyJwt('invalid-token', {
+            secret: 'current-secret-key',
+            previousSecret: 'previous-secret-key',
+          }),
+        ).rejects.toThrow(AppError)
+        expect(
+          verifyJwt('invalid-token', {
+            secret: 'current-secret-key',
+            previousSecret: 'previous-secret-key',
+          }),
+        ).rejects.toMatchObject({
+          code: ErrorCode.Unauthorized,
+          message: 'Invalid authentication token',
+        })
+
+        // 2 calls per rejects check (current + previous for each)
+        expect(mockVerify).toHaveBeenCalledTimes(4)
+      })
+
+      it('should throw Unauthorized when current secret fails and no previous secret exists', async () => {
+        mockVerify.mockImplementation(async () => {
+          throw new Error('Invalid signature')
+        })
+
+        expect(
+          verifyJwt('invalid-token', { secret: 'current-secret-key' }),
+        ).rejects.toThrow(AppError)
+        expect(
+          verifyJwt('invalid-token', { secret: 'current-secret-key' }),
+        ).rejects.toMatchObject({
+          code: ErrorCode.Unauthorized,
+          message: 'Invalid authentication token',
+        })
+
+        // Should only try current secret once per rejects check
+        expect(mockVerify).toHaveBeenCalledTimes(2)
       })
     })
   })

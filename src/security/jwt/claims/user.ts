@@ -7,7 +7,6 @@ export const userClaimsSchema = z.object({
   email: z.string().email(),
   role: z.nativeEnum(Role),
   status: z.nativeEnum(Status),
-  tokenVersion: z.number(),
 })
 
 export type UserClaims = z.infer<typeof userClaimsSchema>

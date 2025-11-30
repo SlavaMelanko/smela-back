@@ -4,7 +4,6 @@ import { HttpStatus } from '@/net/http'
 const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   // Auth errors
   [ErrorCode.AlreadyVerified]: HttpStatus.BAD_REQUEST,
-  [ErrorCode.BadCredentials]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.EmailAlreadyInUse]: HttpStatus.CONFLICT,
   [ErrorCode.Forbidden]: HttpStatus.FORBIDDEN,
   [ErrorCode.InvalidCredentials]: HttpStatus.UNAUTHORIZED,
@@ -16,6 +15,12 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   [ErrorCode.TokenExpired]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.TokenNotFound]: HttpStatus.BAD_REQUEST,
   [ErrorCode.TokenTypeMismatch]: HttpStatus.BAD_REQUEST,
+
+  // Refresh token errors
+  [ErrorCode.InvalidRefreshToken]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.RefreshTokenExpired]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.RefreshTokenRevoked]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.MissingRefreshToken]: HttpStatus.BAD_REQUEST,
 
   // Captcha errors
   [ErrorCode.CaptchaInvalidToken]: HttpStatus.BAD_REQUEST,

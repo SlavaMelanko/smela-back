@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
-import { dataValidationRules as rules } from '../../@shared'
+import { requestValidationRules as rules } from '../../@shared'
 
 const resetPasswordSchema = z.object({
-  token: rules.securityToken,
-  password: rules.password,
+  data: z.object({
+    token: rules.data.securityToken,
+    password: rules.data.password,
+  }).strict(),
 }).strict()
 
 export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>

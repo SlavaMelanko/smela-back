@@ -43,7 +43,10 @@ class TokenValidator {
 
   static hasExpectedType(tokenRecord: TokenRecord, expectedType: TokenType): void {
     if (tokenRecord.type !== expectedType) {
-      throw new AppError(ErrorCode.TokenTypeMismatch, `Token type mismatch: expected ${expectedType}, got ${tokenRecord.type}`)
+      throw new AppError(
+        ErrorCode.TokenTypeMismatch,
+        `Token type mismatch: expected ${expectedType}, got ${tokenRecord.type}`,
+      )
     }
   }
 }

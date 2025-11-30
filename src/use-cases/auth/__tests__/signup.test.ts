@@ -7,7 +7,7 @@ import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
-import { hours, nowPlus } from '@/utils/chrono'
+import { days, hours, nowPlus } from '@/utils/chrono'
 
 import type { SignupParams } from '../signup'
 
@@ -17,11 +17,13 @@ describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockSignupParams: SignupParams
+  let mockDeviceInfo: { ipAddress: string, userAgent: string }
 
   let mockNewUser: User
   let mockUserRepo: any
   let mockAuthRepo: any
   let mockTokenRepo: any
+  let mockRefreshTokenRepo: any
   let mockTransaction: any
 
   let mockHashedPassword: string
@@ -30,6 +32,11 @@ describe('Signup with Email', () => {
   let mockTokenString: string
   let mockExpiresAt: Date
   let mockGenerateToken: any
+
+  let mockRefreshToken: string
+  let mockRefreshTokenHash: string
+  let mockRefreshExpiresAt: Date
+  let mockGenerateHashedToken: any
 
   let mockEmailAgent: any
 
@@ -43,6 +50,10 @@ describe('Signup with Email', () => {
       email: 'john@example.com',
       password: 'ValidPass123!',
     }
+    mockDeviceInfo = {
+      ipAddress: '192.168.1.1',
+      userAgent: 'Mozilla/5.0 (Test)',
+    }
 
     mockNewUser = toTypeSafeUser({
       id: 1,
@@ -51,7 +62,6 @@ describe('Signup with Email', () => {
       email: 'john@example.com',
       status: Status.New,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     })!
@@ -65,6 +75,9 @@ describe('Signup with Email', () => {
     mockTokenRepo = {
       replace: mock(async () => {}),
     }
+    mockRefreshTokenRepo = {
+      create: mock(async () => 1),
+    }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
@@ -73,6 +86,7 @@ describe('Signup with Email', () => {
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
       tokenRepo: mockTokenRepo,
+      refreshTokenRepo: mockRefreshTokenRepo,
       db: mockTransaction,
     }))
 
@@ -91,12 +105,23 @@ describe('Signup with Email', () => {
       expiresAt: mockExpiresAt,
     }))
 
+    mockRefreshToken = 'refresh_token_123'
+    mockRefreshTokenHash = 'hashed_refresh_token_123'
+    mockRefreshExpiresAt = nowPlus(days(7))
+    mockGenerateHashedToken = mock(async () => ({
+      token: { raw: mockRefreshToken, hashed: mockRefreshTokenHash },
+      expiresAt: mockRefreshExpiresAt,
+      type: 'refresh_token',
+    }))
+
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: mockGenerateToken,
+      generateHashedToken: mockGenerateHashedToken,
+      TokenType: { EmailVerification: 'email_verification', RefreshToken: 'refresh_token' },
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(async () => {}),
+      sendEmailVerificationEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/services', () => ({
@@ -117,7 +142,7 @@ describe('Signup with Email', () => {
 
   describe('when signup is successful', () => {
     it('should create a new user with correct data', async () => {
-      const result = await signUpWithEmail(mockSignupParams)
+      const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledWith(
@@ -131,14 +156,16 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
-      const { tokenVersion, ...expectedUser } = mockNewUser
-      expect(result.user).toEqual(expectedUser)
-      expect(result).toHaveProperty('token')
-      expect(result.token).toBe(mockJwtToken)
+      const expectedUser = mockNewUser
+      expect(result.data.user).toEqual(expectedUser)
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
     })
 
     it('should create auth record with hashed password', async () => {
-      await signUpWithEmail(mockSignupParams)
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       expect(mockAuthRepo.create).toHaveBeenCalledWith(
         {
@@ -153,7 +180,7 @@ describe('Signup with Email', () => {
     })
 
     it('should hash the password correctly', async () => {
-      await signUpWithEmail(mockSignupParams)
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
@@ -169,7 +196,7 @@ describe('Signup with Email', () => {
     })
 
     it('should create email verification token', async () => {
-      await signUpWithEmail(mockSignupParams)
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       expect(mockTokenRepo.replace).toHaveBeenCalledWith(
         mockNewUser.id,
@@ -184,45 +211,61 @@ describe('Signup with Email', () => {
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
     })
 
-    it('should send welcome email with verification token', async () => {
-      await signUpWithEmail(mockSignupParams)
+    it('should send email verification email with verification token', async () => {
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: mockNewUser.firstName,
-        email: mockNewUser.email,
-        token: mockTokenString,
-      })
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
+        mockNewUser.firstName,
+        mockNewUser.email,
+        mockTokenString,
+        undefined,
+      )
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
 
     it('should generate JWT token for immediate authentication', async () => {
-      const result = await signUpWithEmail(mockSignupParams)
+      const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(result).toHaveProperty('token')
-      expect(result.token).toBe(mockJwtToken)
-      expect(result).toHaveProperty('user')
+      expect(result.data).toHaveProperty('accessToken')
+      expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
+      expect(result).toHaveProperty('data')
+    })
+
+    it('should create refresh token with device info', async () => {
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
+
+      expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith({
+        userId: mockNewUser.id,
+        tokenHash: mockRefreshTokenHash,
+        ipAddress: mockDeviceInfo.ipAddress,
+        userAgent: mockDeviceInfo.userAgent,
+        expiresAt: mockRefreshExpiresAt,
+      })
+      expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
     })
 
     it('should not return sensitive fields in the response', async () => {
-      const result = await signUpWithEmail(mockSignupParams)
+      const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       // Ensure tokenVersion is not included in the response
-      expect(result.user).not.toHaveProperty('tokenVersion')
+      expect(result.data.user).not.toHaveProperty('tokenVersion')
       // createdAt and updatedAt are now included in the response
-      expect(result.user).toHaveProperty('createdAt')
-      expect(result.user).toHaveProperty('updatedAt')
+      expect(result.data.user).toHaveProperty('createdAt')
+      expect(result.data.user).toHaveProperty('updatedAt')
 
       // Ensure expected fields are present
-      expect(result.user).toHaveProperty('id')
-      expect(result.user).toHaveProperty('firstName')
-      expect(result.user).toHaveProperty('lastName')
-      expect(result.user).toHaveProperty('email')
-      expect(result.user).toHaveProperty('status')
-      expect(result.user).toHaveProperty('role')
+      expect(result.data.user).toHaveProperty('id')
+      expect(result.data.user).toHaveProperty('firstName')
+      expect(result.data.user).toHaveProperty('lastName')
+      expect(result.data.user).toHaveProperty('email')
+      expect(result.data.user).toHaveProperty('status')
+      expect(result.data.user).toHaveProperty('role')
     })
 
     it('should check for existing user first', async () => {
-      await signUpWithEmail(mockSignupParams)
+      await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(mockUserRepo.findByEmail).toHaveBeenCalledTimes(1)
@@ -245,7 +288,7 @@ describe('Signup with Email', () => {
       mockUserRepo.findByEmail.mockImplementation(async () => existingUser)
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -258,7 +301,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -269,7 +312,7 @@ describe('Signup with Email', () => {
       })
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -282,7 +325,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -293,7 +336,7 @@ describe('Signup with Email', () => {
       })
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -306,7 +349,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -317,7 +360,7 @@ describe('Signup with Email', () => {
       })
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -330,22 +373,23 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when email sending fails', () => {
     it('should complete signup successfully even if email fails (fire-and-forget)', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+      mockEmailAgent.sendEmailVerificationEmail.mockImplementation(async () => {
         throw new Error('Email service unavailable')
       })
 
-      const result = await signUpWithEmail(mockSignupParams)
+      const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(result).toHaveProperty('user')
-      expect(result).toHaveProperty('token')
-      const { tokenVersion, ...expectedUser } = mockNewUser
-      expect(result.user).toEqual(expectedUser)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('refreshToken')
+      expect(result.refreshToken).toBe(mockRefreshToken)
+      const expectedUser = mockNewUser
+      expect(result.data.user).toEqual(expectedUser)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(mockSignupParams.email)
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
@@ -353,7 +397,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -362,7 +406,7 @@ describe('Signup with Email', () => {
       const uppercaseEmail = mockSignupParams.email.toUpperCase()
       const paramsWithUppercaseEmail = { ...mockSignupParams, email: uppercaseEmail }
 
-      const result = await signUpWithEmail(paramsWithUppercaseEmail)
+      const result = await signUpWithEmail(paramsWithUppercaseEmail, mockDeviceInfo)
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(uppercaseEmail)
       expect(mockUserRepo.create).toHaveBeenCalledWith(
@@ -375,8 +419,8 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      const { tokenVersion, ...expectedUser } = mockNewUser
-      expect(result.user).toEqual(expectedUser)
+      const expectedUser = mockNewUser
+      expect(result.data.user).toEqual(expectedUser)
     })
 
     it('should handle users with minimal names', async () => {
@@ -389,7 +433,7 @@ describe('Signup with Email', () => {
       const userWithShortNames = { ...mockNewUser, firstName: 'Al', lastName: 'Bo' }
       mockUserRepo.create.mockImplementation(async () => userWithShortNames)
 
-      await signUpWithEmail(paramsWithShortNames)
+      await signUpWithEmail(paramsWithShortNames, mockDeviceInfo)
 
       expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
@@ -402,16 +446,18 @@ describe('Signup with Email', () => {
         expect.anything(),
       )
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: 'Al',
-        email: mockSignupParams.email,
-        token: mockTokenString,
-      })
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
+        'Al',
+        mockSignupParams.email,
+        mockTokenString,
+        undefined,
+      )
     })
 
     it('should always assign user role regardless of input', async () => {
-      const result = await signUpWithEmail(mockSignupParams)
+      const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
+      const expectedUser = mockNewUser
       expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
           firstName: mockSignupParams.firstName,
@@ -422,16 +468,15 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      const { tokenVersion: _, ...expectedUser } = mockNewUser
-      expect(result.user).toEqual(expectedUser)
-      expect(result.user.role).toBe(Role.User)
+      expect(result.data.user).toEqual(expectedUser)
+      expect(result.data.user.role).toBe(Role.User)
     })
 
     it('should handle complex passwords', async () => {
       const complexPassword = 'VeryComplex@Password123!#$'
       const paramsWithComplexPassword = { ...mockSignupParams, password: complexPassword }
 
-      await signUpWithEmail(paramsWithComplexPassword)
+      await signUpWithEmail(paramsWithComplexPassword, mockDeviceInfo)
 
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledWith(
@@ -454,7 +499,7 @@ describe('Signup with Email', () => {
         lastName: longLastName,
       }
 
-      await signUpWithEmail(paramsWithLongNames)
+      await signUpWithEmail(paramsWithLongNames, mockDeviceInfo)
 
       expect(mockUserRepo.create).toHaveBeenCalledWith(
         {
@@ -476,7 +521,7 @@ describe('Signup with Email', () => {
       })
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -489,7 +534,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -500,7 +545,7 @@ describe('Signup with Email', () => {
       })
 
       try {
-        await signUpWithEmail(mockSignupParams)
+        await signUpWithEmail(mockSignupParams, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -513,7 +558,7 @@ describe('Signup with Email', () => {
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 })

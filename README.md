@@ -13,32 +13,38 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 - PostgreSQL database (local or cloud)
 - Email service account ([Resend](https://resend.com/) for production, [Ethereal](https://ethereal.email/) for development)
 
-## 🛠️ Installation
+## 🛠️ Build and Run
 
-### 1. Install
+### 1. Install dependencies
 
-```bash
+```zsh
 bun install
 ```
 
-### 2. Environment Setup
+### 2. Environment setup
 
 See [`.env.example`](.env.example) to configure required variables.
 
-### 3. Database Setup
+### 3. Database setup
+
+Start the development PostgreSQL container:
+
+```zsh
+bun run db:up:dev
+```
 
 Run all database setup steps at once (generate → migrate → seed):
 
-```bash
-bun db:setup
+```zsh
+bun run db:init
 ```
 
 Or look at [`package.json`](package.json) for individual steps.
 
-### 4. Start Development Server
+### 4. Start development server
 
-```bash
-bun dev
+```zsh
+bun run dev
 ```
 
 Server will start on <http://localhost:3000> by default.

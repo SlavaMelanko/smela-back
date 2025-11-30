@@ -7,9 +7,6 @@ on:
       - '**.md'
       - '**.txt'
       - '**.json'
-      - '**.yml'
-      - '!.github/workflows/ubuntu.yml'
-      - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
   push:
@@ -18,9 +15,6 @@ on:
       - '**.md'
       - '**.txt'
       - '**.json'
-      - '**.yml'
-      - '!.github/workflows/ubuntu.yml'
-      - '**.yaml'
       - 'LICENSE'
       - '.gitignore'
 
@@ -29,19 +23,36 @@ jobs:
     runs-on: ubuntu-latest
     container: oven/bun:latest
     environment: test
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
+          TZ: UTC
+        options: >-
+          --health-cmd "pg_isready -U ${{ vars.POSTGRES_USER }} -d ${{ vars.POSTGRES_DB }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 10s
+
     env:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-      DB_URL: ${{ secrets.DB_URL }}
-      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-      COOKIE_NAME: ${{ vars.COOKIE_NAME }}
-      COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
+      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      COOKIE_REFRESH_TOKEN_NAME: ${{ vars.COOKIE_REFRESH_TOKEN_NAME }}
+      COOKIE_REFRESH_TOKEN_EXPIRATION: ${{ vars.COOKIE_REFRESH_TOKEN_EXPIRATION }}
       BE_BASE_URL: ${{ vars.BE_BASE_URL }}
       FE_BASE_URL: ${{ vars.FE_BASE_URL }}
+      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
       EMAIL_SENDER_PROFILES: ${{ vars.EMAIL_SENDER_PROFILES }}
-      EMAIL_ETHEREAL_HOST: ${{ vars.EMAIL_ETHEREAL_HOST }}
-      EMAIL_ETHEREAL_PORT: ${{ vars.EMAIL_ETHEREAL_PORT }}
-      EMAIL_ETHEREAL_USERNAME: ${{ vars.EMAIL_ETHEREAL_USERNAME }}
-      EMAIL_ETHEREAL_PASSWORD: ${{ secrets.EMAIL_ETHEREAL_PASSWORD }}
       COMPANY_NAME: ${{ vars.COMPANY_NAME }}
       COMPANY_SOCIAL_LINKS: ${{ vars.COMPANY_SOCIAL_LINKS }}
       CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
@@ -57,10 +68,24 @@ jobs:
         run: bun install
 
       - name: Run linting
-        run: bun lint
+        run: bun run lint
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U ${{ vars.POSTGRES_USER }} && break
+            echo "Waiting for PostgreSQL... (${i}/10)"
+            sleep 1
+          done
+
+      - name: Setup test database
+        run: bun run db:init
+
+      - name: Run all tests
+        run: bun run test:all
 
       - name: Run tests with coverage
-        run: bun coverage
+        run: bun run coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

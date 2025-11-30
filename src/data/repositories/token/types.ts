@@ -6,17 +6,11 @@ import type { tokensTable } from '../../schema'
 export type TokenRecord = typeof tokensTable.$inferSelect
 
 // Input types for create / update / delete / etc
-export interface CreateTokenInput {
-  userId: number
-  type: TokenType
-  status?: TokenStatus
-  token: string
-  expiresAt: Date
-  metadata?: any
-}
+export type CreateTokenInput = typeof tokensTable.$inferInsert
+export type UpdateTokenInput = Partial<CreateTokenInput>
 
-export interface UpdateTokenInput {
-  status?: TokenStatus
-  usedAt?: Date | null
-  metadata?: any
+// Public-facing / API-return type
+export type Token = Omit<TokenRecord, 'type' | 'status'> & {
+  type: TokenType
+  status: TokenStatus
 }

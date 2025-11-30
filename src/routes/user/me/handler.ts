@@ -2,29 +2,26 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { normalizeUser } from '@/data'
 import { getUser, updateUser } from '@/use-cases/user/me'
 
 import type { UpdateProfileBody } from './schema'
 
 const getHandler = async (c: Context<AppContext>) => {
-  const userContext = c.get('user')
+  const user = c.get('user')
 
-  const user = await getUser(userContext.id)
+  const result = await getUser(user.id)
 
-  return c.json({ user: normalizeUser(user) })
+  return c.json(result.data)
 }
 
 const postHandler = async (c: Context<AppContext>) => {
   const user = c.get('user')
-  const { firstName, lastName } = await c.req.json<UpdateProfileBody>()
+  // @ts-expect-error Hono validation type inference
+  const payload = c.req.valid('json') as UpdateProfileBody
 
-  const updatedUser = await updateUser(user.id, {
-    firstName: firstName ?? undefined,
-    lastName: lastName ?? undefined,
-  })
+  const result = await updateUser(user.id, payload.data)
 
-  return c.json({ user: normalizeUser(updatedUser) })
+  return c.json(result.data)
 }
 
 export { getHandler, postHandler }

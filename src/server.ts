@@ -1,3 +1,5 @@
+import type { MiddlewareHandler } from 'hono'
+
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { requestId } from 'hono/request-id'
@@ -6,6 +8,7 @@ import type { AppContext } from '@/context'
 
 import { notFound, onError } from '@/handlers'
 import {
+  adminAuthMiddleware,
   authRateLimiter,
   authRequestSizeLimiter,
   corsMiddleware,
@@ -16,16 +19,25 @@ import {
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from '@/middleware'
-import { authRoutes, protectedRoutesAllowNew, protectedRoutesVerifiedOnly } from '@/routes'
+import {
+  adminRoutes,
+  authPublicRoutes,
+  userRoutesAllowNew,
+  userRoutesVerifiedOnly,
+} from '@/routes'
 
 class Server {
-  readonly app: Hono<AppContext>
+  private readonly app: Hono<AppContext>
 
   constructor() {
     this.app = new Hono<AppContext>({ strict: false })
     this.setupMiddleware()
     this.setupRoutes()
     this.setupHandlers()
+  }
+
+  getApp() {
+    return this.app
   }
 
   private setupMiddleware() {
@@ -36,25 +48,30 @@ class Server {
       .use(loggerMiddleware)
       .use(generalRequestSizeLimiter)
       .use(generalRateLimiter)
-      .use('/api/v1/auth/*', authRequestSizeLimiter)
-      .use('/api/v1/auth/*', authRateLimiter)
-      .use('/api/v1/protected/*', userRelaxedAuthMiddleware)
-      .use('/api/v1/private/*', userStrictAuthMiddleware)
       .use('/static/*', serveStatic({ root: './' }))
   }
 
   private setupRoutes() {
-    authRoutes.forEach((route) => {
-      this.app.route('/api/v1/auth', route)
-    })
-
-    protectedRoutesAllowNew.forEach((route) => {
-      this.app.route('/api/v1/protected', route)
-    })
-
-    protectedRoutesVerifiedOnly.forEach((route) => {
-      this.app.route('/api/v1/private', route)
-    })
+    this.createRouteGroup(
+      '/api/v1/auth',
+      authPublicRoutes,
+      [authRequestSizeLimiter, authRateLimiter],
+    )
+    this.createRouteGroup(
+      '/api/v1/user',
+      userRoutesAllowNew,
+      userRelaxedAuthMiddleware,
+    )
+    this.createRouteGroup(
+      '/api/v1/user/verified',
+      userRoutesVerifiedOnly,
+      userStrictAuthMiddleware,
+    )
+    this.createRouteGroup(
+      '/api/v1/admin',
+      adminRoutes,
+      adminAuthMiddleware,
+    )
   }
 
   private setupHandlers() {
@@ -62,8 +79,19 @@ class Server {
     this.app.onError(onError)
   }
 
-  getApp() {
-    return this.app
+  private createRouteGroup(
+    path: string,
+    routes: Hono<AppContext>[],
+    middleware: MiddlewareHandler | MiddlewareHandler[],
+  ) {
+    const group = new Hono<AppContext>()
+
+    const middlewareArray = Array.isArray(middleware) ? middleware : [middleware]
+    middlewareArray.forEach(mw => group.use(mw))
+
+    routes.forEach(route => group.route('/', route))
+
+    this.app.route(path, group)
   }
 }
 

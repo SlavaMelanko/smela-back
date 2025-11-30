@@ -18,7 +18,6 @@ describe('Reset Password', () => {
   let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
   let mockAuthRepo: any
-  let mockUserRepo: any
   let mockTransaction: any
 
   let mockTokenValidator: any
@@ -48,9 +47,6 @@ describe('Reset Password', () => {
     mockAuthRepo = {
       update: mock(async () => {}),
     }
-    mockUserRepo = {
-      incrementTokenVersion: mock(async () => {}),
-    }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
@@ -58,7 +54,6 @@ describe('Reset Password', () => {
     await moduleMocker.mock('@/data', () => ({
       tokenRepo: mockTokenRepo,
       authRepo: mockAuthRepo,
-      userRepo: mockUserRepo,
       db: mockTransaction,
     }))
 
@@ -105,10 +100,7 @@ describe('Reset Password', () => {
       }, {})
       expect(mockAuthRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(mockTokenRecord.userId, {})
-      expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledTimes(1)
-
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
     })
   })
 
@@ -268,70 +260,10 @@ describe('Reset Password', () => {
 
       const result = await resetPassword({ token: mockTokenString, password: longPassword })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
 
       expect(mockHashPassword).toHaveBeenCalledWith(longPassword)
       expect(mockHashPassword).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('Token Version Invalidation', () => {
-    describe('when password reset is successful', () => {
-      it('should increment user tokenVersion to invalidate existing JWTs', async () => {
-        await resetPassword({ token: mockTokenString, password: mockPassword })
-
-        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
-        expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(123, {})
-        expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledTimes(1)
-      })
-    })
-
-    describe('token version error handling', () => {
-      it('should fail if tokenVersion increment fails', async () => {
-        mockUserRepo.incrementTokenVersion.mockImplementation(async () => {
-          throw new Error('TokenVersion update failed')
-        })
-
-        try {
-          await resetPassword({ token: mockTokenString, password: mockPassword })
-          expect(true).toBe(false) // should not reach here
-        } catch (error) {
-          expect(error).toBeInstanceOf(Error)
-          expect((error as Error).message).toBe('TokenVersion update failed')
-        }
-
-        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
-        expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(123, {})
-      })
-    })
-
-    describe('complete password reset flow', () => {
-      it('should complete full flow: password reset → tokenVersion increment → JWT invalidation', async () => {
-        const userId = 123
-
-        // Execute password reset
-        const result = await resetPassword({ token: mockTokenString, password: 'NewPassword123!' })
-
-        // Verify all operations completed in correct order
-        expect(result.success).toBe(true)
-
-        // Transaction was called
-        expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
-
-        // 1. Token marked as used
-        expect(mockTokenRepo.update).toHaveBeenCalledWith(mockTokenRecord.id, {
-          status: TokenStatus.Used,
-          usedAt: expect.any(Date),
-        }, {})
-
-        // 2. Password updated
-        expect(mockAuthRepo.update).toHaveBeenCalledWith(userId, {
-          passwordHash: mockHashedPassword,
-        }, {})
-
-        // 3. TokenVersion incremented
-        expect(mockUserRepo.incrementTokenVersion).toHaveBeenCalledWith(userId, {})
-      })
     })
   })
 })

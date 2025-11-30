@@ -6,6 +6,7 @@ import { post } from '@/__tests__/request'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
 import { HttpStatus } from '@/net/http'
+import { TOKEN_LENGTH } from '@/security/token'
 
 import requestValidator from '../request-validator'
 
@@ -47,19 +48,21 @@ describe('Request Validator Middleware', () => {
 
     const json = await response.json()
     expect(json).toHaveProperty('code', ErrorCode.ValidationError)
-    expect(json).toHaveProperty('error', 'Missing required field "password"')
+    expect(json).toHaveProperty('error', '"password" is required')
   })
 
   it('should return validation error when token exceeds required length', async () => {
     const schema = z.object({
-      token: z.string().length(64, { message: 'Token must be exactly 64 characters long' }),
+      token: z.string().length(TOKEN_LENGTH, {
+        message: `Token must be exactly ${TOKEN_LENGTH} characters long`,
+      }),
     })
 
     const app = new Hono()
     app.onError(onError)
     app.post('/test', requestValidator('json', schema), c => c.json({ success: true }))
 
-    const validToken = 'a'.repeat(64) // exactly 64 characters
+    const validToken = 'a'.repeat(TOKEN_LENGTH) // exactly 64 characters
     const tooLongToken = `${validToken}extra` // 69 characters
 
     const response = await post(app, '/test', { token: tooLongToken })
@@ -68,6 +71,6 @@ describe('Request Validator Middleware', () => {
 
     const json = await response.json()
     expect(json).toHaveProperty('code', ErrorCode.ValidationError)
-    expect(json).toHaveProperty('error', 'Token must be exactly 64 characters long')
+    expect(json).toHaveProperty('error', '[token]: token must be exactly 64 characters long')
   })
 })

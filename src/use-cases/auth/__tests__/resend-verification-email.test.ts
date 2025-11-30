@@ -32,7 +32,6 @@ describe('Resend Verification Email', () => {
       email: 'john@example.com',
       status: Status.New,
       role: Role.User,
-      tokenVersion: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     })!
@@ -66,7 +65,7 @@ describe('Resend Verification Email', () => {
     }))
 
     mockEmailAgent = {
-      sendWelcomeEmail: mock(async () => {}),
+      sendEmailVerificationEmail: mock(async () => {}),
     }
 
     await moduleMocker.mock('@/services', () => ({
@@ -80,7 +79,7 @@ describe('Resend Verification Email', () => {
 
   describe('when user exists and is not verified', () => {
     it('should replace token with new verification token', async () => {
-      const result = await resendVerificationEmail(mockUser.email)
+      const result = await resendVerificationEmail({ email: mockUser.email })
 
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
@@ -92,18 +91,19 @@ describe('Resend Verification Email', () => {
       }, {})
       expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
     })
 
-    it('should send a welcome email with the new token', async () => {
-      await resendVerificationEmail(mockUser.email)
+    it('should send an email verification email with the new token', async () => {
+      await resendVerificationEmail({ email: mockUser.email })
 
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledWith({
-        firstName: mockUser.firstName,
-        email: mockUser.email,
-        token: mockTokenString,
-      })
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledWith(
+        mockUser.firstName,
+        mockUser.email,
+        mockTokenString,
+        undefined,
+      )
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -111,11 +111,11 @@ describe('Resend Verification Email', () => {
     it('should return success response to prevent email enumeration', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => null)
 
-      const result = await resendVerificationEmail('nonexistent@example.com')
+      const result = await resendVerificationEmail({ email: 'nonexistent@example.com' })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -128,11 +128,11 @@ describe('Resend Verification Email', () => {
 
       mockUserRepo.findByEmail.mockImplementation(async () => verifiedUser)
 
-      const result = await resendVerificationEmail(verifiedUser.email)
+      const result = await resendVerificationEmail({ email: verifiedUser.email })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -145,11 +145,11 @@ describe('Resend Verification Email', () => {
 
       mockUserRepo.findByEmail.mockImplementation(async () => suspendedUser)
 
-      const result = await resendVerificationEmail(suspendedUser.email)
+      const result = await resendVerificationEmail({ email: suspendedUser.email })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
       expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
@@ -160,7 +160,7 @@ describe('Resend Verification Email', () => {
       })
 
       try {
-        await resendVerificationEmail(mockUser.email)
+        await resendVerificationEmail({ email: mockUser.email })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -168,17 +168,17 @@ describe('Resend Verification Email', () => {
       }
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('edge cases', () => {
     it('should handle email with different cases', async () => {
       const upperCaseEmail = 'JOHN@EXAMPLE.COM'
-      const result = await resendVerificationEmail(upperCaseEmail)
+      const result = await resendVerificationEmail({ email: upperCaseEmail })
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(upperCaseEmail)
-      expect(result.success).toBe(true)
+      expect(result.data.success).toBe(true)
     })
 
     it('should reject users with ineligible statuses to prevent enumeration', async () => {
@@ -194,27 +194,27 @@ describe('Resend Verification Email', () => {
 
         mockUserRepo.findByEmail.mockImplementation(async () => userWithStatus)
 
-        const result = await resendVerificationEmail(userWithStatus.email)
+        const result = await resendVerificationEmail({ email: userWithStatus.email })
 
-        expect(result).toEqual({ success: true })
+        expect(result).toEqual({ data: { success: true } })
         expect(mockTokenRepo.replace).not.toHaveBeenCalled()
-        expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+        expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
       }
     })
   })
 
   describe('when email sending fails', () => {
     it('should complete successfully even if email fails', async () => {
-      mockEmailAgent.sendWelcomeEmail.mockImplementation(async () => {
+      mockEmailAgent.sendEmailVerificationEmail.mockImplementation(async () => {
         throw new Error('Email service unavailable')
       })
 
-      const result = await resendVerificationEmail(mockUser.email)
+      const result = await resendVerificationEmail({ email: mockUser.email })
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual({ data: { success: true } })
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalled()
     })
   })
 
@@ -225,7 +225,7 @@ describe('Resend Verification Email', () => {
       })
 
       try {
-        await resendVerificationEmail(mockUser.email)
+        await resendVerificationEmail({ email: mockUser.email })
         expect(true).toBe(false) // should not reach here
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
@@ -233,7 +233,7 @@ describe('Resend Verification Email', () => {
       }
 
       expect(mockTokenRepo.replace).toHaveBeenCalled()
-      expect(mockEmailAgent.sendWelcomeEmail).not.toHaveBeenCalled()
+      expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 })

@@ -9,9 +9,6 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.AlreadyVerified]: {
     error: 'User is already verified.',
   },
-  [ErrorCode.BadCredentials]: {
-    error: 'Invalid email or password.',
-  },
   [ErrorCode.EmailAlreadyInUse]: {
     error: 'Email is already in use.',
   },
@@ -19,7 +16,7 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Unverified account.',
   },
   [ErrorCode.InvalidCredentials]: {
-    error: 'Invalid credentials.',
+    error: 'Invalid email or password.',
   },
   [ErrorCode.Unauthorized]: {
     error: 'Unauthorized access.',
@@ -40,6 +37,20 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   },
   [ErrorCode.TokenTypeMismatch]: {
     error: 'Token type mismatch.',
+  },
+
+  // Refresh token errors
+  [ErrorCode.InvalidRefreshToken]: {
+    error: 'Invalid refresh token.',
+  },
+  [ErrorCode.RefreshTokenExpired]: {
+    error: 'Refresh token has expired.',
+  },
+  [ErrorCode.RefreshTokenRevoked]: {
+    error: 'Refresh token has been revoked.',
+  },
+  [ErrorCode.MissingRefreshToken]: {
+    error: 'Refresh token is missing.',
   },
 
   // Captcha errors

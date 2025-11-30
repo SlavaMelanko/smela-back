@@ -6,11 +6,11 @@ import resetPassword from '@/use-cases/auth/reset-password'
 import type { ResetPasswordBody } from './schema'
 
 const resetPasswordHandler = async (c: Context) => {
-  const { token, password } = await c.req.json<ResetPasswordBody>()
+  const payload = await c.req.json<ResetPasswordBody>()
 
-  const result = await resetPassword({ token, password })
+  const result = await resetPassword(payload.data)
 
-  return c.json(result, HttpStatus.OK)
+  return c.json(result.data, HttpStatus.OK)
 }
 
 export default resetPasswordHandler

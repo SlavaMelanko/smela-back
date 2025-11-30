@@ -2,14 +2,14 @@ import { eq } from 'drizzle-orm'
 
 import { AppError, ErrorCode } from '@/errors'
 
-import type { Transaction } from '../../clients'
+import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
-import { findUserById, toTypeSafeUser } from './queries'
+import { toTypeSafeUser } from './queries'
 
-export const createUser = async (user: CreateUserInput, tx?: Transaction): Promise<User> => {
+export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
 
   const [createdUser] = await executor
@@ -27,7 +27,7 @@ export const createUser = async (user: CreateUserInput, tx?: Transaction): Promi
 export const updateUser = async (
   userId: number,
   updates: UpdateUserInput,
-  tx?: Transaction,
+  tx?: Database,
 ): Promise<User> => {
   const executor = tx || db
 
@@ -44,14 +44,10 @@ export const updateUser = async (
   return toTypeSafeUser(updatedUser) as User
 }
 
-export const incrementTokenVersion = async (userId: number, tx?: Transaction): Promise<void> => {
-  const user = await findUserById(userId, tx)
+export const deleteUser = async (email: string, tx?: Database): Promise<void> => {
+  const executor = tx || db
 
-  if (!user) {
-    throw new AppError(ErrorCode.NotFound, 'User not found')
-  }
-
-  await updateUser(userId, {
-    tokenVersion: user.tokenVersion + 1,
-  }, tx)
+  await executor
+    .delete(usersTable)
+    .where(eq(usersTable.email, email))
 }

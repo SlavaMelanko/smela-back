@@ -31,12 +31,34 @@ export default antfu({
     }],
     'prefer-arrow-callback': ['error'],
     'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
-    'style/max-len': ['warn', {
+    'style/max-len': ['error', {
       code: 100,
       ignoreUrls: true,
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
       ignoreRegExpLiterals: true,
+    }],
+    'ts/member-ordering': ['error', {
+      default: [
+        // Static fields
+        'public-static-field',
+        'protected-static-field',
+        'private-static-field',
+        // Instance fields
+        'public-instance-field',
+        'protected-instance-field',
+        'private-instance-field',
+        // Constructor
+        'constructor',
+        // Static methods
+        'public-static-method',
+        'protected-static-method',
+        'private-static-method',
+        // Instance methods
+        'public-instance-method',
+        'protected-instance-method',
+        'private-instance-method',
+      ],
     }],
     'ts/no-unsafe-argument': ['error'],
     'ts/no-unsafe-assignment': ['error'],

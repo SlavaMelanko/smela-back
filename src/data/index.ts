@@ -1,4 +1,4 @@
-export type { Transaction } from './clients'
+export type { Database } from './clients'
 
 export { db } from './clients'
 export * from './repositories'

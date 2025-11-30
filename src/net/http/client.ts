@@ -30,6 +30,22 @@ export class HttpClient {
     }
   }
 
+  async get<T = any>(path: string, headers?: Headers): Promise<T> {
+    return this.request<T>(path, { method: 'GET', headers })
+  }
+
+  async post<T = any>(path: string, body?: Body, headers?: Headers): Promise<T> {
+    return this.request<T>(path, { method: 'POST', body, headers })
+  }
+
+  async put<T = any>(path: string, body?: Body, headers?: Headers): Promise<T> {
+    return this.request<T>(path, { method: 'PUT', body, headers })
+  }
+
+  async delete<T = any>(path: string, headers?: Headers): Promise<T> {
+    return this.request<T>(path, { method: 'DELETE', headers })
+  }
+
   private async request<T = any>(path: string, options: RequestOptions = {}): Promise<T> {
     const url = makeUrl(this.baseUrl, path)
     const timeout = options.timeout ?? this.defaultOptions.timeout
@@ -52,25 +68,12 @@ export class HttpClient {
     )
 
     if (!response.ok) {
-      throw new AppError(ErrorCode.InternalError, `API request failed: ${response.status} ${response.statusText}`)
+      throw new AppError(
+        ErrorCode.InternalError,
+        `API request failed: ${response.status} ${response.statusText}`,
+      )
     }
 
     return response.json() as Promise<T>
-  }
-
-  async get<T = any>(path: string, headers?: Headers): Promise<T> {
-    return this.request<T>(path, { method: 'GET', headers })
-  }
-
-  async post<T = any>(path: string, body?: Body, headers?: Headers): Promise<T> {
-    return this.request<T>(path, { method: 'POST', body, headers })
-  }
-
-  async put<T = any>(path: string, body?: Body, headers?: Headers): Promise<T> {
-    return this.request<T>(path, { method: 'PUT', body, headers })
-  }
-
-  async delete<T = any>(path: string, headers?: Headers): Promise<T> {
-    return this.request<T>(path, { method: 'DELETE', headers })
   }
 }

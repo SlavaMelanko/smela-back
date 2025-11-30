@@ -1,26 +1,46 @@
 import type { User } from '@/data'
+import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, normalizeUser, userRepo } from '@/data'
+import { authRepo, refreshTokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { comparePasswords } from '@/security/password'
+import { generateHashedToken, TokenType } from '@/security/token'
 
 export interface LoginParams {
   email: string
   password: string
 }
 
-const createJwtToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User) => signJwt(
   {
     id: user.id,
     email: user.email,
     role: user.role,
     status: user.status,
-    tokenVersion: user.tokenVersion,
   },
 )
 
-const logInWithEmail = async ({ email, password }: LoginParams) => {
+const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
+    TokenType.RefreshToken,
+  )
+
+  await refreshTokenRepo.create({
+    userId,
+    tokenHash: hashed,
+    ipAddress: deviceInfo.ipAddress,
+    userAgent: deviceInfo.userAgent,
+    expiresAt,
+  })
+
+  return raw
+}
+
+const logInWithEmail = async (
+  { email, password }: LoginParams,
+  deviceInfo: DeviceInfo,
+) => {
   const user = await userRepo.findByEmail(email)
 
   if (!user) {
@@ -36,12 +56,16 @@ const logInWithEmail = async ({ email, password }: LoginParams) => {
   const isPasswordValid = await comparePasswords(password, auth.passwordHash)
 
   if (!isPasswordValid) {
-    throw new AppError(ErrorCode.BadCredentials)
+    throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const token = await createJwtToken(user)
+  const accessToken = await createAccessToken(user)
+  const refreshToken = await createRefreshToken(user.id, deviceInfo)
 
-  return { user: normalizeUser(user), token }
+  return {
+    data: { user, accessToken },
+    refreshToken,
+  }
 }
 
 export default logInWithEmail

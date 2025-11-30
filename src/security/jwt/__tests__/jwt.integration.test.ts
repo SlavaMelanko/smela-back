@@ -11,7 +11,6 @@ describe('JWT Integration Tests', () => {
     email: 'test@example.com',
     role: Role.User,
     status: Status.Active,
-    tokenVersion: 0,
   }
 
   describe('signJwt + verifyJwt round-trip', () => {
@@ -29,7 +28,6 @@ describe('JWT Integration Tests', () => {
       expect(resultUserClaims.email).toBe(testUserClaims.email)
       expect(resultUserClaims.role).toBe(testUserClaims.role)
       expect(resultUserClaims.status).toBe(testUserClaims.status)
-      expect(resultUserClaims.tokenVersion).toBe(testUserClaims.tokenVersion)
     })
 
     it('should respect custom expiration time', async () => {
@@ -42,16 +40,6 @@ describe('JWT Integration Tests', () => {
       const resultUserClaims = await verifyJwt(token, { secret })
 
       expect(resultUserClaims.id).toBe(testUserClaims.id)
-    })
-
-    it('should include token version in verified payload', async () => {
-      const secret = 'test-secret-key'
-      const claimsWithVersion = { ...testUserClaims, tokenVersion: 5 }
-
-      const token = await signJwt(claimsWithVersion, { secret })
-      const resultUserClaims = await verifyJwt(token, { secret })
-
-      expect(resultUserClaims.tokenVersion).toBe(5)
     })
 
     it('should handle different user roles', async () => {

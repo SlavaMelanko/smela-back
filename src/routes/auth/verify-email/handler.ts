@@ -1,18 +1,20 @@
 import type { Context } from 'hono'
 
-import { HttpStatus, setAccessCookie } from '@/net/http'
+import { HttpStatus, setRefreshCookie } from '@/net/http'
+import { getDeviceInfo } from '@/net/http/device'
 import verifyEmail from '@/use-cases/auth/verify-email'
 
 import type { VerifyEmailBody } from './schema'
 
 const verifyEmailHandler = async (c: Context) => {
-  const { token } = await c.req.json<VerifyEmailBody>()
+  const payload = await c.req.json<VerifyEmailBody>()
+  const deviceInfo = getDeviceInfo(c)
 
-  const result = await verifyEmail(token)
+  const result = await verifyEmail(payload.data, deviceInfo)
 
-  setAccessCookie(c, result.token)
+  setRefreshCookie(c, result.refreshToken)
 
-  return c.json(result, HttpStatus.OK)
+  return c.json(result.data, HttpStatus.OK)
 }
 
 export default verifyEmailHandler

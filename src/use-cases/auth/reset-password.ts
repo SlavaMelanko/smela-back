@@ -1,4 +1,4 @@
-import { authRepo, db, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, tokenRepo } from '@/data'
 import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 
@@ -15,7 +15,7 @@ const validateToken = async (token: string) => {
 
 const resetPassword = async (
   { token, password }: ResetPasswordParams,
-): Promise<{ success: boolean }> => {
+) => {
   const validatedToken = await validateToken(token)
 
   await db.transaction(async (tx) => {
@@ -28,12 +28,9 @@ const resetPassword = async (
     // Update user's password
     const passwordHash = await hashPassword(password)
     await authRepo.update(validatedToken.userId, { passwordHash }, tx)
-
-    // Invalidate all existing sessions by incrementing token version
-    await userRepo.incrementTokenVersion(validatedToken.userId, tx)
   })
 
-  return { success: true }
+  return { data: { success: true } }
 }
 
 export default resetPassword

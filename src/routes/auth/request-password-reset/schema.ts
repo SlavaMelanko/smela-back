@@ -1,10 +1,13 @@
 import { z } from 'zod'
 
-import { dataValidationRules as rules } from '../../@shared'
+import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const requestPasswordResetSchema = z.object({
-  email: rules.email,
-  captchaToken: rules.captchaToken,
+  data: z.object({
+    email: rules.data.email,
+  }).strict(),
+  captcha: nested.captcha.strict(),
+  preferences: nested.preferences.optional(),
 }).strict()
 
 export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetSchema>

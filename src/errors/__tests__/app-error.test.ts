@@ -18,43 +18,43 @@ describe('AppError', () => {
   })
 
   test('should handle undefined custom message', () => {
-    const error = new AppError(ErrorCode.BadCredentials, undefined)
+    const error = new AppError(ErrorCode.InvalidCredentials, undefined)
 
-    expect(error.code).toBe(ErrorCode.BadCredentials)
+    expect(error.code).toBe(ErrorCode.InvalidCredentials)
     expect(error.name).toBe(APP_ERROR_NAME)
-    expect(error.message).toBe(ErrorRegistry[ErrorCode.BadCredentials].error)
+    expect(error.message).toBe(ErrorRegistry[ErrorCode.InvalidCredentials].error)
   })
 
   test('should handle null custom message', () => {
     // @ts-expect-error - testing invalid input
-    const error = new AppError(ErrorCode.BadCredentials, null)
+    const error = new AppError(ErrorCode.InvalidCredentials, null)
 
-    expect(error.code).toBe(ErrorCode.BadCredentials)
+    expect(error.code).toBe(ErrorCode.InvalidCredentials)
     expect(error.name).toBe(APP_ERROR_NAME)
-    expect(error.message).toBe(ErrorRegistry[ErrorCode.BadCredentials].error)
+    expect(error.message).toBe(ErrorRegistry[ErrorCode.InvalidCredentials].error)
   })
 
   test('should handle empty string custom message', () => {
-    const error = new AppError(ErrorCode.BadCredentials, '')
+    const error = new AppError(ErrorCode.InvalidCredentials, '')
 
-    expect(error.code).toBe(ErrorCode.BadCredentials)
+    expect(error.code).toBe(ErrorCode.InvalidCredentials)
     expect(error.name).toBe(APP_ERROR_NAME)
-    expect(error.message).toBe(ErrorRegistry[ErrorCode.BadCredentials].error)
+    expect(error.message).toBe(ErrorRegistry[ErrorCode.InvalidCredentials].error)
   })
 
   test('should handle whitespace-only custom message', () => {
-    const error = new AppError(ErrorCode.BadCredentials, '   ')
+    const error = new AppError(ErrorCode.InvalidCredentials, '   ')
 
-    expect(error.code).toBe(ErrorCode.BadCredentials)
+    expect(error.code).toBe(ErrorCode.InvalidCredentials)
     expect(error.name).toBe(APP_ERROR_NAME)
-    expect(error.message).toBe(ErrorRegistry[ErrorCode.BadCredentials].error)
+    expect(error.message).toBe(ErrorRegistry[ErrorCode.InvalidCredentials].error)
   })
 
   test('should create AppError with custom message that overrides ErrorRegistry', () => {
     const customMessage = 'Custom error message for testing'
-    const error = new AppError(ErrorCode.BadCredentials, customMessage)
+    const error = new AppError(ErrorCode.InvalidCredentials, customMessage)
 
-    expect(error.code).toBe(ErrorCode.BadCredentials)
+    expect(error.code).toBe(ErrorCode.InvalidCredentials)
     expect(error.name).toBe(APP_ERROR_NAME)
     expect(error.message).toBe(customMessage)
   })

@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL (via Neon serverless) with Drizzle ORM.
+TypeScript backend API built with Bun runtime and Hono framework. It provides authentication, user management, and role-based access control using PostgreSQL with Drizzle ORM.
 
 - **Runtime**: Bun with TypeScript
 - **Framework**: Hono web framework
-- **Database**: PostgreSQL (serverless)
+- **Database**: PostgreSQL (Docker)
 - **ORM**: Drizzle for type-safe queries
 - **Authentication**: JWT, bcrypt password hashing
 - **Email**: Transactional email support
@@ -23,10 +23,11 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 All available commands are defined in [package.json](package.json#L3-L23). Key commands include:
 
 - **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
-- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`
-- **Database**: `bun run db:setup` (generate + migrate + seed), `bun run db:studio` (Drizzle Studio)
+- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`, `bun run test:with-db` (start test DB and run tests)
+- **Database Dev**: `bun run db:up:dev` (start dev DB), `bun run db:down:dev` (stop dev DB), `bun run db:reset:dev` (reset dev DB), `bun run db:init` (generate + migrate + seed), `bun run db:ui` (Drizzle Studio)
+- **Database Test**: `bun run db:up:test` (start test DB on port 5433), `bun run db:down:test` (stop test DB), `bun run db:reset:test` (reset test DB)
 - **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
-- **Email Dev**: `bun run email` (React Email dev server on port 3001)
+- **Email Dev**: `bun run emails` (React Email dev server on port 3001)
 
 ## Architecture Overview
 
@@ -38,7 +39,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 - `/src/server.ts` - Server configuration with middleware setup
 - `/src/data/` - Data access layer
   - `/schema/` - Database schema (users, auth, rbac, tokens) with inline enums
-  - `/clients/` - Database clients (Neon serverless)
+  - `/clients/` - Database clients (PostgreSQL via postgres.js)
   - `/repositories/` - Repository pattern for data access (auth, token, user)
   - `/migrations/` - Drizzle ORM migrations
   - `seed.ts` - Database seeding script
@@ -56,7 +57,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/content/` - Localized email content (en, uk)
   - `/styles/` - Email styling utilities
 - `/src/middleware/` - Hono middleware stack
-  - `/dual-auth/` - JWT authentication (cookie and Bearer token support)
+  - `/auth/` - JWT access token authentication via Authorization header
   - `/captcha/` - CAPTCHA verification middleware
   - `/rate-limiter/` - Rate limiting per endpoint
   - `/size-limiter/` - Request size limits
@@ -81,8 +82,9 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 
 - Public routes: `/` (currently empty)
 - Auth routes: `/api/v1/auth/*` (login, signup, email verification, resend verification, password reset)
-- Protected routes: `/api/v1/protected/*` (JWT-protected endpoints, allows new users)
-- Private routes: `/api/v1/private/*` (JWT-protected endpoints, requires verified users)
+- User routes: `/api/v1/user/*` (JWT-protected endpoints, allows new users)
+- User verified routes: `/api/v1/user/verified/*` (JWT-protected endpoints, requires verified users)
+- Admin routes: `/api/v1/admin/*` (JWT-protected endpoints, admin roles only)
 
 ### Auth Routes Details
 
@@ -91,6 +93,7 @@ All auth routes accept POST requests:
 - `/api/v1/auth/signup` - User registration
 - `/api/v1/auth/login` - User authentication
 - `/api/v1/auth/logout` - User logout (clears JWT cookie)
+- `/api/v1/auth/refresh-token` - Refresh access token (requires refresh token in cookie)
 - `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
 - `/api/v1/auth/resend-verification-email` - Resend verification email
 - `/api/v1/auth/request-password-reset` - Request password reset
@@ -108,7 +111,29 @@ Key tables:
 
 ### Database Connection
 
-The project uses **Neon serverless PostgreSQL** with connection pooling (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
+The project uses **PostgreSQL running in Docker** with connection pooling via postgres.js (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
+
+#### Separate Dev and Test Databases
+
+The project maintains separate Docker Compose configurations for development and testing:
+
+- **Development Database** (`docker-compose-dev.yml`)
+  - Port: 5432
+  - Container: `smela-dev-db`
+  - Credentials from `.env.development`
+  - Volume: `postgres_data`
+
+- **Test Database** (`docker-compose-test.yml`)
+  - Port: 5433 (different from dev to avoid conflicts)
+  - Container: `smela-db-test`
+  - Credentials from `.env.test`
+  - Volume: `postgres_test_data`
+
+This separation allows:
+- Running tests while dev server is active
+- Independent database states
+- Parallel execution in CI/CD pipelines
+- Clean test isolation without affecting development data
 
 ### Authentication Flow
 
@@ -277,7 +302,25 @@ await moduleMocker.mock('@/lib/jwt', () => mockJwt)
 #### Authentication & Authorization
 
 - JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
-- Dual authentication support (cookies for web, Bearer tokens for API/mobile)
+- **Token Expiration Strategy**:
+  - Access tokens: 15 minutes (configurable via JWT_EXPIRATION) - Short-lived for security
+  - Refresh tokens: 30 days (configurable via COOKIE_REFRESH_TOKEN_EXPIRATION) - Stored in httpOnly cookies
+  - Token rotation: New refresh token generated on each use, old token revoked
+  - Rationale: Reduces attack surface, aligns with OAuth 2.0 best practices
+- **JWT Secret Rotation Strategy**:
+  - Two-secret pattern: `JWT_SECRET` (current) and `JWT_SECRET_PREVIOUS` (optional)
+  - Signing: Always uses current secret (`JWT_SECRET`)
+  - Verification: Tries current secret first, falls back to previous secret if set
+  - Recommended rotation period: 90 days (2-3x longest token lifetime)
+  - Grace period: 37 days (30 days max refresh token lifetime + 7 day buffer)
+  - Rotation process:
+    1. Generate new secret and set as `JWT_SECRET`
+    2. Move old secret to `JWT_SECRET_PREVIOUS`
+    3. Deploy changes
+    4. Wait grace period (37 days)
+    5. Remove `JWT_SECRET_PREVIOUS`
+  - Zero breaking changes: System works without `JWT_SECRET_PREVIOUS` for backward compatibility
+- Flexible authentication support (cookies for web, Bearer tokens for API/mobile)
 - bcrypt password hashing with configurable salt rounds (default: 10 rounds)
 - Email verification and secure password reset flows
 - One-time use tokens for password reset with expiration
@@ -446,6 +489,7 @@ export const captchaMiddleware = (): MiddlewareHandler => {
   - Prefer `export default class MyClass` over `class MyClass` + `export { MyClass as default }`
   - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
   - ESLint rule enforces blank lines between export statements for readability
+- **Class Member Ordering**: Enforced via `@typescript-eslint/member-ordering` (see `eslint.config.mjs` for exact ordering)
 
 #### Comment Formatting Standards
 
@@ -583,8 +627,9 @@ Middleware is applied in this specific order in `server.ts`:
 7. **Auth-specific middleware** (for `/api/v1/auth/*`):
    - Size Limiter: 10KB for auth endpoints
    - Rate Limiter: 5 attempts per 15 minutes
-8. **Protected route auth** (for `/api/v1/protected/*`): JWT validation, allows new users
-9. **Private route auth** (for `/api/v1/private/*`): JWT validation, requires verified users
+8. **User route auth** (for `/api/v1/user/*`): JWT validation, allows new users
+9. **User verified route auth** (for `/api/v1/user/verified/*`): JWT validation, requires verified users
+10. **Admin route auth** (for `/api/v1/admin/*`): JWT validation, admin roles only
 
 ### CORS Configuration
 

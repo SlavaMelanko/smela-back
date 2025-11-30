@@ -5,4 +5,4 @@ set -e
 python3 scripts/backup-env.py
 
 # Run all tests before push
-bun test
+bun run test

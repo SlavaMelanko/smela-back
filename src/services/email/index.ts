@@ -3,5 +3,9 @@ export { emailAgent, EmailAgent } from './email-agent'
 export { EmailType } from './email-type'
 export { createEmailProvider, type EmailProvider, type EmailProviderType } from './providers'
 export { buildEmailRegistry, type EmailRegistry } from './registry'
-export { type EmailSender, getSenderDetails, SenderProfile as SenderProfileType } from './sender-profile'
+export {
+  type EmailSender,
+  getSenderDetails,
+  SenderProfile as SenderProfileType,
+} from './sender-profile'
 export { EmailService } from './service'

@@ -1,11 +1,13 @@
 import { z } from 'zod'
 
-import { dataValidationRules as rules } from '../../@shared'
+import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const loginSchema = z.object({
-  email: rules.email,
-  password: rules.password,
-  captchaToken: rules.captchaToken,
+  data: z.object({
+    email: rules.data.email,
+    password: rules.data.password,
+  }).strict(),
+  captcha: nested.captcha.strict(),
 }).strict()
 
 export type LoginBody = z.infer<typeof loginSchema>
