@@ -3,8 +3,8 @@ import type EmailVerificationContent from '../email-verification'
 import { config } from '../../config'
 
 export const content: EmailVerificationContent = {
-  subject: `Verify your email for ${config.company.name}`,
-  previewText: 'Confirm your email to complete your registration',
+  subject: 'Verify your email',
+  previewText: `Confirm your email for ${config.company.name}`,
   greeting: (firstName?: string) => `Hi ${firstName || 'there'} 👋`,
   body: 'Click the link below to verify your email address:',
   ctaText: 'Verify email address',
