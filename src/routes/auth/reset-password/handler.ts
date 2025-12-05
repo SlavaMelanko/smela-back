@@ -1,12 +1,10 @@
-import type { Context } from 'hono'
-
 import { HttpStatus } from '@/net/http'
 import resetPassword from '@/use-cases/auth/reset-password'
 
-import type { ResetPasswordBody } from './schema'
+import type { ResetPasswordCtx } from './schema'
 
-const resetPasswordHandler = async (c: Context) => {
-  const payload = await c.req.json<ResetPasswordBody>()
+const resetPasswordHandler = async (c: ResetPasswordCtx) => {
+  const payload = c.req.valid('json')
 
   const result = await resetPassword(payload.data)
 

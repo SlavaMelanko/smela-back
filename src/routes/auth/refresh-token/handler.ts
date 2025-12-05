@@ -1,9 +1,9 @@
-import type { Context } from 'hono'
-
 import { getDeviceInfo, getRefreshCookie, HttpStatus, setRefreshCookie } from '@/net/http'
 import { refreshAuthTokens } from '@/use-cases/auth'
 
-const refreshTokenHandler = async (c: Context) => {
+import type { AppCtx } from '../../@shared'
+
+const refreshTokenHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
   const deviceInfo = getDeviceInfo(c)
 

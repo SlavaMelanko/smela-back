@@ -4,6 +4,8 @@ import { captchaRules } from './captcha-rules'
 import { dataRules } from './data-rules'
 import { preferencesRules } from './preferences-rules'
 
+export type { AppCtx, ValidatedCtx } from './handler'
+
 export const requestValidationRules = {
   data: dataRules,
   captcha: captchaRules,

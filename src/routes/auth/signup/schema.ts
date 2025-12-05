@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { ValidatedCtx } from '../../@shared'
+
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const signupSchema = z.object({
@@ -14,5 +16,7 @@ const signupSchema = z.object({
 }).strict()
 
 export type SignupBody = z.infer<typeof signupSchema>
+
+export type SignupCtx = ValidatedCtx<SignupBody>
 
 export default signupSchema

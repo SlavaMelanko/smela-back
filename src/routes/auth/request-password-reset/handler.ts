@@ -1,12 +1,10 @@
-import type { Context } from 'hono'
-
 import { HttpStatus } from '@/net/http'
 import requestPasswordReset from '@/use-cases/auth/request-password-reset'
 
-import type { RequestPasswordResetBody } from './schema'
+import type { RequestPasswordResetCtx } from './schema'
 
-const requestPasswordResetHandler = async (c: Context) => {
-  const payload = await c.req.json<RequestPasswordResetBody>()
+const requestPasswordResetHandler = async (c: RequestPasswordResetCtx) => {
+  const payload = c.req.valid('json')
 
   const result = await requestPasswordReset(payload.data, payload.preferences)
 
