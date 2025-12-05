@@ -1,10 +1,10 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import signUpWithEmail from '@/use-cases/auth/signup'
 
-import type { JsonCtx } from '../../@shared'
+import type { ValidatedCtx } from '../../@shared'
 import type { SignupBody } from './schema'
 
-const signupHandler = async (c: JsonCtx<SignupBody>) => {
+const signupHandler = async (c: ValidatedCtx<SignupBody>) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 

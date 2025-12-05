@@ -1,6 +1,6 @@
 import { getUser, updateUser } from '@/use-cases/user/me'
 
-import type { AppCtx, JsonCtx } from '../../@shared'
+import type { AppCtx, ValidatedCtx } from '../../@shared'
 import type { UpdateProfileBody } from './schema'
 
 const getHandler = async (c: AppCtx) => {
@@ -11,7 +11,7 @@ const getHandler = async (c: AppCtx) => {
   return c.json(result.data)
 }
 
-const postHandler = async (c: JsonCtx<UpdateProfileBody>) => {
+const postHandler = async (c: ValidatedCtx<UpdateProfileBody>) => {
   const user = c.get('user')
   const payload = c.req.valid('json')
 

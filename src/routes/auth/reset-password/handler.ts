@@ -1,10 +1,10 @@
 import { HttpStatus } from '@/net/http'
 import resetPassword from '@/use-cases/auth/reset-password'
 
-import type { JsonCtx } from '../../@shared'
+import type { ValidatedCtx } from '../../@shared'
 import type { ResetPasswordBody } from './schema'
 
-const resetPasswordHandler = async (c: JsonCtx<ResetPasswordBody>) => {
+const resetPasswordHandler = async (c: ValidatedCtx<ResetPasswordBody>) => {
   const payload = c.req.valid('json')
 
   const result = await resetPassword(payload.data)

@@ -21,7 +21,7 @@
  *
  * These types manually declare what `requestValidator` would have inferred:
  * ```typescript
- * const handler = async (c: JsonCtx<SignupBody>) => {
+ * const handler = async (c: ValidatedCtx<SignupBody>) => {
  *   c.req.valid('json') // ✓ Now TypeScript knows 'json' is valid
  * }
  * ```
@@ -43,11 +43,11 @@ interface JsonInput<Body> {
 /**
  * Context for routes with JSON body validation (POST, PUT, PATCH).
  * @example
- * const signupHandler = async (c: JsonCtx<SignupBody>) => {
+ * const signupHandler = async (c: ValidatedCtx<SignupBody>) => {
  *   const payload = c.req.valid('json') // typed as SignupBody
  * }
  */
-export type JsonCtx<Body> = Context<AppContext, string, JsonInput<Body>>
+export type ValidatedCtx<Body> = Context<AppContext, string, JsonInput<Body>>
 
 /**
  * Context for routes without body validation (GET, DELETE).

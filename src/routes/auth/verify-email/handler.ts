@@ -1,10 +1,10 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import verifyEmail from '@/use-cases/auth/verify-email'
 
-import type { JsonCtx } from '../../@shared'
+import type { ValidatedCtx } from '../../@shared'
 import type { VerifyEmailBody } from './schema'
 
-const verifyEmailHandler = async (c: JsonCtx<VerifyEmailBody>) => {
+const verifyEmailHandler = async (c: ValidatedCtx<VerifyEmailBody>) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
