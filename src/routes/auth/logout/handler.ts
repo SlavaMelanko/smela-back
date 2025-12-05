@@ -1,9 +1,9 @@
-import type { Context } from 'hono'
-
 import { deleteRefreshCookie, getRefreshCookie, HttpStatus } from '@/net/http'
 import { logout } from '@/use-cases/auth/logout'
 
-const logoutHandler = async (c: Context) => {
+import type { AppCtx } from '../../@shared'
+
+const logoutHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
 
   await logout(refreshToken)

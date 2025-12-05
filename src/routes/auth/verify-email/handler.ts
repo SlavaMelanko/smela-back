@@ -1,13 +1,11 @@
-import type { Context } from 'hono'
-
-import { HttpStatus, setRefreshCookie } from '@/net/http'
-import { getDeviceInfo } from '@/net/http/device'
+import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import verifyEmail from '@/use-cases/auth/verify-email'
 
+import type { JsonCtx } from '../../@shared'
 import type { VerifyEmailBody } from './schema'
 
-const verifyEmailHandler = async (c: Context) => {
-  const payload = await c.req.json<VerifyEmailBody>()
+const verifyEmailHandler = async (c: JsonCtx<VerifyEmailBody>) => {
+  const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
   const result = await verifyEmail(payload.data, deviceInfo)

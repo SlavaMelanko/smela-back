@@ -1,12 +1,9 @@
-import type { Context } from 'hono'
-
-import type { AppContext } from '@/context'
-
 import { getUser, updateUser } from '@/use-cases/user/me'
 
+import type { AppCtx, JsonCtx } from '../../@shared'
 import type { UpdateProfileBody } from './schema'
 
-const getHandler = async (c: Context<AppContext>) => {
+const getHandler = async (c: AppCtx) => {
   const user = c.get('user')
 
   const result = await getUser(user.id)
@@ -14,10 +11,9 @@ const getHandler = async (c: Context<AppContext>) => {
   return c.json(result.data)
 }
 
-const postHandler = async (c: Context<AppContext>) => {
+const postHandler = async (c: JsonCtx<UpdateProfileBody>) => {
   const user = c.get('user')
-  // @ts-expect-error Hono validation type inference
-  const payload = c.req.valid('json') as UpdateProfileBody
+  const payload = c.req.valid('json')
 
   const result = await updateUser(user.id, payload.data)
 

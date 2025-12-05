@@ -1,12 +1,11 @@
-import type { Context } from 'hono'
-
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import logInWithEmail from '@/use-cases/auth/login'
 
+import type { JsonCtx } from '../../@shared'
 import type { LoginBody } from './schema'
 
-const loginHandler = async (c: Context) => {
-  const payload = await c.req.json<LoginBody>()
+const loginHandler = async (c: JsonCtx<LoginBody>) => {
+  const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
   const result = await logInWithEmail(payload.data, deviceInfo)
