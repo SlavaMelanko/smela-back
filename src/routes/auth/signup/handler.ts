@@ -1,13 +1,11 @@
-import type { Context } from 'hono'
-
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
 import signUpWithEmail from '@/use-cases/auth/signup'
 
+import type { JsonCtx } from '../../@shared'
 import type { SignupBody } from './schema'
 
-const signupHandler = async (c: Context) => {
-  // @ts-expect-error Hono validation type inference
-  const payload = c.req.valid('json') as SignupBody
+const signupHandler = async (c: JsonCtx<SignupBody>) => {
+  const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
   const result = await signUpWithEmail(
