@@ -16,7 +16,6 @@ const signupSchema = z.object({
 }).strict()
 
 export type SignupBody = z.infer<typeof signupSchema>
-
 export type SignupCtx = ValidatedJsonCtx<SignupBody>
 
 export default signupSchema

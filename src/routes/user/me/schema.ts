@@ -12,7 +12,6 @@ const updateProfileSchema = z.object({
 }).strict()
 
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
-
 export type UpdateProfileCtx = ValidatedJsonCtx<UpdateProfileBody>
 
 export default updateProfileSchema

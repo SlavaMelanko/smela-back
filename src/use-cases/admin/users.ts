@@ -1,6 +1,8 @@
 import type { PaginationParams, SearchParams } from '@/data'
 
 import { userRepo } from '@/data'
+import AppError from '@/errors/app-error'
+import ErrorCode from '@/errors/codes'
 import { isUser, Role } from '@/types'
 
 const normalizeRoles = (params: SearchParams): SearchParams => {
@@ -22,4 +24,14 @@ export const searchUsers = async (params: SearchParams, pagination: PaginationPa
       pagination: result.pagination,
     },
   }
+}
+
+export const getUser = async (userId: number) => {
+  const user = await userRepo.findById(userId)
+
+  if (!user) {
+    throw new AppError(ErrorCode.NotFound, 'User not found')
+  }
+
+  return { data: { user } }
 }
