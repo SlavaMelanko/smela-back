@@ -4,6 +4,8 @@ export interface PaginationParams {
 }
 
 export interface PaginatedResult extends PaginationParams {
-  count: number
+  total: number
   totalPages: number
 }
+
+export const calcOffset = ({ page, limit }: PaginationParams) => (page - 1) * limit
