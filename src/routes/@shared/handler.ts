@@ -50,6 +50,23 @@ interface JsonInput<Body> {
 export type ValidatedCtx<Body> = Context<AppContext, string, JsonInput<Body>>
 
 /**
+ * Defines the shape of validated query input for Hono's type system.
+ */
+interface QueryInput<Query> {
+  in: { query: Query }
+  out: { query: Query }
+}
+
+/**
+ * Context for routes with query parameter validation (GET).
+ * @example
+ * const listHandler = async (c: ValidatedQueryCtx<ListQuery>) => {
+ *   const query = c.req.valid('query') // typed as ListQuery
+ * }
+ */
+export type ValidatedQueryCtx<Query> = Context<AppContext, string, QueryInput<Query>>
+
+/**
  * Context for routes without body validation (GET, DELETE).
  * @example
  * const healthHandler = async (c: AppCtx) => c.json({ status: 'ok' })
