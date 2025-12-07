@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '../../@shared'
 
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
@@ -14,6 +14,6 @@ const resendVerificationEmailSchema = z.object({
 
 export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>
 
-export type ResendVerificationEmailCtx = ValidatedCtx<ResendVerificationEmailBody>
+export type ResendVerificationEmailCtx = ValidatedJsonCtx<ResendVerificationEmailBody>
 
 export default resendVerificationEmailSchema
