@@ -12,7 +12,6 @@ const resetPasswordSchema = z.object({
 }).strict()
 
 export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>
-
 export type ResetPasswordCtx = ValidatedJsonCtx<ResetPasswordBody>
 
 export default resetPasswordSchema

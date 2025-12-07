@@ -10,7 +10,6 @@ import updateProfileSchema from './schema'
 const meRoute = new Hono<AppContext>()
 
 meRoute.get('/me', getHandler)
-
 meRoute.post('/me', requestValidator('json', updateProfileSchema), postHandler)
 
 export default meRoute

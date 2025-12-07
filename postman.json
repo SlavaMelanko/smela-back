@@ -25,6 +25,24 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "users/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_api_url}}/users/42",
+							"host": [
+								"{{admin_api_url}}"
+							],
+							"path": [
+								"users",
+								"42"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

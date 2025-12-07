@@ -1,1 +1,1 @@
-export { searchUsers } from './users'
+export { getUser, searchUsers } from './users'

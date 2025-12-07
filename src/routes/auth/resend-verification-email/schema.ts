@@ -13,7 +13,6 @@ const resendVerificationEmailSchema = z.object({
 }).strict()
 
 export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>
-
 export type ResendVerificationEmailCtx = ValidatedJsonCtx<ResendVerificationEmailBody>
 
 export default resendVerificationEmailSchema

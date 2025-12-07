@@ -13,7 +13,6 @@ const loginSchema = z.object({
 }).strict()
 
 export type LoginBody = z.infer<typeof loginSchema>
-
 export type LoginCtx = ValidatedJsonCtx<LoginBody>
 
 export default loginSchema

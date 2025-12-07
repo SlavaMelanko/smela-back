@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { Role, Status } from '@/types'
 
-import type { ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
 const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 25
@@ -10,7 +10,7 @@ const MAX_LIMIT = 100
 
 const DEFAULT_ROLES = [Role.User, Role.Enterprise]
 
-const listUsersSchema = z.object({
+export const usersSearchSchema = z.object({
   roles: z
     .string()
     .transform(val => val.split(','))
@@ -25,8 +25,12 @@ const listUsersSchema = z.object({
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
 })
 
-export type ListUsersQuery = z.infer<typeof listUsersSchema>
+export type UsersSearchQuery = z.infer<typeof usersSearchSchema>
+export type UsersSearchCtx = ValidatedQueryCtx<UsersSearchQuery>
 
-export type ListUsersCtx = ValidatedQueryCtx<ListUsersQuery>
+export const userIdSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
 
-export default listUsersSchema
+export type UserIdParam = z.infer<typeof userIdSchema>
+export type UserDetailCtx = ValidatedParamCtx<UserIdParam>

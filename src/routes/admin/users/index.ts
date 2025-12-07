@@ -4,11 +4,20 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import adminUsersHandler from './handler'
-import schema from './schema'
+import { adminUserDetailHandler, adminUsersHandler } from './handler'
+import { userIdSchema, usersSearchSchema } from './schema'
 
 const adminUsersRoute = new Hono<AppContext>()
 
-adminUsersRoute.get('/users', requestValidator('query', schema), adminUsersHandler)
+adminUsersRoute.get(
+  '/users',
+  requestValidator('query', usersSearchSchema),
+  adminUsersHandler,
+)
+adminUsersRoute.get(
+  '/users/:id',
+  requestValidator('param', userIdSchema),
+  adminUserDetailHandler,
+)
 
 export default adminUsersRoute

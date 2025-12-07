@@ -65,3 +65,17 @@ export type ValidatedQueryCtx<Query> = Context<AppContext, string, QueryInput<Qu
  * const healthHandler = async (c: AppCtx) => c.json({ status: 'ok' })
  */
 export type AppCtx = Context<AppContext, string>
+
+interface ParamInput<Param> {
+  in: { param: Param }
+  out: { param: Param }
+}
+
+/**
+ * Context for routes with path parameter validation (GET /resource/:id).
+ * @example
+ * const detailHandler = async (c: ValidatedParamCtx<{ id: number }>) => {
+ *   const { id } = c.req.valid('param') // typed as { id: number }
+ * }
+ */
+export type ValidatedParamCtx<Param> = Context<AppContext, string, ParamInput<Param>>

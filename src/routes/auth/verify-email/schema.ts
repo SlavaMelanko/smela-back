@@ -11,7 +11,6 @@ const verifyEmailSchema = z.object({
 }).strict()
 
 export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>
-
 export type VerifyEmailCtx = ValidatedJsonCtx<VerifyEmailBody>
 
 export default verifyEmailSchema
