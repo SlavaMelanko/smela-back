@@ -1,4 +1,4 @@
-import { and, count, eq, inArray } from 'drizzle-orm'
+import { and, count, desc, eq, inArray } from 'drizzle-orm'
 
 import type { Role, Status } from '@/types'
 
@@ -84,7 +84,13 @@ export const search = async (
 
   const [countResult, users] = await Promise.all([
     executor.select({ value: count() }).from(usersTable).where(whereClause),
-    executor.select().from(usersTable).where(whereClause).limit(limit).offset(offset),
+    executor
+      .select()
+      .from(usersTable)
+      .where(whereClause)
+      .orderBy(desc(usersTable.createdAt))
+      .limit(limit)
+      .offset(offset),
   ])
 
   const totalCount = countResult[0]?.value ?? 0
