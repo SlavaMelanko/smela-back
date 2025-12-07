@@ -62,6 +62,29 @@ describe('searchUsers', () => {
       DEFAULT_PAGINATION,
     )
   })
+
+  it('should return users and pagination data', async () => {
+    const result = await searchUsers({ roles: [Role.User] }, DEFAULT_PAGINATION)
+
+    expect(result).toEqual({
+      data: {
+        users: mockSearchResult.users,
+        pagination: mockSearchResult.pagination,
+      },
+    })
+  })
+
+  it('should preserve statuses in search params', async () => {
+    await searchUsers(
+      { roles: [Role.User], statuses: [Status.Active, Status.Inactive] },
+      DEFAULT_PAGINATION,
+    )
+
+    expect(mockUserRepoSearch).toHaveBeenCalledWith(
+      { roles: [Role.User], statuses: [Status.Active, Status.Inactive] },
+      DEFAULT_PAGINATION,
+    )
+  })
 })
 
 describe('getUser', () => {
