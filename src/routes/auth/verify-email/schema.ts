@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
@@ -12,6 +12,6 @@ const verifyEmailSchema = z.object({
 
 export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>
 
-export type VerifyEmailCtx = ValidatedCtx<VerifyEmailBody>
+export type VerifyEmailCtx = ValidatedJsonCtx<VerifyEmailBody>
 
 export default verifyEmailSchema

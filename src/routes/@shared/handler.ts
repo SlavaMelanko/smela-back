@@ -21,7 +21,7 @@
  *
  * These types manually declare what `requestValidator` would have inferred:
  * ```typescript
- * const handler = async (c: ValidatedCtx<SignupBody>) => {
+ * const handler = async (c: ValidatedJsonCtx<SignupBody>) => {
  *   c.req.valid('json') // ✓ Now TypeScript knows 'json' is valid
  * }
  * ```
@@ -31,10 +31,6 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-/**
- * Defines the shape of validated JSON input for Hono's type system.
- * The `in` and `out` properties tell Hono that 'json' is a valid target.
- */
 interface JsonInput<Body> {
   in: { json: Body }
   out: { json: Body }
@@ -43,11 +39,25 @@ interface JsonInput<Body> {
 /**
  * Context for routes with JSON body validation (POST, PUT, PATCH).
  * @example
- * const signupHandler = async (c: ValidatedCtx<SignupBody>) => {
+ * const signupHandler = async (c: ValidatedJsonCtx<SignupBody>) => {
  *   const payload = c.req.valid('json') // typed as SignupBody
  * }
  */
-export type ValidatedCtx<Body> = Context<AppContext, string, JsonInput<Body>>
+export type ValidatedJsonCtx<Body> = Context<AppContext, string, JsonInput<Body>>
+
+interface QueryInput<Query> {
+  in: { query: Query }
+  out: { query: Query }
+}
+
+/**
+ * Context for routes with query parameter validation (GET).
+ * @example
+ * const listHandler = async (c: ValidatedQueryCtx<ListQuery>) => {
+ *   const query = c.req.valid('query') // typed as ListQuery
+ * }
+ */
+export type ValidatedQueryCtx<Query> = Context<AppContext, string, QueryInput<Query>>
 
 /**
  * Context for routes without body validation (GET, DELETE).
