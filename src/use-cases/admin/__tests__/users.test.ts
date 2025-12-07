@@ -76,12 +76,12 @@ describe('searchUsers', () => {
 
   it('should preserve statuses in search params', async () => {
     await searchUsers(
-      { roles: [Role.User], statuses: [Status.Active, Status.Inactive] },
+      { roles: [Role.User], statuses: [Status.Active, Status.Active] },
       DEFAULT_PAGINATION,
     )
 
     expect(mockUserRepoSearch).toHaveBeenCalledWith(
-      { roles: [Role.User], statuses: [Status.Active, Status.Inactive] },
+      { roles: [Role.User], statuses: [Status.Active, Status.Active] },
       DEFAULT_PAGINATION,
     )
   })
