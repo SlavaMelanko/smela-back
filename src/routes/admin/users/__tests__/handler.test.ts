@@ -134,7 +134,7 @@ describe('adminUserDetailHandler', () => {
       json: mockJson,
     }
 
-    mockGetUser = mock(async () => ({ data: mockUser }))
+    mockGetUser = mock(async () => ({ data: { user: mockUser } }))
 
     await moduleMocker.mock('@/use-cases/admin', () => ({
       getUser: mockGetUser,
@@ -154,7 +154,7 @@ describe('adminUserDetailHandler', () => {
   it('should return user with OK status', async () => {
     const result = await adminUserDetailHandler(mockContext)
 
-    expect(mockJson).toHaveBeenCalledWith(mockUser, HttpStatus.OK)
+    expect(mockJson).toHaveBeenCalledWith({ user: mockUser }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
 

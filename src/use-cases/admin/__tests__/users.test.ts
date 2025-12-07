@@ -1,13 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { SearchResult } from '@/data'
+import type { SearchResult, User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
+import AppError from '@/errors/app-error'
+import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { searchUsers } from '../users'
+import { getUser, searchUsers } from '../users'
 
-describe('Admin Users Use Case', () => {
+describe('searchUsers', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   const DEFAULT_PAGINATION = { page: 1, limit: 25 }
@@ -59,5 +61,52 @@ describe('Admin Users Use Case', () => {
       { roles: [Role.User, Role.Enterprise] },
       DEFAULT_PAGINATION,
     )
+  })
+})
+
+describe('getUser', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockUser: User
+  let mockFindById: any
+
+  beforeEach(async () => {
+    mockUser = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      role: Role.User,
+      status: Status.Active,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindById = mock(async () => mockUser)
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: { findById: mockFindById },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should return user when found', async () => {
+    const result = await getUser(1)
+
+    expect(mockFindById).toHaveBeenCalledWith(1)
+    expect(result).toEqual({ data: { user: mockUser } })
+  })
+
+  it('should throw NotFound error when user does not exist', async () => {
+    mockFindById.mockImplementation(async () => undefined)
+
+    expect(getUser(999)).rejects.toThrow(AppError)
+    expect(getUser(999)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'User not found',
+    })
   })
 })
