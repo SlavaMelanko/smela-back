@@ -1,20 +1,10 @@
 import { eq } from 'drizzle-orm'
 
-import type { TokenStatus, TokenType } from '@/security/token'
-
 import type { Database } from '../../clients'
-import type { Token, TokenRecord } from './types'
+import type { Token } from './types'
 
 import { db } from '../../clients'
 import { tokensTable } from '../../schema'
-
-export const toTypeSafeToken = (token: TokenRecord): Token => {
-  return {
-    ...token,
-    type: token.type as TokenType,
-    status: token.status as TokenStatus,
-  }
-}
 
 export const findByToken = async (
   token: string,
@@ -29,5 +19,5 @@ export const findByToken = async (
       eq(tokensTable.token, token),
     )
 
-  return foundToken ? toTypeSafeToken(foundToken) : undefined
+  return foundToken
 }

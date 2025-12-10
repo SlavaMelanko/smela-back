@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
-import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
 import { hour, nowPlus } from '@/utils/chrono'
@@ -25,7 +24,7 @@ describe('Request Password Reset', () => {
   let mockEmailAgent: any
 
   beforeEach(async () => {
-    mockUser = toTypeSafeUser({
+    mockUser = {
       id: 1,
       firstName: 'John',
       lastName: 'Doe',
@@ -34,7 +33,7 @@ describe('Request Password Reset', () => {
       role: Role.User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    })!
+    }
     mockUserRepo = {
       findByEmail: mock(async () => mockUser),
     }
