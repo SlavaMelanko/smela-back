@@ -2,12 +2,6 @@ import { describe, expect, it } from 'bun:test'
 
 import { getErrorTracker, initErrorTracker } from '../instance'
 
-/**
- * Tests for error tracker singleton instance.
- *
- * Note: These tests verify the public API behavior without mocking internals.
- * The singleton is tested by checking interface conformance.
- */
 describe('error-tracker/instance', () => {
   describe('getErrorTracker', () => {
     it('should return an object conforming to ErrorTracker interface', () => {

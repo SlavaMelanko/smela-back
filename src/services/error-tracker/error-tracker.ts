@@ -1,3 +1,5 @@
+export type SeverityLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug'
+
 /**
  * Interface for error tracking services.
  *
@@ -40,5 +42,3 @@ export interface ErrorTracker {
    */
   clearUser: () => void
 }
-
-export type SeverityLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug'

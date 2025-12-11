@@ -2,12 +2,6 @@ import { describe, expect, it, mock } from 'bun:test'
 
 import type { ErrorTracker, SeverityLevel } from '../error-tracker'
 
-/**
- * Tests for ErrorTracker interface contract.
- *
- * These tests verify the interface behavior using a mock implementation,
- * ensuring any conforming implementation will work correctly with consumers.
- */
 describe('ErrorTracker interface', () => {
   const createMockErrorTracker = (): ErrorTracker => ({
     init: mock(() => {}),
