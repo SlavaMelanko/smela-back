@@ -5,7 +5,7 @@ import { coreEnvVars } from './core'
 import { createDbUrl, dbEnvVars } from './db'
 import { emailEnvVars } from './email'
 import { networkEnvVars } from './network'
-import { captchaEnvVars } from './services'
+import { captchaEnvVars, sentryEnvVars } from './services'
 
 // eslint-disable-next-line node/no-process-env
 export const validateEnvVars = (envVars: NodeJS.ProcessEnv = process.env) => {
@@ -19,6 +19,7 @@ export const validateEnvVars = (envVars: NodeJS.ProcessEnv = process.env) => {
       ...networkEnvVars(nodeEnv),
       ...companyEnvVars,
       ...captchaEnvVars,
+      ...sentryEnvVars,
     })
 
     const parsedEnv = envSchema.parse(envVars)

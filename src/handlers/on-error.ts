@@ -7,6 +7,7 @@ import { isDevEnv } from '@/env'
 import { APP_ERROR_NAME, ErrorCode, ErrorRegistry } from '@/errors'
 import { logger } from '@/logging'
 import { getReasonPhrase, HttpStatus } from '@/net/http'
+import { getErrorTracker } from '@/services'
 
 import { getHttpStatus } from './http-status-mapper'
 
@@ -31,6 +32,8 @@ const getErrorCode = (err: unknown): ErrorCode => {
 
 const onError: ErrorHandler = (err, c) => {
   logger.error(err)
+
+  getErrorTracker().captureError(err)
 
   const code = getErrorCode(err)
   const status = getHttpStatus(code)
