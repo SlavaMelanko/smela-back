@@ -1,5 +1,6 @@
 import { refreshTokenRepo } from '@/data'
 import { hashToken } from '@/security/token'
+import { getErrorTracker } from '@/services/error-tracker'
 
 const revokeRefreshToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
@@ -13,4 +14,6 @@ const revokeRefreshToken = async (refreshToken: string | undefined) => {
 
 export const logout = async (refreshToken: string | undefined) => {
   await revokeRefreshToken(refreshToken)
+
+  getErrorTracker().clearUser()
 }
