@@ -213,123 +213,14 @@ For detailed mocking patterns: `.claude/skills/bun-testing/references/mocking-pa
 
 ### Service Architecture Patterns
 
-**Modular Service Design Pattern** - Use this pattern for external service integrations (CAPTCHA, payment, SMS, file storage, etc.):
+For external service integrations (CAPTCHA, payment, SMS, file storage, analytics), use the **Modular Service Design Pattern**. This pattern provides feature isolation, interface abstraction, and factory-based instantiation.
 
-#### 1. Feature Isolation
+**See:** `.claude/skills/service-architecture-patterns/SKILL.md` for complete pattern guide with real examples from the codebase.
 
-Create isolated service modules under `/src/services/[service-name]/`:
+**Real implementations:**
 
-```text
-src/services/captcha/
-├── index.ts           # Public API exports only
-├── captcha.ts         # Generic interface
-├── factory.ts         # Factory method
-├── config.ts          # General configuration interface
-└── [provider]/        # Provider-specific implementation
-    ├── index.ts       # Provider exports
-    ├── [provider].ts  # Concrete implementation
-    ├── config.ts      # Provider-specific config
-    └── [types].ts     # Provider-specific types
-```
-
-#### 2. Interface Abstraction
-
-Define generic interfaces that support multiple implementations:
-
-```typescript
-// captcha.ts - Generic interface
-export interface Captcha {
-  validate: (token: string) => Promise<void>
-}
-
-// config.ts - General configuration
-export interface Config {
-  baseUrl: string
-  path: string
-  headers: Record<string, string>
-  secret: string
-}
-```
-
-#### 3. Helper Interfaces
-
-Create supporting interfaces for data types and configurations:
-
-```typescript
-// Provider-specific types
-export interface Result {
-  'success': boolean
-  'challenge_ts'?: string
-  'hostname'?: string
-  'error-codes'?: string[]
-}
-```
-
-#### 4. Concrete Implementation
-
-Implement the generic interface with provider-specific logic:
-
-```typescript
-// recaptcha/recaptcha.ts
-export class Recaptcha implements Captcha {
-  constructor(private config: Config) {}
-
-  async validate(token: string): Promise<void> {
-    // Provider-specific implementation
-  }
-}
-```
-
-#### 5. Factory Pattern
-
-Provide factory method for service creation:
-
-```typescript
-// factory.ts
-export const createCaptchaVerifier = (): Captcha => {
-  return new Recaptcha(recaptchaConfig)
-}
-```
-
-#### 6. Encapsulation Strategy
-
-Export only public API via index.ts:
-
-```typescript
-// index.ts - Public API only
-export type { Captcha } from './captcha'
-export { createCaptchaVerifier } from './factory'
-// Implementation details (Recaptcha class) NOT exported
-```
-
-#### 7. Usage Pattern
-
-Services should be consumed via factory methods and generic interfaces:
-
-```typescript
-// middleware/captcha.ts
-import { createCaptchaVerifier } from '@/services/captcha'
-
-export const captchaMiddleware = (): MiddlewareHandler => {
-  const captchaVerifier = createCaptchaVerifier() // Single instance for performance
-
-  return async (c, next) => {
-    const { captchaToken } = await c.req.json<CaptchaRequestBody>()
-    await captchaVerifier.validate(captchaToken)
-    await next()
-  }
-}
-```
-
-**Benefits:**
-
-- **Extensibility**: Easy to add new providers (hCaptcha, Turnstile)
-- **Testability**: Mock interfaces for testing
-- **Maintainability**: Clear separation of concerns
-- **Performance**: Reusable service instances via closure pattern
-- **Type Safety**: Full TypeScript support with proper abstractions
-
-**Use this pattern for:** Payment processors, Email providers, SMS services, File storage, Analytics services, etc.
+- Simple example: `/src/services/captcha/` (single provider - Google reCAPTCHA)
+- Advanced example: `/src/services/email/` (multiple providers - Ethereal + Resend with registry pattern)
 
 ### Coding Standards
 
