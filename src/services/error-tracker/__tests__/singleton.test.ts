@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 
-import { getErrorTracker, initErrorTracker } from '../instance'
+import { getErrorTracker, initErrorTracker } from '../singleton'
 
-describe('error-tracker/instance', () => {
+describe('error-tracker/singleton', () => {
   describe('getErrorTracker', () => {
     it('should return an object conforming to ErrorTracker interface', () => {
       const tracker = getErrorTracker()
