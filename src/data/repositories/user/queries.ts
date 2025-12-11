@@ -4,23 +4,11 @@ import type { Role, Status } from '@/types'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { User, UserRecord } from './types'
+import type { User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
 import { calcOffset } from '../pagination'
-
-export const toTypeSafeUser = (user: UserRecord): User | undefined => {
-  if (!user) {
-    return undefined
-  }
-
-  return {
-    ...user,
-    status: user.status as Status,
-    role: user.role as Role,
-  }
-}
 
 export const findUserById = async (
   userId: number,
@@ -33,7 +21,7 @@ export const findUserById = async (
     .from(usersTable)
     .where(eq(usersTable.id, userId))
 
-  return toTypeSafeUser(foundUser)
+  return foundUser
 }
 
 export const findUserByEmail = async (
@@ -47,7 +35,7 @@ export const findUserByEmail = async (
     .from(usersTable)
     .where(eq(usersTable.email, email))
 
-  return toTypeSafeUser(foundUser)
+  return foundUser
 }
 
 export interface SearchParams {
@@ -96,7 +84,7 @@ export const search = async (
   const totalCount = countResult[0]?.value ?? 0
 
   return {
-    users: users.map(u => toTypeSafeUser(u)!),
+    users,
     pagination: {
       page,
       limit,

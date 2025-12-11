@@ -19,7 +19,7 @@ export const authProviderEnum = createPgEnum('auth_provider', AuthProvider)
 export const authTable = pgTable('auth', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
-  provider: authProviderEnum('provider').notNull(),
+  provider: authProviderEnum('provider').notNull().$type<AuthProvider>(),
   identifier: varchar('identifier', { length: 255 }).notNull(),
   passwordHash: varchar('password_hash', { length: 255 }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

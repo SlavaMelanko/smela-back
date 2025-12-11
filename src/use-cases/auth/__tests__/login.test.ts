@@ -4,7 +4,7 @@ import type { AuthRecord, User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { Role, Status } from '@/types'
+import { AuthProvider, Role, Status } from '@/types'
 
 import type { LoginParams } from '../login'
 
@@ -55,7 +55,7 @@ describe('Login with Email', () => {
     mockAuthRecord = {
       id: 1,
       userId: 1,
-      provider: 'local',
+      provider: AuthProvider.Local,
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',
       createdAt: new Date('2024-01-01'),

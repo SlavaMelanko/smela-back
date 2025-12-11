@@ -7,7 +7,6 @@ import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
-import { toTypeSafeUser } from './queries'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -21,7 +20,7 @@ export const createUser = async (user: CreateUserInput, tx?: Database): Promise<
     throw new AppError(ErrorCode.InternalError, 'Failed to create user')
   }
 
-  return toTypeSafeUser(createdUser) as User
+  return createdUser
 }
 
 export const updateUser = async (
@@ -41,7 +40,7 @@ export const updateUser = async (
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')
   }
 
-  return toTypeSafeUser(updatedUser) as User
+  return updatedUser
 }
 
 export const deleteUser = async (email: string, tx?: Database): Promise<void> => {
