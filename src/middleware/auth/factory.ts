@@ -8,6 +8,7 @@ import type { Role, Status } from '@/types'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { verifyJwt } from '@/security/jwt'
+import { getErrorTracker } from '@/services/error-tracker'
 
 import extractAccessToken from './access-token'
 
@@ -38,6 +39,8 @@ const createAuthMiddleware = (
     }
 
     c.set('user', userClaims)
+
+    getErrorTracker().setUser({ id: String(userClaims.id) })
   } catch (error) {
     if (error instanceof AppError) {
       throw error
