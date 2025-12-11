@@ -1,5 +1,17 @@
 # Service Architecture Patterns: Implementation Guide
 
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Step 1: Feature Isolation](#step-1-feature-isolation)
+3. [Step 2: Interface Abstraction](#step-2-interface-abstraction)
+4. [Step 3: Helper Interfaces](#step-3-helper-interfaces)
+5. [Step 4: Concrete Implementation](#step-4-concrete-implementation)
+6. [Step 5: Factory Pattern](#step-5-factory-pattern)
+7. [Step 6: Encapsulation Strategy](#step-6-encapsulation-strategy)
+8. [Step 7: Usage Pattern](#step-7-usage-pattern)
+9. [Testing Strategy](#testing-strategy)
+
 ## Introduction
 
 The Modular Service Design Pattern provides a systematic approach to integrating external services while maintaining clean architecture principles. This guide walks through all 7 steps with detailed explanations and code examples.
@@ -439,3 +451,85 @@ await captcha.validate(testToken) // uses test CAPTCHA secret
 - Use test environment configurations
 - Verify error handling paths
 - Test provider-specific edge cases
+
+### Testing Factory Methods with Multiple Providers
+
+**Testing Provider Selection:**
+
+```typescript
+// services/captcha/__tests__/factory.test.ts
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { createCaptchaVerifier } from '../factory'
+import type { Captcha } from '../captcha'
+
+describe('createCaptchaVerifier', () => {
+  let originalEnv: string | undefined
+
+  beforeEach(() => {
+    originalEnv = process.env.CAPTCHA_PROVIDER
+  })
+
+  afterEach(() => {
+    if (originalEnv) {
+      process.env.CAPTCHA_PROVIDER = originalEnv
+    } else {
+      delete process.env.CAPTCHA_PROVIDER
+    }
+  })
+
+  it('should create reCAPTCHA verifier by default', () => {
+    const verifier = createCaptchaVerifier()
+    expect(verifier).toBeDefined()
+    expect(verifier).toHaveProperty('validate')
+  })
+
+  it('should create hCaptcha verifier when specified', () => {
+    const verifier = createCaptchaVerifier('hcaptcha')
+    expect(verifier).toBeDefined()
+    expect(verifier).toHaveProperty('validate')
+  })
+
+  it('should return same interface regardless of provider', () => {
+    const recaptcha = createCaptchaVerifier('recaptcha')
+    const hcaptcha = createCaptchaVerifier('hcaptcha')
+
+    // Both should have the same interface
+    expect(typeof recaptcha.validate).toBe('function')
+    expect(typeof hcaptcha.validate).toBe('function')
+  })
+})
+```
+
+**Testing with Environment Variables:**
+
+```typescript
+// services/email/__tests__/factory.test.ts
+import { describe, it, expect, beforeEach } from 'bun:test'
+import { createEmailProvider } from '../providers/factory'
+
+describe('createEmailProvider', () => {
+  it('should select Resend when API key is set', () => {
+    process.env.EMAIL_RESEND_API_KEY = 'test-key'
+
+    const provider = createEmailProvider()
+    // Provider should be Resend implementation
+    expect(provider).toBeDefined()
+  })
+
+  it('should select Ethereal when no Resend key', () => {
+    delete process.env.EMAIL_RESEND_API_KEY
+
+    const provider = createEmailProvider()
+    // Provider should be Ethereal implementation
+    expect(provider).toBeDefined()
+  })
+
+  it('should allow explicit provider override', () => {
+    process.env.EMAIL_RESEND_API_KEY = 'test-key'
+
+    // Explicitly request Ethereal despite Resend key
+    const provider = createEmailProvider('ethereal')
+    expect(provider).toBeDefined()
+  })
+})
+```

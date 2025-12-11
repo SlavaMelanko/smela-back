@@ -1,5 +1,16 @@
 # Email Service: Advanced Multi-Provider Example
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Complete File Structure](#complete-file-structure)
+3. [Pattern Extensions Beyond Basic 7 Steps](#pattern-extensions-beyond-basic-7-steps)
+4. [Step-by-Step Walkthrough](#step-by-step-walkthrough)
+5. [Comparison to Captcha Service](#comparison-to-captcha-service)
+6. [When to Add Complexity](#when-to-add-complexity)
+7. [Progressive Enhancement Approach](#progressive-enhancement-approach)
+8. [Key Takeaways](#key-takeaways)
+
 ## Overview
 
 The email service demonstrates an advanced implementation of the Modular Service Design Pattern with multiple providers (Ethereal for development, Resend for production). It introduces additional patterns beyond the basic 7 steps:

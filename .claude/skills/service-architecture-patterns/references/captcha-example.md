@@ -1,5 +1,12 @@
 # Captcha Service: Simple Single-Provider Example
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Complete File Structure](#complete-file-structure)
+3. [Step-by-Step Walkthrough](#step-by-step-walkthrough)
+4. [Key Takeaways](#key-takeaways)
+
 ## Overview
 
 The captcha service demonstrates the simplest form of the Modular Service Design Pattern with a single provider (Google reCAPTCHA). This is an excellent starting point for understanding the pattern before moving to more complex multi-provider scenarios.
