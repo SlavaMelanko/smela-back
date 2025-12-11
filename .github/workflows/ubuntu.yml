@@ -71,7 +71,7 @@ jobs:
         run: bun run lint
 
       - name: Run type checking
-        run: bun run typecheck
+        run: bun run tsc
 
       - name: Wait for PostgreSQL
         run: |
