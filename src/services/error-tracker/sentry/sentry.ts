@@ -5,8 +5,6 @@ import { logger } from '@/logging'
 import type { Config } from '../config'
 import type { ErrorTracker, SeverityLevel } from '../error-tracker'
 
-import packageJson from '../../../../package.json'
-
 /**
  * Sentry error tracking service implementation.
  *
@@ -27,21 +25,10 @@ export class SentryErrorTracker implements ErrorTracker {
       return
     }
 
-    const appName = packageJson.name
-
     Sentry.init({
       dsn: this.config.dsn,
       environment: this.config.environment,
       release: this.config.release,
-      beforeSend(event) {
-        event.tags = {
-          ...event.tags,
-          source: 'backend',
-          app: appName,
-        }
-
-        return event
-      },
     })
 
     this.initialized = true
