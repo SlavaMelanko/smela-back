@@ -69,6 +69,13 @@ jobs:
             - **Performance** (1–10): Check this update for efficiency, resource usage, and scalability. Identify any optimization opportunities or performance implications, especially under high load or large data scenarios.
             - **Code Quality** (1–10): Check this code for readability, maintainability, adherence to ESLint and CLAUDE.md standards, and naming clarity. Favor clarity over cleverness, and ensure names express intent clearly.
 
+            **DO NOT suggest any of the following:**
+            - Adding JSDoc comments or documentation comments (code should be self-documenting)
+            - Adding inline comments for obvious logic
+            - Minor stylistic preferences that don't affect correctness
+            - Trivial renaming suggestions unless names are genuinely misleading
+            - Adding explicit return types when TypeScript can infer them correctly
+
             Format the assessment as:
 
             ```md
@@ -79,8 +86,8 @@ jobs:
             ### 🏗️ Architecture: X/10
             [Brief justification — keep it short and clear.]
 
-            [Optional suggestions for improvement — list specific actions or issues that, if fixed, would increase the score.
-            Use an enumerated list ordered by priority, with 🔴 for critical issues, 🟠 for medium, and 🟢 for low.]
+            [Optional suggestions for improvement — list only critical (🔴) and medium (🟠) priority issues.
+            Skip low-priority polish items. Use an enumerated list ordered by priority.]
 
             ### 🛡️ Security: X/10
 
