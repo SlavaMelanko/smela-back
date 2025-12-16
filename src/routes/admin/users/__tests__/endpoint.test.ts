@@ -151,5 +151,52 @@ describe('Admin Users Endpoint', () => {
 
       expect(res.status).toBe(HttpStatus.BAD_REQUEST)
     })
+
+    it('should pass search parameter to use case', async () => {
+      const res = await app.request(`${USERS_URL}?search=john`, { method: 'GET' })
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockSearchUsers).toHaveBeenCalledWith(
+        expect.objectContaining({ search: 'john' }),
+        expect.any(Object),
+      )
+    })
+
+    it('should pass search combined with filters', async () => {
+      const res = await app.request(
+        `${USERS_URL}?search=test&roles=${Role.User}&statuses=${Status.Active}`,
+        { method: 'GET' },
+      )
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockSearchUsers).toHaveBeenCalledWith(
+        expect.objectContaining({
+          search: 'test',
+          roles: [Role.User],
+          statuses: [Status.Active],
+        }),
+        expect.any(Object),
+      )
+    })
+
+    it('should pass search combined with pagination', async () => {
+      const res = await app.request(`${USERS_URL}?search=jane&page=2&limit=10`, { method: 'GET' })
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockSearchUsers).toHaveBeenCalledWith(
+        expect.objectContaining({ search: 'jane' }),
+        { page: 2, limit: 10 },
+      )
+    })
+
+    it('should trim whitespace from search parameter', async () => {
+      const res = await app.request(`${USERS_URL}?search=  john  `, { method: 'GET' })
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockSearchUsers).toHaveBeenCalledWith(
+        expect.objectContaining({ search: 'john' }),
+        expect.any(Object),
+      )
+    })
   })
 })

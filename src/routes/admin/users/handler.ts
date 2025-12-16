@@ -4,9 +4,9 @@ import { getUser, searchUsers } from '@/use-cases/admin'
 import type { UserDetailCtx, UsersSearchCtx } from './schema'
 
 export const adminUsersHandler = async (c: UsersSearchCtx) => {
-  const { roles, statuses, page, limit } = c.req.valid('query')
+  const { search, roles, statuses, page, limit } = c.req.valid('query')
 
-  const filters = { roles, statuses }
+  const filters = { search, roles, statuses }
   const pagination = { page, limit }
   const result = await searchUsers(filters, pagination)
 

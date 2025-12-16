@@ -11,6 +11,7 @@ const MAX_LIMIT = 100
 const DEFAULT_ROLES = [Role.User, Role.Enterprise]
 
 export const usersSearchSchema = z.object({
+  search: z.string().trim().optional(),
   roles: z
     .string()
     .transform(val => val.split(','))
