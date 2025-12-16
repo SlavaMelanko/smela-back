@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray } from 'drizzle-orm'
+import { and, count, desc, eq, ilike, inArray, or } from 'drizzle-orm'
 
 import type { Role, Status } from '@/types'
 
@@ -39,6 +39,7 @@ export const findUserByEmail = async (
 }
 
 export interface SearchParams {
+  search?: string
   roles: Role[]
   statuses?: Status[]
 }
@@ -54,7 +55,7 @@ export const search = async (
   tx?: Database,
 ): Promise<SearchResult> => {
   const executor = tx || db
-  const { roles, statuses } = filters
+  const { search, roles, statuses } = filters
   const { page, limit } = pagination
   const offset = calcOffset(pagination)
 
@@ -63,6 +64,17 @@ export const search = async (
 
     if (statuses && statuses.length > 0) {
       conditions.push(inArray(usersTable.status, statuses))
+    }
+
+    if (search && search.length > 0) {
+      const searchPattern = `%${search}%`
+      conditions.push(
+        or(
+          ilike(usersTable.firstName, searchPattern),
+          ilike(usersTable.lastName, searchPattern),
+          ilike(usersTable.email, searchPattern),
+        )!,
+      )
     }
 
     return and(...conditions)
