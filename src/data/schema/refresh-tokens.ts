@@ -20,8 +20,6 @@ export const refreshTokensTable = pgTable('refresh_tokens', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => [
-  index('refresh_tokens_user_id_index').on(table.userId),
   index('refresh_tokens_user_active_index').on(table.userId, table.revokedAt, table.expiresAt),
-  index('refresh_tokens_expires_at_index').on(table.expiresAt),
   index('refresh_tokens_cleanup_index').on(table.expiresAt, table.revokedAt),
 ])

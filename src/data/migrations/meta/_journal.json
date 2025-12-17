@@ -22,6 +22,13 @@
       "when": 1762873371531,
       "tag": "0002_groovy_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765978696278,
+      "tag": "0003_fast_toxin",
+      "breakpoints": true
     }
   ]
 }
