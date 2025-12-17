@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, node/no-process-env */
 
 /**
  * Seed fake users for testing GIN/pg_trgm search performance
@@ -93,7 +93,15 @@ const clearFakeUsers = async () => {
   console.log(`Deleted ${result.length} fake users`)
 }
 
+const ALLOWED_ENVS = ['development', 'test', 'staging']
+
 const main = async () => {
+  const currentEnv = process.env.NODE_ENV ?? ''
+  if (!ALLOWED_ENVS.includes(currentEnv)) {
+    console.error(`This script only runs in: ${ALLOWED_ENVS.join(', ')}`)
+    process.exit(1)
+  }
+
   const args = process.argv.slice(2)
 
   // Handle --clear flag
@@ -111,9 +119,6 @@ const main = async () => {
     console.error('Invalid count. Usage: bun src/data/scripts/seed-fake-users.ts [count]')
     process.exit(1)
   }
-
-  // Clear existing fake users before seeding (deterministic emails would conflict)
-  await clearFakeUsers()
 
   // Seed faker for reproducible data
   faker.seed(12345)
