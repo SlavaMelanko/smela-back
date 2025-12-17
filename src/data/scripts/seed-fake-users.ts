@@ -28,14 +28,17 @@ const DEFAULT_COUNT = 5000
 // Pre-computed bcrypt hash for "FakeUser123!" to avoid slow hashing
 const DUMMY_PASSWORD_HASH = '$2b$10$QKxGzLHk1BrFb7YrLsLnZuvEw3K.vUqhD4TxCPDdKFfqsHVqoA3lC'
 
+const sanitizeForEmail = (name: string) => name.toLowerCase().replace(/[^a-z]/g, '')
+
 const generateUser = (index: number) => {
   const firstName = faker.person.firstName()
   const lastName = faker.helpers.maybe(() => faker.person.lastName(), { probability: 0.9 }) ?? null
+  const lastNamePart = lastName ? sanitizeForEmail(lastName) : 'user'
 
   return {
     firstName,
     lastName,
-    email: `fake-${index}-${faker.string.alphanumeric(6).toLowerCase()}@test.local`,
+    email: `${sanitizeForEmail(firstName)}.${lastNamePart}+${index}@test.local`,
     role: faker.helpers.arrayElement([Role.User, Role.Enterprise]),
     status: faker.helpers.arrayElement([Status.New, Status.Verified, Status.Active]),
   }
@@ -81,10 +84,10 @@ const seedFakeUsers = async (count: number) => {
 const clearFakeUsers = async () => {
   console.log('Clearing existing fake users...')
 
-  // Delete users with fake-*@test.local emails (auth records cascade automatically)
+  // Delete users with *@test.local emails (auth records cascade automatically)
   const result = await db
     .delete(usersTable)
-    .where(like(usersTable.email, 'fake-%@test.local'))
+    .where(like(usersTable.email, '%@test.local'))
     .returning({ id: usersTable.id })
 
   console.log(`Deleted ${result.length} fake users`)
