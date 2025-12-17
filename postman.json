@@ -15,18 +15,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{admin_api_url}}/users?search=cam",
+							"raw": "{{admin_api_url}}/users",
 							"host": [
 								"{{admin_api_url}}"
 							],
 							"path": [
 								"users"
-							],
-							"query": [
-								{
-									"key": "search",
-									"value": "cam"
-								}
 							]
 						}
 					},
