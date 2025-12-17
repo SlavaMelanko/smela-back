@@ -97,52 +97,99 @@ const seedDefaultAdminPermissions = async () => {
   })
 }
 
-const seedAdmins = async () => {
-  const admins = [
+const seedUser = async (user: {
+  firstName: string
+  lastName?: string
+  email: string
+  password: string
+  role: Role
+  status: Status
+}) => {
+  const [existingUser] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, user.email))
+
+  if (existingUser) {
+    console.log(`✅ ${user.role} ${user.email} already exists`)
+
+    return
+  }
+
+  const hashedPassword = await hashPassword(user.password)
+
+  const [createdUser] = await db
+    .insert(usersTable)
+    .values({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    })
+    .returning({ id: usersTable.id })
+
+  await db.insert(authTable).values({
+    userId: createdUser.id,
+    provider: AuthProvider.Local,
+    identifier: user.email,
+    passwordHash: hashedPassword,
+  })
+
+  console.log(`✅ ${user.role} ${user.email} seeded`)
+}
+
+const seedUsers = async () => {
+  const users = [
+    // Owner
     {
-      firstName: 'Jason',
-      email: 'jason@example.com',
-      password: 'Passw0rd!', // plain text for seeding; will be hashed
-    },
-    {
-      firstName: 'Billy',
-      email: 'billy@example.com',
+      firstName: 'Slava',
+      lastName: 'Owner',
+      email: 'slava.owner@smela.com',
       password: 'Passw0rd!',
+      role: Role.Owner,
+      status: Status.Active,
+    },
+    // Admin
+    {
+      firstName: 'Slava',
+      lastName: 'Admin',
+      email: 'slava.admin@smela.com',
+      password: 'Passw0rd!',
+      role: Role.Admin,
+      status: Status.Active,
+    },
+    // Enterprise user (active)
+    {
+      firstName: 'Emma',
+      lastName: 'Enterprise',
+      email: 'emma.enterprise@smela.com',
+      password: 'Passw0rd!',
+      role: Role.Enterprise,
+      status: Status.Active,
+    },
+    // Regular user (new status)
+    {
+      firstName: 'Noah',
+      lastName: 'Newuser',
+      email: 'noah.newuser@smela.com',
+      password: 'Passw0rd!',
+      role: Role.User,
+      status: Status.New,
+    },
+    // Regular user (verified status)
+    {
+      firstName: 'Olivia',
+      lastName: 'Verified',
+      email: 'olivia.verified@smela.com',
+      password: 'Passw0rd!',
+      role: Role.User,
+      status: Status.Verified,
     },
   ]
 
-  for (const admin of admins) {
-    const [existingUser] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, admin.email))
-
-    if (!existingUser) {
-      const hashedPassword = await hashPassword(admin.password)
-
-      // 1. Create user
-      const [createdUser] = await db
-        .insert(usersTable)
-        .values({
-          firstName: admin.firstName,
-          email: admin.email,
-          role: Role.Admin,
-          status: Status.Active,
-        })
-        .returning({ id: usersTable.id })
-
-      // 2. Create auth entry
-      await db.insert(authTable).values({
-        userId: createdUser.id,
-        provider: AuthProvider.Local,
-        identifier: admin.email,
-        passwordHash: hashedPassword,
-      })
-
-      console.log(`✅ Admin ${admin.email} seeded`)
-    } else {
-      console.log(`✅ Admin ${admin.email} already exists`)
-    }
+  for (const user of users) {
+    await seedUser(user)
   }
 }
 
@@ -150,7 +197,7 @@ const seed = async () => {
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
-  await seedAdmins()
+  await seedUsers()
 }
 
 seed().catch((err) => {
