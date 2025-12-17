@@ -15,4 +15,4 @@ exclude_paths:
   - '*.config.js'
   - '*.config.mjs'
   - '*.config.ts'
-  - src/data/seed.ts
+  - 'src/data/scripts/**'

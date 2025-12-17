@@ -1,11 +1,21 @@
 /* eslint-disable no-console */
+
+/**
+ * Seed initial data required to start the application
+ *
+ * Seeds: permissions, role-permission mappings, initial users (owner, admin, test users)
+ *
+ * Usage:
+ *   bun run db:seed
+ */
+
 import { eq } from 'drizzle-orm'
 
 import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
-import { db } from './clients'
-import { authTable, permissionsTable, rolePermissionsTable, usersTable } from './schema'
+import { db } from '../clients'
+import { authTable, permissionsTable, rolePermissionsTable, usersTable } from '../schema'
 
 const seedPermissions = async () => {
   const allResources = Object.values(Resource)

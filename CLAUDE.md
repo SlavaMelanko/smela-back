@@ -42,7 +42,7 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
   - `/clients/` - Database clients (PostgreSQL via postgres.js)
   - `/repositories/` - Repository pattern for data access (auth, token, user)
   - `/migrations/` - Drizzle ORM migrations
-  - `seed.ts` - Database seeding script
+  - `/scripts/` - Database scripts (see file headers for usage)
 - `/src/security/` - Security-related utilities
   - `/jwt/` - JWT token generation and validation with claims
   - `/password/` - Password hashing, validation, and regex patterns
