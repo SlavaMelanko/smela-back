@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, inArray, or } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
 
 import type { Role, Status } from '@/types'
 
@@ -67,13 +67,9 @@ export const search = async (
     }
 
     if (search && search.length > 0) {
-      const searchPattern = `%${search}%`
+      // Use concatenated expression to leverage GIN index (idx_users_search_trgm)
       conditions.push(
-        or(
-          ilike(usersTable.firstName, searchPattern),
-          ilike(usersTable.lastName, searchPattern),
-          ilike(usersTable.email, searchPattern),
-        )!,
+        sql`(first_name || ' ' || COALESCE(last_name, '') || ' ' || email) ILIKE ${`%${search}%`}`,
       )
     }
 
