@@ -1,5 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
+import type { TokenType } from '@/security/token'
+
 import { TokenStatus } from '@/security/token'
 
 import type { Database } from '../../clients'
@@ -10,7 +12,7 @@ import { tokensTable } from '../../schema'
 
 export const deprecateOldTokens = async (
   userId: number,
-  tokenType: string,
+  tokenType: TokenType,
   tx?: Database,
 ) => {
   const executor = tx || db

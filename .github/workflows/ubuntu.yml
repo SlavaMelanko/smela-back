@@ -70,6 +70,9 @@ jobs:
       - name: Run linting
         run: bun run lint
 
+      - name: Run type checking
+        run: bun run tsc
+
       - name: Wait for PostgreSQL
         run: |
           for i in {1..10}; do

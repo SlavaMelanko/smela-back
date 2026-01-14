@@ -1,6 +1,9 @@
 import { verifyDbConnection } from '@/data/clients/db'
+import { initErrorTracker } from '@/services'
 
 import Server from './server'
+
+initErrorTracker()
 
 verifyDbConnection().catch(() => {
   process.exit(1)

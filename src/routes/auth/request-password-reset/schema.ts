@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { ValidatedJsonCtx } from '../../@shared'
+
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const requestPasswordResetSchema = z.object({
@@ -11,5 +13,6 @@ const requestPasswordResetSchema = z.object({
 }).strict()
 
 export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetSchema>
+export type RequestPasswordResetCtx = ValidatedJsonCtx<RequestPasswordResetBody>
 
 export default requestPasswordResetSchema

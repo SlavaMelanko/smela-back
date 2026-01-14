@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__/module-mocker'
-import { toTypeSafeUser } from '@/data/repositories/user/queries'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
@@ -55,7 +54,7 @@ describe('Signup with Email', () => {
       userAgent: 'Mozilla/5.0 (Test)',
     }
 
-    mockNewUser = toTypeSafeUser({
+    mockNewUser = {
       id: 1,
       firstName: 'John',
       lastName: 'Doe',
@@ -64,7 +63,7 @@ describe('Signup with Email', () => {
       role: Role.User,
       createdAt: new Date(),
       updatedAt: new Date(),
-    })!
+    }
     mockUserRepo = {
       findByEmail: mock(async () => null),
       create: mock(async () => mockNewUser),

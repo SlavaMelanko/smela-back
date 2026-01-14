@@ -7,10 +7,15 @@ import type { AppContext } from '@/context'
 import { AppError, ErrorCode } from '@/errors'
 import { createCaptchaVerifier } from '@/services'
 
-interface CaptchaRequestBody {
+interface CaptchaBody {
   captcha: {
     token: string
   }
+}
+
+interface CaptchaInput {
+  in: { json: CaptchaBody }
+  out: { json: CaptchaBody }
 }
 
 /**
@@ -24,11 +29,10 @@ interface CaptchaRequestBody {
 const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
   const captchaVerifier = createCaptchaVerifier()
 
-  return createMiddleware<AppContext>(async (c, next) => {
+  return createMiddleware<AppContext, string, CaptchaInput>(async (c, next) => {
     try {
-      // At this point, the request has already been validated by requestValidator
-      // So we know captcha.token exists and is properly formatted
-      const { captcha } = await c.req.json<CaptchaRequestBody>()
+      // Uses validated data from upstream validator
+      const { captcha } = c.req.valid('json')
 
       await captchaVerifier.validate(captcha.token)
     } catch (error) {

@@ -3,7 +3,7 @@ CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> st
 CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."token_status" AS ENUM('pending', 'used', 'deprecated');--> statement-breakpoint
-CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
+CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset', 'refresh_token');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -27,6 +27,19 @@ CREATE TABLE "role_permissions" (
 	"role" "role" NOT NULL,
 	"permission_id" integer NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "refresh_tokens" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
+	"token_hash" varchar(64) NOT NULL,
+	"ip_address" varchar(45),
+	"user_agent" varchar(512),
+	"expires_at" timestamp with time zone NOT NULL,
+	"revoked_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "refresh_tokens_token_hash_unique" UNIQUE("token_hash")
 );
 --> statement-breakpoint
 CREATE TABLE "tokens" (
@@ -56,11 +69,13 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "auth" ADD CONSTRAINT "auth_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_auth" ON "auth" USING btree ("provider","identifier");--> statement-breakpoint
 CREATE INDEX "auth_user_id_index" ON "auth" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_permission" ON "permissions" USING btree ("action","resource");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_role_permission" ON "role_permissions" USING btree ("role","permission_id");--> statement-breakpoint
+CREATE INDEX "refresh_tokens_user_active_index" ON "refresh_tokens" USING btree ("user_id","revoked_at","expires_at");--> statement-breakpoint
+CREATE INDEX "refresh_tokens_cleanup_index" ON "refresh_tokens" USING btree ("expires_at","revoked_at");--> statement-breakpoint
 CREATE INDEX "user_type_index" ON "tokens" USING btree ("user_id","type");--> statement-breakpoint
-CREATE INDEX "tokens_expires_at_index" ON "tokens" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");

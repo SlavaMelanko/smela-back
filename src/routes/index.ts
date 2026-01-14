@@ -2,6 +2,7 @@ import type { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { adminUsersRoute } from './admin'
 import {
   loginRoute,
   logoutRoute,
@@ -29,4 +30,4 @@ export const userRoutesAllowNew: Hono<AppContext>[] = [meRoute]
 
 export const userRoutesVerifiedOnly: Hono<AppContext>[] = []
 
-export const adminRoutes: Hono<AppContext>[] = []
+export const adminRoutes: Hono<AppContext>[] = [adminUsersRoute]

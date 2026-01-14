@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { ValidatedJsonCtx } from '../../@shared'
+
 import { requestValidationRules as rules } from '../../@shared'
 
 const updateProfileSchema = z.object({
@@ -10,5 +12,6 @@ const updateProfileSchema = z.object({
 }).strict()
 
 export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
+export type UpdateProfileCtx = ValidatedJsonCtx<UpdateProfileBody>
 
 export default updateProfileSchema

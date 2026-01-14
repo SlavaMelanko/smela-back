@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { ValidatedJsonCtx } from '../../@shared'
+
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const loginSchema = z.object({
@@ -11,5 +13,6 @@ const loginSchema = z.object({
 }).strict()
 
 export type LoginBody = z.infer<typeof loginSchema>
+export type LoginCtx = ValidatedJsonCtx<LoginBody>
 
 export default loginSchema

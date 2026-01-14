@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+bun run tsc
+
 # Get list of staged files for processing
 STAGED_FILES=$(git diff --name-only --cached)
 

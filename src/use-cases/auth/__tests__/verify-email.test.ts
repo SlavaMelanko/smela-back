@@ -163,13 +163,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenNotFound)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenNotFound,
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -190,13 +188,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenAlreadyUsed)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenAlreadyUsed,
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -216,13 +212,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenDeprecated)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenDeprecated)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenDeprecated,
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -242,13 +236,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenExpired)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenExpired,
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -268,15 +260,14 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenTypeMismatch, `expected ${TokenType.EmailVerification}, got ${TokenType.PasswordReset}`)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
-        expect((error as AppError).message).toContain(`expected ${TokenType.EmailVerification}`)
-        expect((error as AppError).message).toContain(`got ${TokenType.PasswordReset}`)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenTypeMismatch,
+        message: expect.stringMatching(
+          new RegExp(`expected ${TokenType.EmailVerification}.*got ${TokenType.PasswordReset}`),
+        ),
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -290,13 +281,9 @@ describe('Verify Email', () => {
         throw new Error('Database connection failed')
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Database connection failed')
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow('Database connection failed')
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).not.toHaveBeenCalled()
@@ -308,13 +295,9 @@ describe('Verify Email', () => {
         throw new Error('Token update failed')
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('Token update failed')
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow('Token update failed')
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
@@ -326,13 +309,9 @@ describe('Verify Email', () => {
         throw new Error('User update failed')
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe('User update failed')
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow('User update failed')
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
@@ -346,13 +325,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.InternalError, 'Failed to update user')
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.InternalError)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.InternalError,
+      }))
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.update).toHaveBeenCalledTimes(1)
@@ -461,13 +438,11 @@ describe('Verify Email', () => {
         throw new AppError(ErrorCode.TokenAlreadyUsed)
       })
 
-      try {
-        await verifyEmail({ token: mockTokenString }, mockDeviceInfo)
-        expect(true).toBe(false) // should not reach here
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
-      }
+      expect(
+        verifyEmail({ token: mockTokenString }, mockDeviceInfo),
+      ).rejects.toThrow(expect.objectContaining({
+        code: ErrorCode.TokenAlreadyUsed,
+      }))
     })
   })
 })
