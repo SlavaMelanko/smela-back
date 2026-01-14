@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Role, Status, USER_ROLES } from '@/types'
+import { Status } from '@/types'
 
 import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
@@ -8,13 +8,8 @@ const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 25
 const MAX_LIMIT = 100
 
-export const usersSearchSchema = z.object({
+export const adminsSearchSchema = z.object({
   search: z.string().trim().optional(),
-  roles: z
-    .string()
-    .transform(val => val.split(','))
-    .pipe(z.array(z.nativeEnum(Role)))
-    .default(USER_ROLES.join(',')),
   statuses: z
     .string()
     .transform(val => val.split(','))
@@ -24,12 +19,12 @@ export const usersSearchSchema = z.object({
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
 })
 
-export type UsersSearchQuery = z.infer<typeof usersSearchSchema>
-export type UsersSearchCtx = ValidatedQueryCtx<UsersSearchQuery>
+export type AdminsSearchQuery = z.infer<typeof adminsSearchSchema>
+export type AdminsSearchCtx = ValidatedQueryCtx<AdminsSearchQuery>
 
-export const userIdSchema = z.object({
+export const adminIdSchema = z.object({
   id: z.coerce.number().int().positive(),
 })
 
-export type UserIdParam = z.infer<typeof userIdSchema>
-export type UserDetailCtx = ValidatedParamCtx<UserIdParam>
+export type AdminIdParam = z.infer<typeof adminIdSchema>
+export type AdminDetailCtx = ValidatedParamCtx<AdminIdParam>

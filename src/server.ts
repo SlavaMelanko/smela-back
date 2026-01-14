@@ -15,6 +15,7 @@ import {
   generalRateLimiter,
   generalRequestSizeLimiter,
   loggerMiddleware,
+  ownerAuthMiddleware,
   secureHeadersMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
@@ -22,6 +23,7 @@ import {
 import {
   adminRoutes,
   authPublicRoutes,
+  ownerRoutes,
   userRoutesAllowNew,
   userRoutesVerifiedOnly,
 } from '@/routes'
@@ -71,6 +73,11 @@ class Server {
       '/api/v1/admin',
       adminRoutes,
       adminAuthMiddleware,
+    )
+    this.createRouteGroup(
+      '/api/v1/owner',
+      ownerRoutes,
+      ownerAuthMiddleware,
     )
   }
 

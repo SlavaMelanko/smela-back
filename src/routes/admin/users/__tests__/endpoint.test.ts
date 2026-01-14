@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { SearchResult, User } from '@/data'
+import type { User } from '@/data'
 import type { UserClaims } from '@/security/jwt'
 
 import { createTestApp, ModuleMocker } from '@/__tests__'
@@ -48,15 +48,13 @@ describe('Admin Users Endpoint', () => {
       },
     ]
 
-    mockSearchUsers = mock(async (): Promise<{ data: SearchResult }> => ({
-      data: {
-        users: mockUsers,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 2,
-          totalPages: 1,
-        },
+    mockSearchUsers = mock(async () => ({
+      data: { users: mockUsers },
+      pagination: {
+        page: 1,
+        limit: DEFAULT_LIMIT,
+        total: 2,
+        totalPages: 1,
       },
     }))
 

@@ -8,9 +8,9 @@ export const adminUsersHandler = async (c: UsersSearchCtx) => {
 
   const filters = { search, roles, statuses }
   const pagination = { page, limit }
-  const result = await searchUsers(filters, pagination)
+  const { data, pagination: paginationResult } = await searchUsers(filters, pagination)
 
-  return c.json(result.data, HttpStatus.OK)
+  return c.json({ ...data, pagination: paginationResult }, HttpStatus.OK)
 }
 
 export const adminUserDetailHandler = async (c: UserDetailCtx) => {

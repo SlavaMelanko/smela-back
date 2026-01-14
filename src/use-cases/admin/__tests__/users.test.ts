@@ -5,7 +5,7 @@ import type { SearchResult, User } from '@/data'
 import { ModuleMocker } from '@/__tests__'
 import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
-import { Role, Status } from '@/types'
+import { Role, Status, USER_ROLES } from '@/types'
 
 import { getUser, searchUsers } from '../users'
 
@@ -58,7 +58,7 @@ describe('searchUsers', () => {
     await searchUsers({ roles: [Role.Admin, Role.Owner] }, DEFAULT_PAGINATION)
 
     expect(mockUserRepoSearch).toHaveBeenCalledWith(
-      { roles: [Role.User, Role.Enterprise] },
+      { roles: USER_ROLES },
       DEFAULT_PAGINATION,
     )
   })
@@ -67,10 +67,8 @@ describe('searchUsers', () => {
     const result = await searchUsers({ roles: [Role.User] }, DEFAULT_PAGINATION)
 
     expect(result).toEqual({
-      data: {
-        users: mockSearchResult.users,
-        pagination: mockSearchResult.pagination,
-      },
+      data: { users: mockSearchResult.users },
+      pagination: mockSearchResult.pagination,
     })
   })
 
