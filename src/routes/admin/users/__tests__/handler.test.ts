@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { SearchResult, User } from '@/data'
+import type { User } from '@/data'
 
 import { ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
-import { Role, Status } from '@/types'
+import { Role, Status, USER_ROLES } from '@/types'
 
 import { adminUserDetailHandler, adminUsersHandler } from '../handler'
 
@@ -38,7 +38,7 @@ describe('adminUsersHandler', () => {
     mockContext = {
       req: {
         valid: mock(() => ({
-          roles: [Role.User, Role.Enterprise],
+          roles: USER_ROLES,
           statuses: undefined,
           page: 1,
           limit: DEFAULT_LIMIT,
@@ -47,15 +47,13 @@ describe('adminUsersHandler', () => {
       json: mockJson,
     }
 
-    mockSearchUsers = mock(async (): Promise<{ data: SearchResult }> => ({
-      data: {
-        users: mockUsers,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 1,
-          totalPages: 1,
-        },
+    mockSearchUsers = mock(async () => ({
+      data: { users: mockUsers },
+      pagination: {
+        page: 1,
+        limit: DEFAULT_LIMIT,
+        total: 1,
+        totalPages: 1,
       },
     }))
 
@@ -72,7 +70,7 @@ describe('adminUsersHandler', () => {
     await adminUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
-      { roles: [Role.User, Role.Enterprise], statuses: undefined },
+      { roles: USER_ROLES, statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
   })

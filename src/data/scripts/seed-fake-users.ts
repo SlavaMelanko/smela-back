@@ -17,7 +17,7 @@
 import { faker } from '@faker-js/faker'
 import { like } from 'drizzle-orm'
 
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, Status, USER_ROLES } from '@/types'
 
 import { db } from '../clients'
 import { authTable, usersTable } from '../schema'
@@ -39,7 +39,7 @@ const generateUser = (index: number) => {
     firstName,
     lastName,
     email: `${sanitizeForEmail(firstName)}.${lastNamePart}+${index}@test.local`,
-    role: faker.helpers.arrayElement([Role.User, Role.Enterprise]),
+    role: faker.helpers.arrayElement(USER_ROLES),
     status: faker.helpers.arrayElement([Status.New, Status.Verified, Status.Active]),
   }
 }
