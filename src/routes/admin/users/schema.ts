@@ -1,34 +1,23 @@
 import { z } from 'zod'
 
-import { Role, Status, USER_ROLES } from '@/types'
+import { USER_ROLES } from '@/types'
 
 import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
-const DEFAULT_PAGE = 1
-const DEFAULT_LIMIT = 25
-const MAX_LIMIT = 100
+import { requestValidationRules as rules } from '../../@shared'
 
 export const usersSearchSchema = z.object({
-  search: z.string().trim().optional(),
-  roles: z
-    .string()
-    .transform(val => val.split(','))
-    .pipe(z.array(z.nativeEnum(Role)))
-    .default(USER_ROLES.join(',')),
-  statuses: z
-    .string()
-    .transform(val => val.split(','))
-    .pipe(z.array(z.nativeEnum(Status)))
-    .optional(),
-  page: z.coerce.number().int().min(1).default(DEFAULT_PAGE),
-  limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
+  search: rules.userFilter.search.optional(),
+  roles: rules.userFilter.roles.default(USER_ROLES.join(',')),
+  statuses: rules.userFilter.statuses.optional(),
+  ...rules.pagination,
 })
 
 export type UsersSearchQuery = z.infer<typeof usersSearchSchema>
 export type UsersSearchCtx = ValidatedQueryCtx<UsersSearchQuery>
 
 export const userIdSchema = z.object({
-  id: z.coerce.number().int().positive(),
+  id: rules.data.id,
 })
 
 export type UserIdParam = z.infer<typeof userIdSchema>

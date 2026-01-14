@@ -7,6 +7,8 @@ import { Role } from '@/types'
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
 export const dataRules = {
+  id: z.coerce.number().int().positive(),
+
   email: z
     .string()
     .transform(normalizeEmail)
