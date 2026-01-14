@@ -13,17 +13,17 @@ export const searchAdmins = async (params: SearchParams, pagination: PaginationP
   const result = await userRepo.search(normalizeRoles(params), pagination)
 
   return {
-    data: { users: result.users },
+    data: { admins: result.users },
     pagination: result.pagination,
   }
 }
 
 export const getAdmin = async (adminId: number) => {
-  const user = await userRepo.findById(adminId)
+  const admin = await userRepo.findById(adminId)
 
-  if (!user || user.role !== Role.Admin) {
+  if (!admin || admin.role !== Role.Admin) {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  return { data: { user } }
+  return { data: { admin } }
 }

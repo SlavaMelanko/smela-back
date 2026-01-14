@@ -474,6 +474,46 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "owner",
+			"item": [
+				{
+					"name": "admins",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{owner_api_url}}/admins",
+							"host": [
+								"{{owner_api_url}}"
+							],
+							"path": [
+								"admins"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admins/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{owner_api_url}}/admins/2",
+							"host": [
+								"{{owner_api_url}}"
+							],
+							"path": [
+								"admins",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {

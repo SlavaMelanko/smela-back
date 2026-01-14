@@ -13,7 +13,7 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Email is already in use.',
   },
   [ErrorCode.Forbidden]: {
-    error: 'Unverified account.',
+    error: 'Forbidden.',
   },
   [ErrorCode.InvalidCredentials]: {
     error: 'Invalid email or password.',

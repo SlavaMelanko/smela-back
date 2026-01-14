@@ -58,7 +58,7 @@ describe('searchAdmins', () => {
     const result = await searchAdmins({ roles: [] }, DEFAULT_PAGINATION)
 
     expect(result).toEqual({
-      data: { users: mockSearchResult.users },
+      data: { admins: mockSearchResult.users },
       pagination: mockSearchResult.pagination,
     })
   })
@@ -109,7 +109,7 @@ describe('getAdmin', () => {
     const result = await getAdmin(1)
 
     expect(mockFindById).toHaveBeenCalledWith(1)
-    expect(result).toEqual({ data: { user: mockAdmin } })
+    expect(result).toEqual({ data: { admin: mockAdmin } })
   })
 
   it('should throw NotFound error when admin does not exist', async () => {

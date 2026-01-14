@@ -4,7 +4,7 @@
 enum ErrorCode {
   AlreadyVerified = 'auth/already-verified',
   EmailAlreadyInUse = 'auth/email-already-in-use',
-  Forbidden = 'auth/unverified-account',
+  Forbidden = 'auth/forbidden',
   InvalidCredentials = 'auth/invalid-credentials',
   Unauthorized = 'auth/unauthorized',
 
