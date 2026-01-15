@@ -17,7 +17,10 @@ describe('Reset Password Endpoint', () => {
   let mockResetPassword: any
 
   beforeEach(async () => {
-    mockResetPassword = mock(async () => ({ data: { success: true } }))
+    mockResetPassword = mock(async () => ({
+      data: { user: { id: 1 }, accessToken: 'test-token' },
+      refreshToken: 'refresh-token',
+    }))
 
     await moduleMocker.mock('@/use-cases/auth/reset-password', () => ({
       default: mockResetPassword,
@@ -38,19 +41,24 @@ describe('Reset Password Endpoint', () => {
   }
 
   describe('POST /auth/reset-password', () => {
-    it('should reset password and return success', async () => {
+    it('should reset password and return user with tokens', async () => {
       const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
-      expect(data).toEqual({ success: true })
+      expect(data).toEqual({ user: { id: 1 }, accessToken: 'test-token' })
 
       expect(mockResetPassword).toHaveBeenCalledWith({
         token: validPayload.data.token,
         password: validPayload.data.password,
+        deviceInfo: { ipAddress: null, userAgent: null },
       })
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
+
+      // Verify refresh token cookie is set
+      const cookies = res.headers.get('set-cookie')
+      expect(cookies).toContain('refresh-token')
     })
 
     it('should handle reset password errors', async () => {
