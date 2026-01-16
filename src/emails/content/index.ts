@@ -5,6 +5,7 @@ import * as uk from './uk'
 
 export type { default as EmailVerificationContent } from './email-verification'
 export type { default as PasswordResetEmailContent } from './password-reset'
+export type { default as UserInvitationContent } from './user-invitation'
 
 export type LocaleContent = typeof en
 

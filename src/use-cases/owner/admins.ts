@@ -2,9 +2,11 @@ import type { PaginationParams, SearchParams } from '@/data'
 
 import { createRandomBytesGenerator } from '@/crypto'
 import { authRepo, db, tokenRepo, userRepo } from '@/data'
+import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
+import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
 
 const normalizeRoles = (params: SearchParams): SearchParams => ({
@@ -50,7 +52,7 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
     throw new AppError(ErrorCode.EmailAlreadyInUse)
   }
 
-  const admin = await db.transaction(async (tx) => {
+  const { admin, token } = await db.transaction(async (tx) => {
     const newAdmin = await userRepo.create({
       firstName: params.firstName,
       lastName: params.lastName,
@@ -80,10 +82,15 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
       expiresAt,
     }, tx)
 
-    return newAdmin
+    return { admin: newAdmin, token }
   })
 
-  // TODO: Send invitation email
+  await emailAgent.sendUserInvitationEmail(
+    admin.firstName,
+    admin.email,
+    token,
+    env.COMPANY_NAME,
+  )
 
   return { data: { admin } }
 }

@@ -9,3 +9,8 @@ export {
   type PasswordResetEmailData,
   default as PasswordResetEmailRenderer,
 } from './email-renderer-password-reset'
+
+export {
+  type UserInvitationEmailData,
+  default as UserInvitationEmailRenderer,
+} from './email-renderer-user-invitation'

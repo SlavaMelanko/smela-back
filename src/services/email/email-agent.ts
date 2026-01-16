@@ -53,8 +53,22 @@ export class EmailAgent {
       resetUrl,
     }, preferences)
   }
+
+  async sendUserInvitationEmail(
+    firstName: string,
+    email: string,
+    token: string,
+    companyName?: string,
+    preferences?: UserPreferences,
+  ) {
+    const inviteUrl = `${env.FE_BASE_URL}/auth/accept-invite?token=${token}`
+
+    await this.service.send(EmailType.USER_INVITATION, email, {
+      firstName,
+      inviteUrl,
+      companyName,
+    }, preferences)
+  }
 }
 
-const emailAgent = EmailAgent.getInstance()
-
-export { emailAgent }
+export const emailAgent = EmailAgent.getInstance()

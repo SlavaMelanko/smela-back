@@ -6,7 +6,7 @@ export const DEFAULT_EXPIRY_SECONDS = 86400 // 24 hours
 export const EMAIL_VERIFICATION_EXPIRY_SECONDS = 86400 // 24 hours
 export const PASSWORD_RESET_EXPIRY_SECONDS = 3600 // 1 hour
 export const REFRESH_TOKEN_EXPIRY_SECONDS = 2592000 // 30 days
-export const USER_INVITATION_EXPIRY_SECONDS = 604800 // 7 days
+export const USER_INVITATION_EXPIRY_SECONDS = 86400 // 24 hours
 
 export interface Options {
   expirySeconds?: number
