@@ -1,21 +1,36 @@
 import { z } from 'zod'
 
-import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
-export const adminsSearchSchema = z.object({
+export const getAdminsQuerySchema = z.object({
   search: rules.userFilter.search.optional(),
   statuses: rules.userFilter.statuses.optional(),
   ...rules.pagination,
 })
 
-export type AdminsSearchQuery = z.infer<typeof adminsSearchSchema>
-export type AdminsSearchCtx = ValidatedQueryCtx<AdminsSearchQuery>
+export type GetAdminsQuery = z.infer<typeof getAdminsQuerySchema>
+export type GetAdminsCtx = ValidatedQueryCtx<GetAdminsQuery>
 
-export const adminIdSchema = z.object({
+export const getAdminParamsSchema = z.object({
   id: rules.data.id,
 })
 
-export type AdminIdParam = z.infer<typeof adminIdSchema>
-export type AdminDetailCtx = ValidatedParamCtx<AdminIdParam>
+export type GetAdminParams = z.infer<typeof getAdminParamsSchema>
+export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
+
+export const inviteAdminBodySchema = z.object({
+  firstName: rules.data.firstName,
+  lastName: rules.data.lastName.optional(),
+  email: rules.data.email,
+  permissions: z.object({
+    view: z.boolean(),
+    edit: z.boolean(),
+    create: z.boolean(),
+    delete: z.boolean(),
+  }),
+})
+
+export type InviteAdminBody = z.infer<typeof inviteAdminBodySchema>
+export type InviteAdminCtx = ValidatedJsonCtx<InviteAdminBody>

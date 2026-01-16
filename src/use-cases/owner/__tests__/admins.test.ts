@@ -7,9 +7,9 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, searchAdmins } from '../admins'
+import { getAdmin, getAdmins } from '../admins'
 
-describe('searchAdmins', () => {
+describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   const DEFAULT_PAGINATION = { page: 1, limit: 25 }
@@ -46,7 +46,7 @@ describe('searchAdmins', () => {
   })
 
   it('should always search with Admin role only', async () => {
-    await searchAdmins({ roles: [Role.User, Role.Enterprise] }, DEFAULT_PAGINATION)
+    await getAdmins({ roles: [Role.User, Role.Enterprise] }, DEFAULT_PAGINATION)
 
     expect(mockUserRepoSearch).toHaveBeenCalledWith(
       { roles: [Role.Admin] },
@@ -55,7 +55,7 @@ describe('searchAdmins', () => {
   })
 
   it('should return admins and pagination data', async () => {
-    const result = await searchAdmins({ roles: [] }, DEFAULT_PAGINATION)
+    const result = await getAdmins({ roles: [] }, DEFAULT_PAGINATION)
 
     expect(result).toEqual({
       data: { admins: mockSearchResult.users },
@@ -64,7 +64,7 @@ describe('searchAdmins', () => {
   })
 
   it('should preserve statuses in search params', async () => {
-    await searchAdmins(
+    await getAdmins(
       { roles: [], statuses: [Status.Active] },
       DEFAULT_PAGINATION,
     )

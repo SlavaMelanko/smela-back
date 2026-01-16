@@ -6,7 +6,7 @@ import { ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { ownerAdminDetailHandler, ownerAdminsHandler } from '../handler'
+import { getAdminHandler, getAdminsHandler } from '../handler'
 
 describe('ownerAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -17,7 +17,7 @@ describe('ownerAdminsHandler', () => {
   let mockJson: any
 
   let mockAdmins: User[]
-  let mockSearchAdmins: any
+  let mockGetAdmins: any
 
   beforeEach(async () => {
     mockAdmins = [
@@ -46,7 +46,7 @@ describe('ownerAdminsHandler', () => {
       json: mockJson,
     }
 
-    mockSearchAdmins = mock(async () => ({
+    mockGetAdmins = mock(async () => ({
       data: { users: mockAdmins },
       pagination: {
         page: 1,
@@ -57,7 +57,7 @@ describe('ownerAdminsHandler', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/owner', () => ({
-      searchAdmins: mockSearchAdmins,
+      getAdmins: mockGetAdmins,
     }))
   })
 
@@ -65,17 +65,17 @@ describe('ownerAdminsHandler', () => {
     await moduleMocker.clear()
   })
 
-  it('should call searchAdmins with correct parameters', async () => {
-    await ownerAdminsHandler(mockContext)
+  it('should call getAdmins with correct parameters', async () => {
+    await getAdminsHandler(mockContext)
 
-    expect(mockSearchAdmins).toHaveBeenCalledWith(
+    expect(mockGetAdmins).toHaveBeenCalledWith(
       { search: undefined, roles: [], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
   })
 
   it('should return admins and pagination with OK status', async () => {
-    const result = await ownerAdminsHandler(mockContext)
+    const result = await getAdminsHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith(
       {
@@ -92,12 +92,12 @@ describe('ownerAdminsHandler', () => {
     expect(result.status).toBe(HttpStatus.OK)
   })
 
-  it('should propagate error when searchAdmins throws', async () => {
-    mockSearchAdmins.mockImplementation(async () => {
+  it('should propagate error when getAdmins throws', async () => {
+    mockGetAdmins.mockImplementation(async () => {
       throw new Error('Database connection failed')
     })
 
-    expect(ownerAdminsHandler(mockContext)).rejects.toThrow('Database connection failed')
+    expect(getAdminsHandler(mockContext)).rejects.toThrow('Database connection failed')
   })
 })
 
@@ -143,13 +143,13 @@ describe('ownerAdminDetailHandler', () => {
   })
 
   it('should call getAdmin with correct admin id', async () => {
-    await ownerAdminDetailHandler(mockContext)
+    await getAdminHandler(mockContext)
 
     expect(mockGetAdmin).toHaveBeenCalledWith(1)
   })
 
   it('should return admin with OK status', async () => {
-    const result = await ownerAdminDetailHandler(mockContext)
+    const result = await getAdminHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith({ user: mockAdmin }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
@@ -160,6 +160,6 @@ describe('ownerAdminDetailHandler', () => {
       throw new Error('Admin not found')
     })
 
-    expect(ownerAdminDetailHandler(mockContext)).rejects.toThrow('Admin not found')
+    expect(getAdminHandler(mockContext)).rejects.toThrow('Admin not found')
   })
 })

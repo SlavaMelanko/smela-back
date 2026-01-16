@@ -72,7 +72,7 @@ describe('Signup with Email', () => {
       create: mock(async () => 1),
     }
     mockTokenRepo = {
-      replace: mock(async () => {}),
+      issue: mock(async () => {}),
     }
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
@@ -197,7 +197,7 @@ describe('Signup with Email', () => {
     it('should create email verification token', async () => {
       await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(mockTokenRepo.replace).toHaveBeenCalledWith(
+      expect(mockTokenRepo.issue).toHaveBeenCalledWith(
         mockNewUser.id,
         {
           userId: mockNewUser.id,
@@ -207,7 +207,7 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
     })
 
     it('should send email verification email with verification token', async () => {
@@ -298,7 +298,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockUserRepo.create).not.toHaveBeenCalled()
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -322,7 +322,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -346,7 +346,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -354,7 +354,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Token replacement failed')
       })
 
@@ -370,7 +370,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -394,7 +394,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
@@ -531,7 +531,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockUserRepo.create).not.toHaveBeenCalled()
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -539,7 +539,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Token replacement failed')
       })
 
@@ -555,7 +555,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })

@@ -6,7 +6,7 @@ import { ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status, USER_ROLES } from '@/types'
 
-import { adminUserDetailHandler, adminUsersHandler } from '../handler'
+import { getUserHandler, getUsersHandler } from '../handler'
 
 describe('adminUsersHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -67,7 +67,7 @@ describe('adminUsersHandler', () => {
   })
 
   it('should call searchUsers with correct parameters', async () => {
-    await adminUsersHandler(mockContext)
+    await getUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
       { roles: USER_ROLES, statuses: undefined },
@@ -76,7 +76,7 @@ describe('adminUsersHandler', () => {
   })
 
   it('should return users and pagination with OK status', async () => {
-    const result = await adminUsersHandler(mockContext)
+    const result = await getUsersHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith(
       {
@@ -98,7 +98,7 @@ describe('adminUsersHandler', () => {
       throw new Error('Database connection failed')
     })
 
-    expect(adminUsersHandler(mockContext)).rejects.toThrow('Database connection failed')
+    expect(getUsersHandler(mockContext)).rejects.toThrow('Database connection failed')
   })
 })
 
@@ -144,13 +144,13 @@ describe('adminUserDetailHandler', () => {
   })
 
   it('should call getUser with correct user id', async () => {
-    await adminUserDetailHandler(mockContext)
+    await getUserHandler(mockContext)
 
     expect(mockGetUser).toHaveBeenCalledWith(1)
   })
 
   it('should return user with OK status', async () => {
-    const result = await adminUserDetailHandler(mockContext)
+    const result = await getUserHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith({ user: mockUser }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
@@ -161,6 +161,6 @@ describe('adminUserDetailHandler', () => {
       throw new Error('User not found')
     })
 
-    expect(adminUserDetailHandler(mockContext)).rejects.toThrow('User not found')
+    expect(getUserHandler(mockContext)).rejects.toThrow('User not found')
   })
 })
