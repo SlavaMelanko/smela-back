@@ -1,551 +1,604 @@
 {
-	"info": {
-		"_postman_id": "9c7099c3-e4ea-4170-8700-993548944f24",
-		"name": "smela REST API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "3880760"
-	},
-	"item": [
-		{
-			"name": "admin",
-			"item": [
-				{
-					"name": "users",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{admin_api_url}}/users",
-							"host": [
-								"{{admin_api_url}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "users/:id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{admin_api_url}}/users/42",
-							"host": [
-								"{{admin_api_url}}"
-							],
-							"path": [
-								"users",
-								"42"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "auth",
-			"item": [
-				{
-					"name": "signup",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var responseData = pm.response.json();",
-									"// Save the token as an environment variable",
-									"pm.environment.set(\"access_token\", responseData.accessToken);",
-									"",
-									"pm.test(\"Response status code is 201\", function () {",
-									"    pm.expect(pm.response.code).to.eql(201);",
-									"});",
-									"",
-									"pm.test(\"Validate the user object schema\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
-									"",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    pm.expect(responseData.user.id).to.be.a('number');",
-									"    pm.expect(responseData.user.firstName).to.be.a('string');",
-									"    pm.expect(responseData.user.lastName).to.be.a('string');",
-									"    pm.expect(responseData.user.email).to.be.a('string').and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"    pm.expect(responseData.user.role).to.be.a('string');",
-									"    pm.expect(responseData.user.status).to.be.a('string');",
-									"    pm.expect(responseData.user.createdAt).to.be.a('string');",
-									"    pm.expect(responseData.user.updatedAt).to.be.a('string');",
-									"});",
-									"",
-									"",
-									"pm.test(\"Email is in a valid format\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
-									"    pm.expect(responseData.user.email).to.exist.and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"});",
-									"",
-									"",
-									"pm.test(\"CreatedAt and UpdatedAt are in a valid date format\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    // Check if createdAt and updatedAt are valid date formats",
-									"    const isValidDate = (dateString) => {",
-									"        const date = new Date(dateString);",
-									"        return !isNaN(date.getTime());",
-									"    };",
-									"",
-									"    pm.expect(isValidDate(responseData.user.createdAt)).to.be.true;",
-									"    pm.expect(isValidDate(responseData.user.updatedAt)).to.be.true;",
-									"});",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"firstName\": \"Slava\",\n        \"email\": \"{{user_email}}\",\n        \"password\": \"{{initial_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/signup",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"signup"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "resend-verification-email",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/resend-verification-email",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"resend-verification-email"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "verify-email",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var responseData = pm.response.json();",
-									"// Save the token as an environment variable",
-									"pm.environment.set(\"access_token\", responseData.accessToken);",
-									"",
-									"// Existing tests",
-									"pm.test(\"Response status code is 200\", function () {",
-									"    pm.expect(pm.response.code).to.equal(200);",
-									"});",
-									"",
-									"pm.test(\"Validate the user object schema\", function () {",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData).to.have.property('user').that.is.an('object');",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    pm.expect(responseData.user.id).to.be.a('number');",
-									"    pm.expect(responseData.user.firstName).to.be.a('string');",
-									"    pm.expect(responseData.user.lastName).to.be.a('string');",
-									"    pm.expect(responseData.user.email).to.be.a('string').that.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"    pm.expect(responseData.user.role).to.be.a('string');",
-									"    pm.expect(responseData.user.status).to.be.a('string');",
-									"    pm.expect(responseData.user.createdAt).to.be.a('string');",
-									"    pm.expect(responseData.user.updatedAt).to.be.a('string');",
-									"",
-									"    pm.expect(responseData).to.have.property('token').that.is.a('string');",
-									"});",
-									"",
-									"pm.test(\"Email is in a valid format\", function () {",
-									"    pm.expect(responseData.user).to.have.property('email').that.is.a('string').and.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"});",
-									"",
-									"pm.test(\"The token must be a non-empty string\", function () {",
-									"    pm.expect(responseData).to.have.property('token').that.is.a('string').and.is.not.empty;",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"token\": \"2f2f69f037200103e01e1c8553c60e8e0f188b8aba8c855572fb700d631e87a9\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/verify-email",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"verify-email"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json()",
-									"",
-									"if (response.accessToken) {",
-									"  pm.environment.set('access_token', response.accessToken)",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{admin_email}}\",\n        \"password\": \"{{admin_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/login",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "request-password-reset",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/request-password-reset",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"request-password-reset"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "reset-password",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"token\": \"2bae77a059a4f2fbb1f5029ff6aaccd53cd32f594bf59bb112f0d9972cc0ffa3\",\n        \"password\": \"{{new_password}}\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/reset-password",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"reset-password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "refresh-token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json()",
-									"",
-									"if (response.accessToken) {",
-									"  pm.environment.set('access_token', response.accessToken)",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/refresh-token",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"refresh-token"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "logout",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.environment.set('access_token', '')"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{auth_api_url}}/logout",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"logout"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user",
-			"item": [
-				{
-					"name": "me",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{user_allow_new_api_url}}/me",
-							"host": [
-								"{{user_allow_new_api_url}}"
-							],
-							"path": [
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "me",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{user_allow_new_api_url}}/me",
-							"host": [
-								"{{user_allow_new_api_url}}"
-							],
-							"path": [
-								"me"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "owner",
-			"item": [
-				{
-					"name": "admins",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{owner_api_url}}/admins",
-							"host": [
-								"{{owner_api_url}}"
-							],
-							"path": [
-								"admins"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "admins/:id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{owner_api_url}}/admins/2",
-							"host": [
-								"{{owner_api_url}}"
-							],
-							"path": [
-								"admins",
-								"2"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{access_token}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	]
+  "info": {
+    "_postman_id": "9c7099c3-e4ea-4170-8700-993548944f24",
+    "name": "smela REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3880760"
+  },
+  "item": [
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/users",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/users/42",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "users",
+                "42"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var responseData = pm.response.json();",
+                  "// Save the token as an environment variable",
+                  "pm.environment.set(\"access_token\", responseData.accessToken);",
+                  "",
+                  "pm.test(\"Response status code is 201\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Validate the user object schema\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
+                  "",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    pm.expect(responseData.user.id).to.be.a('number');",
+                  "    pm.expect(responseData.user.firstName).to.be.a('string');",
+                  "    pm.expect(responseData.user.lastName).to.be.a('string');",
+                  "    pm.expect(responseData.user.email).to.be.a('string').and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "    pm.expect(responseData.user.role).to.be.a('string');",
+                  "    pm.expect(responseData.user.status).to.be.a('string');",
+                  "    pm.expect(responseData.user.createdAt).to.be.a('string');",
+                  "    pm.expect(responseData.user.updatedAt).to.be.a('string');",
+                  "});",
+                  "",
+                  "",
+                  "pm.test(\"Email is in a valid format\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
+                  "    pm.expect(responseData.user.email).to.exist.and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "});",
+                  "",
+                  "",
+                  "pm.test(\"CreatedAt and UpdatedAt are in a valid date format\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    // Check if createdAt and updatedAt are valid date formats",
+                  "    const isValidDate = (dateString) => {",
+                  "        const date = new Date(dateString);",
+                  "        return !isNaN(date.getTime());",
+                  "    };",
+                  "",
+                  "    pm.expect(isValidDate(responseData.user.createdAt)).to.be.true;",
+                  "    pm.expect(isValidDate(responseData.user.updatedAt)).to.be.true;",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"firstName\": \"Slava\",\n        \"email\": \"{{user_email}}\",\n        \"password\": \"{{initial_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/signup",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resend-verification-email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/resend-verification-email",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "resend-verification-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var responseData = pm.response.json();",
+                  "// Save the token as an environment variable",
+                  "pm.environment.set(\"access_token\", responseData.accessToken);",
+                  "",
+                  "// Existing tests",
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Validate the user object schema\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData).to.have.property('user').that.is.an('object');",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    pm.expect(responseData.user.id).to.be.a('number');",
+                  "    pm.expect(responseData.user.firstName).to.be.a('string');",
+                  "    pm.expect(responseData.user.lastName).to.be.a('string');",
+                  "    pm.expect(responseData.user.email).to.be.a('string').that.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "    pm.expect(responseData.user.role).to.be.a('string');",
+                  "    pm.expect(responseData.user.status).to.be.a('string');",
+                  "    pm.expect(responseData.user.createdAt).to.be.a('string');",
+                  "    pm.expect(responseData.user.updatedAt).to.be.a('string');",
+                  "",
+                  "    pm.expect(responseData).to.have.property('token').that.is.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"Email is in a valid format\", function () {",
+                  "    pm.expect(responseData.user).to.have.property('email').that.is.a('string').and.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "});",
+                  "",
+                  "pm.test(\"The token must be a non-empty string\", function () {",
+                  "    pm.expect(responseData).to.have.property('token').that.is.a('string').and.is.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"token\": \"2f2f69f037200103e01e1c8553c60e8e0f188b8aba8c855572fb700d631e87a9\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/verify-email",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()",
+                  "",
+                  "if (response.accessToken) {",
+                  "  pm.environment.set('access_token', response.accessToken)",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"email\": \"{{owner_email}}\",\n        \"password\": \"{{owner_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/login",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "request-password-reset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/request-password-reset",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "request-password-reset"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"token\": \"2bae77a059a4f2fbb1f5029ff6aaccd53cd32f594bf59bb112f0d9972cc0ffa3\",\n        \"password\": \"{{new_password}}\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/reset-password",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh-token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()",
+                  "",
+                  "if (response.accessToken) {",
+                  "  pm.environment.set('access_token', response.accessToken)",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/refresh-token",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set('access_token', '')"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{auth_api_url}}/logout",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "accept-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"token\": \"f53cd51d2fafc43dbef31a6dd4c460301dc4de8a19571fc4db6026abe286ae22\",\n        \"password\": \"{{initial_password}}\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/accept-invite",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "accept-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_allow_new_api_url}}/me",
+              "host": [
+                "{{user_allow_new_api_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_allow_new_api_url}}/me",
+              "host": [
+                "{{user_allow_new_api_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "owner",
+      "item": [
+        {
+          "name": "admins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/2",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+admin2@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{owner_api_url}}/admins/invite",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
 }
