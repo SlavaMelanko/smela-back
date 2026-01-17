@@ -1,9 +1,9 @@
 import { HttpStatus } from '@/net/http'
 import { getUser, searchUsers } from '@/use-cases/admin'
 
-import type { UserDetailCtx, UsersSearchCtx } from './schema'
+import type { GetUserCtx, GetUsersCtx } from './schema'
 
-export const adminUsersHandler = async (c: UsersSearchCtx) => {
+export const getUsersHandler = async (c: GetUsersCtx) => {
   const { search, roles, statuses, page, limit } = c.req.valid('query')
 
   const filters = { search, roles, statuses }
@@ -13,7 +13,7 @@ export const adminUsersHandler = async (c: UsersSearchCtx) => {
   return c.json({ ...data, pagination: paginationResult }, HttpStatus.OK)
 }
 
-export const adminUserDetailHandler = async (c: UserDetailCtx) => {
+export const getUserHandler = async (c: GetUserCtx) => {
   const { id } = c.req.valid('param')
 
   const result = await getUser(id)

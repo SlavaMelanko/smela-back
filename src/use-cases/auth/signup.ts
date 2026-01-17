@@ -44,7 +44,7 @@ const createNewUser = async (
       passwordHash: hashedPassword,
     }, tx)
 
-    await tokenRepo.replace(newUser.id, {
+    await tokenRepo.issue(newUser.id, {
       userId: newUser.id,
       type,
       token: verificationToken,

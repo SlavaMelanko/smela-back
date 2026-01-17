@@ -44,7 +44,7 @@ export const createToken = async (token: CreateTokenInput, tx?: Database): Promi
   return createdToken.id
 }
 
-export const replaceToken = async (
+export const issueToken = async (
   userId: number,
   token: CreateTokenInput,
   tx: Database,

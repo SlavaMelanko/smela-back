@@ -6,19 +6,19 @@ import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
-export const usersSearchSchema = z.object({
+export const getUsersQuerySchema = z.object({
   search: rules.userFilter.search.optional(),
   roles: rules.userFilter.roles.default(USER_ROLES.join(',')),
   statuses: rules.userFilter.statuses.optional(),
   ...rules.pagination,
 })
 
-export type UsersSearchQuery = z.infer<typeof usersSearchSchema>
-export type UsersSearchCtx = ValidatedQueryCtx<UsersSearchQuery>
+export type GetUsersQuery = z.infer<typeof getUsersQuerySchema>
+export type GetUsersCtx = ValidatedQueryCtx<GetUsersQuery>
 
-export const userIdSchema = z.object({
+export const getUserParamsSchema = z.object({
   id: rules.data.id,
 })
 
-export type UserIdParam = z.infer<typeof userIdSchema>
-export type UserDetailCtx = ValidatedParamCtx<UserIdParam>
+export type GetUserParams = z.infer<typeof getUserParamsSchema>
+export type GetUserCtx = ValidatedParamCtx<GetUserParams>

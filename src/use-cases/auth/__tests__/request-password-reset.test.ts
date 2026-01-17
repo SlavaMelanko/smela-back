@@ -38,7 +38,7 @@ describe('Request Password Reset', () => {
       findByEmail: mock(async () => mockUser),
     }
     mockTokenRepo = {
-      replace: mock(async () => {}),
+      issue: mock(async () => {}),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
@@ -82,13 +82,13 @@ describe('Request Password Reset', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
       // Replace token should be called
-      expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
+      expect(mockTokenRepo.issue).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: TokenType.PasswordReset,
         token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       // Send reset email
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe('Request Password Reset', () => {
       const result = await requestPasswordReset({ email: 'nonexistent@example.com' })
 
       expect(result).toEqual({ data: { success: true } })
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
     })
   })
@@ -124,7 +124,7 @@ describe('Request Password Reset', () => {
         const result = await requestPasswordReset({ email: mockUser.email })
 
         expect(result).toEqual({ data: { success: true } })
-        expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+        expect(mockTokenRepo.issue).not.toHaveBeenCalled()
         expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
       })
     })
@@ -133,7 +133,7 @@ describe('Request Password Reset', () => {
   describe('token operation failure scenarios', () => {
     it('should throw error when token replacement fails and not send email', async () => {
       mockUserRepo.findByEmail.mockImplementation(async () => mockUser)
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Database connection failed')
       })
 
@@ -145,7 +145,7 @@ describe('Request Password Reset', () => {
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
       expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
     })
   })
@@ -160,7 +160,7 @@ describe('Request Password Reset', () => {
 
       expect(result).toEqual({ data: { success: true } })
 
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
     })
   })
