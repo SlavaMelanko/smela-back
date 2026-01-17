@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins } from '../admins'
+import { getAdmin, getAdmins, inviteAdmin } from '../admins'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -146,5 +146,130 @@ describe('getAdmin', () => {
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
+  })
+})
+
+describe('inviteAdmin', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockAdmin: User
+  let mockFindByEmail: any
+  let mockUserCreate: any
+  let mockAuthCreate: any
+  let mockTokenIssue: any
+  let mockTransaction: any
+  let mockSendUserInvitationEmail: any
+
+  const inviteAdminParams = {
+    firstName: 'New',
+    lastName: 'Admin',
+    email: 'newadmin@example.com',
+    permissions: {
+      view: true,
+      edit: true,
+      create: false,
+      delete: false,
+    },
+  }
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: 1,
+      firstName: 'New',
+      lastName: 'Admin',
+      email: 'newadmin@example.com',
+      role: Role.Admin,
+      status: Status.Pending,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindByEmail = mock(async () => undefined)
+    mockUserCreate = mock(async () => mockAdmin)
+    mockAuthCreate = mock(async () => ({}))
+    mockTokenIssue = mock(async () => ({}))
+    mockSendUserInvitationEmail = mock(async () => {})
+
+    // eslint-disable-next-line ts/no-unsafe-return
+    mockTransaction = mock(async (callback: any) => callback({}))
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: {
+        findByEmail: mockFindByEmail,
+        create: mockUserCreate,
+      },
+      authRepo: { create: mockAuthCreate },
+      tokenRepo: { issue: mockTokenIssue },
+      db: { transaction: mockTransaction },
+    }))
+
+    await moduleMocker.mock('@/crypto', () => ({
+      createRandomBytesGenerator: () => ({
+        generate: () => 'random-placeholder-password',
+      }),
+    }))
+
+    await moduleMocker.mock('@/security/password', () => ({
+      hashPassword: async () => 'hashed-placeholder',
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      generateToken: () => ({
+        type: 'user_invitation',
+        token: 'invitation-token-123',
+        expiresAt: new Date('2024-01-08'),
+      }),
+      TokenType: { UserInvitation: 'user_invitation' },
+    }))
+
+    await moduleMocker.mock('@/services/email', () => ({
+      emailAgent: {
+        sendUserInvitationEmail: mockSendUserInvitationEmail,
+      },
+    }))
+
+    await moduleMocker.mock('@/env', () => ({
+      default: { COMPANY_NAME: 'Test Company' },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should throw EmailAlreadyInUse when email exists', async () => {
+    mockFindByEmail.mockImplementation(async () => mockAdmin)
+
+    expect(inviteAdmin(inviteAdminParams)).rejects.toThrow(AppError)
+    expect(inviteAdmin(inviteAdminParams)).rejects.toMatchObject({
+      code: ErrorCode.EmailAlreadyInUse,
+    })
+  })
+
+  it('should create admin with pending status and return admin data', async () => {
+    const result = await inviteAdmin(inviteAdminParams)
+
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      {
+        firstName: 'New',
+        lastName: 'Admin',
+        email: 'newadmin@example.com',
+        role: Role.Admin,
+        status: Status.Pending,
+      },
+      expect.anything(),
+    )
+    expect(result).toEqual({ data: { admin: mockAdmin } })
+  })
+
+  it('should call email agent with correct parameters', async () => {
+    await inviteAdmin(inviteAdminParams)
+
+    expect(mockSendUserInvitationEmail).toHaveBeenCalledWith(
+      'New',
+      'newadmin@example.com',
+      'invitation-token-123',
+      'Test Company',
+    )
   })
 })

@@ -6,9 +6,9 @@ import { ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { getAdminHandler, getAdminsHandler } from '../handler'
+import { getAdminHandler, getAdminsHandler, inviteAdminHandler } from '../handler'
 
-describe('ownerAdminsHandler', () => {
+describe('ownerGetAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   const DEFAULT_LIMIT = 25
@@ -101,7 +101,7 @@ describe('ownerAdminsHandler', () => {
   })
 })
 
-describe('ownerAdminDetailHandler', () => {
+describe('ownerGetAdminHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockContext: any
@@ -161,5 +161,80 @@ describe('ownerAdminDetailHandler', () => {
     })
 
     expect(getAdminHandler(mockContext)).rejects.toThrow('Admin not found')
+  })
+})
+
+describe('inviteAdminHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+
+  let mockAdmin: User
+  let mockInviteAdmin: any
+
+  const inviteAdminBody = {
+    firstName: 'New',
+    lastName: 'Admin',
+    email: 'newadmin@example.com',
+    permissions: {
+      view: true,
+      edit: true,
+      create: false,
+      delete: false,
+    },
+  }
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: 1,
+      firstName: 'New',
+      lastName: 'Admin',
+      email: 'newadmin@example.com',
+      role: Role.Admin,
+      status: Status.Pending,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: {
+        valid: mock(() => inviteAdminBody),
+      },
+      json: mockJson,
+    }
+
+    mockInviteAdmin = mock(async () => ({ data: { admin: mockAdmin } }))
+
+    await moduleMocker.mock('@/use-cases/owner', () => ({
+      inviteAdmin: mockInviteAdmin,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call inviteAdmin with correct body parameters', async () => {
+    await inviteAdminHandler(mockContext)
+
+    expect(mockInviteAdmin).toHaveBeenCalledWith(inviteAdminBody)
+  })
+
+  it('should return created admin with CREATED status', async () => {
+    const result = await inviteAdminHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.CREATED)
+    expect(result.status).toBe(HttpStatus.CREATED)
+  })
+
+  it('should propagate error when inviteAdmin throws', async () => {
+    mockInviteAdmin.mockImplementation(async () => {
+      throw new Error('Email already in use')
+    })
+
+    expect(inviteAdminHandler(mockContext)).rejects.toThrow('Email already in use')
   })
 })
