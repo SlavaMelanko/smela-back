@@ -61,7 +61,7 @@ export class EmailAgent {
     companyName?: string,
     preferences?: UserPreferences,
   ) {
-    const inviteUrl = `${env.FE_BASE_URL}/auth/accept-invite?token=${token}`
+    const inviteUrl = `${env.FE_BASE_URL}/accept-invite?token=${token}`
 
     await this.service.send(EmailType.USER_INVITATION, email, {
       firstName,
