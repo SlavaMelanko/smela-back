@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const dbEnvVars = {
+  POSTGRES_DEBUG: z.coerce.boolean().default(false),
   POSTGRES_USER: z.string().min(5),
   POSTGRES_PASSWORD: z.string()
     .min(8)
