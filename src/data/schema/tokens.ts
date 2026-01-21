@@ -1,11 +1,11 @@
 import {
   index,
-  integer,
   json,
   pgTable,
   serial,
   text,
   timestamp,
+  uuid,
 } from 'drizzle-orm/pg-core'
 
 import { TokenStatus, TokenType } from '@/security/token'
@@ -18,7 +18,7 @@ export const tokenStatusEnum = createPgEnum('token_status', TokenStatus)
 
 export const tokensTable = pgTable('tokens', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   type: tokenTypeEnum('type').notNull().$type<TokenType>(),
   status: tokenStatusEnum('status').notNull().default(TokenStatus.Pending).$type<TokenStatus>(),
   token: text('token').notNull().unique(),

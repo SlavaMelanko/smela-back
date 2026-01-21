@@ -29,7 +29,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: 1, email: 'test@example.com', role, status: Status.Active },
+          { id: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com', role, status: Status.Active },
           { secret: env.JWT_SECRET },
         )
 
@@ -58,7 +58,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: 5, email: 'user@example.com', role: Role.User, status },
+          { id: '550e8400-e29b-41d4-a716-446655440005', email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 
@@ -85,7 +85,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: 6, email: 'user@example.com', role: Role.User, status },
+          { id: '550e8400-e29b-41d4-a716-446655440006', email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 

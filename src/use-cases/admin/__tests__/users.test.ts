@@ -21,7 +21,7 @@ describe('searchUsers', () => {
     mockSearchResult = {
       users: [
         {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
@@ -93,7 +93,7 @@ describe('getUser', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -115,17 +115,17 @@ describe('getUser', () => {
   })
 
   it('should return user when found', async () => {
-    const result = await getUser(1)
+    const result = await getUser('550e8400-e29b-41d4-a716-446655440001')
 
-    expect(mockFindById).toHaveBeenCalledWith(1)
+    expect(mockFindById).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001')
     expect(result).toEqual({ data: { user: mockUser } })
   })
 
   it('should throw NotFound error when user does not exist', async () => {
     mockFindById.mockImplementation(async () => undefined)
 
-    expect(getUser(999)).rejects.toThrow(AppError)
-    expect(getUser(999)).rejects.toMatchObject({
+    expect(getUser('550e8400-e29b-41d4-a716-446655440999')).rejects.toThrow(AppError)
+    expect(getUser('550e8400-e29b-41d4-a716-446655440999')).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'User not found',
     })

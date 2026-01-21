@@ -55,7 +55,7 @@ describe('Signup with Email', () => {
     }
 
     mockNewUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -274,7 +274,7 @@ describe('Signup with Email', () => {
   describe('when email is already in use', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       const existingUser = {
-        id: 2,
+        id: '550e8400-e29b-41d4-a716-446655440002',
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'john@example.com',

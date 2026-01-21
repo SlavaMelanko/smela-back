@@ -35,7 +35,7 @@ describe('Refresh Auth Tokens', () => {
     }
 
     mockUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -49,7 +49,7 @@ describe('Refresh Auth Tokens', () => {
     }
     mockStoredToken = {
       id: 1,
-      userId: 1,
+      userId: '550e8400-e29b-41d4-a716-446655440001',
       tokenHash: 'hashed_token_123',
       ipAddress: '192.168.1.1',
       userAgent: 'Mozilla/5.0 (Test)',

@@ -30,7 +30,7 @@ describe('Me Endpoint', () => {
 
   beforeEach(async () => {
     mockUpdatedUserMinimal = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'Jo',
       lastName: 'Do',
       email: 'test@example.com',
@@ -41,7 +41,7 @@ describe('Me Endpoint', () => {
     }
 
     mockFullUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -52,7 +52,7 @@ describe('Me Endpoint', () => {
     }
     mockGetUser = mock(async () => ({ data: { user: mockFullUser } }))
     mockUpdatedUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'Jane',
       lastName: 'Smith',
       email: 'test@example.com',
@@ -69,7 +69,7 @@ describe('Me Endpoint', () => {
     }))
 
     mockUserClaims = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
@@ -101,7 +101,7 @@ describe('Me Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -127,7 +127,7 @@ describe('Me Endpoint', () => {
 
       // Verify getUser was called with correct user ID
       const { getUser } = await import('@/use-cases/user/me')
-      expect(getUser).toHaveBeenCalledWith(1)
+      expect(getUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001')
       expect(getUser).toHaveBeenCalledTimes(1)
     })
 
@@ -186,7 +186,7 @@ describe('Me Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'Jane',
           lastName: 'Smith',
           email: 'test@example.com',
@@ -202,7 +202,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called with correct parameters
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {
         firstName: 'Jane',
         lastName: 'Smith',
       })
@@ -251,7 +251,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called with only firstName
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {
         firstName: 'Jane',
       })
     })
@@ -277,7 +277,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle empty body (no updates)', async () => {
-      mockUpdateUser.mockImplementation(async (_userId: number, updates: any) => {
+      mockUpdateUser.mockImplementation(async (_userId: string, updates: any) => {
         const validUpdates: any = {}
         if (updates.firstName && updates.firstName.trim()) {
           validUpdates.firstName = updates.firstName.trim()
@@ -308,7 +308,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {})
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {})
     })
 
     it('should normalize null lastName to empty string', async () => {
@@ -321,7 +321,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called with lastName normalized to ""
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {
         firstName: 'Jane',
         lastName: '',
       })
@@ -340,7 +340,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called only with lastName
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {
         lastName: 'Smith',
       })
     })
@@ -381,7 +381,7 @@ describe('Me Endpoint', () => {
 
       // Verify updateUser was called with already trimmed values (trimming happens at schema layer)
       const { updateUser } = await import('@/use-cases/user/me')
-      expect(updateUser).toHaveBeenCalledWith(1, {
+      expect(updateUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001', {
         firstName: 'Jane',
         lastName: 'Smith',
       })

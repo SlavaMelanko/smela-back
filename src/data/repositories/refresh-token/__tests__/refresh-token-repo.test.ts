@@ -7,7 +7,7 @@ import { Role, Status } from '@/types'
 import { refreshTokenRepo } from '../index'
 
 describe('Refresh Token Repository @with-db', () => {
-  let userId: number
+  let userId: string
   let tokenHash: string
   let expiresAt: Date
 

@@ -7,7 +7,7 @@ import { signJwt, verifyJwt } from '../jwt'
 
 describe('JWT Integration Tests', () => {
   const testUserClaims = {
-    id: 1,
+    id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'test@example.com',
     role: Role.User,
     status: Status.Active,
@@ -110,8 +110,8 @@ describe('JWT Integration Tests', () => {
 
     it('should create different tokens for different users', async () => {
       const secret = 'test-secret'
-      const user1 = { ...testUserClaims, id: 1 }
-      const user2 = { ...testUserClaims, id: 2 }
+      const user1 = { ...testUserClaims, id: '550e8400-e29b-41d4-a716-446655440001' }
+      const user2 = { ...testUserClaims, id: '550e8400-e29b-41d4-a716-446655440002' }
 
       const token1 = await signJwt(user1, { secret })
       const token2 = await signJwt(user2, { secret })

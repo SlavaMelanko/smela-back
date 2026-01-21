@@ -23,7 +23,7 @@ export const getAdmins = async (params: SearchParams, pagination: PaginationPara
   }
 }
 
-export const getAdmin = async (adminId: number) => {
+export const getAdmin = async (adminId: string) => {
   const admin = await userRepo.findById(adminId)
 
   if (!admin || admin.role !== Role.Admin) {

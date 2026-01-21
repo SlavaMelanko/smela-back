@@ -1,9 +1,9 @@
 import {
   index,
-  integer,
   pgTable,
   serial,
   timestamp,
+  uuid,
   varchar,
 } from 'drizzle-orm/pg-core'
 
@@ -11,7 +11,7 @@ import { usersTable } from './users'
 
 export const refreshTokensTable = pgTable('refresh_tokens', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
   ipAddress: varchar('ip_address', { length: 45 }),
   userAgent: varchar('user_agent', { length: 512 }),

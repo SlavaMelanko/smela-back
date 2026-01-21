@@ -48,7 +48,7 @@ describe('Refresh Token Handler', () => {
     mockRefreshAuthTokens = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -84,7 +84,7 @@ describe('Refresh Token Handler', () => {
       expect(mockSetRefreshCookie).toHaveBeenCalledWith(mockContext, 'new_refresh_token_456')
       expect(mockJson).toHaveBeenCalledWith({
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -203,7 +203,7 @@ describe('Refresh Token Handler', () => {
         return {
           data: {
             user: {
-              id: 1,
+              id: '550e8400-e29b-41d4-a716-446655440001',
               firstName: 'John',
               lastName: 'Doe',
               email: 'test@example.com',

@@ -23,7 +23,7 @@ describe('Signup Endpoint', () => {
     mockSignUpWithEmail = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -87,7 +87,7 @@ describe('Signup Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: '550e8400-e29b-41d4-a716-446655440001',
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',

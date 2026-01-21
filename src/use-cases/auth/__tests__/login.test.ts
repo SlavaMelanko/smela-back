@@ -40,7 +40,7 @@ describe('Login with Email', () => {
     }
 
     mockUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -54,7 +54,7 @@ describe('Login with Email', () => {
     }
     mockAuthRecord = {
       id: 1,
-      userId: 1,
+      userId: '550e8400-e29b-41d4-a716-446655440001',
       provider: AuthProvider.Local,
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',

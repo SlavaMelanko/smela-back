@@ -40,7 +40,7 @@ const createAccessToken = async (user: User) => signJwt(
 )
 
 const createRefreshToken = async (
-  userId: number,
+  userId: string,
   deviceInfo: DeviceInfo,
   tx?: Database,
 ) => {
@@ -62,7 +62,7 @@ const createRefreshToken = async (
 const validateDevice = (
   storedToken: { ipAddress: string | null, userAgent: string | null },
   deviceInfo: DeviceInfo,
-  userId: number,
+  userId: string,
 ) => {
   const ipChanged = storedToken.ipAddress !== deviceInfo.ipAddress
   const userAgentChanged = storedToken.userAgent !== deviceInfo.userAgent

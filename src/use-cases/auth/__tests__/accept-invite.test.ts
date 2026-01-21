@@ -45,7 +45,7 @@ describe('Accept Invite', () => {
     mockTokenString = `mock-invite-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
     mockTokenRecord = {
       id: 1,
-      userId: 123,
+      userId: '550e8400-e29b-41d4-a716-446655440123',
       type: TokenType.UserInvitation,
       token: mockTokenString,
       status: TokenStatus.Pending,
@@ -56,7 +56,7 @@ describe('Accept Invite', () => {
     }
 
     mockUser = {
-      id: 123,
+      id: '550e8400-e29b-41d4-a716-446655440123',
       email: 'admin@example.com',
       firstName: 'Admin',
       lastName: 'User',

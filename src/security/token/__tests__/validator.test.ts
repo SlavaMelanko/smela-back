@@ -10,7 +10,7 @@ import TokenValidator from '../validator'
 describe('TokenValidator', () => {
   const createValidToken = (overrides?: Partial<TokenRecord>): TokenRecord => ({
     id: 1,
-    userId: 1,
+    userId: '550e8400-e29b-41d4-a716-446655440001',
     type: TokenType.EmailVerification,
     status: TokenStatus.Pending,
     token: 'valid-token-123',

@@ -139,7 +139,7 @@ describe('@with-db Database Migration Tests', () => {
     test('should enforce foreign key constraint on auth.user_id', async () => {
       expect(
         authRepo.create({
-          userId: 999999,
+          userId: '550e8400-e29b-41d4-a716-446655440999',
           provider: AuthProvider.Local,
           identifier: 'nonexistent@example.com',
           passwordHash: '$2b$10$hashedpassword',

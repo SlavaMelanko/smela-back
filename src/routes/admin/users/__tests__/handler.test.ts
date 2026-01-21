@@ -22,7 +22,7 @@ describe('adminUsersHandler', () => {
   beforeEach(async () => {
     mockUsers = [
       {
-        id: 1,
+        id: '550e8400-e29b-41d4-a716-446655440001',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
@@ -113,7 +113,7 @@ describe('adminUserDetailHandler', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440001',
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -127,7 +127,7 @@ describe('adminUserDetailHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: 1 })),
+        valid: mock(() => ({ id: '550e8400-e29b-41d4-a716-446655440001' })),
       },
       json: mockJson,
     }
@@ -146,7 +146,7 @@ describe('adminUserDetailHandler', () => {
   it('should call getUser with correct user id', async () => {
     await getUserHandler(mockContext)
 
-    expect(mockGetUser).toHaveBeenCalledWith(1)
+    expect(mockGetUser).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001')
   })
 
   it('should return user with OK status', async () => {

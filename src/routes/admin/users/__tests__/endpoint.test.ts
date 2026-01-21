@@ -27,7 +27,7 @@ describe('Admin Users Endpoint', () => {
   beforeEach(async () => {
     mockUsers = [
       {
-        id: 1,
+        id: '550e8400-e29b-41d4-a716-446655440001',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
@@ -37,7 +37,7 @@ describe('Admin Users Endpoint', () => {
         updatedAt: new Date('2024-01-01'),
       },
       {
-        id: 2,
+        id: '550e8400-e29b-41d4-a716-446655440002',
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'jane@example.com',
@@ -63,7 +63,7 @@ describe('Admin Users Endpoint', () => {
     }))
 
     mockAdminClaims = {
-      id: 100,
+      id: '550e8400-e29b-41d4-a716-446655440100',
       email: 'admin@example.com',
       role: Role.Admin,
       status: Status.Active,
@@ -91,7 +91,7 @@ describe('Admin Users Endpoint', () => {
       expect(data).toEqual({
         users: [
           {
-            id: 1,
+            id: '550e8400-e29b-41d4-a716-446655440001',
             firstName: 'John',
             lastName: 'Doe',
             email: 'john@example.com',
@@ -101,7 +101,7 @@ describe('Admin Users Endpoint', () => {
             updatedAt: '2024-01-01T00:00:00.000Z',
           },
           {
-            id: 2,
+            id: '550e8400-e29b-41d4-a716-446655440002',
             firstName: 'Jane',
             lastName: 'Smith',
             email: 'jane@example.com',

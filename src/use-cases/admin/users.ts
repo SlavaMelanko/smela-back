@@ -23,7 +23,7 @@ export const searchUsers = async (params: SearchParams, pagination: PaginationPa
   }
 }
 
-export const getUser = async (userId: number) => {
+export const getUser = async (userId: string) => {
   const user = await userRepo.findById(userId)
 
   if (!user || !isUser(user.role)) {

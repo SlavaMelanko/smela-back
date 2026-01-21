@@ -44,7 +44,7 @@ describe('Reset Password', () => {
     mockTokenString = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
     mockTokenRecord = {
       id: 1,
-      userId: 123,
+      userId: '550e8400-e29b-41d4-a716-446655440123',
       type: TokenType.PasswordReset,
       token: mockTokenString,
       status: TokenStatus.Pending,
@@ -55,7 +55,7 @@ describe('Reset Password', () => {
     }
 
     mockUser = {
-      id: 123,
+      id: '550e8400-e29b-41d4-a716-446655440123',
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',

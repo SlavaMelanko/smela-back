@@ -11,7 +11,7 @@ import { usersTable } from '../../schema'
 import { calcOffset } from '../pagination'
 
 export const findUserById = async (
-  userId: number,
+  userId: string,
   tx?: Database,
 ): Promise<User | undefined> => {
   const executor = tx || db
