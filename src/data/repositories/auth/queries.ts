@@ -7,7 +7,7 @@ import { db } from '../../clients'
 import { authTable } from '../../schema'
 
 export const findByUserId = async (
-  userId: number,
+  userId: string,
   tx?: Database,
 ): Promise<Auth | undefined> => {
   const executor = tx || db

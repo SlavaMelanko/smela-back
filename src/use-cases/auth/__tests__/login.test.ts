@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { AuthRecord, User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { AuthProvider, Role, Status } from '@/types'
 
@@ -40,7 +40,7 @@ describe('Login with Email', () => {
     }
 
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -54,7 +54,7 @@ describe('Login with Email', () => {
     }
     mockAuthRecord = {
       id: 1,
-      userId: 1,
+      userId: testUuids.USER_1,
       provider: AuthProvider.Local,
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',

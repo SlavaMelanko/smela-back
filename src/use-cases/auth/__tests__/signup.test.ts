@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
@@ -55,7 +55,7 @@ describe('Signup with Email', () => {
     }
 
     mockNewUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -274,7 +274,7 @@ describe('Signup with Email', () => {
   describe('when email is already in use', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       const existingUser = {
-        id: 2,
+        id: testUuids.USER_2,
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'john@example.com',

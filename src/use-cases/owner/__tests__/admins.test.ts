@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { SearchResult, User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
@@ -21,7 +21,7 @@ describe('getAdmins', () => {
     mockSearchResult = {
       users: [
         {
-          id: 1,
+          id: testUuids.ADMIN_1,
           firstName: 'Admin',
           lastName: 'User',
           email: 'admin@example.com',
@@ -84,7 +84,7 @@ describe('getAdmin', () => {
 
   beforeEach(async () => {
     mockAdmin = {
-      id: 1,
+      id: testUuids.ADMIN_1,
       firstName: 'Admin',
       lastName: 'User',
       email: 'admin@example.com',
@@ -106,17 +106,17 @@ describe('getAdmin', () => {
   })
 
   it('should return admin when found', async () => {
-    const result = await getAdmin(1)
+    const result = await getAdmin(testUuids.ADMIN_1)
 
-    expect(mockFindById).toHaveBeenCalledWith(1)
+    expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(result).toEqual({ data: { admin: mockAdmin } })
   })
 
   it('should throw NotFound error when admin does not exist', async () => {
     mockFindById.mockImplementation(async () => undefined)
 
-    expect(getAdmin(999)).rejects.toThrow(AppError)
-    expect(getAdmin(999)).rejects.toMatchObject({
+    expect(getAdmin(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
+    expect(getAdmin(testUuids.NON_EXISTENT)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
@@ -128,8 +128,8 @@ describe('getAdmin', () => {
       role: Role.User,
     }))
 
-    expect(getAdmin(1)).rejects.toThrow(AppError)
-    expect(getAdmin(1)).rejects.toMatchObject({
+    expect(getAdmin(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(getAdmin(testUuids.ADMIN_1)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
@@ -141,8 +141,8 @@ describe('getAdmin', () => {
       role: Role.Owner,
     }))
 
-    expect(getAdmin(1)).rejects.toThrow(AppError)
-    expect(getAdmin(1)).rejects.toMatchObject({
+    expect(getAdmin(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(getAdmin(testUuids.ADMIN_1)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
@@ -174,7 +174,7 @@ describe('inviteAdmin', () => {
 
   beforeEach(async () => {
     mockAdmin = {
-      id: 1,
+      id: testUuids.ADMIN_1,
       firstName: 'New',
       lastName: 'Admin',
       email: 'newadmin@example.com',

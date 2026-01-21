@@ -31,7 +31,7 @@ const createAccessToken = async (user: User) => signJwt({
   status: user.status,
 })
 
-const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )

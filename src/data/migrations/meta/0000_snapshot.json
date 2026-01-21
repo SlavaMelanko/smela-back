@@ -1,5 +1,5 @@
 {
-  "id": "b481b91f-5ded-4ce7-8497-6df722ef3ade",
+  "id": "c2e480a4-08f3-4194-a2aa-9e4a0aeafbd3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -16,7 +16,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -262,7 +262,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -402,7 +402,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -532,7 +532,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true
         },
@@ -655,7 +655,8 @@
       "values": [
         "email_verification",
         "password_reset",
-        "refresh_token"
+        "refresh_token",
+        "user_invitation"
       ]
     },
     "public.status": {

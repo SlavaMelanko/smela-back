@@ -24,7 +24,7 @@ export const createUser = async (user: CreateUserInput, tx?: Database): Promise<
 }
 
 export const updateUser = async (
-  userId: number,
+  userId: string,
   updates: UpdateUserInput,
   tx?: Database,
 ): Promise<User> => {

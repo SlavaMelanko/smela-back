@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -48,7 +48,7 @@ describe('Refresh Token Handler', () => {
     mockRefreshAuthTokens = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -84,7 +84,7 @@ describe('Refresh Token Handler', () => {
       expect(mockSetRefreshCookie).toHaveBeenCalledWith(mockContext, 'new_refresh_token_456')
       expect(mockJson).toHaveBeenCalledWith({
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -203,7 +203,7 @@ describe('Refresh Token Handler', () => {
         return {
           data: {
             user: {
-              id: 1,
+              id: testUuids.USER_1,
               firstName: 'John',
               lastName: 'Doe',
               email: 'test@example.com',

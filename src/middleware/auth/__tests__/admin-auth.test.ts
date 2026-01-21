@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { testUuids } from '@/__tests__'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
@@ -23,7 +24,7 @@ describe('Admin Authentication Middleware', () => {
   describe('Role Validation', () => {
     it('should allow Owner with Active status', async () => {
       const ownerToken = await signJwt(
-        { id: 1, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
+        { id: testUuids.OWNER_1, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -43,7 +44,7 @@ describe('Admin Authentication Middleware', () => {
 
     it('should allow Admin with Active status', async () => {
       const adminToken = await signJwt(
-        { id: 2, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
+        { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -63,7 +64,7 @@ describe('Admin Authentication Middleware', () => {
 
     it('should reject User role with Active status', async () => {
       const userToken = await signJwt(
-        { id: 3, email: 'user@example.com', role: Role.User, status: Status.Active },
+        { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -84,7 +85,7 @@ describe('Admin Authentication Middleware', () => {
 
     it('should reject Enterprise role with Active status', async () => {
       const enterpriseToken = await signJwt(
-        { id: 4, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
+        { id: testUuids.USER_2, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -113,7 +114,7 @@ describe('Admin Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: 5, email: 'admin@example.com', role: Role.Admin, status },
+          { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status },
           { secret: env.JWT_SECRET },
         )
 

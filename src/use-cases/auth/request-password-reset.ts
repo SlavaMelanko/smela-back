@@ -10,7 +10,7 @@ export interface RequestPasswordResetParams {
   email: string
 }
 
-const createPasswordResetToken = async (userId: number) => {
+const createPasswordResetToken = async (userId: string) => {
   const { type, token, expiresAt } = generateToken(TokenType.PasswordReset)
 
   await db.transaction(async (tx) => {

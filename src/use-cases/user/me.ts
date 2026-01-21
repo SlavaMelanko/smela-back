@@ -9,7 +9,7 @@ const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   ) as UpdateUserInput
 }
 
-export const getUser = async (userId: number) => {
+export const getUser = async (userId: string) => {
   const user = await userRepo.findById(userId)
 
   if (!user) {
@@ -21,7 +21,7 @@ export const getUser = async (userId: number) => {
   return { data: { user } }
 }
 
-export const updateUser = async (userId: number, updates: UpdateUserInput) => {
+export const updateUser = async (userId: string, updates: UpdateUserInput) => {
   const validUpdates = prepareValidUpdates(updates)
 
   if (Object.keys(validUpdates).length === 0) {

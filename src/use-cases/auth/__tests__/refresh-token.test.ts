@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { RefreshToken, User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
@@ -35,7 +35,7 @@ describe('Refresh Auth Tokens', () => {
     }
 
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -49,7 +49,7 @@ describe('Refresh Auth Tokens', () => {
     }
     mockStoredToken = {
       id: 1,
-      userId: 1,
+      userId: testUuids.USER_1,
       tokenHash: 'hashed_token_123',
       ipAddress: '192.168.1.1',
       userAgent: 'Mozilla/5.0 (Test)',

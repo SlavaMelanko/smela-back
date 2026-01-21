@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { TokenRecord, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import Role from '@/types/role'
@@ -44,7 +44,7 @@ describe('Reset Password', () => {
     mockTokenString = `mock-reset-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
     mockTokenRecord = {
       id: 1,
-      userId: 123,
+      userId: testUuids.USER_1,
       type: TokenType.PasswordReset,
       token: mockTokenString,
       status: TokenStatus.Pending,
@@ -55,7 +55,7 @@ describe('Reset Password', () => {
     }
 
     mockUser = {
-      id: 123,
+      id: testUuids.USER_1,
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',

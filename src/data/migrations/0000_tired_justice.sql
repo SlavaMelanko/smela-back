@@ -3,11 +3,11 @@ CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> st
 CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."token_status" AS ENUM('pending', 'used', 'deprecated');--> statement-breakpoint
-CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset', 'refresh_token');--> statement-breakpoint
+CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset', 'refresh_token', 'user_invitation');--> statement-breakpoint
 CREATE TYPE "public"."status" AS ENUM('new', 'verified', 'trial', 'active', 'suspended', 'archived', 'pending');--> statement-breakpoint
 CREATE TABLE "auth" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"provider" "auth_provider" NOT NULL,
 	"identifier" varchar(255) NOT NULL,
 	"password_hash" varchar(255),
@@ -31,7 +31,7 @@ CREATE TABLE "role_permissions" (
 --> statement-breakpoint
 CREATE TABLE "refresh_tokens" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"token_hash" varchar(64) NOT NULL,
 	"ip_address" varchar(45),
 	"user_agent" varchar(512),
@@ -44,7 +44,7 @@ CREATE TABLE "refresh_tokens" (
 --> statement-breakpoint
 CREATE TABLE "tokens" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"type" "token_type" NOT NULL,
 	"status" "token_status" DEFAULT 'pending' NOT NULL,
 	"token" text NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE "tokens" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"first_name" varchar(100) NOT NULL,
 	"last_name" varchar(100),
 	"email" varchar(255) NOT NULL,

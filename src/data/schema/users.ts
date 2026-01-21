@@ -1,7 +1,8 @@
+import { sql } from 'drizzle-orm'
 import {
   pgTable,
-  serial,
   timestamp,
+  uuid,
   varchar,
 } from 'drizzle-orm/pg-core'
 
@@ -13,7 +14,7 @@ import { roleEnum } from './rbac'
 export const statusEnum = createPgEnum('status', Status)
 
 export const usersTable = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').primaryKey().$defaultFn(() => sql`uuidv7()`),
   firstName: varchar('first_name', { length: 100 }).notNull(),
   lastName: varchar('last_name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),

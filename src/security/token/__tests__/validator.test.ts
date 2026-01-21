@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test'
 
 import type { TokenRecord } from '@/data'
 
+import { testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 
 import { TokenStatus, TokenType } from '../types'
@@ -10,7 +11,7 @@ import TokenValidator from '../validator'
 describe('TokenValidator', () => {
   const createValidToken = (overrides?: Partial<TokenRecord>): TokenRecord => ({
     id: 1,
-    userId: 1,
+    userId: testUuids.USER_1,
     type: TokenType.EmailVerification,
     status: TokenStatus.Pending,
     token: 'valid-token-123',

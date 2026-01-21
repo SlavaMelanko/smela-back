@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status, USER_ROLES } from '@/types'
 
@@ -22,7 +22,7 @@ describe('adminUsersHandler', () => {
   beforeEach(async () => {
     mockUsers = [
       {
-        id: 1,
+        id: testUuids.USER_1,
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
@@ -113,7 +113,7 @@ describe('adminUserDetailHandler', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -127,7 +127,7 @@ describe('adminUserDetailHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: 1 })),
+        valid: mock(() => ({ id: testUuids.USER_1 })),
       },
       json: mockJson,
     }
@@ -146,7 +146,7 @@ describe('adminUserDetailHandler', () => {
   it('should call getUser with correct user id', async () => {
     await getUserHandler(mockContext)
 
-    expect(mockGetUser).toHaveBeenCalledWith(1)
+    expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
   })
 
   it('should return user with OK status', async () => {
