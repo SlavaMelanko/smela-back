@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { SearchResult, User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status, USER_ROLES } from '@/types'
@@ -21,7 +21,7 @@ describe('searchUsers', () => {
     mockSearchResult = {
       users: [
         {
-          id: '550e8400-e29b-41d4-a716-446655440001',
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
@@ -93,7 +93,7 @@ describe('getUser', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -115,17 +115,17 @@ describe('getUser', () => {
   })
 
   it('should return user when found', async () => {
-    const result = await getUser('550e8400-e29b-41d4-a716-446655440001')
+    const result = await getUser(testUuids.USER_1)
 
-    expect(mockFindById).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001')
+    expect(mockFindById).toHaveBeenCalledWith(testUuids.USER_1)
     expect(result).toEqual({ data: { user: mockUser } })
   })
 
   it('should throw NotFound error when user does not exist', async () => {
     mockFindById.mockImplementation(async () => undefined)
 
-    expect(getUser('550e8400-e29b-41d4-a716-446655440999')).rejects.toThrow(AppError)
-    expect(getUser('550e8400-e29b-41d4-a716-446655440999')).rejects.toMatchObject({
+    expect(getUser(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
+    expect(getUser(testUuids.NON_EXISTENT)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'User not found',
     })

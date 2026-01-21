@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { testUuids } from '@/__tests__'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
@@ -29,7 +30,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440001', email: 'test@example.com', role, status: Status.Active },
+          { id: testUuids.USER_1, email: 'test@example.com', role, status: Status.Active },
           { secret: env.JWT_SECRET },
         )
 
@@ -58,7 +59,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440005', email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_2, email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 
@@ -85,7 +86,7 @@ describe('User Relaxed Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440006', email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_3, email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 

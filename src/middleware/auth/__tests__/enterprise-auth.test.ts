@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { testUuids } from '@/__tests__'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
@@ -23,7 +24,7 @@ describe('Enterprise Authentication Middleware', () => {
   describe('Role Validation', () => {
     it('should allow Enterprise with Active status', async () => {
       const enterpriseToken = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440001', email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
+        { id: testUuids.USER_1, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -43,7 +44,7 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject User role even with Active status', async () => {
       const userToken = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440004', email: 'user@example.com', role: Role.User, status: Status.Active },
+        { id: testUuids.USER_2, email: 'user@example.com', role: Role.User, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -64,7 +65,7 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Admin role with Active status', async () => {
       const adminToken = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440005', email: 'admin@example.com', role: Role.Admin, status: Status.Active },
+        { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -85,7 +86,7 @@ describe('Enterprise Authentication Middleware', () => {
 
     it('should reject Owner role with Active status', async () => {
       const ownerToken = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440006', email: 'owner@example.com', role: Role.Owner, status: Status.Active },
+        { id: testUuids.OWNER_1, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
         { secret: env.JWT_SECRET },
       )
 
@@ -114,7 +115,7 @@ describe('Enterprise Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440007', email: 'enterprise@example.com', role: Role.Enterprise, status },
+          { id: testUuids.USER_3, email: 'enterprise@example.com', role: Role.Enterprise, status },
           { secret: env.JWT_SECRET },
         )
 

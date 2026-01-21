@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 
+import { testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
@@ -7,7 +8,7 @@ import { signJwt, verifyJwt } from '../jwt'
 
 describe('JWT Integration Tests', () => {
   const testUserClaims = {
-    id: '550e8400-e29b-41d4-a716-446655440000',
+    id: testUuids.USER_1,
     email: 'test@example.com',
     role: Role.User,
     status: Status.Active,
@@ -110,8 +111,8 @@ describe('JWT Integration Tests', () => {
 
     it('should create different tokens for different users', async () => {
       const secret = 'test-secret'
-      const user1 = { ...testUserClaims, id: '550e8400-e29b-41d4-a716-446655440001' }
-      const user2 = { ...testUserClaims, id: '550e8400-e29b-41d4-a716-446655440002' }
+      const user1 = { ...testUserClaims, id: testUuids.USER_2 }
+      const user2 = { ...testUserClaims, id: testUuids.USER_3 }
 
       const token1 = await signJwt(user1, { secret })
       const token2 = await signJwt(user2, { secret })

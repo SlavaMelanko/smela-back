@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -20,7 +20,7 @@ describe('Verify Email Endpoint', () => {
     mockVerifyEmail = mock(async () => ({
       data: {
         user: {
-          id: '550e8400-e29b-41d4-a716-446655440001',
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
@@ -56,7 +56,7 @@ describe('Verify Email Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: '550e8400-e29b-41d4-a716-446655440001',
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',

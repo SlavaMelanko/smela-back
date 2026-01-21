@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { TokenRecord, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import Role from '@/types/role'
@@ -45,7 +45,7 @@ describe('Accept Invite', () => {
     mockTokenString = `mock-invite-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
     mockTokenRecord = {
       id: 1,
-      userId: '550e8400-e29b-41d4-a716-446655440123',
+      userId: testUuids.ADMIN_1,
       type: TokenType.UserInvitation,
       token: mockTokenString,
       status: TokenStatus.Pending,
@@ -56,7 +56,7 @@ describe('Accept Invite', () => {
     }
 
     mockUser = {
-      id: '550e8400-e29b-41d4-a716-446655440123',
+      id: testUuids.ADMIN_1,
       email: 'admin@example.com',
       firstName: 'Admin',
       lastName: 'User',

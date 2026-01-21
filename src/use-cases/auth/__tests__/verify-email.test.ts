@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { TokenRecord, UserRecord } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
@@ -41,7 +41,7 @@ describe('Verify Email', () => {
     mockTokenString = 'a'.repeat(TOKEN_LENGTH)
     mockTokenRecord = {
       id: 1,
-      userId: '550e8400-e29b-41d4-a716-446655440001',
+      userId: testUuids.USER_1,
       type: TokenType.EmailVerification,
       token: mockTokenString,
       status: TokenStatus.Pending,
@@ -55,7 +55,7 @@ describe('Verify Email', () => {
       update: mock(async () => {}),
     }
     mockUser = {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -361,7 +361,7 @@ describe('Verify Email', () => {
     it('should handle token with different user ID', async () => {
       const differentUserTokenRecord = {
         ...mockTokenRecord,
-        userId: '550e8400-e29b-41d4-a716-446655440999',
+        userId: testUuids.NON_EXISTENT,
       }
 
       mockTokenRepo.findByToken.mockImplementation(async () => differentUserTokenRecord)
@@ -374,7 +374,7 @@ describe('Verify Email', () => {
       expect(result.data).toHaveProperty('user')
       expect(result.data).toHaveProperty('accessToken')
       expect(result.data.user.email).toBe(mockUser.email)
-      expect(mockUserRepo.update).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440999', {
+      expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.NON_EXISTENT, {
         status: Status.Verified,
       }, {})
     })

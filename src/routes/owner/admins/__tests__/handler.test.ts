@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -22,7 +22,7 @@ describe('ownerGetAdminsHandler', () => {
   beforeEach(async () => {
     mockAdmins = [
       {
-        id: '550e8400-e29b-41d4-a716-446655440001',
+        id: testUuids.ADMIN_1,
         firstName: 'Admin',
         lastName: 'User',
         email: 'admin@example.com',
@@ -112,7 +112,7 @@ describe('ownerGetAdminHandler', () => {
 
   beforeEach(async () => {
     mockAdmin = {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: testUuids.ADMIN_1,
       firstName: 'Admin',
       lastName: 'User',
       email: 'admin@example.com',
@@ -126,7 +126,7 @@ describe('ownerGetAdminHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: '550e8400-e29b-41d4-a716-446655440001' })),
+        valid: mock(() => ({ id: testUuids.ADMIN_1 })),
       },
       json: mockJson,
     }
@@ -145,7 +145,7 @@ describe('ownerGetAdminHandler', () => {
   it('should call getAdmin with correct admin id', async () => {
     await getAdminHandler(mockContext)
 
-    expect(mockGetAdmin).toHaveBeenCalledWith('550e8400-e29b-41d4-a716-446655440001')
+    expect(mockGetAdmin).toHaveBeenCalledWith(testUuids.ADMIN_1)
   })
 
   it('should return admin with OK status', async () => {
@@ -187,7 +187,7 @@ describe('inviteAdminHandler', () => {
 
   beforeEach(async () => {
     mockAdmin = {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: testUuids.ADMIN_1,
       firstName: 'New',
       lastName: 'Admin',
       email: 'newadmin@example.com',

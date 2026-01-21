@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
 import { hours, nowPlus } from '@/utils/chrono'
@@ -25,7 +25,7 @@ describe('Resend Verification Email', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',

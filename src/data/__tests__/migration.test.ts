@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { sql } from 'drizzle-orm'
 
+import { testUuids } from '@/__tests__'
 import { db } from '@/data/clients/db'
 import { authRepo, userRepo } from '@/data/repositories'
 import { AuthProvider, Role, Status } from '@/types'
@@ -139,7 +140,7 @@ describe('@with-db Database Migration Tests', () => {
     test('should enforce foreign key constraint on auth.user_id', async () => {
       expect(
         authRepo.create({
-          userId: '550e8400-e29b-41d4-a716-446655440999',
+          userId: testUuids.NON_EXISTENT,
           provider: AuthProvider.Local,
           identifier: 'nonexistent@example.com',
           passwordHash: '$2b$10$hashedpassword',

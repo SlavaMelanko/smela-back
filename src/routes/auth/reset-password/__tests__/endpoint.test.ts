@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
@@ -18,7 +18,7 @@ describe('Reset Password Endpoint', () => {
 
   beforeEach(async () => {
     mockResetPassword = mock(async () => ({
-      data: { user: { id: '550e8400-e29b-41d4-a716-446655440001' }, accessToken: 'test-token' },
+      data: { user: { id: testUuids.USER_1 }, accessToken: 'test-token' },
       refreshToken: 'refresh-token',
     }))
 
@@ -47,7 +47,7 @@ describe('Reset Password Endpoint', () => {
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
-      expect(data).toEqual({ user: { id: '550e8400-e29b-41d4-a716-446655440001' }, accessToken: 'test-token' })
+      expect(data).toEqual({ user: { id: testUuids.USER_1 }, accessToken: 'test-token' })
 
       expect(mockResetPassword).toHaveBeenCalledWith({
         token: validPayload.data.token,

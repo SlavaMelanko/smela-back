@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { testUuids } from '@/__tests__'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
@@ -23,7 +24,7 @@ describe('Auth Middleware - New User Access', () => {
   describe('Strict Auth - Status Validation', () => {
     it('should reject New status', async () => {
       const token = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440001', email: 'user@example.com', role: Role.User, status: Status.New },
+        { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status: Status.New },
         { secret: env.JWT_SECRET },
       )
 
@@ -50,7 +51,7 @@ describe('Auth Middleware - New User Access', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440002', email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 
@@ -79,7 +80,7 @@ describe('Auth Middleware - New User Access', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: '550e8400-e29b-41d4-a716-446655440005', email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_2, email: 'user@example.com', role: Role.User, status },
           { secret: env.JWT_SECRET },
         )
 
@@ -100,7 +101,7 @@ describe('Auth Middleware - New User Access', () => {
 
     it('should reject Suspended status', async () => {
       const token = await signJwt(
-        { id: '550e8400-e29b-41d4-a716-446655440009', email: 'user@example.com', role: Role.User, status: Status.Suspended },
+        { id: testUuids.USER_3, email: 'user@example.com', role: Role.User, status: Status.Suspended },
         { secret: env.JWT_SECRET },
       )
 

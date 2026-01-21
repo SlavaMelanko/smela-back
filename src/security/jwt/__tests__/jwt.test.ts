@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { ZodError } from 'zod'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 import { nowInSeconds } from '@/utils/chrono'
@@ -35,7 +35,7 @@ describe('JWT Unit Tests', () => {
     it('should transform user claims to JWT payload format', async () => {
       await signJwt(
         {
-          id: '550e8400-e29b-41d4-a716-446655440000',
+          id: testUuids.USER_1,
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
@@ -49,7 +49,7 @@ describe('JWT Unit Tests', () => {
       const now = nowInSeconds()
 
       expect(payload).toMatchObject({
-        id: '550e8400-e29b-41d4-a716-446655440000',
+        id: testUuids.USER_1,
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
@@ -65,7 +65,7 @@ describe('JWT Unit Tests', () => {
 
     beforeEach(async () => {
       mockVerify = mock(async () => ({
-        id: '550e8400-e29b-41d4-a716-446655440000',
+        id: testUuids.USER_1,
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
@@ -118,7 +118,7 @@ describe('JWT Unit Tests', () => {
     describe('Secret Rotation', () => {
       it('should verify token with current secret successfully', async () => {
         const mockPayload = {
-          id: '550e8400-e29b-41d4-a716-446655440000',
+          id: testUuids.USER_1,
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
@@ -148,7 +148,7 @@ describe('JWT Unit Tests', () => {
 
       it('should fallback to previous secret when current secret fails', async () => {
         const mockPayload = {
-          id: '550e8400-e29b-41d4-a716-446655440000',
+          id: testUuids.USER_1,
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
