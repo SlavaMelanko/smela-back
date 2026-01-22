@@ -11,13 +11,19 @@ export type CreateUserCompanyInput = typeof userCompaniesTable.$inferInsert
 export type Company = CompanyRecord
 export type UserCompany = UserCompanyRecord
 
-export type CompanyMember = UserCompany & {
-  user: {
-    id: string
-    firstName: string
-    lastName: string | null
-    email: string
-  }
+export interface CompanyMember {
+  id: string
+  firstName: string
+  lastName: string | null
+  email: string
+  status: string
+  position: string | null
+  invitedBy: string | null
+  joinedAt: Date | null
+}
+
+export type CompanyWithMembers = Company & {
+  members: CompanyMember[]
 }
 
 export type UserCompanyWithCompany = UserCompany & {

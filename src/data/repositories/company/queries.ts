@@ -1,10 +1,67 @@
-import { and, eq } from 'drizzle-orm'
+import { and, count, desc, eq, sql } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
-import type { Company, CompanyMember, UserCompany, UserCompanyWithCompany } from './types'
+import type { PaginatedResult, PaginationParams } from '../pagination'
+import type { Company, CompanyMember, CompanyWithMembers, UserCompany, UserCompanyWithCompany } from './types'
 
 import { db } from '../../clients'
 import { companiesTable, userCompaniesTable, usersTable } from '../../schema'
+import { calcOffset } from '../pagination'
+
+export interface CompanySearchParams {
+  search?: string
+}
+
+export interface CompanySearchResult {
+  companies: Company[]
+  pagination: PaginatedResult
+}
+
+export const findAllCompanies = async (
+  filters: CompanySearchParams,
+  pagination: PaginationParams,
+  tx?: Database,
+): Promise<CompanySearchResult> => {
+  const executor = tx || db
+  const { search } = filters
+  const { page, limit } = pagination
+  const offset = calcOffset(pagination)
+
+  const buildWhereConditions = () => {
+    if (search && search.length > 0) {
+      const pattern = `%${search}%`
+
+      return sql`(name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${pattern}`
+    }
+
+    return undefined
+  }
+
+  const whereClause = buildWhereConditions()
+
+  const [countResult, companies] = await Promise.all([
+    executor.select({ value: count() }).from(companiesTable).where(whereClause),
+    executor
+      .select()
+      .from(companiesTable)
+      .where(whereClause)
+      .orderBy(desc(companiesTable.createdAt))
+      .limit(limit)
+      .offset(offset),
+  ])
+
+  const totalCount = countResult[0]?.value ?? 0
+
+  return {
+    companies,
+    pagination: {
+      page,
+      limit,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    },
+  }
+}
 
 export const findCompanyById = async (
   companyId: string,
@@ -18,6 +75,42 @@ export const findCompanyById = async (
     .where(eq(companiesTable.id, companyId))
 
   return company
+}
+
+export const findCompanyWithMembers = async (
+  companyId: string,
+  tx?: Database,
+): Promise<CompanyWithMembers | undefined> => {
+  const executor = tx || db
+
+  const [company] = await executor
+    .select()
+    .from(companiesTable)
+    .where(eq(companiesTable.id, companyId))
+
+  if (!company) {
+    return undefined
+  }
+
+  const memberRows = await executor
+    .select({
+      id: userCompaniesTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
+      position: userCompaniesTable.position,
+      invitedBy: userCompaniesTable.invitedBy,
+      joinedAt: userCompaniesTable.joinedAt,
+    })
+    .from(userCompaniesTable)
+    .innerJoin(usersTable, eq(userCompaniesTable.userId, usersTable.id))
+    .where(eq(userCompaniesTable.companyId, companyId))
+
+  return {
+    ...company,
+    members: memberRows,
+  }
 }
 
 export const findCompanyByName = async (
@@ -91,32 +184,18 @@ export const findCompanyMembers = async (
 ): Promise<CompanyMember[]> => {
   const executor = tx || db
 
-  const results = await executor
+  return executor
     .select({
-      id: userCompaniesTable.id,
-      userId: userCompaniesTable.userId,
-      companyId: userCompaniesTable.companyId,
+      id: userCompaniesTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
       position: userCompaniesTable.position,
       invitedBy: userCompaniesTable.invitedBy,
       joinedAt: userCompaniesTable.joinedAt,
-      user: {
-        id: usersTable.id,
-        firstName: usersTable.firstName,
-        lastName: usersTable.lastName,
-        email: usersTable.email,
-      },
     })
     .from(userCompaniesTable)
     .innerJoin(usersTable, eq(userCompaniesTable.userId, usersTable.id))
     .where(eq(userCompaniesTable.companyId, companyId))
-
-  return results.map(row => ({
-    id: row.id,
-    userId: row.userId,
-    companyId: row.companyId,
-    position: row.position,
-    invitedBy: row.invitedBy,
-    joinedAt: row.joinedAt,
-    user: row.user,
-  }))
 }

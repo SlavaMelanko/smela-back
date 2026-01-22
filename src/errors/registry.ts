@@ -61,12 +61,17 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'reCAPTCHA token validation failed.',
   },
 
-  // System errors
-  [ErrorCode.InternalError]: {
-    error: 'Internal server error.',
+  // Resource errors
+  [ErrorCode.Conflict]: {
+    error: 'Resource already exists.',
   },
   [ErrorCode.NotFound]: {
     error: 'Resource not found.',
+  },
+
+  // System errors
+  [ErrorCode.InternalError]: {
+    error: 'Internal server error.',
   },
   [ErrorCode.ValidationError]: {
     error: 'Validation error.',
