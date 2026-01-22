@@ -15,7 +15,7 @@ import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from '../clients'
-import { authTable, permissionsTable, rolePermissionsTable, usersTable } from '../schema'
+import { authTable, companiesTable, permissionsTable, rolePermissionsTable, userCompaniesTable, usersTable } from '../schema'
 
 const seedPermissions = async () => {
   const allResources = Object.values(Resource)
@@ -107,51 +107,31 @@ const seedDefaultAdminPermissions = async () => {
   })
 }
 
-const seedUser = async (user: {
-  firstName: string
-  lastName?: string
-  email: string
-  password: string
-  role: Role
-  status: Status
-}) => {
-  const [existingUser] = await db
+const seedCompany = async () => {
+  const [existingCompany] = await db
     .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, user.email))
+    .from(companiesTable)
+    .where(eq(companiesTable.name, 'SMELA'))
 
-  if (existingUser) {
-    console.log(`✅ ${user.role} ${user.email} already exists`)
+  if (existingCompany) {
+    console.log('✅ SMELA company already exists')
 
-    return
+    return existingCompany.id
   }
 
-  const hashedPassword = await hashPassword(user.password)
+  const [company] = await db.insert(companiesTable).values({
+    name: 'SMELA',
+    website: 'https://smela.com',
+    description: 'SMELA - Smart Management and Enterprise Learning Application',
+  }).returning({ id: companiesTable.id })
 
-  const [createdUser] = await db
-    .insert(usersTable)
-    .values({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      status: user.status,
-    })
-    .returning({ id: usersTable.id })
+  console.log('✅ SMELA company seeded')
 
-  await db.insert(authTable).values({
-    userId: createdUser.id,
-    provider: AuthProvider.Local,
-    identifier: user.email,
-    passwordHash: hashedPassword,
-  })
-
-  console.log(`✅ ${user.role} ${user.email} seeded`)
+  return company.id
 }
 
-const seedUsers = async () => {
+const seedUsers = async (companyId: string) => {
   const users = [
-    // Owner
     {
       firstName: 'Slava',
       lastName: 'Owner',
@@ -159,8 +139,8 @@ const seedUsers = async () => {
       password: 'Passw0rd!',
       role: Role.Owner,
       status: Status.Active,
+      position: 'Owner',
     },
-    // Admin
     {
       firstName: 'Slava',
       lastName: 'Admin',
@@ -168,38 +148,64 @@ const seedUsers = async () => {
       password: 'Passw0rd!',
       role: Role.Admin,
       status: Status.Active,
-    },
-    // Enterprise user (active)
-    {
-      firstName: 'Emma',
-      lastName: 'Enterprise',
-      email: 'emma.enterprise@smela.com',
-      password: 'Passw0rd!',
-      role: Role.Enterprise,
-      status: Status.Active,
-    },
-    // Regular user (new status)
-    {
-      firstName: 'Noah',
-      lastName: 'Newuser',
-      email: 'noah.newuser@smela.com',
-      password: 'Passw0rd!',
-      role: Role.User,
-      status: Status.New,
-    },
-    // Regular user (verified status)
-    {
-      firstName: 'Olivia',
-      lastName: 'Verified',
-      email: 'olivia.verified@smela.com',
-      password: 'Passw0rd!',
-      role: Role.User,
-      status: Status.Verified,
+      position: 'Admin',
     },
   ]
 
   for (const user of users) {
-    await seedUser(user)
+    const [existingUser] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, user.email))
+
+    if (existingUser) {
+      // Ensure user is linked to company
+      const [existingLink] = await db
+        .select()
+        .from(userCompaniesTable)
+        .where(eq(userCompaniesTable.userId, existingUser.id))
+
+      if (!existingLink) {
+        await db.insert(userCompaniesTable).values({
+          userId: existingUser.id,
+          companyId,
+          position: user.position,
+        })
+        console.log(`✅ Linked ${user.email} to SMELA as ${user.position}`)
+      } else {
+        console.log(`✅ ${user.role} ${user.email} already exists`)
+      }
+
+      continue
+    }
+
+    const hashedPassword = await hashPassword(user.password)
+
+    const [createdUser] = await db
+      .insert(usersTable)
+      .values({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      })
+      .returning({ id: usersTable.id })
+
+    await db.insert(authTable).values({
+      userId: createdUser.id,
+      provider: AuthProvider.Local,
+      identifier: user.email,
+      passwordHash: hashedPassword,
+    })
+
+    await db.insert(userCompaniesTable).values({
+      userId: createdUser.id,
+      companyId,
+      position: user.position,
+    })
+
+    console.log(`✅ ${user.role} ${user.email} seeded and linked to SMELA`)
   }
 }
 
@@ -207,7 +213,8 @@ const seed = async () => {
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
-  await seedUsers()
+  const companyId = await seedCompany()
+  await seedUsers(companyId)
 }
 
 seed().catch((err) => {
