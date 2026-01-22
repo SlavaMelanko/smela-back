@@ -6,13 +6,13 @@ import {
   updateCompany,
 } from './mutations'
 import {
-  findAllCompanies,
+  findCompany,
   findCompanyById,
   findCompanyByName,
   findCompanyMembers,
-  findCompanyWithMembers,
   findUserCompanies,
   findUserCompany,
+  searchCompanies,
 } from './queries'
 
 export type { CompanySearchParams, CompanySearchResult } from './queries'
@@ -23,13 +23,13 @@ export const companyRepo = {
   addUser: addUserToCompany,
   create: createCompany,
   delete: deleteCompany,
-  findAll: findAllCompanies,
+  find: findCompany,
   findById: findCompanyById,
   findByName: findCompanyByName,
   findMembers: findCompanyMembers,
-  findWithMembers: findCompanyWithMembers,
   findUserCompanies,
   findUserCompany,
   removeUser: removeUserFromCompany,
+  search: searchCompanies,
   update: updateCompany,
 }

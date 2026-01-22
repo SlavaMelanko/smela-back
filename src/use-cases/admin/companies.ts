@@ -3,15 +3,15 @@ import type { CompanySearchParams, PaginationParams } from '@/data'
 import { companyRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
-export const searchCompanies = async (
+export const getCompanies = async (
   params: CompanySearchParams,
   pagination: PaginationParams,
 ) => {
-  return companyRepo.findAll(params, pagination)
+  return companyRepo.search(params, pagination)
 }
 
 export const getCompany = async (companyId: string) => {
-  const company = await companyRepo.findWithMembers(companyId)
+  const company = await companyRepo.find(companyId)
 
   if (!company) {
     throw new AppError(ErrorCode.NotFound, 'Company not found')

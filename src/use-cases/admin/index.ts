@@ -1,8 +1,8 @@
 export {
   createCompany,
   deleteCompany,
+  getCompanies,
   getCompany,
-  searchCompanies,
   updateCompany,
 } from './companies'
 

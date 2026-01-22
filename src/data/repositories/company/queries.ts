@@ -17,7 +17,7 @@ export interface CompanySearchResult {
   pagination: PaginatedResult
 }
 
-export const findAllCompanies = async (
+export const searchCompanies = async (
   filters: CompanySearchParams,
   pagination: PaginationParams,
   tx?: Database,
@@ -28,13 +28,16 @@ export const findAllCompanies = async (
   const offset = calcOffset(pagination)
 
   const buildWhereConditions = () => {
-    if (search && search.length > 0) {
-      const pattern = `%${search}%`
+    const conditions = []
 
-      return sql`(name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${pattern}`
+    if (search && search.length > 0) {
+      // Use concatenated expression to leverage GIN index (idx_companies_search_trgm)
+      conditions.push(
+        sql`(name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${`%${search}%`}`,
+      )
     }
 
-    return undefined
+    return and(...conditions)
   }
 
   const whereClause = buildWhereConditions()
@@ -77,7 +80,7 @@ export const findCompanyById = async (
   return company
 }
 
-export const findCompanyWithMembers = async (
+export const findCompany = async (
   companyId: string,
   tx?: Database,
 ): Promise<CompanyWithMembers | undefined> => {

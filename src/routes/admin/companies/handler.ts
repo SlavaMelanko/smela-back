@@ -2,8 +2,8 @@ import { HttpStatus } from '@/net/http'
 import {
   createCompany,
   deleteCompany,
+  getCompanies,
   getCompany,
-  searchCompanies,
   updateCompany,
 } from '@/use-cases/admin'
 
@@ -17,7 +17,9 @@ import type {
 export const getCompaniesHandler = async (c: GetCompaniesCtx) => {
   const { search, page, limit } = c.req.valid('query')
 
-  const result = await searchCompanies({ search }, { page, limit })
+  const filters = { search }
+  const pagination = { page, limit }
+  const result = await getCompanies(filters, pagination)
 
   return c.json(result, HttpStatus.OK)
 }
