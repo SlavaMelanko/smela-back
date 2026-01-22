@@ -17,7 +17,7 @@ export const getCompany = async (companyId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Company not found')
   }
 
-  return { data: { company } }
+  return { company }
 }
 
 export interface CreateCompanyParams {
@@ -35,7 +35,7 @@ export const createCompany = async (params: CreateCompanyParams) => {
 
   const company = await companyRepo.create(params)
 
-  return { data: { company } }
+  return { company }
 }
 
 export interface UpdateCompanyParams {
@@ -61,7 +61,7 @@ export const updateCompany = async (companyId: string, params: UpdateCompanyPara
 
   const company = await companyRepo.update(companyId, params)
 
-  return { data: { company } }
+  return { company }
 }
 
 export const deleteCompany = async (companyId: string) => {

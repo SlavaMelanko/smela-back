@@ -29,7 +29,7 @@ export const getCompanyHandler = async (c: CompanyParamsCtx) => {
 
   const result = await getCompany(id)
 
-  return c.json(result.data, HttpStatus.OK)
+  return c.json(result, HttpStatus.OK)
 }
 
 export const createCompanyHandler = async (c: CreateCompanyCtx) => {
@@ -37,7 +37,7 @@ export const createCompanyHandler = async (c: CreateCompanyCtx) => {
 
   const result = await createCompany(body)
 
-  return c.json(result.data, HttpStatus.CREATED)
+  return c.json(result, HttpStatus.CREATED)
 }
 
 export const updateCompanyHandler = async (c: UpdateCompanyCtx) => {
@@ -46,7 +46,7 @@ export const updateCompanyHandler = async (c: UpdateCompanyCtx) => {
 
   const result = await updateCompany(id, body)
 
-  return c.json(result.data, HttpStatus.OK)
+  return c.json(result, HttpStatus.OK)
 }
 
 export const deleteCompanyHandler = async (c: CompanyParamsCtx) => {
