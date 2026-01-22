@@ -43,6 +43,633 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "companies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/companies",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{admin_api_url}}/companies",
+                  "host": [
+                    "{{admin_api_url}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Access-Control-Expose-Headers",
+                  "value": "Content-Length,X-Request-Id"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Cross-Origin-Resource-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Cross-Origin-Opener-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Referrer-Policy",
+                  "value": "strict-origin-when-cross-origin"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "X-DNS-Prefetch-Control",
+                  "value": "off"
+                },
+                {
+                  "key": "X-Frame-Options",
+                  "value": "DENY"
+                },
+                {
+                  "key": "X-XSS-Protection",
+                  "value": "0"
+                },
+                {
+                  "key": "Content-Security-Policy",
+                  "value": "default-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "28d3bff2-89a6-417a-a83a-9f18e47a35c4"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "1000;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "1000"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "994"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "652"
+                },
+                {
+                  "key": "Origin-Agent-Cluster",
+                  "value": "?1"
+                },
+                {
+                  "key": "X-Download-Options",
+                  "value": "noopen"
+                },
+                {
+                  "key": "X-Permitted-Cross-Domain-Policies",
+                  "value": "none"
+                },
+                {
+                  "key": "Permissions-Policy",
+                  "value": "geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+                },
+                {
+                  "key": "Date",
+                  "value": "Thu, 22 Jan 2026 16:56:41 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "321"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"companies\": [\n        {\n            \"id\": \"019be609-066b-779c-8ae8-c6211d3ebb44\",\n            \"name\": \"SMELA\",\n            \"website\": \"https://smela.com\",\n            \"description\": \"SMELA - Smart Management and Enterprise Learning Application\",\n            \"createdAt\": \"2026-01-22T14:08:29.803Z\",\n            \"updatedAt\": \"2026-01-22T14:08:29.803Z\"\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"limit\": 25,\n        \"total\": 1,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "companies",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test Inc.\",\n    \"website\": \"https://test.inc.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/companies",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Test Inc.\",\n    \"website\": \"https://test.inc.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{admin_api_url}}/companies",
+                  "host": [
+                    "{{admin_api_url}}"
+                  ],
+                  "path": [
+                    "companies"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "",
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Access-Control-Expose-Headers",
+                  "value": "Content-Length,X-Request-Id"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Cross-Origin-Resource-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Cross-Origin-Opener-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Referrer-Policy",
+                  "value": "strict-origin-when-cross-origin"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "X-DNS-Prefetch-Control",
+                  "value": "off"
+                },
+                {
+                  "key": "X-Frame-Options",
+                  "value": "DENY"
+                },
+                {
+                  "key": "X-XSS-Protection",
+                  "value": "0"
+                },
+                {
+                  "key": "Content-Security-Policy",
+                  "value": "default-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "98307196-2df5-485b-b7ad-f87ab9fcf8ee"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "1000;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "1000"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "989"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "576"
+                },
+                {
+                  "key": "Origin-Agent-Cluster",
+                  "value": "?1"
+                },
+                {
+                  "key": "X-Download-Options",
+                  "value": "noopen"
+                },
+                {
+                  "key": "X-Permitted-Cross-Domain-Policies",
+                  "value": "none"
+                },
+                {
+                  "key": "Permissions-Policy",
+                  "value": "geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+                },
+                {
+                  "key": "Date",
+                  "value": "Thu, 22 Jan 2026 16:57:56 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "206"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"company\": {\n        \"id\": \"019be6a4-28a7-7eff-99fb-e8bb191d4bd0\",\n        \"name\": \"Test Inc.\",\n        \"website\": \"https://test.inc.com\",\n        \"description\": null,\n        \"createdAt\": \"2026-01-22T16:57:56.647Z\",\n        \"updatedAt\": \"2026-01-22T16:57:56.647Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "companies/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/companies/019be609-066b-779c-8ae8-c6211d3ebb44",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies",
+                "019be609-066b-779c-8ae8-c6211d3ebb44"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{admin_api_url}}/companies/019be609-066b-779c-8ae8-c6211d3ebb44",
+                  "host": [
+                    "{{admin_api_url}}"
+                  ],
+                  "path": [
+                    "companies",
+                    "019be609-066b-779c-8ae8-c6211d3ebb44"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Access-Control-Expose-Headers",
+                  "value": "Content-Length,X-Request-Id"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Cross-Origin-Resource-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Cross-Origin-Opener-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Referrer-Policy",
+                  "value": "strict-origin-when-cross-origin"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "X-DNS-Prefetch-Control",
+                  "value": "off"
+                },
+                {
+                  "key": "X-Frame-Options",
+                  "value": "DENY"
+                },
+                {
+                  "key": "X-XSS-Protection",
+                  "value": "0"
+                },
+                {
+                  "key": "Content-Security-Policy",
+                  "value": "default-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "ff46f41a-0f83-4f93-b707-c1d5a2133211"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "1000;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "1000"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "986"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "396"
+                },
+                {
+                  "key": "Origin-Agent-Cluster",
+                  "value": "?1"
+                },
+                {
+                  "key": "X-Download-Options",
+                  "value": "noopen"
+                },
+                {
+                  "key": "X-Permitted-Cross-Domain-Policies",
+                  "value": "none"
+                },
+                {
+                  "key": "Permissions-Policy",
+                  "value": "geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+                },
+                {
+                  "key": "Date",
+                  "value": "Thu, 22 Jan 2026 17:00:57 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "687"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"company\": {\n        \"id\": \"019be609-066b-779c-8ae8-c6211d3ebb44\",\n        \"name\": \"SMELA\",\n        \"website\": \"https://smela.com\",\n        \"description\": \"SMELA - Smart Management and Enterprise Learning Application\",\n        \"createdAt\": \"2026-01-22T14:08:29.803Z\",\n        \"updatedAt\": \"2026-01-22T14:08:29.803Z\",\n        \"members\": [\n            {\n                \"id\": \"019be609-06d6-76a8-9e48-d6f758b76bb4\",\n                \"firstName\": \"Slava\",\n                \"lastName\": \"Owner\",\n                \"email\": \"slava.owner@smela.com\",\n                \"status\": \"active\",\n                \"position\": \"Owner\",\n                \"invitedBy\": null,\n                \"joinedAt\": \"2026-01-22T14:08:29.917Z\"\n            },\n            {\n                \"id\": \"019be609-0747-7d69-99ae-bc9903cb865a\",\n                \"firstName\": \"Slava\",\n                \"lastName\": \"Admin\",\n                \"email\": \"slava.admin@smela.com\",\n                \"status\": \"active\",\n                \"position\": \"Admin\",\n                \"invitedBy\": null,\n                \"joinedAt\": \"2026-01-22T14:08:30.027Z\"\n            }\n        ]\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "companies/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"This is the test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/companies/019be6a4-28a7-7eff-99fb-e8bb191d4bd0",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies",
+                "019be6a4-28a7-7eff-99fb-e8bb191d4bd0"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"description\": \"This is the test\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{admin_api_url}}/companies/019be6a4-28a7-7eff-99fb-e8bb191d4bd0",
+                  "host": [
+                    "{{admin_api_url}}"
+                  ],
+                  "path": [
+                    "companies",
+                    "019be6a4-28a7-7eff-99fb-e8bb191d4bd0"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "",
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Access-Control-Expose-Headers",
+                  "value": "Content-Length,X-Request-Id"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Cross-Origin-Resource-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Cross-Origin-Opener-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "Referrer-Policy",
+                  "value": "strict-origin-when-cross-origin"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "X-DNS-Prefetch-Control",
+                  "value": "off"
+                },
+                {
+                  "key": "X-Frame-Options",
+                  "value": "DENY"
+                },
+                {
+                  "key": "X-XSS-Protection",
+                  "value": "0"
+                },
+                {
+                  "key": "Content-Security-Policy",
+                  "value": "default-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:"
+                },
+                {
+                  "key": "X-Request-Id",
+                  "value": "70e42aa2-3fd2-4e73-8bea-3a4b4a9b0cad"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "1000;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "1000"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "987"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "509"
+                },
+                {
+                  "key": "Origin-Agent-Cluster",
+                  "value": "?1"
+                },
+                {
+                  "key": "X-Download-Options",
+                  "value": "noopen"
+                },
+                {
+                  "key": "X-Permitted-Cross-Domain-Policies",
+                  "value": "none"
+                },
+                {
+                  "key": "Permissions-Policy",
+                  "value": "geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+                },
+                {
+                  "key": "Date",
+                  "value": "Thu, 22 Jan 2026 16:59:04 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "220"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"company\": {\n        \"id\": \"019be6a4-28a7-7eff-99fb-e8bb191d4bd0\",\n        \"name\": \"Test Inc.\",\n        \"website\": \"https://test.inc.com\",\n        \"description\": \"This is the test\",\n        \"createdAt\": \"2026-01-22T16:57:56.647Z\",\n        \"updatedAt\": \"2026-01-22T16:57:56.647Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "companies/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/companies/019be6a3-38c2-7127-a5df-7fb9a511c40c",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies",
+                "019be6a3-38c2-7127-a5df-7fb9a511c40c"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
