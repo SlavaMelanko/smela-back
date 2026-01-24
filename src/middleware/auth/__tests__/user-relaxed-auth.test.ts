@@ -23,7 +23,7 @@ describe('User Relaxed Authentication Middleware', () => {
 
   describe('Role Validation', () => {
     it('should allow all roles with Active status', async () => {
-      const allowedRoles = [Role.User, Role.Enterprise, Role.Admin, Role.Owner]
+      const allowedRoles = [Role.User, Role.Admin, Role.Owner]
 
       for (const role of allowedRoles) {
         const testApp = new Hono<AppContext>()

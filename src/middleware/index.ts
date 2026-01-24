@@ -1,6 +1,5 @@
 export {
   adminAuthMiddleware,
-  enterpriseStrictAuthMiddleware,
   ownerAuthMiddleware,
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
