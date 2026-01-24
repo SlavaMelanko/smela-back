@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { USER_ROLES } from '@/types'
+import { Role } from '@/types'
 
 import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
@@ -8,7 +8,7 @@ import { requestValidationRules as rules } from '../../@shared'
 
 export const getUsersQuerySchema = z.object({
   search: rules.userFilter.search.optional(),
-  roles: rules.userFilter.roles.default(USER_ROLES.join(',')),
+  roles: rules.userFilter.roles.default(Role.User),
   statuses: rules.userFilter.statuses.optional(),
   ...rules.pagination,
 })

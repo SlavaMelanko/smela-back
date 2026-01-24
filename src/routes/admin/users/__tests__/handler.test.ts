@@ -4,7 +4,7 @@ import type { User } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
-import { Role, Status, USER_ROLES } from '@/types'
+import { Role, Status } from '@/types'
 
 import { getUserHandler, getUsersHandler } from '../handler'
 
@@ -38,7 +38,7 @@ describe('adminUsersHandler', () => {
     mockContext = {
       req: {
         valid: mock(() => ({
-          roles: USER_ROLES,
+          roles: [Role.User],
           statuses: undefined,
           page: 1,
           limit: DEFAULT_LIMIT,
@@ -70,7 +70,7 @@ describe('adminUsersHandler', () => {
     await getUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
-      { roles: USER_ROLES, statuses: undefined },
+      { roles: [Role.User], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
   })

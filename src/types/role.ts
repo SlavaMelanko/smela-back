@@ -6,8 +6,6 @@ enum Role {
 
 export const isUser = (role: Role) => role === Role.User
 
-export const USER_ROLES: Role[] = Object.values(Role).filter(isUser)
-
 export const isAdmin = (role: Role) => role === Role.Admin || role === Role.Owner
 
 export const isOwner = (role: Role) => role === Role.Owner
