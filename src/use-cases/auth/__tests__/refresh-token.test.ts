@@ -392,7 +392,7 @@ describe('Refresh Auth Tokens', () => {
     })
 
     it('should handle different user roles in JWT', async () => {
-      const roles = [Role.User, Role.Admin, Role.Owner, Role.Enterprise]
+      const roles = [Role.User, Role.Admin, Role.Owner]
 
       for (const role of roles) {
         const userWithRole = { ...mockUser, role }

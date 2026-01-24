@@ -46,7 +46,7 @@ describe('getAdmins', () => {
   })
 
   it('should always search with Admin role only', async () => {
-    await getAdmins({ roles: [Role.User, Role.Enterprise] }, DEFAULT_PAGINATION)
+    await getAdmins({ roles: [Role.User] }, DEFAULT_PAGINATION)
 
     expect(mockUserRepoSearch).toHaveBeenCalledWith(
       { roles: [Role.Admin] },
