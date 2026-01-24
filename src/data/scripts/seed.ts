@@ -130,8 +130,9 @@ const seedCompany = async () => {
   return company.id
 }
 
-const seedUsers = async (companyId: string) => {
-  const users = [
+// System users (Owner, Admin) - no company linking
+const seedSystemUsers = async () => {
+  const systemUsers = [
     {
       firstName: 'Slava',
       lastName: 'Owner',
@@ -139,7 +140,6 @@ const seedUsers = async (companyId: string) => {
       password: 'Passw0rd!',
       role: Role.Owner,
       status: Status.Active,
-      position: 'Owner',
     },
     {
       firstName: 'Slava',
@@ -148,11 +148,68 @@ const seedUsers = async (companyId: string) => {
       password: 'Passw0rd!',
       role: Role.Admin,
       status: Status.Active,
-      position: 'Admin',
     },
   ]
 
-  for (const user of users) {
+  for (const user of systemUsers) {
+    const [existingUser] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, user.email))
+
+    if (existingUser) {
+      console.log(`✅ ${user.role} ${user.email} already exists`)
+      continue
+    }
+
+    const hashedPassword = await hashPassword(user.password)
+
+    const [createdUser] = await db
+      .insert(usersTable)
+      .values({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      })
+      .returning({ id: usersTable.id })
+
+    await db.insert(authTable).values({
+      userId: createdUser.id,
+      provider: AuthProvider.Local,
+      identifier: user.email,
+      passwordHash: hashedPassword,
+    })
+
+    console.log(`✅ ${user.role} ${user.email} seeded`)
+  }
+}
+
+// Test users (User role) - linked to company
+const seedTestUsers = async (companyId: string) => {
+  const testUsers = [
+    {
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test.user@smela.com',
+      password: 'Passw0rd!',
+      role: Role.User,
+      status: Status.Active,
+      position: 'Developer',
+    },
+    {
+      firstName: 'Test',
+      lastName: 'User2',
+      email: 'test.user2@smela.com',
+      password: 'Passw0rd!',
+      role: Role.User,
+      status: Status.Active,
+      position: 'Designer',
+    },
+  ]
+
+  for (const user of testUsers) {
     const [existingUser] = await db
       .select({ id: usersTable.id })
       .from(usersTable)
@@ -213,8 +270,9 @@ const seed = async () => {
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
+  await seedSystemUsers()
   const companyId = await seedCompany()
-  await seedUsers(companyId)
+  await seedTestUsers(companyId)
 }
 
 seed().catch((err) => {
