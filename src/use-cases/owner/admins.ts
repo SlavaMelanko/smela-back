@@ -30,7 +30,7 @@ export const getAdmin = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  return { data: { admin } }
+  return { admin }
 }
 
 export interface AdminInvitationParams {
@@ -92,5 +92,5 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
     env.COMPANY_NAME,
   )
 
-  return { data: { admin } }
+  return { admin }
 }

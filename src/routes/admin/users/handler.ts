@@ -18,5 +18,5 @@ export const getUserHandler = async (c: GetUserCtx) => {
 
   const result = await getUser(id)
 
-  return c.json(result.data, HttpStatus.OK)
+  return c.json(result, HttpStatus.OK)
 }

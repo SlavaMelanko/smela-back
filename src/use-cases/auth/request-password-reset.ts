@@ -41,7 +41,7 @@ const requestPasswordReset = async (
     })
   }
 
-  return { data: { success: true } }
+  return { success: true }
 }
 
 export default requestPasswordReset

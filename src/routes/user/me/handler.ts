@@ -8,7 +8,7 @@ const getHandler = async (c: AppCtx) => {
 
   const result = await getUser(user.id)
 
-  return c.json(result.data)
+  return c.json(result)
 }
 
 const postHandler = async (c: UpdateProfileCtx) => {
@@ -17,7 +17,7 @@ const postHandler = async (c: UpdateProfileCtx) => {
 
   const result = await updateUser(user.id, payload.data)
 
-  return c.json(result.data)
+  return c.json(result)
 }
 
 export { getHandler, postHandler }

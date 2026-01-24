@@ -8,7 +8,7 @@ const resendVerificationEmailHandler = async (c: ResendVerificationEmailCtx) => 
 
   const result = await resendVerificationEmail(payload.data, payload.preferences)
 
-  return c.json(result.data, HttpStatus.ACCEPTED)
+  return c.json(result, HttpStatus.ACCEPTED)
 }
 
 export default resendVerificationEmailHandler

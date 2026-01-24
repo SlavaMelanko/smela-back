@@ -90,7 +90,7 @@ describe('Resend Verification Email', () => {
       }, {})
       expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
     })
 
     it('should send an email verification email with the new token', async () => {
@@ -112,7 +112,7 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: 'nonexistent@example.com' })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
       expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -129,7 +129,7 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: verifiedUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
       expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -146,7 +146,7 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: suspendedUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
       expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -177,7 +177,7 @@ describe('Resend Verification Email', () => {
       const result = await resendVerificationEmail({ email: upperCaseEmail })
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(upperCaseEmail)
-      expect(result.data.success).toBe(true)
+      expect(result.success).toBe(true)
     })
 
     it('should reject users with ineligible statuses to prevent enumeration', async () => {
@@ -195,7 +195,7 @@ describe('Resend Verification Email', () => {
 
         const result = await resendVerificationEmail({ email: userWithStatus.email })
 
-        expect(result).toEqual({ data: { success: true } })
+        expect(result).toEqual({ success: true })
         expect(mockTokenRepo.issue).not.toHaveBeenCalled()
         expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
       }
@@ -210,7 +210,7 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: mockUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
 
       expect(mockTokenRepo.issue).toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalled()

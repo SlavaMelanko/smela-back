@@ -41,7 +41,7 @@ export const updateCompany = async (
 
   const [company] = await executor
     .update(companiesTable)
-    .set(updates)
+    .set({ ...updates, updatedAt: new Date() })
     .where(eq(companiesTable.id, companyId))
     .returning()
 
