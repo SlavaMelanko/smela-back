@@ -1,5 +1,5 @@
 {
-  "id": "787464aa-0497-4873-870a-725565d7a4b1",
+  "id": "3f4b19f0-1dcf-49e5-a478-10bfc5085710",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -844,8 +844,7 @@
       "values": [
         "owner",
         "admin",
-        "user",
-        "enterprise"
+        "user"
       ]
     },
     "public.token_status": {
