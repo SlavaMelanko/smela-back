@@ -62,6 +62,10 @@ export const testUuids = {
   TOKEN_1: '00000000-0000-4000-b0f0-000000000001',
   TOKEN_2: '00000000-0000-4000-b0f0-000000000002',
 
+  // Companies (c0c0 = company type)
+  COMPANY_1: '00000000-0000-4000-c0c0-000000000001',
+  COMPANY_2: '00000000-0000-4000-c0c0-000000000002',
+
   // Non-existent (ffff = none type)
   NON_EXISTENT: '00000000-0000-4000-bfff-000000000000',
 } as const

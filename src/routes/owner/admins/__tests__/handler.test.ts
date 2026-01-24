@@ -131,7 +131,7 @@ describe('ownerGetAdminHandler', () => {
       json: mockJson,
     }
 
-    mockGetAdmin = mock(async () => ({ data: { user: mockAdmin } }))
+    mockGetAdmin = mock(async () => ({ admin: mockAdmin }))
 
     await moduleMocker.mock('@/use-cases/owner', () => ({
       getAdmin: mockGetAdmin,
@@ -151,7 +151,7 @@ describe('ownerGetAdminHandler', () => {
   it('should return admin with OK status', async () => {
     const result = await getAdminHandler(mockContext)
 
-    expect(mockJson).toHaveBeenCalledWith({ user: mockAdmin }, HttpStatus.OK)
+    expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
 
@@ -206,7 +206,7 @@ describe('inviteAdminHandler', () => {
       json: mockJson,
     }
 
-    mockInviteAdmin = mock(async () => ({ data: { admin: mockAdmin } }))
+    mockInviteAdmin = mock(async () => ({ admin: mockAdmin }))
 
     await moduleMocker.mock('@/use-cases/owner', () => ({
       inviteAdmin: mockInviteAdmin,

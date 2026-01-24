@@ -132,7 +132,7 @@ describe('adminUserDetailHandler', () => {
       json: mockJson,
     }
 
-    mockGetUser = mock(async () => ({ data: { user: mockUser } }))
+    mockGetUser = mock(async () => ({ user: mockUser }))
 
     await moduleMocker.mock('@/use-cases/admin', () => ({
       getUser: mockGetUser,

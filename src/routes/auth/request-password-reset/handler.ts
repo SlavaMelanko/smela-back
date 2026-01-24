@@ -8,7 +8,7 @@ const requestPasswordResetHandler = async (c: RequestPasswordResetCtx) => {
 
   const result = await requestPasswordReset(payload.data, payload.preferences)
 
-  return c.json(result.data, HttpStatus.ACCEPTED)
+  return c.json(result, HttpStatus.ACCEPTED)
 }
 
 export default requestPasswordResetHandler

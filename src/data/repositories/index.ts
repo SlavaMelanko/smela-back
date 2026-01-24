@@ -1,4 +1,5 @@
 export * from './auth'
+export * from './company'
 export * from './pagination'
 export * from './refresh-token'
 export * from './token'

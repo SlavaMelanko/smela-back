@@ -99,7 +99,7 @@ describe('Request Password Reset', () => {
       )
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
     })
 
     it('should return success when user not found', async () => {
@@ -107,7 +107,7 @@ describe('Request Password Reset', () => {
 
       const result = await requestPasswordReset({ email: 'nonexistent@example.com' })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
       expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
     })
@@ -123,7 +123,7 @@ describe('Request Password Reset', () => {
 
         const result = await requestPasswordReset({ email: mockUser.email })
 
-        expect(result).toEqual({ data: { success: true } })
+        expect(result).toEqual({ success: true })
         expect(mockTokenRepo.issue).not.toHaveBeenCalled()
         expect(mockEmailAgent.sendResetPasswordEmail).not.toHaveBeenCalled()
       })
@@ -158,7 +158,7 @@ describe('Request Password Reset', () => {
 
       const result = await requestPasswordReset({ email: mockUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
 
       expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
       expect(mockEmailAgent.sendResetPasswordEmail).toHaveBeenCalledTimes(1)

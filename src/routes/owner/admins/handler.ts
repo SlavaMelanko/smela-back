@@ -18,7 +18,7 @@ export const getAdminHandler = async (c: GetAdminCtx) => {
 
   const result = await getAdmin(id)
 
-  return c.json(result.data, HttpStatus.OK)
+  return c.json(result, HttpStatus.OK)
 }
 
 export const inviteAdminHandler = async (c: InviteAdminCtx) => {
@@ -26,5 +26,5 @@ export const inviteAdminHandler = async (c: InviteAdminCtx) => {
 
   const result = await inviteAdmin(body)
 
-  return c.json(result.data, HttpStatus.CREATED)
+  return c.json(result, HttpStatus.CREATED)
 }

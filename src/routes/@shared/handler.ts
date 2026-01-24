@@ -79,3 +79,19 @@ interface ParamInput<Param> {
  * }
  */
 export type ValidatedParamCtx<Param> = Context<AppContext, string, ParamInput<Param>>
+
+interface ParamJsonInput<Param, Body> {
+  in: { param: Param, json: Body }
+  out: { param: Param, json: Body }
+}
+
+/**
+ * Context for routes with both path parameter and JSON body validation (PUT, PATCH).
+ * @example
+ * const updateHandler = async (c: ValidatedParamJsonCtx<{ id: string }, UpdateBody>) => {
+ *   const { id } = c.req.valid('param') // typed as { id: string }
+ *   const body = c.req.valid('json') // typed as UpdateBody
+ * }
+ */
+export type ValidatedParamJsonCtx<Param, Body>
+  = Context<AppContext, string, ParamJsonInput<Param, Body>>

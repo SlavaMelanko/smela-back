@@ -30,5 +30,5 @@ export const getUser = async (userId: string) => {
     throw new AppError(ErrorCode.NotFound, 'User not found')
   }
 
-  return { data: { user } }
+  return { user }
 }

@@ -50,7 +50,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     }
-    mockGetUser = mock(async () => ({ data: { user: mockFullUser } }))
+    mockGetUser = mock(async () => ({ user: mockFullUser }))
     mockUpdatedUser = {
       id: testUuids.USER_1,
       firstName: 'Jane',
@@ -61,7 +61,7 @@ describe('Me Endpoint', () => {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
     }
-    mockUpdateUser = mock(async () => ({ data: { user: mockUpdatedUser } }))
+    mockUpdateUser = mock(async () => ({ user: mockUpdatedUser }))
 
     await moduleMocker.mock('@/use-cases/user/me', () => ({
       getUser: mockGetUser,
@@ -257,7 +257,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should handle valid names with minimum length', async () => {
-      mockUpdateUser.mockImplementation(async () => ({ data: { user: mockUpdatedUserMinimal } }))
+      mockUpdateUser.mockImplementation(async () => ({ user: mockUpdatedUserMinimal }))
 
       const res = await post(app, ME_URL, {
         data: {
@@ -291,7 +291,7 @@ describe('Me Endpoint', () => {
           return mockGetUser()
         }
 
-        return { data: { user: mockUpdatedUser } }
+        return { user: mockUpdatedUser }
       })
 
       const res = await post(app, ME_URL, { data: {} }, {

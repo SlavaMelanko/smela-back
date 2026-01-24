@@ -109,7 +109,7 @@ describe('getAdmin', () => {
     const result = await getAdmin(testUuids.ADMIN_1)
 
     expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
-    expect(result).toEqual({ data: { admin: mockAdmin } })
+    expect(result).toEqual({ admin: mockAdmin })
   })
 
   it('should throw NotFound error when admin does not exist', async () => {
@@ -259,7 +259,7 @@ describe('inviteAdmin', () => {
       },
       expect.anything(),
     )
-    expect(result).toEqual({ data: { admin: mockAdmin } })
+    expect(result).toEqual({ admin: mockAdmin })
   })
 
   it('should call email agent with correct parameters', async () => {

@@ -46,9 +46,7 @@ describe('User Me Use Cases', () => {
     it('should return user data when user exists', async () => {
       const result = await getUser(testUuids.USER_1)
 
-      expect(result).toEqual({
-        data: { user: mockUser },
-      })
+      expect(result).toEqual({ user: mockUser })
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
       expect(mockUserRepo.findById).toHaveBeenCalledTimes(1)
     })
@@ -67,8 +65,8 @@ describe('User Me Use Cases', () => {
     it('should update user with firstName and lastName', async () => {
       const result = await updateUser(testUuids.USER_1, { firstName: 'Jane', lastName: 'Smith' })
 
-      expect(result.data.user.firstName).toBe('Jane')
-      expect(result.data.user.lastName).toBe('Smith')
+      expect(result.user.firstName).toBe('Jane')
+      expect(result.user.lastName).toBe('Smith')
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         lastName: 'Smith',
@@ -79,7 +77,7 @@ describe('User Me Use Cases', () => {
     it('should update user with only firstName', async () => {
       const result = await updateUser(testUuids.USER_1, { firstName: 'Jane' })
 
-      expect(result.data.user.firstName).toBe('Jane')
+      expect(result.user.firstName).toBe('Jane')
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         updatedAt: expect.any(Date),
@@ -89,7 +87,7 @@ describe('User Me Use Cases', () => {
     it('should update user with only lastName', async () => {
       const result = await updateUser(testUuids.USER_1, { lastName: 'Smith' })
 
-      expect(result.data.user.lastName).toBe('Smith')
+      expect(result.user.lastName).toBe('Smith')
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         lastName: 'Smith',
         updatedAt: expect.any(Date),
@@ -99,9 +97,7 @@ describe('User Me Use Cases', () => {
     it('should return current user when no valid updates provided', async () => {
       const result = await updateUser(testUuids.USER_1, {})
 
-      expect(result).toEqual({
-        data: { user: mockUser },
-      })
+      expect(result).toEqual({ user: mockUser })
       expect(mockUserRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
     })
@@ -110,8 +106,8 @@ describe('User Me Use Cases', () => {
       // lastName: '' is valid (clears the field)
       const result = await updateUser(testUuids.USER_1, { firstName: 'Jane', lastName: '' })
 
-      expect(result.data.user.firstName).toBe('Jane')
-      expect(result.data.user.lastName).toBe('')
+      expect(result.user.firstName).toBe('Jane')
+      expect(result.user.lastName).toBe('')
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         lastName: '',
@@ -123,7 +119,7 @@ describe('User Me Use Cases', () => {
       // undefined = don't touch, empty string = include
       const result = await updateUser(testUuids.USER_1, { firstName: undefined, lastName: 'Smith' })
 
-      expect(result.data.user.lastName).toBe('Smith')
+      expect(result.user.lastName).toBe('Smith')
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         lastName: 'Smith',
         updatedAt: expect.any(Date),

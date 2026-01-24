@@ -15,6 +15,26 @@ CREATE TABLE "auth" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "companies" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"website" varchar(255),
+	"description" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "companies_name_unique" UNIQUE("name"),
+	CONSTRAINT "companies_website_unique" UNIQUE("website")
+);
+--> statement-breakpoint
+CREATE TABLE "user_companies" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"company_id" uuid NOT NULL,
+	"position" varchar(100),
+	"invited_by" uuid,
+	"joined_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "permissions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"action" "action" NOT NULL,
@@ -68,11 +88,17 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "auth" ADD CONSTRAINT "auth_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_companies" ADD CONSTRAINT "user_companies_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_companies" ADD CONSTRAINT "user_companies_company_id_companies_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_companies" ADD CONSTRAINT "user_companies_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_auth" ON "auth" USING btree ("provider","identifier");--> statement-breakpoint
 CREATE INDEX "auth_user_id_index" ON "auth" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_user_company" ON "user_companies" USING btree ("user_id","company_id");--> statement-breakpoint
+CREATE INDEX "user_companies_company_index" ON "user_companies" USING btree ("company_id");--> statement-breakpoint
+CREATE INDEX "user_companies_user_index" ON "user_companies" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_permission" ON "permissions" USING btree ("action","resource");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_role_permission" ON "role_permissions" USING btree ("role","permission_id");--> statement-breakpoint
 CREATE INDEX "refresh_tokens_user_active_index" ON "refresh_tokens" USING btree ("user_id","revoked_at","expires_at");--> statement-breakpoint

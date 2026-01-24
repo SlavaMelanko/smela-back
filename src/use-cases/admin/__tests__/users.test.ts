@@ -118,7 +118,7 @@ describe('getUser', () => {
     const result = await getUser(testUuids.USER_1)
 
     expect(mockFindById).toHaveBeenCalledWith(testUuids.USER_1)
-    expect(result).toEqual({ data: { user: mockUser } })
+    expect(result).toEqual({ user: mockUser })
   })
 
   it('should throw NotFound error when user does not exist', async () => {

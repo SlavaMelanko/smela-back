@@ -1,4 +1,5 @@
 export * from './auth'
+export * from './companies'
 export * from './rbac'
 export * from './refresh-tokens'
 export * from './tokens'

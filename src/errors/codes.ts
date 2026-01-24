@@ -22,6 +22,7 @@ enum ErrorCode {
   CaptchaInvalidToken = 'captcha/invalid-token',
   CaptchaValidationFailed = 'captcha/validation-failed',
 
+  Conflict = 'resource/conflict',
   InternalError = 'system/internal-error',
   NotFound = 'resource/not-found',
   ValidationError = 'validation/error',
