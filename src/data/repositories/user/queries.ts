@@ -69,7 +69,7 @@ export const search = async (
     if (search && search.length > 0) {
       // Use concatenated expression to leverage GIN index (idx_users_search_trgm)
       conditions.push(
-        sql`(first_name || ' ' || COALESCE(last_name, '') || ' ' || email || ' ' || id::text) ILIKE ${`%${search}%`}`,
+        sql`(id::text || ' ' || first_name || ' ' || COALESCE(last_name, '') || ' ' || email) ILIKE ${`%${search}%`}`,
       )
     }
 

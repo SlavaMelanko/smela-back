@@ -33,7 +33,7 @@ export const searchCompanies = async (
     if (search && search.length > 0) {
       // Use concatenated expression to leverage GIN index (idx_companies_search_trgm)
       conditions.push(
-        sql`(name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${`%${search}%`}`,
+        sql`(id::text || ' ' || name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${`%${search}%`}`,
       )
     }
 
