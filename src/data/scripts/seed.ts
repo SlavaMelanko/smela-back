@@ -9,6 +9,7 @@
  *   bun run db:seed
  */
 
+import { faker } from '@faker-js/faker'
 import { eq } from 'drizzle-orm'
 
 import { hashPassword } from '@/security/password'
@@ -16,6 +17,9 @@ import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from '../clients'
 import { authTable, companiesTable, permissionsTable, rolePermissionsTable, userCompaniesTable, usersTable } from '../schema'
+
+// Seed faker for consistent data across runs
+faker.seed(42)
 
 const seedPermissions = async () => {
   const allResources = Object.values(Resource)
@@ -107,27 +111,52 @@ const seedDefaultAdminPermissions = async () => {
   })
 }
 
-const seedCompany = async () => {
-  const [existingCompany] = await db
-    .select()
-    .from(companiesTable)
-    .where(eq(companiesTable.name, 'SMELA'))
+const seedCompanies = async () => {
+  const companies = [
+    {
+      name: faker.company.name(),
+      website: faker.internet.url(),
+      description: faker.company.catchPhrase(),
+    },
+    {
+      name: faker.company.name(),
+      website: faker.internet.url(),
+      description: faker.company.catchPhrase(),
+    },
+  ]
 
-  if (existingCompany) {
-    console.log('✅ SMELA company already exists')
+  let secondCompanyId: string | null = null
 
-    return existingCompany.id
+  for (let i = 0; i < companies.length; i++) {
+    const company = companies[i]
+
+    const [existingCompany] = await db
+      .select()
+      .from(companiesTable)
+      .where(eq(companiesTable.name, company.name))
+
+    if (existingCompany) {
+      console.log(`✅ ${company.name} company already exists`)
+      if (i === 1) {
+        secondCompanyId = existingCompany.id
+      }
+      continue
+    }
+
+    const [createdCompany] = await db.insert(companiesTable).values({
+      name: company.name,
+      website: company.website,
+      description: company.description,
+    }).returning({ id: companiesTable.id })
+
+    console.log(`✅ ${company.name} company seeded`)
+
+    if (i === 1) {
+      secondCompanyId = createdCompany.id
+    }
   }
 
-  const [company] = await db.insert(companiesTable).values({
-    name: 'SMELA',
-    website: 'https://smela.com',
-    description: 'SMELA - Smart Management and Enterprise Learning Application',
-  }).returning({ id: companiesTable.id })
-
-  console.log('✅ SMELA company seeded')
-
-  return company.id
+  return secondCompanyId!
 }
 
 // System users (Owner, Admin) - no company linking
@@ -190,21 +219,21 @@ const seedSystemUsers = async () => {
 const seedTestUsers = async (companyId: string) => {
   const testUsers = [
     {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test.user@smela.com',
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
       password: 'Passw0rd!',
       role: Role.User,
       status: Status.Active,
       position: 'Developer',
     },
     {
-      firstName: 'Test',
-      lastName: 'User2',
-      email: 'test.user2@smela.com',
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
       password: 'Passw0rd!',
       role: Role.User,
-      status: Status.Active,
+      status: Status.Pending,
       position: 'Designer',
     },
   ]
@@ -228,7 +257,7 @@ const seedTestUsers = async (companyId: string) => {
           companyId,
           position: user.position,
         })
-        console.log(`✅ Linked ${user.email} to SMELA as ${user.position}`)
+        console.log(`✅ Linked ${user.email} to company as ${user.position}`)
       } else {
         console.log(`✅ ${user.role} ${user.email} already exists`)
       }
@@ -262,7 +291,7 @@ const seedTestUsers = async (companyId: string) => {
       position: user.position,
     })
 
-    console.log(`✅ ${user.role} ${user.email} seeded and linked to SMELA`)
+    console.log(`✅ ${user.role} ${user.email} seeded and linked to company`)
   }
 }
 
@@ -271,7 +300,7 @@ const seed = async () => {
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
   await seedSystemUsers()
-  const companyId = await seedCompany()
+  const companyId = await seedCompanies()
   await seedTestUsers(companyId)
 }
 
