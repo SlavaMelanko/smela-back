@@ -191,7 +191,7 @@ For detailed mocking patterns: `.claude/skills/bun-testing/references/mocking-pa
 
 #### Authentication & Authorization
 
-- JWT tokens with role-based access control (User, Enterprise, Admin, Owner)
+- JWT tokens with role-based access control (User, Admin, Owner)
 - **Token Expiration Strategy**:
   - Access tokens: 15 minutes (configurable via JWT_EXPIRATION) - Short-lived for security
   - Refresh tokens: 30 days (configurable via COOKIE_REFRESH_TOKEN_EXPIRATION) - Stored in httpOnly cookies

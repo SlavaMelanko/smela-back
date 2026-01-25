@@ -301,7 +301,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle user with all possible roles', async () => {
-      const roles = [Role.User, Role.Admin, Role.Owner, Role.Enterprise]
+      const roles = [Role.User, Role.Admin, Role.Owner]
 
       for (const role of roles) {
         const userWithRole = { ...mockUser, role }

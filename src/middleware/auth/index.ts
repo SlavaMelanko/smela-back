@@ -2,7 +2,6 @@ import {
   isActive,
   isActiveOnly,
   isAdmin,
-  isEnterprise,
   isNewOrActive,
   isOwner,
   isUser,
@@ -15,7 +14,7 @@ import createAuthMiddleware from './factory'
  * Relaxed user authentication middleware - allows new users.
  * - Uses JWT via Authorization: Bearer <token> header.
  * - Allows users with status New, Verified, Trial, or Active.
- * - Accepts all roles: User, Enterprise, Admin, Owner.
+ * - Accepts all roles: User, Admin, Owner.
  */
 export const userRelaxedAuthMiddleware = createAuthMiddleware(isNewOrActive, isUserOrAdmin)
 
@@ -23,17 +22,9 @@ export const userRelaxedAuthMiddleware = createAuthMiddleware(isNewOrActive, isU
  * Strict user authentication middleware - requires verified users only.
  * - Uses JWT via Authorization: Bearer <token> header.
  * - Requires user status to be Verified, Trial, or Active.
- * - Requires user role to be User or Enterprise.
+ * - Requires user role to be User.
  */
 export const userStrictAuthMiddleware = createAuthMiddleware(isActive, isUser)
-
-/**
- * Strict enterprise authentication middleware - requires fully active enterprise users only.
- * - Uses JWT via Authorization: Bearer <token> header.
- * - Requires user status to be exactly Active (not Verified or Trial).
- * - Requires user role to be Enterprise only (not User).
- */
-export const enterpriseStrictAuthMiddleware = createAuthMiddleware(isActiveOnly, isEnterprise)
 
 /**
  * Admin authentication middleware - requires admin privileges.

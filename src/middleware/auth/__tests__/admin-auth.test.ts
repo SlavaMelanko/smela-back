@@ -82,27 +82,6 @@ describe('Admin Authentication Middleware', () => {
       expect(json.code).toBe(ErrorCode.Forbidden)
       expect(json.error).toBe('Role validation failure')
     })
-
-    it('should reject Enterprise role with Active status', async () => {
-      const enterpriseToken = await signJwt(
-        { id: testUuids.USER_2, email: 'enterprise@example.com', role: Role.Enterprise, status: Status.Active },
-        { secret: env.JWT_SECRET },
-      )
-
-      app.use('/admin', adminAuthMiddleware)
-      app.get('/admin', c => c.json({ message: 'success' }))
-
-      const res = await app.request('/admin', {
-        headers: {
-          Authorization: `Bearer ${enterpriseToken}`,
-        },
-      })
-
-      expect(res.status).toBe(HttpStatus.FORBIDDEN)
-      const json = await res.json()
-      expect(json.code).toBe(ErrorCode.Forbidden)
-      expect(json.error).toBe('Role validation failure')
-    })
   })
 
   describe('Status Validation', () => {

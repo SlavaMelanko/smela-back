@@ -2,11 +2,11 @@ import type { PaginationParams, SearchParams } from '@/data'
 
 import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { isUser, USER_ROLES } from '@/types'
+import { isUser, Role } from '@/types'
 
 const normalizeRoles = (params: SearchParams): SearchParams => {
   const filteredRoles = params.roles.filter(isUser)
-  const validRoles = filteredRoles.length > 0 ? filteredRoles : USER_ROLES
+  const validRoles = filteredRoles.length > 0 ? filteredRoles : [Role.User]
 
   return {
     ...params,

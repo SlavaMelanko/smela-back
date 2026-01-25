@@ -5,7 +5,7 @@ import type { SearchResult, User } from '@/data'
 import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
-import { Role, Status, USER_ROLES } from '@/types'
+import { Role, Status } from '@/types'
 
 import { getUser, searchUsers } from '../users'
 
@@ -58,7 +58,7 @@ describe('searchUsers', () => {
     await searchUsers({ roles: [Role.Admin, Role.Owner] }, DEFAULT_PAGINATION)
 
     expect(mockUserRepoSearch).toHaveBeenCalledWith(
-      { roles: USER_ROLES },
+      { roles: [Role.User] },
       DEFAULT_PAGINATION,
     )
   })
