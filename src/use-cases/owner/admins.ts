@@ -94,3 +94,31 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
 
   return { admin }
 }
+
+export const resendAdminInvitation = async (adminId: string) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  if (admin.status !== Status.Pending) {
+    throw new AppError(ErrorCode.BadRequest, 'Admin has already accepted invitation')
+  }
+
+  const token = await db.transaction(async (tx) => {
+    const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
+    await tokenRepo.issue(adminId, { userId: adminId, type, token, expiresAt }, tx)
+
+    return token
+  })
+
+  await emailAgent.sendUserInvitationEmail(
+    admin.firstName,
+    admin.email,
+    token,
+    env.COMPANY_NAME,
+  )
+
+  return { success: true }
+}

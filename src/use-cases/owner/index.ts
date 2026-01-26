@@ -1,1 +1,1 @@
-export { getAdmin, getAdmins, inviteAdmin } from './admins'
+export { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from './admins'

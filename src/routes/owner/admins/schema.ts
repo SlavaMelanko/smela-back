@@ -34,3 +34,8 @@ export const inviteAdminBodySchema = z.object({
 
 export type InviteAdminBody = z.infer<typeof inviteAdminBodySchema>
 export type InviteAdminCtx = ValidatedJsonCtx<InviteAdminBody>
+
+export const resendAdminInvitationParamsSchema = getAdminParamsSchema
+
+export type ResendAdminInvitationParams = GetAdminParams
+export type ResendAdminInvitationCtx = ValidatedParamCtx<ResendAdminInvitationParams>
