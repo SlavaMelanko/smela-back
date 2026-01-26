@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins, inviteAdmin } from '../admins'
+import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '../admins'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -271,5 +271,122 @@ describe('inviteAdmin', () => {
       'invitation-token-123',
       'Test Company',
     )
+  })
+})
+
+describe('resendAdminInvitation', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockAdmin: User
+  let mockFindById: any
+  let mockTokenIssue: any
+  let mockTransaction: any
+  let mockSendUserInvitationEmail: any
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: testUuids.ADMIN_1,
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@example.com',
+      role: Role.Admin,
+      status: Status.Pending,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindById = mock(async () => mockAdmin)
+    mockTokenIssue = mock(async () => ({}))
+    mockSendUserInvitationEmail = mock(async () => {})
+
+    // eslint-disable-next-line ts/no-unsafe-return
+    mockTransaction = mock(async (callback: any) => callback({}))
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: { findById: mockFindById },
+      tokenRepo: { issue: mockTokenIssue },
+      db: { transaction: mockTransaction },
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      generateToken: () => ({
+        type: 'user_invitation',
+        token: 'new-invitation-token',
+        expiresAt: new Date('2024-01-08'),
+      }),
+      TokenType: { UserInvitation: 'user_invitation' },
+    }))
+
+    await moduleMocker.mock('@/services/email', () => ({
+      emailAgent: {
+        sendUserInvitationEmail: mockSendUserInvitationEmail,
+      },
+    }))
+
+    await moduleMocker.mock('@/env', () => ({
+      default: { COMPANY_NAME: 'Test Company' },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should throw NotFound when admin does not exist', async () => {
+    mockFindById.mockImplementation(async () => undefined)
+
+    expect(resendAdminInvitation(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(testUuids.NON_EXISTENT)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw NotFound when user is not Admin role', async () => {
+    mockFindById.mockImplementation(async () => ({
+      ...mockAdmin,
+      role: Role.User,
+    }))
+
+    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw BadRequest when admin has already accepted invitation', async () => {
+    mockFindById.mockImplementation(async () => ({
+      ...mockAdmin,
+      status: Status.Active,
+    }))
+
+    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.BadRequest,
+      message: 'Admin has already accepted invitation',
+    })
+  })
+
+  it('should issue new token and send invitation email', async () => {
+    const result = await resendAdminInvitation(testUuids.ADMIN_1)
+
+    expect(mockTokenIssue).toHaveBeenCalledWith(
+      testUuids.ADMIN_1,
+      {
+        userId: testUuids.ADMIN_1,
+        type: 'user_invitation',
+        token: 'new-invitation-token',
+        expiresAt: expect.any(Date),
+      },
+      expect.anything(),
+    )
+    expect(mockSendUserInvitationEmail).toHaveBeenCalledWith(
+      'Admin',
+      'admin@example.com',
+      'new-invitation-token',
+      'Test Company',
+    )
+    expect(result).toEqual({ success: true })
   })
 })

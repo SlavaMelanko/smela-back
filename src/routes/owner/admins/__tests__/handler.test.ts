@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { getAdminHandler, getAdminsHandler, inviteAdminHandler } from '../handler'
+import { getAdminHandler, getAdminsHandler, inviteAdminHandler, resendAdminInvitationHandler } from '../handler'
 
 describe('ownerGetAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -236,5 +236,55 @@ describe('inviteAdminHandler', () => {
     })
 
     expect(inviteAdminHandler(mockContext)).rejects.toThrow('Email already in use')
+  })
+})
+
+describe('resendAdminInvitationHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+  let mockResendAdminInvitation: any
+
+  beforeEach(async () => {
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: {
+        valid: mock(() => ({ id: testUuids.ADMIN_1 })),
+      },
+      json: mockJson,
+    }
+
+    mockResendAdminInvitation = mock(async () => ({ success: true }))
+
+    await moduleMocker.mock('@/use-cases/owner', () => ({
+      resendAdminInvitation: mockResendAdminInvitation,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call resendAdminInvitation with correct admin id', async () => {
+    await resendAdminInvitationHandler(mockContext)
+
+    expect(mockResendAdminInvitation).toHaveBeenCalledWith(testUuids.ADMIN_1)
+  })
+
+  it('should return success with OK status', async () => {
+    const result = await resendAdminInvitationHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
+    expect(result.status).toBe(HttpStatus.OK)
+  })
+
+  it('should propagate error when resendAdminInvitation throws', async () => {
+    mockResendAdminInvitation.mockImplementation(async () => {
+      throw new Error('Admin not found')
+    })
+
+    expect(resendAdminInvitationHandler(mockContext)).rejects.toThrow('Admin not found')
   })
 })
