@@ -16,7 +16,7 @@ import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from '../clients'
-import { authTable, companiesTable, permissionsTable, rolePermissionsTable, userCompaniesTable, usersTable } from '../schema'
+import { authTable, companiesTable, permissionsTable, rolePermissionsTable, userCompaniesTable, userRolesTable, usersTable } from '../schema'
 
 // Seed faker for consistent data across runs
 faker.seed(42)
@@ -161,7 +161,14 @@ const seedCompanies = async () => {
 
 // System users (Owner, Admin) - no company linking
 const seedSystemUsers = async () => {
-  const systemUsers = [
+  const systemUsers: {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+    role: Role
+    status: Status
+  }[] = [
     {
       firstName: 'Slava',
       lastName: 'Owner',
@@ -199,7 +206,6 @@ const seedSystemUsers = async () => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role,
         status: user.status,
       })
       .returning({ id: usersTable.id })
@@ -209,6 +215,11 @@ const seedSystemUsers = async () => {
       provider: AuthProvider.Local,
       identifier: user.email,
       passwordHash: hashedPassword,
+    })
+
+    await db.insert(userRolesTable).values({
+      userId: createdUser.id,
+      role: user.role,
     })
 
     console.log(`✅ ${user.role} ${user.email} seeded`)
@@ -223,7 +234,6 @@ const seedTestUsers = async (companyId: string) => {
       lastName: faker.person.lastName(),
       email: faker.internet.email().toLowerCase(),
       password: 'Passw0rd!',
-      role: Role.User,
       status: Status.Active,
       position: 'Developer',
     },
@@ -232,7 +242,6 @@ const seedTestUsers = async (companyId: string) => {
       lastName: faker.person.lastName(),
       email: faker.internet.email().toLowerCase(),
       password: 'Passw0rd!',
-      role: Role.User,
       status: Status.Pending,
       position: 'Designer',
     },
@@ -259,7 +268,7 @@ const seedTestUsers = async (companyId: string) => {
         })
         console.log(`✅ Linked ${user.email} to company as ${user.position}`)
       } else {
-        console.log(`✅ ${user.role} ${user.email} already exists`)
+        console.log(`✅ user ${user.email} already exists`)
       }
 
       continue
@@ -273,7 +282,6 @@ const seedTestUsers = async (companyId: string) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role,
         status: user.status,
       })
       .returning({ id: usersTable.id })
@@ -291,7 +299,7 @@ const seedTestUsers = async (companyId: string) => {
       position: user.position,
     })
 
-    console.log(`✅ ${user.role} ${user.email} seeded and linked to company`)
+    console.log(`✅ user ${user.email} seeded and linked to company`)
   }
 }
 
