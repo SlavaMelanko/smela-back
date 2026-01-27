@@ -75,12 +75,19 @@ CREATE TABLE "tokens" (
 	CONSTRAINT "tokens_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
+CREATE TABLE "user_roles" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"role" "role" NOT NULL,
+	"invited_by" uuid,
+	"assigned_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"first_name" varchar(100) NOT NULL,
 	"last_name" varchar(100),
 	"email" varchar(255) NOT NULL,
-	"role" "role" DEFAULT 'user' NOT NULL,
 	"status" "status" DEFAULT 'new' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -94,6 +101,8 @@ ALTER TABLE "user_companies" ADD CONSTRAINT "user_companies_invited_by_users_id_
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_auth" ON "auth" USING btree ("provider","identifier");--> statement-breakpoint
 CREATE INDEX "auth_user_id_index" ON "auth" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_user_company" ON "user_companies" USING btree ("user_id","company_id");--> statement-breakpoint
@@ -104,4 +113,5 @@ CREATE UNIQUE INDEX "unique_role_permission" ON "role_permissions" USING btree (
 CREATE INDEX "refresh_tokens_user_active_index" ON "refresh_tokens" USING btree ("user_id","revoked_at","expires_at");--> statement-breakpoint
 CREATE INDEX "refresh_tokens_cleanup_index" ON "refresh_tokens" USING btree ("expires_at","revoked_at");--> statement-breakpoint
 CREATE INDEX "user_type_index" ON "tokens" USING btree ("user_id","type");--> statement-breakpoint
-CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");
+CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_user_role" ON "user_roles" USING btree ("user_id");
