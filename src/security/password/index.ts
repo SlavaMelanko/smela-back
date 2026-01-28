@@ -15,7 +15,7 @@ export const generatePasswordHash = async (length = 32): Promise<string> => {
   return hashPassword(password)
 }
 
-export const comparePasswords = async (password: string, hash: string): Promise<boolean> => {
+export const comparePasswordHashes = async (password: string, hash: string): Promise<boolean> => {
   if (!password || !hash) {
     return false
   }
