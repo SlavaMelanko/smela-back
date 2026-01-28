@@ -4,7 +4,7 @@ import type { DeviceInfo } from '@/net/http/device'
 import { authRepo, refreshTokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
-import { comparePasswords } from '@/security/password'
+import { comparePasswordHashes } from '@/security/password'
 import { generateHashedToken, TokenType } from '@/security/token'
 
 export interface LoginParams {
@@ -53,7 +53,7 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const isPasswordValid = await comparePasswords(password, auth.passwordHash)
+  const isPasswordValid = await comparePasswordHashes(password, auth.passwordHash)
 
   if (!isPasswordValid) {
     throw new AppError(ErrorCode.InvalidCredentials)

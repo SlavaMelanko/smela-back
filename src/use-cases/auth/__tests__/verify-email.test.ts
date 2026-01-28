@@ -6,7 +6,7 @@ import type { DeviceInfo } from '@/net/http/device'
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
-import { Role, Status } from '@/types'
+import { Status } from '@/types'
 import { days, hour, hours, nowMinus, nowPlus } from '@/utils/chrono'
 
 import verifyEmail from '../verify-email'
@@ -60,7 +60,6 @@ describe('Verify Email', () => {
       lastName: 'Doe',
       email: 'john@example.com',
       status: Status.Verified,
-      role: Role.User,
       createdAt: new Date(),
       updatedAt: new Date(),
     }

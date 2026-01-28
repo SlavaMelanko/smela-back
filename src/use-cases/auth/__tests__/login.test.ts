@@ -77,7 +77,7 @@ describe('Login with Email', () => {
     mockComparePasswords = mock(async () => true)
 
     await moduleMocker.mock('@/security/password', () => ({
-      comparePasswords: mockComparePasswords,
+      comparePasswordHashes: mockComparePasswords,
     }))
 
     mockJwtToken = 'login-jwt-token-123'

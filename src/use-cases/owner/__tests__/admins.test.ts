@@ -155,6 +155,8 @@ describe('inviteAdmin', () => {
   let mockAdmin: User
   let mockFindByEmail: any
   let mockUserCreate: any
+  let mockUserFindById: any
+  let mockUserRoleAssign: any
   let mockAuthCreate: any
   let mockTokenIssue: any
   let mockTransaction: any
@@ -186,6 +188,8 @@ describe('inviteAdmin', () => {
 
     mockFindByEmail = mock(async () => undefined)
     mockUserCreate = mock(async () => mockAdmin)
+    mockUserFindById = mock(async () => mockAdmin)
+    mockUserRoleAssign = mock(async () => ({}))
     mockAuthCreate = mock(async () => ({}))
     mockTokenIssue = mock(async () => ({}))
     mockSendUserInvitationEmail = mock(async () => {})
@@ -196,8 +200,10 @@ describe('inviteAdmin', () => {
     await moduleMocker.mock('@/data', () => ({
       userRepo: {
         findByEmail: mockFindByEmail,
+        findById: mockUserFindById,
         create: mockUserCreate,
       },
+      userRoleRepo: { assign: mockUserRoleAssign },
       authRepo: { create: mockAuthCreate },
       tokenRepo: { issue: mockTokenIssue },
       db: { transaction: mockTransaction },
@@ -240,22 +246,29 @@ describe('inviteAdmin', () => {
   it('should throw EmailAlreadyInUse when email exists', async () => {
     mockFindByEmail.mockImplementation(async () => mockAdmin)
 
-    expect(inviteAdmin(inviteAdminParams)).rejects.toThrow(AppError)
-    expect(inviteAdmin(inviteAdminParams)).rejects.toMatchObject({
+    expect(inviteAdmin(inviteAdminParams, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(inviteAdmin(inviteAdminParams, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.EmailAlreadyInUse,
     })
   })
 
   it('should create admin with pending status and return admin data', async () => {
-    const result = await inviteAdmin(inviteAdminParams)
+    const result = await inviteAdmin(inviteAdminParams, testUuids.OWNER_1)
 
     expect(mockUserCreate).toHaveBeenCalledWith(
       {
         firstName: 'New',
         lastName: 'Admin',
         email: 'newadmin@example.com',
-        role: Role.Admin,
         status: Status.Pending,
+      },
+      expect.anything(),
+    )
+    expect(mockUserRoleAssign).toHaveBeenCalledWith(
+      {
+        userId: mockAdmin.id,
+        role: Role.Admin,
+        invitedBy: testUuids.OWNER_1,
       },
       expect.anything(),
     )
@@ -263,7 +276,7 @@ describe('inviteAdmin', () => {
   })
 
   it('should call email agent with correct parameters', async () => {
-    await inviteAdmin(inviteAdminParams)
+    await inviteAdmin(inviteAdminParams, testUuids.OWNER_1)
 
     expect(mockSendUserInvitationEmail).toHaveBeenCalledWith(
       'New',

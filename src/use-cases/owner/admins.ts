@@ -1,10 +1,9 @@
 import type { PaginationParams, SearchParams } from '@/data'
 
-import { createRandomBytesGenerator } from '@/crypto'
-import { authRepo, db, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, tokenRepo, userRepo, userRoleRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
-import { hashPassword } from '@/security/password'
+import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
@@ -45,7 +44,7 @@ export interface AdminInvitationParams {
   }
 }
 
-export const inviteAdmin = async (params: AdminInvitationParams) => {
+export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: string) => {
   const existingUser = await userRepo.findByEmail(params.email)
 
   if (existingUser) {
@@ -57,20 +56,23 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
       firstName: params.firstName,
       lastName: params.lastName,
       email: params.email,
-      role: Role.Admin,
       status: Status.Pending,
     }, tx)
 
-    // Placeholder hash - admin sets real password when accepting invitation
-    const randomBytesGenerator = createRandomBytesGenerator()
-    const placeholderPassword = randomBytesGenerator.generate(32)
-    const placeholderHash = await hashPassword(placeholderPassword)
+    await userRoleRepo.assign({
+      userId: newAdmin.id,
+      role: Role.Admin,
+      invitedBy,
+    }, tx)
+
+    // Use random password and admin sets real password when accepting invitation
+    const passwordHash = await generatePasswordHash()
 
     await authRepo.create({
       userId: newAdmin.id,
       provider: AuthProvider.Local,
       identifier: params.email,
-      passwordHash: placeholderHash,
+      passwordHash,
     }, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
@@ -82,7 +84,7 @@ export const inviteAdmin = async (params: AdminInvitationParams) => {
       expiresAt,
     }, tx)
 
-    return { admin: newAdmin, token }
+    return { admin: { ...newAdmin, role: Role.Admin }, token }
   })
 
   await emailAgent.sendUserInvitationEmail(

@@ -9,7 +9,7 @@ import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
 import { generateHashedToken, generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, Status } from '@/types'
 
 export interface SignupParams {
   firstName: string
@@ -33,7 +33,6 @@ const createNewUser = async (
       firstName,
       lastName,
       email,
-      role: Role.User,
       status: Status.New,
     }, tx)
 
