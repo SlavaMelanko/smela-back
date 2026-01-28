@@ -1,5 +1,5 @@
 {
-  "id": "2fdd0328-e929-4c72-8153-c0a05bff1563",
+  "id": "d2cae11a-442f-4fda-87e6-cf44861792e5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -738,16 +738,10 @@
       "name": "user_roles",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
         "user_id": {
           "name": "user_id",
           "type": "uuid",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "role": {
@@ -771,23 +765,7 @@
           "default": "now()"
         }
       },
-      "indexes": {
-        "unique_user_role": {
-          "name": "unique_user_role",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "user_roles_user_id_users_id_fk": {
           "name": "user_roles_user_id_users_id_fk",

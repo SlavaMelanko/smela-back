@@ -20,7 +20,7 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 
 ## Key Commands
 
-All available commands are defined in [package.json](package.json#L3-L23). Key commands include:
+All available commands are defined in [package.json](package.json). Key commands include:
 
 - **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
 - **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`, `bun run test:with-db` (start test DB and run tests)
@@ -85,85 +85,24 @@ All available commands are defined in [package.json](package.json#L3-L23). Key c
 - User routes: `/api/v1/user/*` (JWT-protected endpoints, allows new users)
 - User verified routes: `/api/v1/user/verified/*` (JWT-protected endpoints, requires verified users)
 - Admin routes: `/api/v1/admin/*` (JWT-protected endpoints, admin roles only)
+- Owner routes: `/api/v1/owner/*` (JWT-protected endpoints, owner role only)
 
-### Auth Routes Details
+### API Routes Reference
 
-All auth routes accept POST requests:
-
-- `/api/v1/auth/signup` - User registration
-- `/api/v1/auth/login` - User authentication
-- `/api/v1/auth/logout` - User logout (clears JWT cookie)
-- `/api/v1/auth/refresh-token` - Refresh access token (requires refresh token in cookie)
-- `/api/v1/auth/verify-email` - Email verification (accepts token in JSON body)
-- `/api/v1/auth/resend-verification-email` - Resend verification email
-- `/api/v1/auth/request-password-reset` - Request password reset
-- `/api/v1/auth/reset-password` - Reset password with token
+See [postman.json](postman.json) for all API endpoints (import into Postman or read directly).
 
 ### Database Schema
 
-Key tables:
-
-- `users` - User accounts with roles and status
-- `auth` - Authentication providers (email/password)
-- `permissions` - Available actions and resources (e.g., read:user, write:post)
-- `role_permissions` - Maps roles to permissions for RBAC
-- `tokens` - Email verification and password reset tokens
+See [src/data/schema/](src/data/schema/) for Drizzle ORM table definitions.
+Tables: auth, users, companies, tokens, etc.
 
 ### Search Implementation
 
-**Current Approach:** ILIKE with GIN index (`gin_trgm_ops`)
-
-- Uses `pg_trgm` extension for fast substring matching
-- Custom migration: `src/data/migrations/custom/0001_users_search_index.sql`
-- Query uses concatenated expression to leverage the GIN index (~5x faster than separate ILIKE per column)
-
-**Index-Query Coupling:**
-
-The query expression must exactly match the index expression:
-
-- Index: `(first_name || ' ' || COALESCE(last_name, '') || ' ' || email)`
-- Query: `src/data/repositories/user/queries.ts` (search function)
-- To add a searchable column, update both the migration AND the query
-
-**Capabilities:**
-
-- Substring matching: `%john%` finds "Johnathan", "johnson@example.com"
-- Case-insensitive search
-- Good performance up to ~100k users
-
-**Limitations:**
-
-- No typo tolerance ("jonh" won't find "john")
-- No relevance ranking (results ordered by `createdAt`, not match quality)
-
-**Future Upgrade Path:** ParadeDB for BM25 ranking, fuzzy search, and better scalability
+ILIKE with GIN index (`gin_trgm_ops`). See [src/data/migrations/custom/README.md](src/data/migrations/custom/README.md) for details on index-query coupling, capabilities, and limitations.
 
 ### Database Connection
 
 The project uses **PostgreSQL running in Docker** with connection pooling via postgres.js (2 connections for dev/test, 10 for staging/prod). Database client is configured in [src/data/clients/db.ts](src/data/clients/db.ts) using Drizzle ORM with full transaction support.
-
-#### Separate Dev and Test Databases
-
-The project maintains separate Docker Compose configurations for development and testing:
-
-- **Development Database** (`docker-compose-dev.yml`)
-  - Port: 5432
-  - Container: `smela-dev-db`
-  - Credentials from `.env.development`
-  - Volume: `postgres_data`
-
-- **Test Database** (`docker-compose-test.yml`)
-  - Port: 5433 (different from dev to avoid conflicts)
-  - Container: `smela-db-test`
-  - Credentials from `.env.test`
-  - Volume: `postgres_test_data`
-
-This separation allows:
-
-- Running tests while dev server is active
-- Independent database states
-- Parallel execution in CI/CD pipelines
-- Clean test isolation without affecting development data
 
 ### Authentication Flow
 

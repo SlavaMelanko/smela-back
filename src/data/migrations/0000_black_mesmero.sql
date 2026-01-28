@@ -76,8 +76,7 @@ CREATE TABLE "tokens" (
 );
 --> statement-breakpoint
 CREATE TABLE "user_roles" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" uuid PRIMARY KEY NOT NULL,
 	"role" "role" NOT NULL,
 	"invited_by" uuid,
 	"assigned_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -113,5 +112,4 @@ CREATE UNIQUE INDEX "unique_role_permission" ON "role_permissions" USING btree (
 CREATE INDEX "refresh_tokens_user_active_index" ON "refresh_tokens" USING btree ("user_id","revoked_at","expires_at");--> statement-breakpoint
 CREATE INDEX "refresh_tokens_cleanup_index" ON "refresh_tokens" USING btree ("expires_at","revoked_at");--> statement-breakpoint
 CREATE INDEX "user_type_index" ON "tokens" USING btree ("user_id","type");--> statement-breakpoint
-CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "unique_user_role" ON "user_roles" USING btree ("user_id");
+CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");
