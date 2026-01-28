@@ -1,3 +1,4 @@
+# To create another environment, copy this file and replace "dev" with the env name
 name: smela-dev
 
 services:
