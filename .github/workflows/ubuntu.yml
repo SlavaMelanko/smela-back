@@ -26,6 +26,10 @@ jobs:
 
     env:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       COOKIE_REFRESH_TOKEN_NAME: ${{ vars.COOKIE_REFRESH_TOKEN_NAME }}
       COOKIE_REFRESH_TOKEN_EXPIRATION: ${{ vars.COOKIE_REFRESH_TOKEN_EXPIRATION }}
