@@ -149,7 +149,6 @@ describe('Signup with Email', () => {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -413,7 +412,6 @@ describe('Signup with Email', () => {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
           email: uppercaseEmail,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -439,7 +437,6 @@ describe('Signup with Email', () => {
           firstName: 'Al',
           lastName: 'Bo',
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -453,21 +450,10 @@ describe('Signup with Email', () => {
       )
     })
 
-    it('should always assign user role regardless of input', async () => {
+    it('should return user with default User role', async () => {
       const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      const expectedUser = mockNewUser
-      expect(mockUserRepo.create).toHaveBeenCalledWith(
-        {
-          firstName: mockSignupParams.firstName,
-          lastName: mockSignupParams.lastName,
-          email: mockSignupParams.email,
-          role: Role.User,
-          status: Status.New,
-        },
-        expect.anything(),
-      )
-      expect(result.data.user).toEqual(expectedUser)
+      expect(result.data.user).toEqual(mockNewUser)
       expect(result.data.user.role).toBe(Role.User)
     })
 
@@ -505,7 +491,6 @@ describe('Signup with Email', () => {
           firstName: longFirstName,
           lastName: longLastName,
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),

@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 
 import { AppError, ErrorCode } from '@/errors'
+import { Role } from '@/types'
 
 import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
@@ -20,7 +21,8 @@ export const createUser = async (user: CreateUserInput, tx?: Database): Promise<
     throw new AppError(ErrorCode.InternalError, 'Failed to create user')
   }
 
-  return createdUser
+  // New users default to Role.User
+  return { ...createdUser, role: Role.User }
 }
 
 export const updateUser = async (
@@ -40,7 +42,8 @@ export const updateUser = async (
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')
   }
 
-  return updatedUser
+  // Role is not known here; callers that need it should re-query
+  return { ...updatedUser, role: Role.User }
 }
 
 export const deleteUser = async (email: string, tx?: Database): Promise<void> => {

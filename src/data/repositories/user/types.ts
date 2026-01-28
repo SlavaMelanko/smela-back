@@ -10,7 +10,7 @@ export type CreateUserInput = typeof usersTable.$inferInsert
 export type UpdateUserInput = Partial<CreateUserInput>
 
 // Public-facing / API-return type
-export type User = Omit<UserRecord, 'role' | 'status'> & {
+export type User = UserRecord & {
   role: Role
   status: Status
 }

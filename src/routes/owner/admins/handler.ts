@@ -23,8 +23,9 @@ export const getAdminHandler = async (c: GetAdminCtx) => {
 
 export const inviteAdminHandler = async (c: InviteAdminCtx) => {
   const body = c.req.valid('json')
+  const { id: invitedBy } = c.get('user')
 
-  const result = await inviteAdmin(body)
+  const result = await inviteAdmin(body, invitedBy)
 
   return c.json(result, HttpStatus.CREATED)
 }

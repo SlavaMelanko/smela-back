@@ -203,6 +203,7 @@ describe('inviteAdminHandler', () => {
       req: {
         valid: mock(() => inviteAdminBody),
       },
+      get: mock(() => ({ id: testUuids.OWNER_1 })),
       json: mockJson,
     }
 
@@ -220,7 +221,7 @@ describe('inviteAdminHandler', () => {
   it('should call inviteAdmin with correct body parameters', async () => {
     await inviteAdminHandler(mockContext)
 
-    expect(mockInviteAdmin).toHaveBeenCalledWith(inviteAdminBody)
+    expect(mockInviteAdmin).toHaveBeenCalledWith(inviteAdminBody, testUuids.OWNER_1)
   })
 
   it('should return created admin with CREATED status', async () => {
