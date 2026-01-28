@@ -1,42 +1,54 @@
-import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
 
-import type { Role, Status } from '@/types'
+import type { Status } from '@/types'
+
+import { Role } from '@/types'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
 import type { User } from './types'
 
 import { db } from '../../clients'
-import { usersTable } from '../../schema'
+import { userRolesTable, usersTable } from '../../schema'
 import { calcOffset } from '../pagination'
 
-export const findUserById = async (
-  userId: string,
+const selectUserWithRole = (executor: Database) =>
+  executor
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+      role: userRolesTable.role,
+    })
+    .from(usersTable)
+    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+
+const toUser = (row: { role: string | null } & Record<string, unknown>): User => ({
+  ...row,
+  role: row.role ?? Role.User,
+}) as User
+
+const findUserBy = async (
+  condition: ReturnType<typeof eq>,
   tx?: Database,
 ): Promise<User | undefined> => {
   const executor = tx || db
 
-  const [foundUser] = await executor
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.id, userId))
+  const [row] = await selectUserWithRole(executor)
+    .where(condition)
 
-  return foundUser
+  return row ? toUser(row) : undefined
 }
 
-export const findUserByEmail = async (
-  email: string,
-  tx?: Database,
-): Promise<User | undefined> => {
-  const executor = tx || db
+export const findUserById = async (userId: string, tx?: Database) =>
+  findUserBy(eq(usersTable.id, userId), tx)
 
-  const [foundUser] = await executor
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, email))
-
-  return foundUser
-}
+export const findUserByEmail = async (email: string, tx?: Database) =>
+  findUserBy(eq(usersTable.email, email), tx)
 
 export interface SearchParams {
   search?: string
@@ -47,6 +59,22 @@ export interface SearchParams {
 export interface SearchResult {
   users: User[]
   pagination: PaginatedResult
+}
+
+const buildRoleCondition = (roles: Role[]) => {
+  if (roles.length === 0) {
+    return undefined
+  }
+
+  // "User" is the default role — users without a row in user_roles are regular
+  // users, so we match them via NULL.
+  if (roles.includes(Role.User)) {
+    return isNull(userRolesTable.userId)
+  }
+
+  // Elevated roles (Admin, Owner) have
+  // explicit rows and are matched with inArray
+  return inArray(userRolesTable.role, roles)
 }
 
 export const search = async (
@@ -60,7 +88,12 @@ export const search = async (
   const offset = calcOffset(pagination)
 
   const buildWhereConditions = () => {
-    const conditions = [inArray(usersTable.role, roles)]
+    const conditions = []
+
+    const roleCondition = buildRoleCondition(roles)
+    if (roleCondition) {
+      conditions.push(roleCondition)
+    }
 
     if (statuses && statuses.length > 0) {
       conditions.push(inArray(usersTable.status, statuses))
@@ -73,26 +106,32 @@ export const search = async (
       )
     }
 
-    return and(...conditions)
+    return conditions.length > 0 ? and(...conditions) : undefined
   }
 
   const whereClause = buildWhereConditions()
 
-  const [countResult, users] = await Promise.all([
-    executor.select({ value: count() }).from(usersTable).where(whereClause),
-    executor
-      .select()
-      .from(usersTable)
+  const searchQuery = selectUserWithRole(executor)
+
+  const countQuery = executor
+    .select({ value: count() })
+    .from(usersTable)
+    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+
+  const [rows, countResult] = await Promise.all([
+    searchQuery
       .where(whereClause)
       .orderBy(desc(usersTable.createdAt))
       .limit(limit)
       .offset(offset),
+    countQuery
+      .where(whereClause),
   ])
 
   const totalCount = countResult[0]?.value ?? 0
 
   return {
-    users,
+    users: rows.map(toUser),
     pagination: {
       page,
       limit,
