@@ -1,3 +1,5 @@
+name: smela-dev
+
 services:
   postgres:
     image: postgres:18

@@ -24,28 +24,8 @@ jobs:
     container: oven/bun:latest
     environment: test
 
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-          POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
-          TZ: UTC
-        options: >-
-          --health-cmd "pg_isready -U ${{ vars.POSTGRES_USER }} -d ${{ vars.POSTGRES_DB }}"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --health-start-period 10s
-
     env:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: postgres
-      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       COOKIE_REFRESH_TOKEN_NAME: ${{ vars.COOKIE_REFRESH_TOKEN_NAME }}
       COOKIE_REFRESH_TOKEN_EXPIRATION: ${{ vars.COOKIE_REFRESH_TOKEN_EXPIRATION }}
@@ -72,20 +52,6 @@ jobs:
 
       - name: Run type checking
         run: bun run tsc
-
-      - name: Wait for PostgreSQL
-        run: |
-          for i in {1..10}; do
-            pg_isready -h postgres -U ${{ vars.POSTGRES_USER }} && break
-            echo "Waiting for PostgreSQL... (${i}/10)"
-            sleep 1
-          done
-
-      - name: Setup test database
-        run: bun run db:init
-
-      - name: Run all tests
-        run: bun run test:all
 
       - name: Run tests with coverage
         run: bun run coverage
