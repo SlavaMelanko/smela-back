@@ -1,7 +1,7 @@
 import { eq, inArray } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
-import type { InviterInfo, UserRoleRecord } from './types'
+import type { InviteInfo, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
 import { userRolesTable, usersTable } from '../../schema'
@@ -20,10 +20,10 @@ export const findByUserId = async (
   return found
 }
 
-export const findInviters = async (
+export const findInvites = async (
   userIds: string[],
   tx?: Database,
-): Promise<Map<string, InviterInfo>> => {
+): Promise<Map<string, InviteInfo>> => {
   if (userIds.length === 0) {
     return new Map()
   }
@@ -35,16 +35,15 @@ export const findInviters = async (
       inviterId: usersTable.id,
       firstName: usersTable.firstName,
       lastName: usersTable.lastName,
-      assignedAt: userRolesTable.assignedAt,
+      invitedAt: userRolesTable.assignedAt,
     })
     .from(userRolesTable)
     .innerJoin(usersTable, eq(userRolesTable.invitedBy, usersTable.id))
     .where(inArray(userRolesTable.userId, userIds))
 
   return new Map(rows.map(r => [r.userId, {
-    id: r.inviterId,
-    firstName: r.firstName,
-    lastName: r.lastName,
-    assignedAt: r.assignedAt,
+    inviterId: r.inviterId,
+    inviterName: r.lastName ? `${r.firstName} ${r.lastName}` : r.firstName,
+    invitedAt: r.invitedAt,
   }]))
 }
