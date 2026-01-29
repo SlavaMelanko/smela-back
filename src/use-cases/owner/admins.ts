@@ -21,7 +21,7 @@ export const getAdmins = async (params: SearchParams, pagination: PaginationPara
 
   const admins = result.users.map(admin => ({
     ...admin,
-    invitedBy: inviters.get(admin.id) ?? null,
+    inviter: inviters.get(admin.id) ?? null,
   }))
 
   return {

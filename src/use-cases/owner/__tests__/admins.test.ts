@@ -62,7 +62,7 @@ describe('getAdmins', () => {
 
     expect(result).toEqual({
       data: {
-        admins: mockSearchResult.users.map(u => ({ ...u, invitedBy: null })),
+        admins: mockSearchResult.users.map(u => ({ ...u, inviter: null })),
       },
       pagination: mockSearchResult.pagination,
     })
@@ -94,7 +94,7 @@ describe('getAdmins', () => {
     const result = await getAdmins({ roles: [] }, DEFAULT_PAGINATION)
 
     expect(mockFindInviters).toHaveBeenCalledWith([testUuids.ADMIN_1])
-    expect(result.data.admins[0].invitedBy).toEqual(inviterInfo)
+    expect(result.data.admins[0].inviter).toEqual(inviterInfo)
   })
 })
 
