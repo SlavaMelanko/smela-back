@@ -62,7 +62,7 @@ describe('getAdmins', () => {
 
     expect(result).toEqual({
       data: {
-        admins: mockSearchResult.users.map(u => ({ ...u, inviter: null })),
+        admins: mockSearchResult.users.map(u => ({ ...u, inviter: undefined })),
       },
       pagination: mockSearchResult.pagination,
     })
@@ -134,7 +134,7 @@ describe('getAdmin', () => {
     const result = await getAdmin(testUuids.ADMIN_1)
 
     expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
-    expect(result).toEqual({ admin: { ...mockAdmin, inviter: null } })
+    expect(result).toEqual({ admin: { ...mockAdmin, inviter: undefined } })
   })
 
   it('should include inviter info when available', async () => {
