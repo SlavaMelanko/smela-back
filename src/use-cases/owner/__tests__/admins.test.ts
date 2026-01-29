@@ -16,6 +16,7 @@ describe('getAdmins', () => {
 
   let mockSearchResult: SearchResult
   let mockUserRepoSearch: any
+  let mockFindInviters: any
 
   beforeEach(async () => {
     mockSearchResult = {
@@ -35,9 +36,11 @@ describe('getAdmins', () => {
     }
 
     mockUserRepoSearch = mock(async () => mockSearchResult)
+    mockFindInviters = mock(async () => new Map())
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: { search: mockUserRepoSearch },
+      userRoleRepo: { findInviters: mockFindInviters },
     }))
   })
 
@@ -58,7 +61,9 @@ describe('getAdmins', () => {
     const result = await getAdmins({ roles: [] }, DEFAULT_PAGINATION)
 
     expect(result).toEqual({
-      data: { admins: mockSearchResult.users },
+      data: {
+        admins: mockSearchResult.users.map(u => ({ ...u, inviter: undefined })),
+      },
       pagination: mockSearchResult.pagination,
     })
   })
@@ -74,6 +79,23 @@ describe('getAdmins', () => {
       DEFAULT_PAGINATION,
     )
   })
+
+  it('should include inviter info when available', async () => {
+    const inviterInfo = {
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
+      assignedAt: new Date('2024-01-01'),
+    }
+    mockFindInviters.mockImplementation(
+      async () => new Map([[testUuids.ADMIN_1, inviterInfo]]),
+    )
+
+    const result = await getAdmins({ roles: [] }, DEFAULT_PAGINATION)
+
+    expect(mockFindInviters).toHaveBeenCalledWith([testUuids.ADMIN_1])
+    expect(result.data.admins[0].inviter).toEqual(inviterInfo)
+  })
 })
 
 describe('getAdmin', () => {
@@ -81,6 +103,7 @@ describe('getAdmin', () => {
 
   let mockAdmin: User
   let mockFindById: any
+  let mockFindInviters: any
 
   beforeEach(async () => {
     mockAdmin = {
@@ -95,9 +118,11 @@ describe('getAdmin', () => {
     }
 
     mockFindById = mock(async () => mockAdmin)
+    mockFindInviters = mock(async () => new Map())
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: { findById: mockFindById },
+      userRoleRepo: { findInviters: mockFindInviters },
     }))
   })
 
@@ -109,7 +134,24 @@ describe('getAdmin', () => {
     const result = await getAdmin(testUuids.ADMIN_1)
 
     expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
-    expect(result).toEqual({ admin: mockAdmin })
+    expect(result).toEqual({ admin: { ...mockAdmin, inviter: undefined } })
+  })
+
+  it('should include inviter info when available', async () => {
+    const inviterInfo = {
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
+      assignedAt: new Date('2024-01-01'),
+    }
+    mockFindInviters.mockImplementation(
+      async () => new Map([[testUuids.ADMIN_1, inviterInfo]]),
+    )
+
+    const result = await getAdmin(testUuids.ADMIN_1)
+
+    expect(mockFindInviters).toHaveBeenCalledWith([testUuids.ADMIN_1])
+    expect(result.admin.inviter).toEqual(inviterInfo)
   })
 
   it('should throw NotFound error when admin does not exist', async () => {

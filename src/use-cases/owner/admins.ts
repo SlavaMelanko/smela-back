@@ -16,8 +16,16 @@ const normalizeRoles = (params: SearchParams): SearchParams => ({
 export const getAdmins = async (params: SearchParams, pagination: PaginationParams) => {
   const result = await userRepo.search(normalizeRoles(params), pagination)
 
+  const adminIds = result.users.map(u => u.id)
+  const inviters = await userRoleRepo.findInviters(adminIds)
+
+  const admins = result.users.map(admin => ({
+    ...admin,
+    inviter: inviters.get(admin.id),
+  }))
+
   return {
-    data: { admins: result.users },
+    data: { admins },
     pagination: result.pagination,
   }
 }
@@ -29,7 +37,14 @@ export const getAdmin = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  return { admin }
+  const inviters = await userRoleRepo.findInviters([adminId])
+
+  return {
+    admin: {
+      ...admin,
+      inviter: inviters.get(adminId),
+    },
+  }
 }
 
 export interface AdminInvitationParams {
