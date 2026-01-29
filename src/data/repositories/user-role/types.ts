@@ -10,9 +10,8 @@ export interface CreateUserRoleInput {
   invitedBy?: string
 }
 
-export interface InviterInfo {
-  id: string
-  firstName: string
-  lastName: string | null
-  assignedAt: Date
+export interface InviteInfo {
+  inviterId: string
+  inviterName: string
+  invitedAt: Date
 }
