@@ -210,6 +210,10 @@ For external service integrations (CAPTCHA, payment, SMS, file storage, analytic
   - Use direct re-exports like `export type { default as TypeName } from './module'` when possible
   - ESLint rule enforces blank lines between export statements for readability
 - **Class Member Ordering**: Enforced via `@typescript-eslint/member-ordering` (see `eslint.config.mjs` for exact ordering)
+- **Return Types**: Lean on TypeScript inference for simple functions. Add explicit return types when:
+  - The function has complex conditional returns
+  - You want compile-time protection against accidental contract changes
+  - The inferred type is less clear than an explicit annotation
 
 #### Comment Formatting Standards
 
