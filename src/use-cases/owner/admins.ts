@@ -16,8 +16,16 @@ const normalizeRoles = (params: SearchParams): SearchParams => ({
 export const getAdmins = async (params: SearchParams, pagination: PaginationParams) => {
   const result = await userRepo.search(normalizeRoles(params), pagination)
 
+  const adminIds = result.users.map(u => u.id)
+  const inviters = await userRoleRepo.findInviters(adminIds)
+
+  const admins = result.users.map(admin => ({
+    ...admin,
+    invitedBy: inviters.get(admin.id) ?? null,
+  }))
+
   return {
-    data: { admins: result.users },
+    data: { admins },
     pagination: result.pagination,
   }
 }

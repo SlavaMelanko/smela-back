@@ -9,3 +9,10 @@ export interface CreateUserRoleInput {
   role: Role
   invitedBy?: string
 }
+
+export interface InviterInfo {
+  id: string
+  firstName: string
+  lastName: string | null
+  assignedAt: Date
+}
