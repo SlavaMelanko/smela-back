@@ -103,6 +103,7 @@ describe('getAdmin', () => {
 
   let mockAdmin: User
   let mockFindById: any
+  let mockFindInviters: any
 
   beforeEach(async () => {
     mockAdmin = {
@@ -117,9 +118,11 @@ describe('getAdmin', () => {
     }
 
     mockFindById = mock(async () => mockAdmin)
+    mockFindInviters = mock(async () => new Map())
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: { findById: mockFindById },
+      userRoleRepo: { findInviters: mockFindInviters },
     }))
   })
 
@@ -131,7 +134,24 @@ describe('getAdmin', () => {
     const result = await getAdmin(testUuids.ADMIN_1)
 
     expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
-    expect(result).toEqual({ admin: mockAdmin })
+    expect(result).toEqual({ admin: { ...mockAdmin, inviter: null } })
+  })
+
+  it('should include inviter info when available', async () => {
+    const inviterInfo = {
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
+      assignedAt: new Date('2024-01-01'),
+    }
+    mockFindInviters.mockImplementation(
+      async () => new Map([[testUuids.ADMIN_1, inviterInfo]]),
+    )
+
+    const result = await getAdmin(testUuids.ADMIN_1)
+
+    expect(mockFindInviters).toHaveBeenCalledWith([testUuids.ADMIN_1])
+    expect(result.admin.inviter).toEqual(inviterInfo)
   })
 
   it('should throw NotFound error when admin does not exist', async () => {

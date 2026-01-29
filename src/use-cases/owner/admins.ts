@@ -37,7 +37,14 @@ export const getAdmin = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  return { admin }
+  const inviters = await userRoleRepo.findInviters([adminId])
+
+  return {
+    admin: {
+      ...admin,
+      inviter: inviters.get(adminId) ?? null,
+    },
+  }
 }
 
 export interface AdminInvitationParams {
