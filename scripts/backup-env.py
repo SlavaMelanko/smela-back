@@ -5,9 +5,13 @@ Only creates new backup if content has changed (based on hash).
 """
 
 import hashlib
+import sys
 import zipfile
 from datetime import datetime
 from pathlib import Path
+
+# Fix Windows console encoding for Unicode output
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 def create_env_backup():

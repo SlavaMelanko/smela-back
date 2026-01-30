@@ -1,5 +1,6 @@
 import { mock } from 'bun:test'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 export interface MockResult {
   clear: () => Promise<void>
@@ -31,7 +32,7 @@ export class ModuleMocker {
 
   constructor(callerUrl: string) {
     // Convert import.meta.url to file path and get directory
-    this.callerPath = path.dirname(new URL(callerUrl).pathname)
+    this.callerPath = path.dirname(fileURLToPath(callerUrl))
   }
 
   async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
