@@ -3,7 +3,7 @@
 /**
  * Seed fake users for testing GIN/pg_trgm search performance
  *
- * Usage:
+ * Usage (Unix/macOS/Linux):
  *   # Seed 5000 users (default)
  *   NODE_ENV=development bun src/data/scripts/seed-fake-users.ts
  *
@@ -12,6 +12,16 @@
  *
  *   # Clear all fake users
  *   NODE_ENV=development bun src/data/scripts/seed-fake-users.ts --clear
+ *
+ * Usage (Windows PowerShell):
+ *   # Seed 5000 users (default)
+ *   $env:NODE_ENV="development"; bun src/data/scripts/seed-fake-users.ts
+ *
+ *   # Seed custom count
+ *   $env:NODE_ENV="development"; bun src/data/scripts/seed-fake-users.ts 10000
+ *
+ *   # Clear all fake users
+ *   $env:NODE_ENV="development"; bun src/data/scripts/seed-fake-users.ts --clear
  */
 
 import { faker } from '@faker-js/faker'
