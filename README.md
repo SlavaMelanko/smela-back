@@ -9,8 +9,9 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 
 ## 📋 Prerequisites
 
+- [Git](https://git-scm.com/) version control
+- [Docker](https://www.docker.com/) for running PostgreSQL
 - [Bun](https://bun.sh/) runtime (latest version)
-- PostgreSQL database (local or cloud)
 - Email service account ([Resend](https://resend.com/) for production, [Ethereal](https://ethereal.email/) for development)
 
 ## 🛠️ Build and Run
@@ -30,7 +31,7 @@ See [`.env.example`](.env.example) to configure required variables.
 Start the development PostgreSQL container:
 
 ```zsh
-bun run db:up:dev
+bun run db:dev:up
 ```
 
 Run all database setup steps at once (generate → migrate → seed):
