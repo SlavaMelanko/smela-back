@@ -48,16 +48,6 @@ const response = await post(app, '/api/v1/auth/signup', {
 3. Boundary inputs
 4. Failure scenarios
 
-## Database Testing
-
-For integration tests requiring real database:
-
-- Use `bun run db:up:test` (starts test DB on port 5433)
-- Use `bun run db:down:test` (stops test DB)
-- Use `bun run test:with-db` (starts DB + runs tests)
-- Test DB uses separate Docker container (`smela-db-test`) and `.env.test` config
-- Reset DB state between test suites if needed using `bun run db:reset:test`
-
 ## Environment Setup
 
 - Use `.env.test` for test-specific variables
