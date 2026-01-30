@@ -10,6 +10,7 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 ## 📋 Prerequisites
 
 - [Git](https://git-scm.com/) version control
+- [Python](https://www.python.org/) for Husky git hooks
 - [Docker](https://www.docker.com/) for running PostgreSQL
 - [Bun](https://bun.sh/) runtime (latest version)
 - Email service account ([Resend](https://resend.com/) for production, [Ethereal](https://ethereal.email/) for development)
@@ -52,4 +53,4 @@ Server will start on <http://localhost:3000> by default.
 
 ## 🔌 API Endpoints
 
-See [src/routes/README.md](src/routes/README.md) for detailed API endpoints, and [Postman collection](postman.json).
+See [Postman collection](postman.json) for detailed API endpoints.
