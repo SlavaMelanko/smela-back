@@ -4,6 +4,7 @@ import {
   deleteCompany,
   getCompanies,
   getCompany,
+  inviteMember,
   updateCompany,
 } from '@/use-cases/admin'
 
@@ -11,6 +12,7 @@ import type {
   CompanyParamsCtx,
   CreateCompanyCtx,
   GetCompaniesCtx,
+  InviteMemberCtx,
   UpdateCompanyCtx,
 } from './schema'
 
@@ -55,4 +57,14 @@ export const deleteCompanyHandler = async (c: CompanyParamsCtx) => {
   await deleteCompany(id)
 
   return c.body(null, HttpStatus.NO_CONTENT)
+}
+
+export const inviteMemberHandler = async (c: InviteMemberCtx) => {
+  const { companyId } = c.req.valid('param')
+  const body = c.req.valid('json')
+  const { id: invitedBy } = c.get('user')
+
+  const result = await inviteMember(companyId, body, invitedBy)
+
+  return c.json(result, HttpStatus.CREATED)
 }

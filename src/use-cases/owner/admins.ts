@@ -74,12 +74,6 @@ export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: stri
       status: Status.Pending,
     }, tx)
 
-    await userRoleRepo.assign({
-      userId: newAdmin.id,
-      role: Role.Admin,
-      invitedBy,
-    }, tx)
-
     // Use random password and admin sets real password when accepting invitation
     const passwordHash = await generatePasswordHash()
 
@@ -88,6 +82,12 @@ export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: stri
       provider: AuthProvider.Local,
       identifier: params.email,
       passwordHash,
+    }, tx)
+
+    await userRoleRepo.assign({
+      userId: newAdmin.id,
+      role: Role.Admin,
+      invitedBy,
     }, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
