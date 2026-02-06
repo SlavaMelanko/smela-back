@@ -7,12 +7,14 @@ import { HttpStatus } from '@/net/http'
 
 import {
   createCompanyHandler,
+  createInvitationHandler,
   getCompaniesHandler,
   getCompanyHandler,
+  resendInvitationHandler,
   updateCompanyHandler,
 } from '../handler'
 
-const { COMPANY_1 } = testUuids
+const { COMPANY_1, USER_1, USER_2 } = testUuids
 
 describe('getCompaniesHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -306,5 +308,137 @@ describe('updateCompanyHandler', () => {
     })
 
     expect(updateCompanyHandler(mockContext)).rejects.toThrow('Company not found')
+  })
+})
+
+describe('createInvitationHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+  let mockInviteMember: any
+
+  const mockResult = {
+    user: {
+      id: USER_1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      status: 'pending',
+      role: 'user',
+    },
+  }
+
+  beforeEach(async () => {
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: {
+        valid: mock((type: string) => {
+          if (type === 'param') {
+            return { companyId: COMPANY_1 }
+          }
+
+          return {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john@example.com',
+            position: 'Developer',
+          }
+        }),
+      },
+      get: mock(() => ({ id: USER_2 })),
+      json: mockJson,
+    }
+
+    mockInviteMember = mock(async () => mockResult)
+
+    await moduleMocker.mock('@/use-cases/admin', () => ({
+      inviteMember: mockInviteMember,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call inviteMember with correct parameters', async () => {
+    await createInvitationHandler(mockContext)
+
+    expect(mockInviteMember).toHaveBeenCalledWith(
+      COMPANY_1,
+      {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        position: 'Developer',
+      },
+      USER_2,
+    )
+  })
+
+  it('should return user with CREATED status', async () => {
+    const result = await createInvitationHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith(mockResult, HttpStatus.CREATED)
+    expect(result.status).toBe(HttpStatus.CREATED)
+  })
+
+  it('should propagate error when inviteMember throws', async () => {
+    mockInviteMember.mockImplementation(async () => {
+      throw new Error('Company not found')
+    })
+
+    expect(createInvitationHandler(mockContext)).rejects.toThrow('Company not found')
+  })
+})
+
+describe('resendInvitationHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+  let mockResendMemberInvitation: any
+
+  beforeEach(async () => {
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: {
+        valid: mock(() => ({ companyId: COMPANY_1, memberId: USER_1 })),
+      },
+      json: mockJson,
+    }
+
+    mockResendMemberInvitation = mock(async () => ({ success: true }))
+
+    await moduleMocker.mock('@/use-cases/admin', () => ({
+      resendMemberInvitation: mockResendMemberInvitation,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call resendMemberInvitation with correct parameters', async () => {
+    await resendInvitationHandler(mockContext)
+
+    expect(mockResendMemberInvitation).toHaveBeenCalledWith(COMPANY_1, USER_1)
+  })
+
+  it('should return success with OK status', async () => {
+    const result = await resendInvitationHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
+    expect(result.status).toBe(HttpStatus.OK)
+  })
+
+  it('should propagate error when resendMemberInvitation throws', async () => {
+    mockResendMemberInvitation.mockImplementation(async () => {
+      throw new Error('Member not found')
+    })
+
+    expect(resendInvitationHandler(mockContext)).rejects.toThrow('Member not found')
   })
 })
