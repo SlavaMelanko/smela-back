@@ -6,18 +6,18 @@ import { requestValidator } from '@/middleware'
 
 import {
   createCompanyHandler,
+  createInvitationHandler,
   deleteCompanyHandler,
   getCompaniesHandler,
   getCompanyHandler,
-  inviteMemberHandler,
   updateCompanyHandler,
 } from './handler'
 import {
   companyParamsSchema,
   createCompanyBodySchema,
+  createInvitationBodySchema,
+  createInvitationParamsSchema,
   getCompaniesQuerySchema,
-  inviteMemberBodySchema,
-  inviteMemberParamsSchema,
   updateCompanyBodySchema,
 } from './schema'
 
@@ -50,10 +50,10 @@ adminCompaniesRoute.delete(
   deleteCompanyHandler,
 )
 adminCompaniesRoute.post(
-  '/companies/:companyId/members',
-  requestValidator('param', inviteMemberParamsSchema),
-  requestValidator('json', inviteMemberBodySchema),
-  inviteMemberHandler,
+  '/companies/:companyId/invitations',
+  requestValidator('param', createInvitationParamsSchema),
+  requestValidator('json', createInvitationBodySchema),
+  createInvitationHandler,
 )
 
 export default adminCompaniesRoute

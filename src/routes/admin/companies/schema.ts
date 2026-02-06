@@ -38,17 +38,18 @@ export const updateCompanyBodySchema = z.object({
 export type UpdateCompanyBody = z.infer<typeof updateCompanyBodySchema>
 export type UpdateCompanyCtx = ValidatedParamJsonCtx<CompanyParams, UpdateCompanyBody>
 
-export const inviteMemberParamsSchema = z.object({
+export const createInvitationParamsSchema = z.object({
   companyId: rules.data.id,
 })
 
-export const inviteMemberBodySchema = z.object({
+export const createInvitationBodySchema = z.object({
   firstName: rules.data.firstName,
   lastName: rules.data.lastName.optional(),
   email: rules.data.email,
   position: rules.company.position.optional(),
 })
 
-export type InviteMemberParams = z.infer<typeof inviteMemberParamsSchema>
-export type InviteMemberBody = z.infer<typeof inviteMemberBodySchema>
-export type InviteMemberCtx = ValidatedParamJsonCtx<InviteMemberParams, InviteMemberBody>
+export type CreateInvitationParams = z.infer<typeof createInvitationParamsSchema>
+export type CreateInvitationBody = z.infer<typeof createInvitationBodySchema>
+export type CreateInvitationCtx
+  = ValidatedParamJsonCtx<CreateInvitationParams, CreateInvitationBody>

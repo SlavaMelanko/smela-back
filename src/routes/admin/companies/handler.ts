@@ -11,8 +11,8 @@ import {
 import type {
   CompanyParamsCtx,
   CreateCompanyCtx,
+  CreateInvitationCtx,
   GetCompaniesCtx,
-  InviteMemberCtx,
   UpdateCompanyCtx,
 } from './schema'
 
@@ -59,7 +59,7 @@ export const deleteCompanyHandler = async (c: CompanyParamsCtx) => {
   return c.body(null, HttpStatus.NO_CONTENT)
 }
 
-export const inviteMemberHandler = async (c: InviteMemberCtx) => {
+export const createInvitationHandler = async (c: CreateInvitationCtx) => {
   const { companyId } = c.req.valid('param')
   const body = c.req.valid('json')
   const { id: invitedBy } = c.get('user')
