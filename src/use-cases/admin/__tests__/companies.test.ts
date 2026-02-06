@@ -8,7 +8,6 @@ import ErrorCode from '@/errors/codes'
 
 import {
   createCompany,
-  deleteCompany,
   getCompanies,
   getCompany,
   updateCompany,
@@ -247,56 +246,6 @@ describe('updateCompany', () => {
     expect(updateCompany(COMPANY_1, { name: 'Taken Name' })).rejects.toMatchObject({
       code: ErrorCode.Conflict,
       message: 'Company with this name already exists',
-    })
-  })
-})
-
-describe('deleteCompany', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockCompany: Company
-  let mockCompanyRepoFindById: any
-  let mockCompanyRepoDelete: any
-
-  beforeEach(async () => {
-    mockCompany = {
-      id: COMPANY_1,
-      name: 'Company to Delete',
-      website: null,
-      description: null,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    }
-
-    mockCompanyRepoFindById = mock(async () => mockCompany)
-    mockCompanyRepoDelete = mock(async () => undefined)
-
-    await moduleMocker.mock('@/data', () => ({
-      companyRepo: {
-        findById: mockCompanyRepoFindById,
-        delete: mockCompanyRepoDelete,
-      },
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should delete company when it exists', async () => {
-    await deleteCompany(COMPANY_1)
-
-    expect(mockCompanyRepoFindById).toHaveBeenCalledWith(COMPANY_1)
-    expect(mockCompanyRepoDelete).toHaveBeenCalledWith(COMPANY_1)
-  })
-
-  it('should throw NotFound error when company does not exist', async () => {
-    mockCompanyRepoFindById.mockImplementation(async () => undefined)
-
-    expect(deleteCompany(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
-    expect(deleteCompany(testUuids.NON_EXISTENT)).rejects.toMatchObject({
-      code: ErrorCode.NotFound,
-      message: 'Company not found',
     })
   })
 })

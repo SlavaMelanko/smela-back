@@ -7,7 +7,6 @@ import { HttpStatus } from '@/net/http'
 
 import {
   createCompanyHandler,
-  deleteCompanyHandler,
   getCompaniesHandler,
   getCompanyHandler,
   updateCompanyHandler,
@@ -307,55 +306,5 @@ describe('updateCompanyHandler', () => {
     })
 
     expect(updateCompanyHandler(mockContext)).rejects.toThrow('Company not found')
-  })
-})
-
-describe('deleteCompanyHandler', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockContext: any
-  let mockBody: any
-  let mockDeleteCompany: any
-
-  beforeEach(async () => {
-    mockBody = mock((data: any, status: number) => ({ data, status }))
-
-    mockContext = {
-      req: {
-        valid: mock(() => ({ id: COMPANY_1 })),
-      },
-      body: mockBody,
-    }
-
-    mockDeleteCompany = mock(async () => undefined)
-
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      deleteCompany: mockDeleteCompany,
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should call deleteCompany with correct id', async () => {
-    await deleteCompanyHandler(mockContext)
-
-    expect(mockDeleteCompany).toHaveBeenCalledWith(COMPANY_1)
-  })
-
-  it('should return NO_CONTENT status', async () => {
-    const result = await deleteCompanyHandler(mockContext)
-
-    expect(mockBody).toHaveBeenCalledWith(null, HttpStatus.NO_CONTENT)
-    expect(result.status).toBe(HttpStatus.NO_CONTENT)
-  })
-
-  it('should propagate error when deleteCompany throws', async () => {
-    mockDeleteCompany.mockImplementation(async () => {
-      throw new Error('Company not found')
-    })
-
-    expect(deleteCompanyHandler(mockContext)).rejects.toThrow('Company not found')
   })
 })

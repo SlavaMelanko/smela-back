@@ -1,6 +1,5 @@
 export {
   createCompany,
-  deleteCompany,
   getCompanies,
   getCompany,
   updateCompany,

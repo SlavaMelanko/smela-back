@@ -7,7 +7,6 @@ import { requestValidator } from '@/middleware'
 import {
   createCompanyHandler,
   createInvitationHandler,
-  deleteCompanyHandler,
   getCompaniesHandler,
   getCompanyHandler,
   updateCompanyHandler,
@@ -43,11 +42,6 @@ adminCompaniesRoute.patch(
   requestValidator('param', companyParamsSchema),
   requestValidator('json', updateCompanyBodySchema),
   updateCompanyHandler,
-)
-adminCompaniesRoute.delete(
-  '/companies/:id',
-  requestValidator('param', companyParamsSchema),
-  deleteCompanyHandler,
 )
 adminCompaniesRoute.post(
   '/companies/:companyId/invitations',

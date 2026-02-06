@@ -63,13 +63,3 @@ export const updateCompany = async (companyId: string, params: UpdateCompanyPara
 
   return { company }
 }
-
-export const deleteCompany = async (companyId: string) => {
-  const existing = await companyRepo.findById(companyId)
-
-  if (!existing) {
-    throw new AppError(ErrorCode.NotFound, 'Company not found')
-  }
-
-  await companyRepo.delete(companyId)
-}

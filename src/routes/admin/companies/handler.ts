@@ -1,7 +1,6 @@
 import { HttpStatus } from '@/net/http'
 import {
   createCompany,
-  deleteCompany,
   getCompanies,
   getCompany,
   inviteMember,
@@ -49,14 +48,6 @@ export const updateCompanyHandler = async (c: UpdateCompanyCtx) => {
   const result = await updateCompany(id, body)
 
   return c.json(result, HttpStatus.OK)
-}
-
-export const deleteCompanyHandler = async (c: CompanyParamsCtx) => {
-  const { id } = c.req.valid('param')
-
-  await deleteCompany(id)
-
-  return c.body(null, HttpStatus.NO_CONTENT)
 }
 
 export const createInvitationHandler = async (c: CreateInvitationCtx) => {
