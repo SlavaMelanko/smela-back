@@ -655,7 +655,7 @@
           "response": []
         },
         {
-          "name": "admins/invite",
+          "name": "admins/invitations",
           "request": {
             "method": "POST",
             "header": [],
@@ -669,32 +669,33 @@
               }
             },
             "url": {
-              "raw": "{{owner_api_url}}/admins/invite",
+              "raw": "{{owner_api_url}}/admins/invitations",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
-                "invite"
+                "invitations"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "admins/:id/resend-invitation",
+          "name": "admins/invitations/:adminId/resend",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{owner_api_url}}/admins/019bf9d9-74b8-75b1-9507-032fd6663e1b/resend-invitation",
+              "raw": "{{owner_api_url}}/admins/invitations/019bf9d9-74b8-75b1-9507-032fd6663e1b/resend",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
+                "invitations",
                 "019bf9d9-74b8-75b1-9507-032fd6663e1b",
-                "resend-invitation"
+                "resend"
               ]
             }
           },
