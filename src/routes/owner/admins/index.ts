@@ -25,7 +25,7 @@ ownerAdminsRoute.get(
   getAdminsHandler,
 )
 ownerAdminsRoute.get(
-  '/admins/:id',
+  '/admins/:adminId',
   requestValidator('param', getAdminParamsSchema),
   getAdminHandler,
 )

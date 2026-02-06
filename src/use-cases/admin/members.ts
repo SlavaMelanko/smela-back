@@ -85,3 +85,43 @@ export const inviteMember = async (
 
   return { user }
 }
+
+export const resendMemberInvitation = async (companyId: string, memberId: string) => {
+  const company = await companyRepo.findById(companyId)
+
+  if (!company) {
+    throw new AppError(ErrorCode.NotFound, 'Company not found')
+  }
+
+  const member = await userRepo.findById(memberId)
+
+  if (!member) {
+    throw new AppError(ErrorCode.NotFound, 'Member not found')
+  }
+
+  const membership = await companyRepo.findUserCompany(memberId, companyId)
+
+  if (!membership) {
+    throw new AppError(ErrorCode.NotFound, 'Member not found in this company')
+  }
+
+  if (member.status !== Status.Pending) {
+    throw new AppError(ErrorCode.BadRequest, 'Member has already accepted invitation')
+  }
+
+  const token = await db.transaction(async (tx) => {
+    const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
+    await tokenRepo.issue(memberId, { userId: memberId, type, token, expiresAt }, tx)
+
+    return token
+  })
+
+  await emailAgent.sendUserInvitationEmail(
+    member.firstName,
+    member.email,
+    token,
+    company.name,
+  )
+
+  return { success: true }
+}

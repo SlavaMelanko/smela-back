@@ -14,9 +14,9 @@ export const getAdminsHandler = async (c: GetAdminsCtx) => {
 }
 
 export const getAdminHandler = async (c: GetAdminCtx) => {
-  const { id } = c.req.valid('param')
+  const { adminId } = c.req.valid('param')
 
-  const result = await getAdmin(id)
+  const result = await getAdmin(adminId)
 
   return c.json(result, HttpStatus.OK)
 }

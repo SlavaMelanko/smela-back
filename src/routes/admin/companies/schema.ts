@@ -12,9 +12,9 @@ export const getCompaniesQuerySchema = z.object({
 export type GetCompaniesQuery = z.infer<typeof getCompaniesQuerySchema>
 export type GetCompaniesCtx = ValidatedQueryCtx<GetCompaniesQuery>
 
-// Used by GET and DELETE endpoints, so no 'Get' prefix
+// Used by GET, PATCH, and DELETE endpoints
 export const companyParamsSchema = z.object({
-  id: rules.data.id,
+  companyId: rules.data.id,
 })
 
 export type CompanyParams = z.infer<typeof companyParamsSchema>
@@ -53,3 +53,11 @@ export type CreateInvitationParams = z.infer<typeof createInvitationParamsSchema
 export type CreateInvitationBody = z.infer<typeof createInvitationBodySchema>
 export type CreateInvitationCtx
   = ValidatedParamJsonCtx<CreateInvitationParams, CreateInvitationBody>
+
+export const resendInvitationParamsSchema = z.object({
+  companyId: rules.data.id,
+  memberId: rules.data.id,
+})
+
+export type ResendInvitationParams = z.infer<typeof resendInvitationParamsSchema>
+export type ResendInvitationCtx = ValidatedParamCtx<ResendInvitationParams>

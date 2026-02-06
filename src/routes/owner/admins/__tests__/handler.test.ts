@@ -126,7 +126,7 @@ describe('ownerGetAdminHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: testUuids.ADMIN_1 })),
+        valid: mock(() => ({ adminId: testUuids.ADMIN_1 })),
       },
       json: mockJson,
     }

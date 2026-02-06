@@ -139,7 +139,7 @@ describe('getCompanyHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: COMPANY_1 })),
+        valid: mock(() => ({ companyId: COMPANY_1 })),
       },
       json: mockJson,
     }
@@ -267,7 +267,7 @@ describe('updateCompanyHandler', () => {
       req: {
         valid: mock((type: string) => {
           if (type === 'param') {
-            return { id: COMPANY_1 }
+            return { companyId: COMPANY_1 }
           }
 
           return { name: 'Updated Company' }

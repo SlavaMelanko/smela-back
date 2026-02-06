@@ -4,6 +4,7 @@ import {
   getCompanies,
   getCompany,
   inviteMember,
+  resendMemberInvitation,
   updateCompany,
 } from '@/use-cases/admin'
 
@@ -12,6 +13,7 @@ import type {
   CreateCompanyCtx,
   CreateInvitationCtx,
   GetCompaniesCtx,
+  ResendInvitationCtx,
   UpdateCompanyCtx,
 } from './schema'
 
@@ -26,9 +28,9 @@ export const getCompaniesHandler = async (c: GetCompaniesCtx) => {
 }
 
 export const getCompanyHandler = async (c: CompanyParamsCtx) => {
-  const { id } = c.req.valid('param')
+  const { companyId } = c.req.valid('param')
 
-  const result = await getCompany(id)
+  const result = await getCompany(companyId)
 
   return c.json(result, HttpStatus.OK)
 }
@@ -42,10 +44,10 @@ export const createCompanyHandler = async (c: CreateCompanyCtx) => {
 }
 
 export const updateCompanyHandler = async (c: UpdateCompanyCtx) => {
-  const { id } = c.req.valid('param')
+  const { companyId } = c.req.valid('param')
   const body = c.req.valid('json')
 
-  const result = await updateCompany(id, body)
+  const result = await updateCompany(companyId, body)
 
   return c.json(result, HttpStatus.OK)
 }
@@ -58,4 +60,12 @@ export const createInvitationHandler = async (c: CreateInvitationCtx) => {
   const result = await inviteMember(companyId, body, invitedBy)
 
   return c.json(result, HttpStatus.CREATED)
+}
+
+export const resendInvitationHandler = async (c: ResendInvitationCtx) => {
+  const { companyId, memberId } = c.req.valid('param')
+
+  const result = await resendMemberInvitation(companyId, memberId)
+
+  return c.json(result, HttpStatus.OK)
 }

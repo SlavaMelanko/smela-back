@@ -14,7 +14,7 @@ export type GetAdminsQuery = z.infer<typeof getAdminsQuerySchema>
 export type GetAdminsCtx = ValidatedQueryCtx<GetAdminsQuery>
 
 export const getAdminParamsSchema = z.object({
-  id: rules.data.id,
+  adminId: rules.data.id,
 })
 
 export type GetAdminParams = z.infer<typeof getAdminParamsSchema>

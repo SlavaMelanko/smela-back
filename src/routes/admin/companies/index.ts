@@ -9,6 +9,7 @@ import {
   createInvitationHandler,
   getCompaniesHandler,
   getCompanyHandler,
+  resendInvitationHandler,
   updateCompanyHandler,
 } from './handler'
 import {
@@ -17,6 +18,7 @@ import {
   createInvitationBodySchema,
   createInvitationParamsSchema,
   getCompaniesQuerySchema,
+  resendInvitationParamsSchema,
   updateCompanyBodySchema,
 } from './schema'
 
@@ -28,7 +30,7 @@ adminCompaniesRoute.get(
   getCompaniesHandler,
 )
 adminCompaniesRoute.get(
-  '/companies/:id',
+  '/companies/:companyId',
   requestValidator('param', companyParamsSchema),
   getCompanyHandler,
 )
@@ -38,7 +40,7 @@ adminCompaniesRoute.post(
   createCompanyHandler,
 )
 adminCompaniesRoute.patch(
-  '/companies/:id',
+  '/companies/:companyId',
   requestValidator('param', companyParamsSchema),
   requestValidator('json', updateCompanyBodySchema),
   updateCompanyHandler,
@@ -48,6 +50,11 @@ adminCompaniesRoute.post(
   requestValidator('param', createInvitationParamsSchema),
   requestValidator('json', createInvitationBodySchema),
   createInvitationHandler,
+)
+adminCompaniesRoute.post(
+  '/companies/:companyId/invitations/:memberId/resend',
+  requestValidator('param', resendInvitationParamsSchema),
+  resendInvitationHandler,
 )
 
 export default adminCompaniesRoute
