@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "9c7099c3-e4ea-4170-8700-993548944f24",
+    "_postman_id": "7206fb29-37d5-4b05-816b-7d61b6784041",
     "name": "smela REST API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "3880760"
@@ -32,13 +32,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/users/42",
+              "raw": "{{admin_api_url}}/users/019c04dd-0321-7536-88ec-95a8d8a6c09a",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "users",
-                "42"
+                "019c04dd-0321-7536-88ec-95a8d8a6c09a"
               ]
             }
           },
@@ -93,13 +93,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/companies/019be609-066b-779c-8ae8-c6211d3ebb44",
+              "raw": "{{admin_api_url}}/companies/019c04dd-02b7-714c-8a7d-d45596130bbb",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "companies",
-                "019be609-066b-779c-8ae8-c6211d3ebb44"
+                "019c04dd-02b7-714c-8a7d-d45596130bbb"
               ]
             }
           },
@@ -133,13 +133,13 @@
           "response": []
         },
         {
-          "name": "companies/:id",
+          "name": "companies/:id/invitations",
           "request": {
-            "method": "DELETE",
+            "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -147,13 +147,44 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/companies/019be6a3-38c2-7127-a5df-7fb9a511c40c",
+              "raw": "{{admin_api_url}}/companies/019c3229-b84e-7c09-a0c0-e0dfe851af50/invitations",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "companies",
-                "019be6a3-38c2-7127-a5df-7fb9a511c40c"
+                "019c3229-b84e-7c09-a0c0-e0dfe851af50",
+                "invitations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "companies/:id/invitations/:memberId/resend",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/companies/019c3229-b84e-7c09-a0c0-e0dfe851af50/invitations/019c3362-5b44-76fb-b4d5-1dd683ff29d8/resend",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "companies",
+                "019c3229-b84e-7c09-a0c0-e0dfe851af50",
+                "invitations",
+                "019c3362-5b44-76fb-b4d5-1dd683ff29d8",
+                "resend"
               ]
             }
           },
@@ -642,13 +673,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{owner_api_url}}/admins/019bf4ca-00ac-780d-83f6-25f499ca9dba",
+              "raw": "{{owner_api_url}}/admins/019c04dd-02ac-7f72-8a2b-077963055a5a",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
-                "019bf4ca-00ac-780d-83f6-25f499ca9dba"
+                "019c04dd-02ac-7f72-8a2b-077963055a5a"
               ]
             }
           },
@@ -661,7 +692,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+admin2@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+admin3@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -687,14 +718,14 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{owner_api_url}}/admins/invitations/019bf9d9-74b8-75b1-9507-032fd6663e1b/resend",
+              "raw": "{{owner_api_url}}/admins/invitations/019c3353-29db-79b3-8383-46a7d9c1742f/resend",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
                 "invitations",
-                "019bf9d9-74b8-75b1-9507-032fd6663e1b",
+                "019c3353-29db-79b3-8383-46a7d9c1742f",
                 "resend"
               ]
             }
