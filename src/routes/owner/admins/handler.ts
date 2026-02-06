@@ -1,7 +1,7 @@
 import { HttpStatus } from '@/net/http'
 import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '@/use-cases/owner'
 
-import type { GetAdminCtx, GetAdminsCtx, InviteAdminCtx, ResendAdminInvitationCtx } from './schema'
+import type { CreateInvitationCtx, GetAdminCtx, GetAdminsCtx, ResendInvitationCtx } from './schema'
 
 export const getAdminsHandler = async (c: GetAdminsCtx) => {
   const { search, statuses, page, limit } = c.req.valid('query')
@@ -21,7 +21,7 @@ export const getAdminHandler = async (c: GetAdminCtx) => {
   return c.json(result, HttpStatus.OK)
 }
 
-export const inviteAdminHandler = async (c: InviteAdminCtx) => {
+export const createInvitationHandler = async (c: CreateInvitationCtx) => {
   const body = c.req.valid('json')
   const { id: invitedBy } = c.get('user')
 
@@ -30,10 +30,10 @@ export const inviteAdminHandler = async (c: InviteAdminCtx) => {
   return c.json(result, HttpStatus.CREATED)
 }
 
-export const resendAdminInvitationHandler = async (c: ResendAdminInvitationCtx) => {
-  const { id } = c.req.valid('param')
+export const resendInvitationHandler = async (c: ResendInvitationCtx) => {
+  const { adminId } = c.req.valid('param')
 
-  const result = await resendAdminInvitation(id)
+  const result = await resendAdminInvitation(adminId)
 
   return c.json(result, HttpStatus.OK)
 }

@@ -20,7 +20,7 @@ export const getAdminParamsSchema = z.object({
 export type GetAdminParams = z.infer<typeof getAdminParamsSchema>
 export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
 
-export const inviteAdminBodySchema = z.object({
+export const createInvitationBodySchema = z.object({
   firstName: rules.data.firstName,
   lastName: rules.data.lastName.optional(),
   email: rules.data.email,
@@ -32,10 +32,12 @@ export const inviteAdminBodySchema = z.object({
   }),
 })
 
-export type InviteAdminBody = z.infer<typeof inviteAdminBodySchema>
-export type InviteAdminCtx = ValidatedJsonCtx<InviteAdminBody>
+export type CreateInvitationBody = z.infer<typeof createInvitationBodySchema>
+export type CreateInvitationCtx = ValidatedJsonCtx<CreateInvitationBody>
 
-export const resendAdminInvitationParamsSchema = getAdminParamsSchema
+export const resendInvitationParamsSchema = z.object({
+  adminId: rules.data.id,
+})
 
-export type ResendAdminInvitationParams = GetAdminParams
-export type ResendAdminInvitationCtx = ValidatedParamCtx<ResendAdminInvitationParams>
+export type ResendInvitationParams = z.infer<typeof resendInvitationParamsSchema>
+export type ResendInvitationCtx = ValidatedParamCtx<ResendInvitationParams>

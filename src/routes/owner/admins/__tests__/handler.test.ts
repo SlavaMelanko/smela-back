@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { getAdminHandler, getAdminsHandler, inviteAdminHandler, resendAdminInvitationHandler } from '../handler'
+import { createInvitationHandler, getAdminHandler, getAdminsHandler, resendInvitationHandler } from '../handler'
 
 describe('ownerGetAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -164,7 +164,7 @@ describe('ownerGetAdminHandler', () => {
   })
 })
 
-describe('inviteAdminHandler', () => {
+describe('createInvitationHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockContext: any
@@ -219,13 +219,13 @@ describe('inviteAdminHandler', () => {
   })
 
   it('should call inviteAdmin with correct body parameters', async () => {
-    await inviteAdminHandler(mockContext)
+    await createInvitationHandler(mockContext)
 
     expect(mockInviteAdmin).toHaveBeenCalledWith(inviteAdminBody, testUuids.OWNER_1)
   })
 
   it('should return created admin with CREATED status', async () => {
-    const result = await inviteAdminHandler(mockContext)
+    const result = await createInvitationHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.CREATED)
     expect(result.status).toBe(HttpStatus.CREATED)
@@ -236,11 +236,11 @@ describe('inviteAdminHandler', () => {
       throw new Error('Email already in use')
     })
 
-    expect(inviteAdminHandler(mockContext)).rejects.toThrow('Email already in use')
+    expect(createInvitationHandler(mockContext)).rejects.toThrow('Email already in use')
   })
 })
 
-describe('resendAdminInvitationHandler', () => {
+describe('resendInvitationHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockContext: any
@@ -252,7 +252,7 @@ describe('resendAdminInvitationHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: testUuids.ADMIN_1 })),
+        valid: mock(() => ({ adminId: testUuids.ADMIN_1 })),
       },
       json: mockJson,
     }
@@ -269,13 +269,13 @@ describe('resendAdminInvitationHandler', () => {
   })
 
   it('should call resendAdminInvitation with correct admin id', async () => {
-    await resendAdminInvitationHandler(mockContext)
+    await resendInvitationHandler(mockContext)
 
     expect(mockResendAdminInvitation).toHaveBeenCalledWith(testUuids.ADMIN_1)
   })
 
   it('should return success with OK status', async () => {
-    const result = await resendAdminInvitationHandler(mockContext)
+    const result = await resendInvitationHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
@@ -286,6 +286,6 @@ describe('resendAdminInvitationHandler', () => {
       throw new Error('Admin not found')
     })
 
-    expect(resendAdminInvitationHandler(mockContext)).rejects.toThrow('Admin not found')
+    expect(resendInvitationHandler(mockContext)).rejects.toThrow('Admin not found')
   })
 })
