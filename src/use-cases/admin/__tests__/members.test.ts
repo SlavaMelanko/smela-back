@@ -15,8 +15,10 @@ describe('inviteMember', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockCompany: Company
+  let mockInviter: User
   let mockCompanyRepoFindById: any
   let mockUserRepoFindByEmail: any
+  let mockUserRepoFindById: any
   let mockUserRepoCreate: any
   let mockAuthRepoCreate: any
   let mockCompanyRepoAddUser: any
@@ -41,8 +43,20 @@ describe('inviteMember', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
+    mockInviter = {
+      id: USER_2,
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@example.com',
+      status: Status.Active,
+      role: Role.Admin,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
     mockCompanyRepoFindById = mock(async () => mockCompany)
     mockUserRepoFindByEmail = mock(async () => undefined)
+    mockUserRepoFindById = mock(async () => mockInviter)
     mockUserRepoCreate = mock(async () => ({
       id: USER_1,
       firstName: 'John',
@@ -69,6 +83,7 @@ describe('inviteMember', () => {
       },
       userRepo: {
         findByEmail: mockUserRepoFindByEmail,
+        findById: mockUserRepoFindById,
         create: mockUserRepoCreate,
       },
       authRepo: { create: mockAuthRepoCreate },
@@ -155,6 +170,7 @@ describe('inviteMember', () => {
       'John',
       'john@example.com',
       'invitation-token-123',
+      'Admin',
       'Acme Corp',
     )
   })
@@ -178,6 +194,7 @@ describe('resendMemberInvitation', () => {
 
   let mockCompany: Company
   let mockMember: User
+  let mockInviter: User
   let mockMembership: UserCompany
   let mockCompanyRepoFindById: any
   let mockUserRepoFindById: any
@@ -207,6 +224,17 @@ describe('resendMemberInvitation', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
+    mockInviter = {
+      id: USER_2,
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@example.com',
+      status: Status.Active,
+      role: Role.Admin,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
     mockMembership = {
       id: 1,
       userId: USER_1,
@@ -217,7 +245,16 @@ describe('resendMemberInvitation', () => {
     }
 
     mockCompanyRepoFindById = mock(async () => mockCompany)
-    mockUserRepoFindById = mock(async () => mockMember)
+    mockUserRepoFindById = mock(async (id: string) => {
+      if (id === USER_1) {
+        return mockMember
+      }
+      if (id === USER_2) {
+        return mockInviter
+      }
+
+      return undefined
+    })
     mockCompanyRepoFindUserCompany = mock(async () => mockMembership)
     mockTokenRepoIssue = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
@@ -258,18 +295,24 @@ describe('resendMemberInvitation', () => {
   it('should throw NotFound when company does not exist', async () => {
     mockCompanyRepoFindById.mockImplementation(async () => undefined)
 
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toThrow(AppError)
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toMatchObject({
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toThrow(AppError)
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Company not found',
     })
   })
 
   it('should throw NotFound when member does not exist', async () => {
-    mockUserRepoFindById.mockImplementation(async () => undefined)
+    mockUserRepoFindById.mockImplementation(async (id: string) => {
+      if (id === USER_2) {
+        return mockInviter
+      }
 
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toThrow(AppError)
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toMatchObject({
+      return undefined
+    })
+
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toThrow(AppError)
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Member not found',
     })
@@ -278,28 +321,50 @@ describe('resendMemberInvitation', () => {
   it('should throw NotFound when member not in company', async () => {
     mockCompanyRepoFindUserCompany.mockImplementation(async () => undefined)
 
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toThrow(AppError)
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toMatchObject({
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toThrow(AppError)
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Member not found in this company',
     })
   })
 
   it('should throw BadRequest when member already accepted invitation', async () => {
-    mockUserRepoFindById.mockImplementation(async () => ({
-      ...mockMember,
-      status: Status.Active,
-    }))
+    mockUserRepoFindById.mockImplementation(async (id: string) => {
+      if (id === USER_1) {
+        return { ...mockMember, status: Status.Active }
+      }
+      if (id === USER_2) {
+        return mockInviter
+      }
 
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toThrow(AppError)
-    expect(resendMemberInvitation(COMPANY_1, USER_1)).rejects.toMatchObject({
+      return undefined
+    })
+
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toThrow(AppError)
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toMatchObject({
       code: ErrorCode.BadRequest,
       message: 'Member has already accepted invitation',
     })
   })
 
+  it('should throw NotFound when inviter does not exist', async () => {
+    mockUserRepoFindById.mockImplementation(async (id: string) => {
+      if (id === USER_1) {
+        return mockMember
+      }
+
+      return undefined
+    })
+
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toThrow(AppError)
+    expect(resendMemberInvitation(COMPANY_1, USER_1, USER_2)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Inviter not found',
+    })
+  })
+
   it('should issue new token', async () => {
-    await resendMemberInvitation(COMPANY_1, USER_1)
+    await resendMemberInvitation(COMPANY_1, USER_1, USER_2)
 
     expect(mockTokenRepoIssue).toHaveBeenCalledWith(
       USER_1,
@@ -313,19 +378,20 @@ describe('resendMemberInvitation', () => {
     )
   })
 
-  it('should send invitation email', async () => {
-    await resendMemberInvitation(COMPANY_1, USER_1)
+  it('should send invitation email with current inviter name', async () => {
+    await resendMemberInvitation(COMPANY_1, USER_1, USER_2)
 
     expect(mockEmailAgent.sendUserInvitationEmail).toHaveBeenCalledWith(
       'John',
       'john@example.com',
       'new-invitation-token',
+      'Admin',
       'Acme Corp',
     )
   })
 
   it('should return success true', async () => {
-    const result = await resendMemberInvitation(COMPANY_1, USER_1)
+    const result = await resendMemberInvitation(COMPANY_1, USER_1, USER_2)
 
     expect(result).toEqual({ success: true })
   })

@@ -64,8 +64,9 @@ export const createInvitationHandler = async (c: CreateInvitationCtx) => {
 
 export const resendInvitationHandler = async (c: ResendInvitationCtx) => {
   const { companyId, memberId } = c.req.valid('param')
+  const { id: inviterId } = c.get('user')
 
-  const result = await resendMemberInvitation(companyId, memberId)
+  const result = await resendMemberInvitation(companyId, memberId, inviterId)
 
   return c.json(result, HttpStatus.OK)
 }

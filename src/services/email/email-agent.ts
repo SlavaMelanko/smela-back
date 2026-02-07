@@ -58,6 +58,7 @@ export class EmailAgent {
     firstName: string,
     email: string,
     token: string,
+    inviterName?: string,
     companyName?: string,
     preferences?: UserPreferences,
   ) {
@@ -66,6 +67,7 @@ export class EmailAgent {
     await this.service.send(EmailType.USER_INVITATION, email, {
       firstName,
       inviteUrl,
+      inviterName,
       companyName,
     }, preferences)
   }

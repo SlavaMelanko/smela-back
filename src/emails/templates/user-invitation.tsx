@@ -18,6 +18,7 @@ interface Props {
   data: {
     firstName: string
     inviteUrl: string
+    inviterName?: string
     companyName?: string
   }
   content: UserInvitationContent
@@ -31,12 +32,12 @@ const UserInvitationEmail = ({
   styles: s,
   metadata,
 }: Props) => {
-  const { firstName, inviteUrl, companyName } = data
+  const { firstName, inviteUrl, inviterName, companyName } = data
 
   return (
     <BaseEmail
       subject={c.subject(companyName)}
-      previewText={c.previewText(companyName)}
+      previewText={c.previewText(inviterName, companyName)}
       styles={s}
       metadata={metadata}
     >
@@ -69,6 +70,7 @@ UserInvitationEmail.PreviewProps = {
   data: {
     firstName: 'Jason',
     inviteUrl: `http://localhost:5173/auth/accept-invite?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
+    inviterName: 'Alice',
     companyName: 'Acme Inc',
   },
   content: getContent('en').userInvitation,

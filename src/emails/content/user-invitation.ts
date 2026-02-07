@@ -1,6 +1,6 @@
 export default interface UserInvitationContent {
   subject: (companyName?: string) => string
-  previewText: (companyName?: string) => string
+  previewText: (inviterName?: string, companyName?: string) => string
   greeting: (firstName?: string) => string
   body: (companyName?: string) => string
   ctaInstruction: string

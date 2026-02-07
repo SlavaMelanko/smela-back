@@ -6,7 +6,8 @@ const DEFAULT_TEAM = 'команди'
 
 export const content: UserInvitationContent = {
   subject: (companyName?: string) => `Вас запрошено до ${companyName || DEFAULT_TEAM}`,
-  previewText: (companyName?: string) => `Прийміть запрошення приєднатися до ${companyName || DEFAULT_TEAM}`,
+  previewText: (inviterName?: string, companyName?: string) =>
+    `${inviterName || 'Адмін'} запросив вас до команди ${companyName || DEFAULT_TEAM}`,
   greeting: (firstName?: string) => `Вітаю ${firstName || 'друже'},`,
   body: (companyName?: string) => `Вас запрошено приєднатися до ${companyName || DEFAULT_TEAM}.`,
   ctaInstruction: 'Натисніть посилання нижче, щоб прийняти запрошення та завершити налаштування облікового запису:',

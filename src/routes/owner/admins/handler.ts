@@ -23,17 +23,18 @@ export const getAdminHandler = async (c: GetAdminCtx) => {
 
 export const createInvitationHandler = async (c: CreateInvitationCtx) => {
   const body = c.req.valid('json')
-  const { id: invitedBy } = c.get('user')
+  const { id: inviterId } = c.get('user')
 
-  const result = await inviteAdmin(body, invitedBy)
+  const result = await inviteAdmin(body, inviterId)
 
   return c.json(result, HttpStatus.CREATED)
 }
 
 export const resendInvitationHandler = async (c: ResendInvitationCtx) => {
   const { adminId } = c.req.valid('param')
+  const { id: inviterId } = c.get('user')
 
-  const result = await resendAdminInvitation(adminId)
+  const result = await resendAdminInvitation(adminId, inviterId)
 
   return c.json(result, HttpStatus.OK)
 }

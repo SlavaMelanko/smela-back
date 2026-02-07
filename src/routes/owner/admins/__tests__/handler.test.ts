@@ -254,6 +254,7 @@ describe('resendInvitationHandler', () => {
       req: {
         valid: mock(() => ({ adminId: testUuids.ADMIN_1 })),
       },
+      get: mock(() => ({ id: testUuids.OWNER_1 })),
       json: mockJson,
     }
 
@@ -268,10 +269,10 @@ describe('resendInvitationHandler', () => {
     await moduleMocker.clear()
   })
 
-  it('should call resendAdminInvitation with correct admin id', async () => {
+  it('should call resendAdminInvitation with admin id and inviter id', async () => {
     await resendInvitationHandler(mockContext)
 
-    expect(mockResendAdminInvitation).toHaveBeenCalledWith(testUuids.ADMIN_1)
+    expect(mockResendAdminInvitation).toHaveBeenCalledWith(testUuids.ADMIN_1, testUuids.OWNER_1)
   })
 
   it('should return success with OK status', async () => {

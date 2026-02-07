@@ -59,11 +59,18 @@ export interface AdminInvitationParams {
   }
 }
 
-export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: string) => {
-  const existingUser = await userRepo.findByEmail(params.email)
+export const inviteAdmin = async (params: AdminInvitationParams, inviterId: string) => {
+  const [existingUser, inviter] = await Promise.all([
+    userRepo.findByEmail(params.email),
+    userRepo.findById(inviterId),
+  ])
 
   if (existingUser) {
     throw new AppError(ErrorCode.EmailAlreadyInUse)
+  }
+
+  if (!inviter) {
+    throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
   const { admin, token } = await db.transaction(async (tx) => {
@@ -87,7 +94,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: stri
     await userRoleRepo.assign({
       userId: newAdmin.id,
       role: Role.Admin,
-      invitedBy,
+      invitedBy: inviterId,
     }, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
@@ -106,14 +113,18 @@ export const inviteAdmin = async (params: AdminInvitationParams, invitedBy: stri
     admin.firstName,
     admin.email,
     token,
+    inviter.firstName,
     env.COMPANY_NAME,
   )
 
   return { admin }
 }
 
-export const resendAdminInvitation = async (adminId: string) => {
-  const admin = await userRepo.findById(adminId)
+export const resendAdminInvitation = async (adminId: string, inviterId: string) => {
+  const [admin, inviter] = await Promise.all([
+    userRepo.findById(adminId),
+    userRepo.findById(inviterId),
+  ])
 
   if (!admin || admin.role !== Role.Admin) {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
@@ -121,6 +132,10 @@ export const resendAdminInvitation = async (adminId: string) => {
 
   if (admin.status !== Status.Pending) {
     throw new AppError(ErrorCode.BadRequest, 'Admin has already accepted invitation')
+  }
+
+  if (!inviter) {
+    throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
   const token = await db.transaction(async (tx) => {
@@ -134,6 +149,7 @@ export const resendAdminInvitation = async (adminId: string) => {
     admin.firstName,
     admin.email,
     token,
+    inviter.firstName,
     env.COMPANY_NAME,
   )
 

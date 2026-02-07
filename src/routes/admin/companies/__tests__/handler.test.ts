@@ -407,6 +407,7 @@ describe('resendInvitationHandler', () => {
       req: {
         valid: mock(() => ({ companyId: COMPANY_1, memberId: USER_1 })),
       },
+      get: mock(() => ({ id: USER_2 })),
       json: mockJson,
     }
 
@@ -424,7 +425,7 @@ describe('resendInvitationHandler', () => {
   it('should call resendMemberInvitation with correct parameters', async () => {
     await resendInvitationHandler(mockContext)
 
-    expect(mockResendMemberInvitation).toHaveBeenCalledWith(COMPANY_1, USER_1)
+    expect(mockResendMemberInvitation).toHaveBeenCalledWith(COMPANY_1, USER_1, USER_2)
   })
 
   it('should return success with OK status', async () => {

@@ -14,16 +14,22 @@ export interface InviteMemberParams {
 
 export const inviteMember = async (
   companyId: string,
-  params: InviteMemberParams,
-  invitedBy: string,
+  member: InviteMemberParams,
+  inviterId: string,
 ) => {
-  const company = await companyRepo.findById(companyId)
+  const [company, inviter, existingUser] = await Promise.all([
+    companyRepo.findById(companyId),
+    userRepo.findById(inviterId),
+    userRepo.findByEmail(member.email),
+  ])
 
   if (!company) {
     throw new AppError(ErrorCode.NotFound, 'Company not found')
   }
 
-  const existingUser = await userRepo.findByEmail(params.email)
+  if (!inviter) {
+    throw new AppError(ErrorCode.NotFound, 'Inviter not found')
+  }
 
   if (existingUser) {
     throw new AppError(ErrorCode.EmailAlreadyInUse)
@@ -31,9 +37,9 @@ export const inviteMember = async (
 
   const { user, token } = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({
-      firstName: params.firstName,
-      lastName: params.lastName,
-      email: params.email,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      email: member.email,
       status: Status.Pending,
     }, tx)
 
@@ -43,15 +49,15 @@ export const inviteMember = async (
     await authRepo.create({
       userId: newUser.id,
       provider: AuthProvider.Local,
-      identifier: params.email,
+      identifier: member.email,
       passwordHash,
     }, tx)
 
     await companyRepo.addUser({
       userId: newUser.id,
       companyId,
-      position: params.position,
-      invitedBy,
+      position: member.position,
+      invitedBy: inviterId,
     }, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
@@ -80,26 +86,32 @@ export const inviteMember = async (
     user.firstName,
     user.email,
     token,
+    inviter.firstName,
     company.name,
   )
 
   return { user }
 }
 
-export const resendMemberInvitation = async (companyId: string, memberId: string) => {
-  const company = await companyRepo.findById(companyId)
+export const resendMemberInvitation = async (
+  companyId: string,
+  memberId: string,
+  inviterId: string,
+) => {
+  const [company, member, membership, inviter] = await Promise.all([
+    companyRepo.findById(companyId),
+    userRepo.findById(memberId),
+    companyRepo.findUserCompany(memberId, companyId),
+    userRepo.findById(inviterId),
+  ])
 
   if (!company) {
     throw new AppError(ErrorCode.NotFound, 'Company not found')
   }
 
-  const member = await userRepo.findById(memberId)
-
   if (!member) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
   }
-
-  const membership = await companyRepo.findUserCompany(memberId, companyId)
 
   if (!membership) {
     throw new AppError(ErrorCode.NotFound, 'Member not found in this company')
@@ -107,6 +119,10 @@ export const resendMemberInvitation = async (companyId: string, memberId: string
 
   if (member.status !== Status.Pending) {
     throw new AppError(ErrorCode.BadRequest, 'Member has already accepted invitation')
+  }
+
+  if (!inviter) {
+    throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
   const token = await db.transaction(async (tx) => {
@@ -120,6 +136,7 @@ export const resendMemberInvitation = async (companyId: string, memberId: string
     member.firstName,
     member.email,
     token,
+    inviter.firstName,
     company.name,
   )
 
