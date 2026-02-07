@@ -14,7 +14,7 @@ import {
   signupRoute,
   verifyEmailRoute,
 } from './auth'
-import { ownerAdminsRoute } from './owner'
+import { ownerAdminsInvitesRoute, ownerAdminsRoute } from './owner'
 import { meRoute, teamsRoute } from './user'
 
 export const authPublicRoutes: Hono<AppContext>[] = [
@@ -35,4 +35,4 @@ export const userRoutesVerifiedOnly: Hono<AppContext>[] = [teamsRoute]
 
 export const adminRoutes: Hono<AppContext>[] = [adminTeamsRoute, adminUsersRoute]
 
-export const ownerRoutes: Hono<AppContext>[] = [ownerAdminsRoute]
+export const ownerRoutes: Hono<AppContext>[] = [ownerAdminsRoute, ownerAdminsInvitesRoute]

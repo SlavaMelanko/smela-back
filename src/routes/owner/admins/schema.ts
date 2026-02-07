@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
@@ -19,25 +19,3 @@ export const getAdminParamsSchema = z.object({
 
 export type GetAdminParams = z.infer<typeof getAdminParamsSchema>
 export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
-
-export const createInvitationBodySchema = z.object({
-  firstName: rules.data.firstName,
-  lastName: rules.data.lastName.optional(),
-  email: rules.data.email,
-  permissions: z.object({
-    view: z.boolean(),
-    edit: z.boolean(),
-    create: z.boolean(),
-    delete: z.boolean(),
-  }),
-})
-
-export type CreateInvitationBody = z.infer<typeof createInvitationBodySchema>
-export type CreateInvitationCtx = ValidatedJsonCtx<CreateInvitationBody>
-
-export const resendInvitationParamsSchema = z.object({
-  adminId: rules.data.id,
-})
-
-export type ResendInvitationParams = z.infer<typeof resendInvitationParamsSchema>
-export type ResendInvitationCtx = ValidatedParamCtx<ResendInvitationParams>

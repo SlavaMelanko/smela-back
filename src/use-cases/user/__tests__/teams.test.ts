@@ -25,7 +25,7 @@ describe('getTeams', () => {
 
   beforeEach(async () => {
     mockSearchResult = {
-      companies: [
+      teams: [
         {
           id: TEAM_1,
           name: 'Acme Corp',

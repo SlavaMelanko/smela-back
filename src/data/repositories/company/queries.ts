@@ -13,7 +13,7 @@ export interface CompanySearchParams {
 }
 
 export interface CompanySearchResult {
-  companies: Company[]
+  teams: Company[]
   pagination: PaginatedResult
 }
 
@@ -56,7 +56,7 @@ export const searchCompanies = async (
   const totalCount = countResult[0]?.value ?? 0
 
   return {
-    companies,
+    teams: companies,
     pagination: {
       page,
       limit,
