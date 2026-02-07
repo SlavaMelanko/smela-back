@@ -45,30 +45,30 @@
           "response": []
         },
         {
-          "name": "companies",
+          "name": "teams",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/companies",
+              "raw": "{{admin_api_url}}/teams",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
-                "companies"
+                "teams"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "companies",
+          "name": "teams",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Test Inc.\",\n    \"website\": \"https://test.inc.com\"\n}",
+              "raw": "{\n    \"name\": \"Books ToDo\",\n    \"website\": \"https://books-todo.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -76,37 +76,37 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/companies",
+              "raw": "{{admin_api_url}}/teams",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
-                "companies"
+                "teams"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "companies/:id",
+          "name": "teams/:id",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/companies/019c04dd-02b7-714c-8a7d-d45596130bbb",
+              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
-                "companies",
-                "019c04dd-02b7-714c-8a7d-d45596130bbb"
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "companies/:id",
+          "name": "teams/:id",
           "request": {
             "method": "PATCH",
             "header": [],
@@ -120,20 +120,48 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/companies/019be6a4-28a7-7eff-99fb-e8bb191d4bd0",
+              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
-                "companies",
-                "019be6a4-28a7-7eff-99fb-e8bb191d4bd0"
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "companies/:id/invitations",
+          "name": "teams/:id/invites",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member4@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "invites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/invites/:memberId/resend",
           "request": {
             "method": "POST",
             "header": [],
@@ -147,42 +175,14 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/companies/019c3229-b84e-7c09-a0c0-e0dfe851af50/invitations",
+              "raw": "{{admin_api_url}}/teams/019c3229-b84e-7c09-a0c0-e0dfe851af50/invites/019c3362-5b44-76fb-b4d5-1dd683ff29d8/resend",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
-                "companies",
+                "teams",
                 "019c3229-b84e-7c09-a0c0-e0dfe851af50",
-                "invitations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "companies/:id/invitations/:memberId/resend",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{admin_api_url}}/companies/019c3229-b84e-7c09-a0c0-e0dfe851af50/invitations/019c3362-5b44-76fb-b4d5-1dd683ff29d8/resend",
-              "host": [
-                "{{admin_api_url}}"
-              ],
-              "path": [
-                "companies",
-                "019c3229-b84e-7c09-a0c0-e0dfe851af50",
-                "invitations",
+                "invites",
                 "019c3362-5b44-76fb-b4d5-1dd683ff29d8",
                 "resend"
               ]
@@ -568,7 +568,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"data\": {\n        \"token\": \"f53cd51d2fafc43dbef31a6dd4c460301dc4de8a19571fc4db6026abe286ae22\",\n        \"password\": \"{{initial_password}}\"\n    }\n}\n",
+              "raw": "{\n    \"data\": {\n        \"token\": \"081930a069e4b76564cc4be5ca563266fe68227a7f8486eaaa59cce78b19257f\",\n        \"password\": \"{{initial_password}}\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -640,6 +640,189 @@
               ],
               "path": [
                 "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"My first team\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members/019c380a-2650-7cdb-acfb-e251edc92537",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "members",
+                "019c380a-2650-7cdb-acfb-e251edc92537"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"position\": \"designer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members/019c380a-2650-7cdb-acfb-e251edc92537",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "members",
+                "019c380a-2650-7cdb-acfb-e251edc92537"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/invites",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member6@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "invites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/invites/:id/resend",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member6@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites/019c381f-b38d-7360-b4b7-690aaaa4f4b5/resend",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "invites",
+                "019c381f-b38d-7360-b4b7-690aaaa4f4b5",
+                "resend"
               ]
             }
           },
