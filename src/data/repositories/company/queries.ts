@@ -202,3 +202,33 @@ export const findCompanyMembers = async (
     .innerJoin(usersTable, eq(userCompaniesTable.userId, usersTable.id))
     .where(eq(userCompaniesTable.companyId, companyId))
 }
+
+export const findCompanyMember = async (
+  companyId: string,
+  memberId: string,
+  tx?: Database,
+): Promise<CompanyMember | undefined> => {
+  const executor = tx || db
+
+  const [member] = await executor
+    .select({
+      id: userCompaniesTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
+      position: userCompaniesTable.position,
+      invitedBy: userCompaniesTable.invitedBy,
+      joinedAt: userCompaniesTable.joinedAt,
+    })
+    .from(userCompaniesTable)
+    .innerJoin(usersTable, eq(userCompaniesTable.userId, usersTable.id))
+    .where(
+      and(
+        eq(userCompaniesTable.companyId, companyId),
+        eq(userCompaniesTable.userId, memberId),
+      ),
+    )
+
+  return member
+}

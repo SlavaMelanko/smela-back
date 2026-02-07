@@ -4,11 +4,13 @@ import {
   deleteCompany,
   removeUserFromCompany,
   updateCompany,
+  updateUserCompany,
 } from './mutations'
 import {
   findCompany,
   findCompanyById,
   findCompanyByName,
+  findCompanyMember,
   findCompanyMembers,
   findUserCompanies,
   findUserCompany,
@@ -26,10 +28,12 @@ export const companyRepo = {
   find: findCompany,
   findById: findCompanyById,
   findByName: findCompanyByName,
+  findMember: findCompanyMember,
   findMembers: findCompanyMembers,
   findUserCompanies,
   findUserCompany,
   removeUser: removeUserFromCompany,
   search: searchCompanies,
   update: updateCompany,
+  updateMember: updateUserCompany,
 }

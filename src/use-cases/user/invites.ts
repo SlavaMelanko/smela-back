@@ -3,7 +3,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, isAdmin, Role, Status } from '@/types'
 
 export interface InviteMemberParams {
   firstName: string
@@ -13,22 +13,30 @@ export interface InviteMemberParams {
 }
 
 export const inviteMember = async (
-  companyId: string,
+  teamId: string,
   member: InviteMemberParams,
   inviterId: string,
 ) => {
-  const [company, inviter, existingUser] = await Promise.all([
-    companyRepo.findById(companyId),
+  const [team, inviter, existingUser] = await Promise.all([
+    companyRepo.findById(teamId),
     userRepo.findById(inviterId),
     userRepo.findByEmail(member.email),
   ])
 
-  if (!company) {
-    throw new AppError(ErrorCode.NotFound, 'Company not found')
+  if (!team) {
+    throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
 
   if (!inviter) {
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
+  }
+
+  // Check authorization: admins can invite to any team, regular users only to their own
+  if (!isAdmin(inviter.role)) {
+    const membership = await companyRepo.findUserCompany(inviterId, teamId)
+    if (!membership) {
+      throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
+    }
   }
 
   if (existingUser) {
@@ -55,7 +63,7 @@ export const inviteMember = async (
 
     await companyRepo.addUser({
       userId: newUser.id,
-      companyId,
+      companyId: teamId,
       position: member.position,
       invitedBy: inviterId,
     }, tx)
@@ -87,26 +95,26 @@ export const inviteMember = async (
     user.email,
     token,
     inviter.firstName,
-    company.name,
+    team.name,
   )
 
   return { user }
 }
 
-export const resendMemberInvitation = async (
-  companyId: string,
+export const resendMemberInvite = async (
+  teamId: string,
   memberId: string,
   inviterId: string,
 ) => {
-  const [company, member, membership, inviter] = await Promise.all([
-    companyRepo.findById(companyId),
+  const [team, member, membership, inviter] = await Promise.all([
+    companyRepo.findById(teamId),
     userRepo.findById(memberId),
-    companyRepo.findUserCompany(memberId, companyId),
+    companyRepo.findUserCompany(memberId, teamId),
     userRepo.findById(inviterId),
   ])
 
-  if (!company) {
-    throw new AppError(ErrorCode.NotFound, 'Company not found')
+  if (!team) {
+    throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
 
   if (!member) {
@@ -114,7 +122,7 @@ export const resendMemberInvitation = async (
   }
 
   if (!membership) {
-    throw new AppError(ErrorCode.NotFound, 'Member not found in this company')
+    throw new AppError(ErrorCode.NotFound, 'Member not found in this team')
   }
 
   if (member.status !== Status.Pending) {
@@ -123,6 +131,14 @@ export const resendMemberInvitation = async (
 
   if (!inviter) {
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
+  }
+
+  // Check authorization: admins can resend to any team, regular users only to their own
+  if (!isAdmin(inviter.role)) {
+    const inviterMembership = await companyRepo.findUserCompany(inviterId, teamId)
+    if (!inviterMembership) {
+      throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
+    }
   }
 
   const token = await db.transaction(async (tx) => {
@@ -137,7 +153,7 @@ export const resendMemberInvitation = async (
     member.email,
     token,
     inviter.firstName,
-    company.name,
+    team.name,
   )
 
   return { success: true }

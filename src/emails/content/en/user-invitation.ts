@@ -6,10 +6,10 @@ const DEFAULT_TEAM = 'the team'
 
 export const content: UserInvitationContent = {
   subject: (companyName?: string) => `You're invited to ${companyName || DEFAULT_TEAM}`,
-  previewText: (inviterName?: string, companyName?: string) =>
-    `${inviterName || 'Admin'} invited you to join the ${companyName || DEFAULT_TEAM} team`,
+  previewText: (companyName?: string) => `You're invited to ${companyName || DEFAULT_TEAM}`,
   greeting: (firstName?: string) => `Hi ${firstName || 'there'},`,
-  body: (companyName?: string) => `You've been invited to join ${companyName || DEFAULT_TEAM}.`,
+  body: (inviterName?: string, companyName?: string) =>
+    `${inviterName || 'Admin'} invited you to join the ${companyName || DEFAULT_TEAM} team.`,
   ctaInstruction: 'Click the link below to accept the invitation and finish setting up your account:',
   ctaText: 'Accept invitation',
   expiryNotice: 'This link expires in 24 hours for security reasons.',

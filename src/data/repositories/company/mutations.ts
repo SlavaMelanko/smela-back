@@ -97,3 +97,33 @@ export const removeUserFromCompany = async (
       ),
     )
 }
+
+export interface UpdateUserCompanyInput {
+  position?: string | null
+}
+
+export const updateUserCompany = async (
+  userId: string,
+  companyId: string,
+  updates: UpdateUserCompanyInput,
+  tx?: Database,
+): Promise<UserCompany> => {
+  const executor = tx || db
+
+  const [membership] = await executor
+    .update(userCompaniesTable)
+    .set(updates)
+    .where(
+      and(
+        eq(userCompaniesTable.userId, userId),
+        eq(userCompaniesTable.companyId, companyId),
+      ),
+    )
+    .returning()
+
+  if (!membership) {
+    throw new AppError(ErrorCode.InternalError, 'Failed to update membership')
+  }
+
+  return membership
+}

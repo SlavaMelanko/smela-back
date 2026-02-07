@@ -37,7 +37,7 @@ const UserInvitationEmail = ({
   return (
     <BaseEmail
       subject={c.subject(companyName)}
-      previewText={c.previewText(inviterName, companyName)}
+      previewText={c.previewText(companyName)}
       styles={s}
       metadata={metadata}
     >
@@ -46,7 +46,7 @@ const UserInvitationEmail = ({
       </Text>
 
       <Text style={s.text.body}>
-        {c.body(companyName)}
+        {c.body(inviterName, companyName)}
       </Text>
 
       <Text style={s.text.body}>
