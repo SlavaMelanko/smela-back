@@ -22,7 +22,7 @@ interface AcceptInviteParams {
 const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
-  return TokenValidator.validate(tokenRecord, TokenType.UserInvitation)
+  return TokenValidator.validate(tokenRecord, TokenType.UserInvite)
 }
 
 const createAccessToken = async (user: User) => signJwt({

@@ -27,7 +27,7 @@ describe('Check Invite', () => {
     mockTokenRecord = {
       id: 1,
       userId: testUuids.ADMIN_1,
-      type: TokenType.UserInvitation,
+      type: TokenType.UserInvite,
       token: mockTokenString,
       status: TokenStatus.Pending,
       expiresAt: nowPlus(hour()),
@@ -90,7 +90,7 @@ describe('Check Invite', () => {
 
       expect(mockTokenValidator.validate).toHaveBeenCalledWith(
         mockTokenRecord,
-        TokenType.UserInvitation,
+        TokenType.UserInvite,
       )
       expect(mockTokenValidator.validate).toHaveBeenCalledTimes(1)
 

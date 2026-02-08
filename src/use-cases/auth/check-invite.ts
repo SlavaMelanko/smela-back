@@ -9,7 +9,7 @@ interface CheckInviteResult {
 const checkInvite = async (token: string): Promise<CheckInviteResult> => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
-  const validatedToken = TokenValidator.validate(tokenRecord, TokenType.UserInvitation)
+  const validatedToken = TokenValidator.validate(tokenRecord, TokenType.UserInvite)
 
   const userCompanies = await companyRepo.findUserCompanies(validatedToken.userId)
 

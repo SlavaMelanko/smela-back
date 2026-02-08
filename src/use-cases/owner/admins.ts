@@ -97,7 +97,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       invitedBy: inviterId,
     }, tx)
 
-    const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
+    const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
     await tokenRepo.issue(newAdmin.id, {
       userId: newAdmin.id,
@@ -139,7 +139,7 @@ export const resendAdminInvitation = async (adminId: string, inviterId: string) 
   }
 
   const token = await db.transaction(async (tx) => {
-    const { type, token, expiresAt } = generateToken(TokenType.UserInvitation)
+    const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
     await tokenRepo.issue(adminId, { userId: adminId, type, token, expiresAt }, tx)
 
     return token

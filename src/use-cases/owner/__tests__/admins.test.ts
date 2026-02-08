@@ -261,11 +261,11 @@ describe('inviteAdmin', () => {
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: () => ({
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'invitation-token-123',
         expiresAt: new Date('2024-01-08'),
       }),
-      TokenType: { UserInvitation: 'user_invitation' },
+      TokenType: { UserInvite: 'user_invite' },
     }))
 
     await moduleMocker.mock('@/services/email', () => ({
@@ -385,11 +385,11 @@ describe('resendAdminInvitation', () => {
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: () => ({
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'new-invitation-token',
         expiresAt: new Date('2024-01-08'),
       }),
-      TokenType: { UserInvitation: 'user_invitation' },
+      TokenType: { UserInvite: 'user_invite' },
     }))
 
     await moduleMocker.mock('@/services/email', () => ({
@@ -496,7 +496,7 @@ describe('resendAdminInvitation', () => {
       testUuids.ADMIN_1,
       {
         userId: testUuids.ADMIN_1,
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'new-invitation-token',
         expiresAt: expect.any(Date),
       },
