@@ -5,11 +5,11 @@ import { config } from '../../config'
 const DEFAULT_TEAM = 'команди'
 
 export const content: UserInvitationContent = {
-  subject: (companyName?: string) => `Вас запрошено до ${companyName || DEFAULT_TEAM}`,
-  previewText: (companyName?: string) => `Вас запрошено до ${companyName || DEFAULT_TEAM}`,
+  subject: (teamName?: string) => `Вас запрошено до ${teamName || DEFAULT_TEAM}`,
+  previewText: (teamName?: string) => `Вас запрошено до ${teamName || DEFAULT_TEAM}`,
   greeting: (firstName?: string) => `Вітаю ${firstName || 'друже'},`,
-  body: (inviterName?: string, companyName?: string) =>
-    `${inviterName || 'Адмін'} запросив вас приєднатися до команди ${companyName || DEFAULT_TEAM}.`,
+  body: (inviterName?: string, teamName?: string) =>
+    `${inviterName || 'Адмін'} запросив вас приєднатися до команди ${teamName || DEFAULT_TEAM}.`,
   ctaInstruction: 'Натисніть посилання нижче, щоб прийняти запрошення та завершити налаштування облікового запису:',
   ctaText: 'Прийняти запрошення',
   expiryNotice: 'З міркувань безпеки це посилання дійсне протягом 24 годин.',

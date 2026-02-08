@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Company, TokenRecord, UserCompanyWithCompany } from '@/data'
+import type { Team, TeamMemberWithTeam, TokenRecord } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -15,12 +15,12 @@ describe('Check Invite', () => {
   let mockTokenString: string
   let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
-  let mockCompanyRepo: any
+  let mockTeamRepo: any
 
   let mockTokenValidator: any
 
-  let mockCompany: Company
-  let mockUserCompanyWithCompany: UserCompanyWithCompany
+  let mockTeam: Team
+  let mockTeamMemberWithTeam: TeamMemberWithTeam
 
   beforeEach(async () => {
     mockTokenString = `mock-invite-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
@@ -36,35 +36,35 @@ describe('Check Invite', () => {
       metadata: null,
     }
 
-    mockCompany = {
+    mockTeam = {
       id: testUuids.TEAM_1,
       name: 'Acme Corp',
       website: 'https://acme.com',
-      description: 'Test company',
+      description: 'Test team',
       createdAt: new Date(),
       updatedAt: new Date(),
     }
 
-    mockUserCompanyWithCompany = {
+    mockTeamMemberWithTeam = {
       id: 1,
       userId: testUuids.ADMIN_1,
-      companyId: testUuids.TEAM_1,
+      teamId: testUuids.TEAM_1,
       position: 'Developer',
       invitedBy: testUuids.OWNER_1,
       joinedAt: new Date(),
-      company: mockCompany,
+      team: mockTeam,
     }
 
     mockTokenRepo = {
       findByToken: mock(async () => mockTokenRecord),
     }
-    mockCompanyRepo = {
-      findUserCompanies: mock(async () => [mockUserCompanyWithCompany]),
+    mockTeamRepo = {
+      findUserTeams: mock(async () => [mockTeamMemberWithTeam]),
     }
 
     await moduleMocker.mock('@/data', () => ({
       tokenRepo: mockTokenRepo,
-      companyRepo: mockCompanyRepo,
+      teamRepo: mockTeamRepo,
     }))
 
     mockTokenValidator = {
@@ -94,8 +94,8 @@ describe('Check Invite', () => {
       )
       expect(mockTokenValidator.validate).toHaveBeenCalledTimes(1)
 
-      expect(mockCompanyRepo.findUserCompanies).toHaveBeenCalledWith(mockTokenRecord.userId)
-      expect(mockCompanyRepo.findUserCompanies).toHaveBeenCalledTimes(1)
+      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ teamName: 'Acme Corp' })
     })
@@ -115,7 +115,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
       }
 
-      expect(mockCompanyRepo.findUserCompanies).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
     })
   })
 
@@ -133,7 +133,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
       }
 
-      expect(mockCompanyRepo.findUserCompanies).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
     })
   })
 
@@ -151,7 +151,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
       }
 
-      expect(mockCompanyRepo.findUserCompanies).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
     })
   })
 
@@ -169,7 +169,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenCancelled)
       }
 
-      expect(mockCompanyRepo.findUserCompanies).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
     })
   })
 
@@ -187,13 +187,13 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
       }
 
-      expect(mockCompanyRepo.findUserCompanies).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
     })
   })
 
   describe('when user has no team membership', () => {
     it('should throw InternalError', async () => {
-      mockCompanyRepo.findUserCompanies.mockResolvedValue([])
+      mockTeamRepo.findUserTeams.mockResolvedValue([])
 
       try {
         await checkInvite(mockTokenString)
@@ -204,13 +204,13 @@ describe('Check Invite', () => {
         expect((error as AppError).message).toBe('User has no team membership')
       }
 
-      expect(mockCompanyRepo.findUserCompanies).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
     })
   })
 
   describe('when database query fails', () => {
     it('should propagate the error', async () => {
-      mockCompanyRepo.findUserCompanies.mockRejectedValue(new Error('Database connection failed'))
+      mockTeamRepo.findUserTeams.mockRejectedValue(new Error('Database connection failed'))
 
       try {
         await checkInvite(mockTokenString)

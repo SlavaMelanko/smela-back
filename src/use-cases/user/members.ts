@@ -1,14 +1,14 @@
-import { companyRepo } from '@/data'
+import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
 export const getTeamMembers = async (teamId: string, userId: string) => {
-  const membership = await companyRepo.findUserCompany(userId, teamId)
+  const membership = await teamRepo.findMember(userId, teamId)
 
   if (!membership) {
     throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
   }
 
-  const members = await companyRepo.findMembers(teamId)
+  const members = await teamRepo.findMembers(teamId)
 
   return { members }
 }
@@ -18,13 +18,13 @@ export const getTeamMember = async (
   memberId: string,
   userId: string,
 ) => {
-  const membership = await companyRepo.findUserCompany(userId, teamId)
+  const membership = await teamRepo.findMember(userId, teamId)
 
   if (!membership) {
     throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
   }
 
-  const member = await companyRepo.findMember(teamId, memberId)
+  const member = await teamRepo.findMemberById(teamId, memberId)
 
   if (!member) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
@@ -43,21 +43,21 @@ export const updateTeamMember = async (
   params: UpdateTeamMemberParams,
   userId: string,
 ) => {
-  const membership = await companyRepo.findUserCompany(userId, teamId)
+  const membership = await teamRepo.findMember(userId, teamId)
 
   if (!membership) {
     throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
   }
 
-  const existing = await companyRepo.findMember(teamId, memberId)
+  const existing = await teamRepo.findMemberById(teamId, memberId)
 
   if (!existing) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
   }
 
-  await companyRepo.updateMember(memberId, teamId, params)
+  await teamRepo.updateMember(memberId, teamId, params)
 
-  const member = await companyRepo.findMember(teamId, memberId)
+  const member = await teamRepo.findMemberById(teamId, memberId)
 
   return { member }
 }

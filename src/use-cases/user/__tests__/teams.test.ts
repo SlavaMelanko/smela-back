@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Company, CompanySearchResult, CompanyWithMembers } from '@/data'
+import type { Team, TeamSearchResult, TeamWithMembers } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
@@ -20,8 +20,8 @@ describe('getTeams', () => {
 
   const DEFAULT_PAGINATION = { page: 1, limit: 25 }
 
-  let mockSearchResult: CompanySearchResult
-  let mockCompanyRepoSearch: any
+  let mockSearchResult: TeamSearchResult
+  let mockTeamRepoSearch: any
 
   beforeEach(async () => {
     mockSearchResult = {
@@ -38,10 +38,10 @@ describe('getTeams', () => {
       pagination: { page: 1, limit: 25, total: 1, totalPages: 1 },
     }
 
-    mockCompanyRepoSearch = mock(async () => mockSearchResult)
+    mockTeamRepoSearch = mock(async () => mockSearchResult)
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: { search: mockCompanyRepoSearch },
+      teamRepo: { search: mockTeamRepoSearch },
     }))
   })
 
@@ -49,10 +49,10 @@ describe('getTeams', () => {
     await moduleMocker.clear()
   })
 
-  it('should call companyRepo.search with correct params', async () => {
+  it('should call teamRepo.search with correct params', async () => {
     await getTeams({ search: 'acme' }, DEFAULT_PAGINATION)
 
-    expect(mockCompanyRepoSearch).toHaveBeenCalledWith(
+    expect(mockTeamRepoSearch).toHaveBeenCalledWith(
       { search: 'acme' },
       DEFAULT_PAGINATION,
     )
@@ -68,8 +68,8 @@ describe('getTeams', () => {
 describe('getTeam', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockTeam: CompanyWithMembers
-  let mockCompanyRepoFind: any
+  let mockTeam: TeamWithMembers
+  let mockTeamRepoFind: any
 
   beforeEach(async () => {
     mockTeam = {
@@ -82,10 +82,10 @@ describe('getTeam', () => {
       members: [],
     }
 
-    mockCompanyRepoFind = mock(async () => mockTeam)
+    mockTeamRepoFind = mock(async () => mockTeam)
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: { find: mockCompanyRepoFind },
+      teamRepo: { find: mockTeamRepoFind },
     }))
   })
 
@@ -96,12 +96,12 @@ describe('getTeam', () => {
   it('should return team when found', async () => {
     const result = await getTeam(TEAM_1)
 
-    expect(mockCompanyRepoFind).toHaveBeenCalledWith(TEAM_1)
+    expect(mockTeamRepoFind).toHaveBeenCalledWith(TEAM_1)
     expect(result).toEqual({ team: mockTeam })
   })
 
   it('should throw NotFound error when team does not exist', async () => {
-    mockCompanyRepoFind.mockImplementation(async () => undefined)
+    mockTeamRepoFind.mockImplementation(async () => undefined)
 
     expect(getTeam(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
     expect(getTeam(testUuids.NON_EXISTENT)).rejects.toMatchObject({
@@ -114,9 +114,9 @@ describe('getTeam', () => {
 describe('createTeam', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockTeam: Company
-  let mockCompanyRepoFindByName: any
-  let mockCompanyRepoCreate: any
+  let mockTeam: Team
+  let mockTeamRepoFindByName: any
+  let mockTeamRepoCreate: any
 
   beforeEach(async () => {
     mockTeam = {
@@ -128,13 +128,13 @@ describe('createTeam', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockCompanyRepoFindByName = mock(async () => undefined)
-    mockCompanyRepoCreate = mock(async () => mockTeam)
+    mockTeamRepoFindByName = mock(async () => undefined)
+    mockTeamRepoCreate = mock(async () => mockTeam)
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: {
-        findByName: mockCompanyRepoFindByName,
-        create: mockCompanyRepoCreate,
+      teamRepo: {
+        findByName: mockTeamRepoFindByName,
+        create: mockTeamRepoCreate,
       },
     }))
   })
@@ -148,13 +148,13 @@ describe('createTeam', () => {
 
     const result = await createTeam(params)
 
-    expect(mockCompanyRepoFindByName).toHaveBeenCalledWith('New Team')
-    expect(mockCompanyRepoCreate).toHaveBeenCalledWith(params)
+    expect(mockTeamRepoFindByName).toHaveBeenCalledWith('New Team')
+    expect(mockTeamRepoCreate).toHaveBeenCalledWith(params)
     expect(result).toEqual({ team: mockTeam })
   })
 
   it('should throw Conflict error when team name already exists', async () => {
-    mockCompanyRepoFindByName.mockImplementation(async () => mockTeam)
+    mockTeamRepoFindByName.mockImplementation(async () => mockTeam)
 
     expect(createTeam({ name: 'New Team' })).rejects.toThrow(AppError)
     expect(createTeam({ name: 'New Team' })).rejects.toMatchObject({
@@ -167,11 +167,11 @@ describe('createTeam', () => {
 describe('updateTeam', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockExistingTeam: Company
-  let mockUpdatedTeam: Company
-  let mockCompanyRepoFindById: any
-  let mockCompanyRepoFindByName: any
-  let mockCompanyRepoUpdate: any
+  let mockExistingTeam: Team
+  let mockUpdatedTeam: Team
+  let mockTeamRepoFindById: any
+  let mockTeamRepoFindByName: any
+  let mockTeamRepoUpdate: any
 
   beforeEach(async () => {
     mockExistingTeam = {
@@ -189,15 +189,15 @@ describe('updateTeam', () => {
       updatedAt: new Date('2024-01-02'),
     }
 
-    mockCompanyRepoFindById = mock(async () => mockExistingTeam)
-    mockCompanyRepoFindByName = mock(async () => undefined)
-    mockCompanyRepoUpdate = mock(async () => mockUpdatedTeam)
+    mockTeamRepoFindById = mock(async () => mockExistingTeam)
+    mockTeamRepoFindByName = mock(async () => undefined)
+    mockTeamRepoUpdate = mock(async () => mockUpdatedTeam)
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: {
-        findById: mockCompanyRepoFindById,
-        findByName: mockCompanyRepoFindByName,
-        update: mockCompanyRepoUpdate,
+      teamRepo: {
+        findById: mockTeamRepoFindById,
+        findByName: mockTeamRepoFindByName,
+        update: mockTeamRepoUpdate,
       },
     }))
   })
@@ -211,13 +211,13 @@ describe('updateTeam', () => {
 
     const result = await updateTeam(TEAM_1, params)
 
-    expect(mockCompanyRepoFindById).toHaveBeenCalledWith(TEAM_1)
-    expect(mockCompanyRepoUpdate).toHaveBeenCalledWith(TEAM_1, params)
+    expect(mockTeamRepoFindById).toHaveBeenCalledWith(TEAM_1)
+    expect(mockTeamRepoUpdate).toHaveBeenCalledWith(TEAM_1, params)
     expect(result).toEqual({ team: mockUpdatedTeam })
   })
 
   it('should throw NotFound error when team does not exist', async () => {
-    mockCompanyRepoFindById.mockImplementation(async () => undefined)
+    mockTeamRepoFindById.mockImplementation(async () => undefined)
 
     expect(updateTeam(testUuids.NON_EXISTENT, { name: 'Test' })).rejects.toThrow(AppError)
     expect(updateTeam(testUuids.NON_EXISTENT, { name: 'Test' })).rejects.toMatchObject({
@@ -229,18 +229,18 @@ describe('updateTeam', () => {
   it('should check name uniqueness when name is being changed', async () => {
     await updateTeam(TEAM_1, { name: 'Updated Team' })
 
-    expect(mockCompanyRepoFindByName).toHaveBeenCalledWith('Updated Team')
+    expect(mockTeamRepoFindByName).toHaveBeenCalledWith('Updated Team')
   })
 
   it('should not check name uniqueness when name is unchanged', async () => {
     await updateTeam(TEAM_1, { name: 'Old Team' })
 
-    expect(mockCompanyRepoFindByName).not.toHaveBeenCalled()
+    expect(mockTeamRepoFindByName).not.toHaveBeenCalled()
   })
 
   it('should throw Conflict error when new name already exists', async () => {
-    const otherTeam: Company = { ...mockExistingTeam, id: TEAM_2, name: 'Taken Name' }
-    mockCompanyRepoFindByName.mockImplementation(async () => otherTeam)
+    const otherTeam: Team = { ...mockExistingTeam, id: TEAM_2, name: 'Taken Name' }
+    mockTeamRepoFindByName.mockImplementation(async () => otherTeam)
 
     expect(updateTeam(TEAM_1, { name: 'Taken Name' })).rejects.toThrow(AppError)
     expect(updateTeam(TEAM_1, { name: 'Taken Name' })).rejects.toMatchObject({

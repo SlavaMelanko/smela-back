@@ -59,7 +59,7 @@ export class EmailAgent {
     email: string,
     token: string,
     inviterName?: string,
-    companyName?: string,
+    teamName?: string,
     preferences?: UserPreferences,
   ) {
     const inviteUrl = `${env.FE_BASE_URL}/accept-invite?token=${token}`
@@ -68,7 +68,7 @@ export class EmailAgent {
       firstName,
       inviteUrl,
       inviterName,
-      companyName,
+      teamName,
     }, preferences)
   }
 }

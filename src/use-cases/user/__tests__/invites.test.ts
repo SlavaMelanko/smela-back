@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Company, User, UserCompany } from '@/data'
+import type { Team, TeamMember, User } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
@@ -14,14 +14,14 @@ const { TEAM_1, USER_1, USER_2 } = testUuids
 describe('inviteMember', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockTeam: Company
+  let mockTeam: Team
   let mockInviter: User
-  let mockCompanyRepoFindById: any
+  let mockTeamRepoFindById: any
   let mockUserRepoFindByEmail: any
   let mockUserRepoFindById: any
   let mockUserRepoCreate: any
   let mockAuthRepoCreate: any
-  let mockCompanyRepoAddUser: any
+  let mockTeamRepoAddMember: any
   let mockTokenRepoIssue: any
   let mockTransaction: any
   let mockEmailAgent: any
@@ -54,7 +54,7 @@ describe('inviteMember', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockCompanyRepoFindById = mock(async () => mockTeam)
+    mockTeamRepoFindById = mock(async () => mockTeam)
     mockUserRepoFindByEmail = mock(async () => undefined)
     mockUserRepoFindById = mock(async () => mockInviter)
     mockUserRepoCreate = mock(async () => ({
@@ -67,7 +67,7 @@ describe('inviteMember', () => {
       updatedAt: new Date('2024-01-01'),
     }))
     mockAuthRepoCreate = mock(async () => {})
-    mockCompanyRepoAddUser = mock(async () => {})
+    mockTeamRepoAddMember = mock(async () => {})
     mockTokenRepoIssue = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
       return callback({})
@@ -77,9 +77,9 @@ describe('inviteMember', () => {
     }
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: {
-        findById: mockCompanyRepoFindById,
-        addUser: mockCompanyRepoAddUser,
+      teamRepo: {
+        findById: mockTeamRepoFindById,
+        addMember: mockTeamRepoAddMember,
       },
       userRepo: {
         findByEmail: mockUserRepoFindByEmail,
@@ -114,7 +114,7 @@ describe('inviteMember', () => {
   })
 
   it('should throw NotFound when team does not exist', async () => {
-    mockCompanyRepoFindById.mockImplementation(async () => undefined)
+    mockTeamRepoFindById.mockImplementation(async () => undefined)
 
     expect(inviteMember(TEAM_1, inviteParams, USER_2)).rejects.toThrow(AppError)
     expect(inviteMember(TEAM_1, inviteParams, USER_2)).rejects.toMatchObject({
@@ -152,10 +152,10 @@ describe('inviteMember', () => {
   it('should add user to team with invitedBy', async () => {
     await inviteMember(TEAM_1, inviteParams, USER_2)
 
-    expect(mockCompanyRepoAddUser).toHaveBeenCalledWith(
+    expect(mockTeamRepoAddMember).toHaveBeenCalledWith(
       {
         userId: USER_1,
-        companyId: TEAM_1,
+        teamId: TEAM_1,
         position: 'Developer',
         invitedBy: USER_2,
       },
@@ -192,13 +192,13 @@ describe('inviteMember', () => {
 describe('resendMemberInvite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockTeam: Company
+  let mockTeam: Team
   let mockMember: User
   let mockInviter: User
-  let mockMembership: UserCompany
-  let mockCompanyRepoFindById: any
+  let mockMembership: TeamMember
+  let mockTeamRepoFindById: any
   let mockUserRepoFindById: any
-  let mockCompanyRepoFindUserCompany: any
+  let mockTeamRepoFindMember: any
   let mockTokenRepoIssue: any
   let mockTransaction: any
   let mockEmailAgent: any
@@ -238,13 +238,13 @@ describe('resendMemberInvite', () => {
     mockMembership = {
       id: 1,
       userId: USER_1,
-      companyId: TEAM_1,
+      teamId: TEAM_1,
       position: 'Developer',
       invitedBy: USER_2,
       joinedAt: new Date('2024-01-01'),
     }
 
-    mockCompanyRepoFindById = mock(async () => mockTeam)
+    mockTeamRepoFindById = mock(async () => mockTeam)
     mockUserRepoFindById = mock(async (id: string) => {
       if (id === USER_1) {
         return mockMember
@@ -255,7 +255,7 @@ describe('resendMemberInvite', () => {
 
       return undefined
     })
-    mockCompanyRepoFindUserCompany = mock(async () => mockMembership)
+    mockTeamRepoFindMember = mock(async () => mockMembership)
     mockTokenRepoIssue = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
       return callback({})
@@ -265,9 +265,9 @@ describe('resendMemberInvite', () => {
     }
 
     await moduleMocker.mock('@/data', () => ({
-      companyRepo: {
-        findById: mockCompanyRepoFindById,
-        findUserCompany: mockCompanyRepoFindUserCompany,
+      teamRepo: {
+        findById: mockTeamRepoFindById,
+        findMember: mockTeamRepoFindMember,
       },
       userRepo: { findById: mockUserRepoFindById },
       tokenRepo: { issue: mockTokenRepoIssue },
@@ -293,7 +293,7 @@ describe('resendMemberInvite', () => {
   })
 
   it('should throw NotFound when team does not exist', async () => {
-    mockCompanyRepoFindById.mockImplementation(async () => undefined)
+    mockTeamRepoFindById.mockImplementation(async () => undefined)
 
     expect(resendMemberInvite(TEAM_1, USER_1, USER_2)).rejects.toThrow(AppError)
     expect(resendMemberInvite(TEAM_1, USER_1, USER_2)).rejects.toMatchObject({
@@ -319,7 +319,7 @@ describe('resendMemberInvite', () => {
   })
 
   it('should throw NotFound when member not in team', async () => {
-    mockCompanyRepoFindUserCompany.mockImplementation(async () => undefined)
+    mockTeamRepoFindMember.mockImplementation(async () => undefined)
 
     expect(resendMemberInvite(TEAM_1, USER_1, USER_2)).rejects.toThrow(AppError)
     expect(resendMemberInvite(TEAM_1, USER_1, USER_2)).rejects.toMatchObject({

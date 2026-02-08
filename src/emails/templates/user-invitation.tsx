@@ -19,7 +19,7 @@ interface Props {
     firstName: string
     inviteUrl: string
     inviterName?: string
-    companyName?: string
+    teamName?: string
   }
   content: UserInvitationContent
   styles: ThemeStyles
@@ -32,12 +32,12 @@ const UserInvitationEmail = ({
   styles: s,
   metadata,
 }: Props) => {
-  const { firstName, inviteUrl, inviterName, companyName } = data
+  const { firstName, inviteUrl, inviterName, teamName } = data
 
   return (
     <BaseEmail
-      subject={c.subject(companyName)}
-      previewText={c.previewText(companyName)}
+      subject={c.subject(teamName)}
+      previewText={c.previewText(teamName)}
       styles={s}
       metadata={metadata}
     >
@@ -46,7 +46,7 @@ const UserInvitationEmail = ({
       </Text>
 
       <Text style={s.text.body}>
-        {c.body(inviterName, companyName)}
+        {c.body(inviterName, teamName)}
       </Text>
 
       <Text style={s.text.body}>
@@ -71,7 +71,7 @@ UserInvitationEmail.PreviewProps = {
     firstName: 'Jason',
     inviteUrl: `http://localhost:5173/auth/accept-invite?token=eb6a0c90a8e75d4c9d5a93def2911d7b`,
     inviterName: 'Alice',
-    companyName: 'Acme Inc',
+    teamName: 'Acme Inc',
   },
   content: getContent('en').userInvitation,
   styles: getThemeStyles('dark'),

@@ -1,17 +1,17 @@
-import type { CompanySearchParams, PaginationParams } from '@/data'
+import type { PaginationParams, TeamSearchParams } from '@/data'
 
-import { companyRepo } from '@/data'
+import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
 export const getTeams = async (
-  params: CompanySearchParams,
+  params: TeamSearchParams,
   pagination: PaginationParams,
 ) => {
-  return companyRepo.search(params, pagination)
+  return teamRepo.search(params, pagination)
 }
 
 export const getTeam = async (teamId: string, userId?: string) => {
-  const team = await companyRepo.find(teamId)
+  const team = await teamRepo.find(teamId)
 
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')
@@ -19,7 +19,7 @@ export const getTeam = async (teamId: string, userId?: string) => {
 
   // If userId provided, verify membership (user-level access)
   if (userId) {
-    const membership = await companyRepo.findUserCompany(userId, teamId)
+    const membership = await teamRepo.findMember(userId, teamId)
 
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
@@ -36,13 +36,13 @@ export interface CreateTeamParams {
 }
 
 export const createTeam = async (params: CreateTeamParams) => {
-  const existing = await companyRepo.findByName(params.name)
+  const existing = await teamRepo.findByName(params.name)
 
   if (existing) {
     throw new AppError(ErrorCode.Conflict, 'Team with this name already exists')
   }
 
-  const team = await companyRepo.create(params)
+  const team = await teamRepo.create(params)
 
   return { team }
 }
@@ -58,7 +58,7 @@ export const updateTeam = async (
   params: UpdateTeamParams,
   userId?: string,
 ) => {
-  const existing = await companyRepo.findById(teamId)
+  const existing = await teamRepo.findById(teamId)
 
   if (!existing) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')
@@ -66,7 +66,7 @@ export const updateTeam = async (
 
   // If userId provided, verify membership (user-level access)
   if (userId) {
-    const membership = await companyRepo.findUserCompany(userId, teamId)
+    const membership = await teamRepo.findMember(userId, teamId)
 
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to update this team')
@@ -74,14 +74,14 @@ export const updateTeam = async (
   }
 
   if (params.name && params.name !== existing.name) {
-    const nameConflict = await companyRepo.findByName(params.name)
+    const nameConflict = await teamRepo.findByName(params.name)
 
     if (nameConflict) {
       throw new AppError(ErrorCode.Conflict, 'Team with this name already exists')
     }
   }
 
-  const team = await companyRepo.update(teamId, params)
+  const team = await teamRepo.update(teamId, params)
 
   return { team }
 }

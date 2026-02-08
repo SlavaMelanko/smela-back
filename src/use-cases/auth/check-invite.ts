@@ -1,4 +1,4 @@
-import { companyRepo, tokenRepo } from '@/data'
+import { teamRepo, tokenRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType, TokenValidator } from '@/security/token'
 
@@ -11,15 +11,15 @@ const checkInvite = async (token: string): Promise<CheckInviteResult> => {
 
   const validatedToken = TokenValidator.validate(tokenRecord, TokenType.UserInvite)
 
-  const userCompanies = await companyRepo.findUserCompanies(validatedToken.userId)
+  const userTeams = await teamRepo.findUserTeams(validatedToken.userId)
 
-  if (userCompanies.length === 0) {
+  if (userTeams.length === 0) {
     throw new AppError(ErrorCode.InternalError, 'User has no team membership')
   }
 
-  const { company } = userCompanies[0]
+  const { team } = userTeams[0]
 
-  return { teamName: company.name }
+  return { teamName: team.name }
 }
 
 export default checkInvite

@@ -16,7 +16,7 @@ import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from '../clients'
-import { authTable, companiesTable, permissionsTable, rolePermissionsTable, userCompaniesTable, userRolesTable, usersTable } from '../schema'
+import { authTable, permissionsTable, rolePermissionsTable, teamMembersTable, teamsTable, userRolesTable, usersTable } from '../schema'
 
 // Seed faker for consistent data across runs
 faker.seed(42)
@@ -111,8 +111,8 @@ const seedDefaultAdminPermissions = async () => {
   })
 }
 
-const seedCompanies = async () => {
-  const companies = [
+const seedTeams = async () => {
+  const teams = [
     {
       name: faker.company.name(),
       website: faker.internet.url(),
@@ -125,41 +125,41 @@ const seedCompanies = async () => {
     },
   ]
 
-  let secondCompanyId: string | null = null
+  let secondTeamId: string | null = null
 
-  for (let i = 0; i < companies.length; i++) {
-    const company = companies[i]
+  for (let i = 0; i < teams.length; i++) {
+    const team = teams[i]
 
-    const [existingCompany] = await db
+    const [existingTeam] = await db
       .select()
-      .from(companiesTable)
-      .where(eq(companiesTable.name, company.name))
+      .from(teamsTable)
+      .where(eq(teamsTable.name, team.name))
 
-    if (existingCompany) {
-      console.log(`✅ ${company.name} company already exists`)
+    if (existingTeam) {
+      console.log(`✅ ${team.name} team already exists`)
       if (i === 1) {
-        secondCompanyId = existingCompany.id
+        secondTeamId = existingTeam.id
       }
       continue
     }
 
-    const [createdCompany] = await db.insert(companiesTable).values({
-      name: company.name,
-      website: company.website,
-      description: company.description,
-    }).returning({ id: companiesTable.id })
+    const [createdTeam] = await db.insert(teamsTable).values({
+      name: team.name,
+      website: team.website,
+      description: team.description,
+    }).returning({ id: teamsTable.id })
 
-    console.log(`✅ ${company.name} company seeded`)
+    console.log(`✅ ${team.name} team seeded`)
 
     if (i === 1) {
-      secondCompanyId = createdCompany.id
+      secondTeamId = createdTeam.id
     }
   }
 
-  return secondCompanyId!
+  return secondTeamId!
 }
 
-// System users (Owner, Admin) - no company linking
+// System users (Owner, Admin) - no team linking
 const seedSystemUsers = async () => {
   const systemUsers: {
     firstName: string
@@ -226,8 +226,8 @@ const seedSystemUsers = async () => {
   }
 }
 
-// Test users (User role) - linked to company
-const seedTestUsers = async (companyId: string) => {
+// Test users (User role) - linked to team
+const seedTestUsers = async (teamId: string) => {
   const testUsers = [
     {
       firstName: faker.person.firstName(),
@@ -254,19 +254,19 @@ const seedTestUsers = async (companyId: string) => {
       .where(eq(usersTable.email, user.email))
 
     if (existingUser) {
-      // Ensure user is linked to company
+      // Ensure user is linked to team
       const [existingLink] = await db
         .select()
-        .from(userCompaniesTable)
-        .where(eq(userCompaniesTable.userId, existingUser.id))
+        .from(teamMembersTable)
+        .where(eq(teamMembersTable.userId, existingUser.id))
 
       if (!existingLink) {
-        await db.insert(userCompaniesTable).values({
+        await db.insert(teamMembersTable).values({
           userId: existingUser.id,
-          companyId,
+          teamId,
           position: user.position,
         })
-        console.log(`✅ Linked ${user.email} to company as ${user.position}`)
+        console.log(`✅ Linked ${user.email} to team as ${user.position}`)
       } else {
         console.log(`✅ user ${user.email} already exists`)
       }
@@ -293,13 +293,13 @@ const seedTestUsers = async (companyId: string) => {
       passwordHash: hashedPassword,
     })
 
-    await db.insert(userCompaniesTable).values({
+    await db.insert(teamMembersTable).values({
       userId: createdUser.id,
-      companyId,
+      teamId,
       position: user.position,
     })
 
-    console.log(`✅ user ${user.email} seeded and linked to company`)
+    console.log(`✅ user ${user.email} seeded and linked to team`)
   }
 }
 
@@ -308,8 +308,8 @@ const seed = async () => {
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
   await seedSystemUsers()
-  const companyId = await seedCompanies()
-  await seedTestUsers(companyId)
+  const teamId = await seedTeams()
+  await seedTestUsers(teamId)
 }
 
 seed().catch((err) => {

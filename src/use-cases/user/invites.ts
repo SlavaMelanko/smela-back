@@ -1,4 +1,4 @@
-import { authRepo, companyRepo, db, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
@@ -18,7 +18,7 @@ export const inviteMember = async (
   inviterId: string,
 ) => {
   const [team, inviter, existingUser] = await Promise.all([
-    companyRepo.findById(teamId),
+    teamRepo.findById(teamId),
     userRepo.findById(inviterId),
     userRepo.findByEmail(member.email),
   ])
@@ -33,7 +33,7 @@ export const inviteMember = async (
 
   // Check authorization: admins can invite to any team, regular users only to their own
   if (!isAdmin(inviter.role)) {
-    const membership = await companyRepo.findUserCompany(inviterId, teamId)
+    const membership = await teamRepo.findMember(inviterId, teamId)
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
     }
@@ -61,9 +61,9 @@ export const inviteMember = async (
       passwordHash,
     }, tx)
 
-    await companyRepo.addUser({
+    await teamRepo.addMember({
       userId: newUser.id,
-      companyId: teamId,
+      teamId,
       position: member.position,
       invitedBy: inviterId,
     }, tx)
@@ -107,9 +107,9 @@ export const resendMemberInvite = async (
   inviterId: string,
 ) => {
   const [team, member, membership, inviter] = await Promise.all([
-    companyRepo.findById(teamId),
+    teamRepo.findById(teamId),
     userRepo.findById(memberId),
-    companyRepo.findUserCompany(memberId, teamId),
+    teamRepo.findMember(memberId, teamId),
     userRepo.findById(inviterId),
   ])
 
@@ -135,7 +135,7 @@ export const resendMemberInvite = async (
 
   // Check authorization: admins can resend to any team, regular users only to their own
   if (!isAdmin(inviter.role)) {
-    const inviterMembership = await companyRepo.findUserCompany(inviterId, teamId)
+    const inviterMembership = await teamRepo.findMember(inviterId, teamId)
     if (!inviterMembership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
     }
