@@ -9,6 +9,7 @@ enum ErrorCode {
   Unauthorized = 'auth/unauthorized',
 
   TokenAlreadyUsed = 'token/already-used',
+  TokenCancelled = 'token/cancelled',
   TokenDeprecated = 'token/deprecated',
   TokenExpired = 'token/expired',
   TokenNotFound = 'token/not-found',

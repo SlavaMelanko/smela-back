@@ -9,4 +9,5 @@ export enum TokenStatus {
   Pending = 'pending',
   Used = 'used',
   Deprecated = 'deprecated',
+  Cancelled = 'cancelled',
 }

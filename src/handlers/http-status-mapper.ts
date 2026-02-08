@@ -11,6 +11,7 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
 
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.TokenCancelled]: HttpStatus.GONE,
   [ErrorCode.TokenDeprecated]: HttpStatus.GONE,
   [ErrorCode.TokenExpired]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.TokenNotFound]: HttpStatus.BAD_REQUEST,

@@ -5,6 +5,7 @@ import type { AppContext } from '@/context'
 import { adminTeamsRoute, adminUsersRoute } from './admin'
 import {
   acceptInviteRoute,
+  checkInviteRoute,
   loginRoute,
   logoutRoute,
   refreshTokenRoute,
@@ -19,6 +20,7 @@ import { meRoute, teamsRoute } from './user'
 
 export const authPublicRoutes: Hono<AppContext>[] = [
   acceptInviteRoute,
+  checkInviteRoute,
   loginRoute,
   logoutRoute,
   refreshTokenRoute,
