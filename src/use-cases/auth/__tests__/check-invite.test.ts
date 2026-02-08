@@ -1,26 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, TeamMemberWithTeam, TokenRecord } from '@/data'
+import type { Team, TeamMemberWithTeam, TokenRecord, UserRoleRecord } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
+import { Role } from '@/types'
 import { hour, nowPlus } from '@/utils/chrono'
 
 import checkInvite from '../check-invite'
 
 describe('Check Invite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
+  const MOCK_COMPANY_NAME = 'Test Company'
 
   let mockTokenString: string
   let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
   let mockTeamRepo: any
+  let mockUserRoleRepo: any
 
   let mockTokenValidator: any
 
   let mockTeam: Team
   let mockTeamMemberWithTeam: TeamMemberWithTeam
+  let mockAdminRole: UserRoleRecord
 
   beforeEach(async () => {
     mockTokenString = `mock-invite-token-${'1'.repeat(TOKEN_LENGTH - 18)}`
@@ -55,16 +59,31 @@ describe('Check Invite', () => {
       team: mockTeam,
     }
 
+    mockAdminRole = {
+      userId: testUuids.ADMIN_1,
+      role: Role.Admin,
+      invitedBy: testUuids.OWNER_1,
+      assignedAt: new Date(),
+    }
+
     mockTokenRepo = {
       findByToken: mock(async () => mockTokenRecord),
     }
     mockTeamRepo = {
       findUserTeams: mock(async () => [mockTeamMemberWithTeam]),
     }
+    mockUserRoleRepo = {
+      findByUserId: mock(async () => mockAdminRole),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       tokenRepo: mockTokenRepo,
       teamRepo: mockTeamRepo,
+      userRoleRepo: mockUserRoleRepo,
+    }))
+
+    await moduleMocker.mock('@/env', () => ({
+      default: { COMPANY_NAME: MOCK_COMPANY_NAME },
     }))
 
     mockTokenValidator = {
@@ -81,8 +100,8 @@ describe('Check Invite', () => {
     await moduleMocker.clear()
   })
 
-  describe('when token is valid', () => {
-    it('should return team name for valid invitation token', async () => {
+  describe('when token is valid for member invite', () => {
+    it('should return member type and team name for member invitation token', async () => {
       const result = await checkInvite(mockTokenString)
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
@@ -97,7 +116,25 @@ describe('Check Invite', () => {
       expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockTeamRepo.findUserTeams).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ teamName: 'Acme Corp' })
+      expect(mockUserRoleRepo.findByUserId).not.toHaveBeenCalled()
+
+      expect(result).toEqual({ type: 'member', teamName: 'Acme Corp' })
+    })
+  })
+
+  describe('when token is valid for admin invite', () => {
+    beforeEach(() => {
+      mockTeamRepo.findUserTeams.mockResolvedValue([])
+    })
+
+    it('should return admin type and company name for admin invitation token', async () => {
+      const result = await checkInvite(mockTokenString)
+
+      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledTimes(1)
+
+      expect(result).toEqual({ type: 'admin', teamName: MOCK_COMPANY_NAME })
     })
   })
 
@@ -191,9 +228,10 @@ describe('Check Invite', () => {
     })
   })
 
-  describe('when user has no team membership', () => {
+  describe('when user has no team membership and no admin role', () => {
     it('should throw InternalError', async () => {
       mockTeamRepo.findUserTeams.mockResolvedValue([])
+      mockUserRoleRepo.findByUserId.mockResolvedValue(undefined)
 
       try {
         await checkInvite(mockTokenString)
@@ -201,10 +239,30 @@ describe('Check Invite', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
         expect((error as AppError).code).toBe(ErrorCode.InternalError)
-        expect((error as AppError).message).toBe('User has no team membership')
+        expect((error as AppError).message).toBe('Invalid invitation state')
       }
 
       expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
+    })
+  })
+
+  describe('when user has non-admin role', () => {
+    it('should throw InternalError', async () => {
+      mockTeamRepo.findUserTeams.mockResolvedValue([])
+      mockUserRoleRepo.findByUserId.mockResolvedValue({
+        ...mockAdminRole,
+        role: Role.User,
+      })
+
+      try {
+        await checkInvite(mockTokenString)
+        expect(true).toBe(false)
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+        expect((error as AppError).code).toBe(ErrorCode.InternalError)
+        expect((error as AppError).message).toBe('Invalid invitation state')
+      }
     })
   })
 

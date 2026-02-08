@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, get, ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
@@ -16,8 +16,11 @@ describe('Check Invite Endpoint', () => {
   let app: Hono
   let mockCheckInvite: any
 
+  const validToken = '1'.repeat(TOKEN_LENGTH)
+
   beforeEach(async () => {
     mockCheckInvite = mock(async () => ({
+      type: 'member',
       teamName: 'Acme Corp',
     }))
 
@@ -32,22 +35,16 @@ describe('Check Invite Endpoint', () => {
     await moduleMocker.clear()
   })
 
-  const validPayload = {
-    data: {
-      token: '1'.repeat(TOKEN_LENGTH),
-    },
-  }
-
-  describe('POST /auth/check-invite', () => {
-    it('should check invite and return team name', async () => {
-      const res = await post(app, CHECK_INVITE_URL, validPayload)
+  describe('GET /auth/check-invite', () => {
+    it('should check invite and return result', async () => {
+      const res = await get(app, `${CHECK_INVITE_URL}?token=${validToken}`)
 
       expect(res.status).toBe(HttpStatus.OK)
 
       const json = await res.json()
-      expect(json).toEqual({ data: { teamName: 'Acme Corp' } })
+      expect(json).toEqual({ data: { type: 'member', teamName: 'Acme Corp' } })
 
-      expect(mockCheckInvite).toHaveBeenCalledWith(validPayload.data.token)
+      expect(mockCheckInvite).toHaveBeenCalledWith(validToken)
       expect(mockCheckInvite).toHaveBeenCalledTimes(1)
     })
 
@@ -56,7 +53,7 @@ describe('Check Invite Endpoint', () => {
         throw new Error('Check invite failed')
       })
 
-      const res = await post(app, CHECK_INVITE_URL, validPayload)
+      const res = await get(app, `${CHECK_INVITE_URL}?token=${validToken}`)
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockCheckInvite).toHaveBeenCalledTimes(1)
@@ -66,37 +63,21 @@ describe('Check Invite Endpoint', () => {
       const invalidTokens = [
         { name: 'short token', token: 'short-token' },
         { name: 'long token', token: 'a'.repeat(100) },
-        { name: 'missing token', token: null },
       ]
 
       for (const testCase of invalidTokens) {
-        const payload: any = { data: { ...validPayload.data } }
-        if (testCase.token !== null) {
-          payload.data.token = testCase.token
-        } else {
-          delete payload.data.token
-        }
-
-        const res = await post(app, CHECK_INVITE_URL, payload)
+        const res = await get(app, `${CHECK_INVITE_URL}?token=${testCase.token}`)
 
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         expect(mockCheckInvite).not.toHaveBeenCalled()
       }
     })
 
-    it('should handle malformed requests', async () => {
-      const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type', headers: {}, body: validPayload },
-        { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{invalid json}' },
-        { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
-      ]
+    it('should return error when token is missing', async () => {
+      const res = await get(app, CHECK_INVITE_URL)
 
-      for (const { headers, body } of scenarios) {
-        const res = await post(app, CHECK_INVITE_URL, body, headers)
-
-        expect(res.status).toBe(HttpStatus.BAD_REQUEST)
-        expect(mockCheckInvite).not.toHaveBeenCalled()
-      }
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST)
+      expect(mockCheckInvite).not.toHaveBeenCalled()
     })
   })
 })

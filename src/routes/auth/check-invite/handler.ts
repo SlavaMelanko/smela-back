@@ -4,9 +4,9 @@ import checkInvite from '@/use-cases/auth/check-invite'
 import type { CheckInviteCtx } from './schema'
 
 const checkInviteHandler = async (c: CheckInviteCtx) => {
-  const payload = c.req.valid('json')
+  const { token } = c.req.valid('query')
 
-  const result = await checkInvite(payload.data.token)
+  const result = await checkInvite(token)
 
   return c.json({ data: result }, HttpStatus.OK)
 }

@@ -1,16 +1,14 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
 const checkInviteSchema = z.object({
-  data: z.object({
-    token: rules.data.securityToken,
-  }).strict(),
-}).strict()
+  token: rules.data.securityToken,
+})
 
-export type CheckInviteBody = z.infer<typeof checkInviteSchema>
-export type CheckInviteCtx = ValidatedJsonCtx<CheckInviteBody>
+export type CheckInviteQuery = z.infer<typeof checkInviteSchema>
+export type CheckInviteCtx = ValidatedQueryCtx<CheckInviteQuery>
 
 export default checkInviteSchema
