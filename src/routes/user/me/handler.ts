@@ -3,7 +3,7 @@ import { getUser, updateUser } from '@/use-cases/user/me'
 import type { AppCtx } from '../../@shared'
 import type { UpdateProfileCtx } from './schema'
 
-const getHandler = async (c: AppCtx) => {
+export const getMeHandler = async (c: AppCtx) => {
   const user = c.get('user')
 
   const result = await getUser(user.id)
@@ -11,7 +11,7 @@ const getHandler = async (c: AppCtx) => {
   return c.json(result)
 }
 
-const postHandler = async (c: UpdateProfileCtx) => {
+export const updateMeHandler = async (c: UpdateProfileCtx) => {
   const user = c.get('user')
   const payload = c.req.valid('json')
 
@@ -19,5 +19,3 @@ const postHandler = async (c: UpdateProfileCtx) => {
 
   return c.json(result)
 }
-
-export { getHandler, postHandler }
