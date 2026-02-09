@@ -3,7 +3,7 @@ import verifyEmail from '@/use-cases/auth/verify-email'
 
 import type { VerifyEmailCtx } from './schema'
 
-const verifyEmailHandler = async (c: VerifyEmailCtx) => {
+export const verifyEmailHandler = async (c: VerifyEmailCtx) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
@@ -13,5 +13,3 @@ const verifyEmailHandler = async (c: VerifyEmailCtx) => {
 
   return c.json(result.data, HttpStatus.OK)
 }
-
-export default verifyEmailHandler

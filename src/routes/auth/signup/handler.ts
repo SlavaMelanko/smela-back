@@ -3,7 +3,7 @@ import signUpWithEmail from '@/use-cases/auth/signup'
 
 import type { SignupCtx } from './schema'
 
-const signupHandler = async (c: SignupCtx) => {
+export const signupHandler = async (c: SignupCtx) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
@@ -17,5 +17,3 @@ const signupHandler = async (c: SignupCtx) => {
 
   return c.json(result.data, HttpStatus.CREATED)
 }
-
-export default signupHandler

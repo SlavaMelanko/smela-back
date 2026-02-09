@@ -3,7 +3,7 @@ import acceptInvite from '@/use-cases/auth/accept-invite'
 
 import type { AcceptInviteCtx } from './schema'
 
-const acceptInviteHandler = async (c: AcceptInviteCtx) => {
+export const acceptInviteHandler = async (c: AcceptInviteCtx) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
@@ -13,5 +13,3 @@ const acceptInviteHandler = async (c: AcceptInviteCtx) => {
 
   return c.json(result.data, HttpStatus.OK)
 }
-
-export default acceptInviteHandler

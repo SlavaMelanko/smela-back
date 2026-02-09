@@ -3,7 +3,7 @@ import { logout } from '@/use-cases/auth/logout'
 
 import type { AppCtx } from '../../@shared'
 
-const logoutHandler = async (c: AppCtx) => {
+export const logoutHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
 
   await logout(refreshToken)
@@ -12,5 +12,3 @@ const logoutHandler = async (c: AppCtx) => {
 
   return c.body(null, HttpStatus.NO_CONTENT)
 }
-
-export default logoutHandler

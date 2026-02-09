@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 
-import logoutHandler from '../handler'
+import { logoutHandler } from '../handler'
 
 describe('Logout Handler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

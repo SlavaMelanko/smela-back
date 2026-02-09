@@ -4,7 +4,7 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import checkInviteHandler from './handler'
+import { checkInviteHandler } from './handler'
 import schema from './schema'
 
 const checkInviteRoute = new Hono<AppContext>()

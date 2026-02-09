@@ -3,7 +3,7 @@ import { refreshAuthTokens } from '@/use-cases/auth'
 
 import type { AppCtx } from '../../@shared'
 
-const refreshTokenHandler = async (c: AppCtx) => {
+export const refreshTokenHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
   const deviceInfo = getDeviceInfo(c)
 
@@ -13,5 +13,3 @@ const refreshTokenHandler = async (c: AppCtx) => {
 
   return c.json(result.data, HttpStatus.OK)
 }
-
-export default refreshTokenHandler

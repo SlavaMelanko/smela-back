@@ -4,7 +4,7 @@ import type { AppContext } from '@/context'
 
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
-import handler from './handler'
+import { resendVerificationEmailHandler } from './handler'
 import schema from './schema'
 
 const resendVerificationEmailRoute = new Hono<AppContext>()
@@ -13,7 +13,7 @@ resendVerificationEmailRoute.post(
   '/resend-verification-email',
   requestValidator('json', schema),
   captchaMiddleware(),
-  handler,
+  resendVerificationEmailHandler,
 )
 
 export default resendVerificationEmailRoute

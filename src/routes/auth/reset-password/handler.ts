@@ -3,7 +3,7 @@ import resetPassword from '@/use-cases/auth/reset-password'
 
 import type { ResetPasswordCtx } from './schema'
 
-const resetPasswordHandler = async (c: ResetPasswordCtx) => {
+export const resetPasswordHandler = async (c: ResetPasswordCtx) => {
   const payload = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
@@ -13,5 +13,3 @@ const resetPasswordHandler = async (c: ResetPasswordCtx) => {
 
   return c.json(result.data, HttpStatus.OK)
 }
-
-export default resetPasswordHandler
