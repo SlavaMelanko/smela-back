@@ -34,10 +34,8 @@ describe('Accept Invite Endpoint', () => {
   })
 
   const validPayload = {
-    data: {
-      token: '1'.repeat(TOKEN_LENGTH),
-      password: 'NewSecure@123',
-    },
+    token: '1'.repeat(TOKEN_LENGTH),
+    password: 'NewSecure@123',
   }
 
   describe('POST /auth/accept-invite', () => {
@@ -49,11 +47,10 @@ describe('Accept Invite Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({ user: { id: testUuids.USER_1 }, accessToken: 'test-token' })
 
-      expect(mockAcceptInvite).toHaveBeenCalledWith({
-        token: validPayload.data.token,
-        password: validPayload.data.password,
-        deviceInfo: { ipAddress: null, userAgent: null },
-      })
+      expect(mockAcceptInvite).toHaveBeenCalledWith(
+        { token: validPayload.token, password: validPayload.password },
+        { ipAddress: null, userAgent: null },
+      )
       expect(mockAcceptInvite).toHaveBeenCalledTimes(1)
 
       // Verify refresh token cookie is set
@@ -80,11 +77,11 @@ describe('Accept Invite Endpoint', () => {
       ]
 
       for (const testCase of invalidTokens) {
-        const payload: any = { data: { ...validPayload.data } }
+        const payload: any = { ...validPayload }
         if (testCase.token !== null) {
-          payload.data.token = testCase.token
+          payload.token = testCase.token
         } else {
-          delete payload.data.token
+          delete payload.token
         }
 
         const res = await post(app, ACCEPT_INVITE_URL, payload)
@@ -104,11 +101,11 @@ describe('Accept Invite Endpoint', () => {
       ]
 
       for (const testCase of invalidPasswords) {
-        const payload: any = { data: { ...validPayload.data } }
+        const payload: any = { ...validPayload }
         if (testCase.password !== null) {
-          payload.data.password = testCase.password
+          payload.password = testCase.password
         } else {
-          delete payload.data.password
+          delete payload.password
         }
 
         const res = await post(app, ACCEPT_INVITE_URL, payload)

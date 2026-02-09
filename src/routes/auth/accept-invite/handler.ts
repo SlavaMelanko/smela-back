@@ -4,10 +4,10 @@ import acceptInvite from '@/use-cases/auth/accept-invite'
 import type { AcceptInviteCtx } from './schema'
 
 export const acceptInviteHandler = async (c: AcceptInviteCtx) => {
-  const payload = c.req.valid('json')
+  const { token, password } = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
-  const result = await acceptInvite({ ...payload.data, deviceInfo })
+  const result = await acceptInvite({ token, password }, deviceInfo)
 
   setRefreshCookie(c, result.refreshToken)
 

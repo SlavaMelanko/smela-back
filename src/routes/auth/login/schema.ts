@@ -5,10 +5,8 @@ import type { ValidatedJsonCtx } from '../../@shared'
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
 const loginSchema = z.object({
-  data: z.object({
-    email: rules.data.email,
-    password: rules.data.password,
-  }).strict(),
+  email: rules.data.email,
+  password: rules.data.password,
   captcha: nested.captcha.strict(),
 }).strict()
 
