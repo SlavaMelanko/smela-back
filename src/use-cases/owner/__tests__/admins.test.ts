@@ -261,11 +261,11 @@ describe('inviteAdmin', () => {
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: () => ({
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'invitation-token-123',
         expiresAt: new Date('2024-01-08'),
       }),
-      TokenType: { UserInvitation: 'user_invitation' },
+      TokenType: { UserInvite: 'user_invite' },
     }))
 
     await moduleMocker.mock('@/services/email', () => ({
@@ -322,6 +322,7 @@ describe('inviteAdmin', () => {
       'New',
       'newadmin@example.com',
       'invitation-token-123',
+      'New',
       'Test Company',
     )
   })
@@ -331,6 +332,7 @@ describe('resendAdminInvitation', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockAdmin: User
+  let mockInviter: User
   let mockFindById: any
   let mockTokenIssue: any
   let mockTransaction: any
@@ -348,7 +350,27 @@ describe('resendAdminInvitation', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockFindById = mock(async () => mockAdmin)
+    mockInviter = {
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
+      email: 'owner@example.com',
+      role: Role.Owner,
+      status: Status.Active,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindById = mock(async (id: string) => {
+      if (id === testUuids.ADMIN_1) {
+        return mockAdmin
+      }
+      if (id === testUuids.OWNER_1) {
+        return mockInviter
+      }
+
+      return undefined
+    })
     mockTokenIssue = mock(async () => ({}))
     mockSendUserInvitationEmail = mock(async () => {})
 
@@ -363,11 +385,11 @@ describe('resendAdminInvitation', () => {
 
     await moduleMocker.mock('@/security/token', () => ({
       generateToken: () => ({
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'new-invitation-token',
         expiresAt: new Date('2024-01-08'),
       }),
-      TokenType: { UserInvitation: 'user_invitation' },
+      TokenType: { UserInvite: 'user_invite' },
     }))
 
     await moduleMocker.mock('@/services/email', () => ({
@@ -386,49 +408,95 @@ describe('resendAdminInvitation', () => {
   })
 
   it('should throw NotFound when admin does not exist', async () => {
-    mockFindById.mockImplementation(async () => undefined)
+    mockFindById.mockImplementation(async (id: string) => {
+      if (id === testUuids.OWNER_1) {
+        return mockInviter
+      }
 
-    expect(resendAdminInvitation(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.NON_EXISTENT)).rejects.toMatchObject({
+      return undefined
+    })
+
+    expect(resendAdminInvitation(
+      testUuids.NON_EXISTENT,
+      testUuids.OWNER_1,
+    )).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(
+      testUuids.NON_EXISTENT,
+      testUuids.OWNER_1,
+    )).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
   })
 
   it('should throw NotFound when user is not Admin role', async () => {
-    mockFindById.mockImplementation(async () => ({
-      ...mockAdmin,
-      role: Role.User,
-    }))
+    mockFindById.mockImplementation(async (id: string) => {
+      if (id === testUuids.ADMIN_1) {
+        return { ...mockAdmin, role: Role.User }
+      }
+      if (id === testUuids.OWNER_1) {
+        return mockInviter
+      }
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toMatchObject({
+      return undefined
+    })
+
+    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
   })
 
   it('should throw BadRequest when admin has already accepted invitation', async () => {
-    mockFindById.mockImplementation(async () => ({
-      ...mockAdmin,
-      status: Status.Active,
-    }))
+    mockFindById.mockImplementation(async (id: string) => {
+      if (id === testUuids.ADMIN_1) {
+        return { ...mockAdmin, status: Status.Active }
+      }
+      if (id === testUuids.OWNER_1) {
+        return mockInviter
+      }
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1)).rejects.toMatchObject({
+      return undefined
+    })
+
+    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.BadRequest,
       message: 'Admin has already accepted invitation',
     })
   })
 
-  it('should issue new token and send invitation email', async () => {
-    const result = await resendAdminInvitation(testUuids.ADMIN_1)
+  it('should throw NotFound when inviter does not exist', async () => {
+    mockFindById.mockImplementation(async (id: string) => {
+      if (id === testUuids.ADMIN_1) {
+        return mockAdmin
+      }
+
+      return undefined
+    })
+
+    expect(resendAdminInvitation(
+      testUuids.ADMIN_1,
+      testUuids.NON_EXISTENT,
+    )).rejects.toThrow(AppError)
+    expect(resendAdminInvitation(
+      testUuids.ADMIN_1,
+      testUuids.NON_EXISTENT,
+    )).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Inviter not found',
+    })
+  })
+
+  it('should issue new token and send invitation email with current inviter name', async () => {
+    const result = await resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)
 
     expect(mockTokenIssue).toHaveBeenCalledWith(
       testUuids.ADMIN_1,
       {
         userId: testUuids.ADMIN_1,
-        type: 'user_invitation',
+        type: 'user_invite',
         token: 'new-invitation-token',
         expiresAt: expect.any(Date),
       },
@@ -438,6 +506,7 @@ describe('resendAdminInvitation', () => {
       'Admin',
       'admin@example.com',
       'new-invitation-token',
+      'Owner',
       'Test Company',
     )
     expect(result).toEqual({ success: true })

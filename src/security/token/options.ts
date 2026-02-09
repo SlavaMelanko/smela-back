@@ -26,7 +26,7 @@ export const defaultOptionsMap = new Map<TokenType, Required<Options>>([
     expirySeconds: REFRESH_TOKEN_EXPIRY_SECONDS,
     tokenLength: TOKEN_LENGTH,
   }],
-  [TokenType.UserInvitation, {
+  [TokenType.UserInvite, {
     expirySeconds: USER_INVITATION_EXPIRY_SECONDS,
     tokenLength: TOKEN_LENGTH,
   }],

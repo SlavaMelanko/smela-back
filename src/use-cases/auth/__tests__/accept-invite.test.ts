@@ -46,7 +46,7 @@ describe('Accept Invite', () => {
     mockTokenRecord = {
       id: 1,
       userId: testUuids.ADMIN_1,
-      type: TokenType.UserInvitation,
+      type: TokenType.UserInvite,
       token: mockTokenString,
       status: TokenStatus.Pending,
       expiresAt: nowPlus(hour()),

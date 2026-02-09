@@ -26,6 +26,9 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.TokenAlreadyUsed]: {
     error: 'Token has already been used.',
   },
+  [ErrorCode.TokenCancelled]: {
+    error: 'Token has been cancelled.',
+  },
   [ErrorCode.TokenDeprecated]: {
     error: 'Token has been deprecated.',
   },

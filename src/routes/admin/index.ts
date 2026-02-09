@@ -1,3 +1,3 @@
-export { default as adminCompaniesRoute } from './companies'
+export { default as adminTeamsRoute } from './teams'
 
 export { default as adminUsersRoute } from './users'

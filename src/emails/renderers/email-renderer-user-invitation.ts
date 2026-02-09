@@ -11,7 +11,7 @@ import { renderEmail } from './helper'
 export interface UserInvitationEmailData {
   firstName: string
   inviteUrl: string
-  companyName?: string
+  teamName?: string
 }
 
 export default class UserInvitationEmailRenderer
@@ -24,7 +24,7 @@ implements EmailRenderer<UserInvitationEmailData> {
     const content = getContent(userPreferences?.locale).userInvitation
     const styles = getThemeStyles(userPreferences?.theme)
 
-    const subject = content.subject(data.companyName)
+    const subject = content.subject(data.teamName)
     const { html, text } = await renderEmail(
       UserInvitationEmail,
       { data, content, styles, metadata },

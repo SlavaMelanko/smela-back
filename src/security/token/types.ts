@@ -2,11 +2,12 @@ export enum TokenType {
   EmailVerification = 'email_verification',
   PasswordReset = 'password_reset',
   RefreshToken = 'refresh_token',
-  UserInvitation = 'user_invitation',
+  UserInvite = 'user_invite',
 }
 
 export enum TokenStatus {
   Pending = 'pending',
   Used = 'used',
   Deprecated = 'deprecated',
+  Cancelled = 'cancelled',
 }

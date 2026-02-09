@@ -2,9 +2,10 @@ import type { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { adminCompaniesRoute, adminUsersRoute } from './admin'
+import { adminTeamsRoute, adminUsersRoute } from './admin'
 import {
   acceptInviteRoute,
+  checkInviteRoute,
   loginRoute,
   logoutRoute,
   refreshTokenRoute,
@@ -14,11 +15,12 @@ import {
   signupRoute,
   verifyEmailRoute,
 } from './auth'
-import { ownerAdminsRoute } from './owner'
-import { meRoute } from './user'
+import { ownerAdminsInvitesRoute, ownerAdminsRoute } from './owner'
+import { meRoute, teamsRoute } from './user'
 
 export const authPublicRoutes: Hono<AppContext>[] = [
   acceptInviteRoute,
+  checkInviteRoute,
   loginRoute,
   logoutRoute,
   refreshTokenRoute,
@@ -31,8 +33,8 @@ export const authPublicRoutes: Hono<AppContext>[] = [
 
 export const userRoutesAllowNew: Hono<AppContext>[] = [meRoute]
 
-export const userRoutesVerifiedOnly: Hono<AppContext>[] = []
+export const userRoutesVerifiedOnly: Hono<AppContext>[] = [teamsRoute]
 
-export const adminRoutes: Hono<AppContext>[] = [adminCompaniesRoute, adminUsersRoute]
+export const adminRoutes: Hono<AppContext>[] = [adminTeamsRoute, adminUsersRoute]
 
-export const ownerRoutes: Hono<AppContext>[] = [ownerAdminsRoute]
+export const ownerRoutes: Hono<AppContext>[] = [ownerAdminsRoute, ownerAdminsInvitesRoute]
