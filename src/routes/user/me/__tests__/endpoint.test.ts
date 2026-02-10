@@ -176,7 +176,7 @@ describe('Me Endpoint', () => {
 
   describe('PATCH /me', () => {
     it('should update user profile successfully', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: 'Jane', lastName: 'Smith' } }, {
+      const res = await patch(app, ME_URL, { firstName: 'Jane', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -214,7 +214,7 @@ describe('Me Endpoint', () => {
         throw new AppError(ErrorCode.InternalError, 'Failed to update user.')
       })
 
-      const res = await patch(app, ME_URL, { data: { firstName: 'Jane', lastName: 'Smith' } }, {
+      const res = await patch(app, ME_URL, { firstName: 'Jane', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -226,7 +226,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should validate input data - empty strings', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: '', lastName: '' } }, { // empty strings should fail validation
+      const res = await patch(app, ME_URL, { firstName: '', lastName: '' }, { // empty strings should fail validation
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -239,7 +239,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should allow partial updates with only firstName', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: 'Jane' } }, { // only firstName
+      const res = await patch(app, ME_URL, { firstName: 'Jane' }, { // only firstName
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -260,10 +260,8 @@ describe('Me Endpoint', () => {
       mockUpdateUser.mockImplementation(async () => ({ user: mockUpdatedUserMinimal }))
 
       const res = await patch(app, ME_URL, {
-        data: {
-          firstName: mockUpdatedUserMinimal.firstName,
-          lastName: mockUpdatedUserMinimal.lastName,
-        },
+        firstName: mockUpdatedUserMinimal.firstName,
+        lastName: mockUpdatedUserMinimal.lastName,
       }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
@@ -294,7 +292,7 @@ describe('Me Endpoint', () => {
         return { user: mockUpdatedUser }
       })
 
-      const res = await patch(app, ME_URL, { data: {} }, {
+      const res = await patch(app, ME_URL, {}, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -312,7 +310,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should normalize null lastName to empty string', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: 'Jane', lastName: null } }, {
+      const res = await patch(app, ME_URL, { firstName: 'Jane', lastName: null }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -328,7 +326,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should allow updating only lastName', async () => {
-      const res = await patch(app, ME_URL, { data: { lastName: 'Smith' } }, { // only lastName
+      const res = await patch(app, ME_URL, { lastName: 'Smith' }, { // only lastName
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -346,7 +344,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should reject empty strings at validation level', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: '', lastName: 'Smith' } }, { // empty string for firstName
+      const res = await patch(app, ME_URL, { firstName: '', lastName: 'Smith' }, { // empty string for firstName
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -354,11 +352,11 @@ describe('Me Endpoint', () => {
       expect(res.status).toBe(HttpStatus.BAD_REQUEST)
 
       const data = await res.json()
-      expect(data.error).toBe('[data.firstName]: string must contain at least 2 character(s)')
+      expect(data.error).toBe('[firstName]: string must contain at least 2 character(s)')
     })
 
     it('should reject whitespace-only strings at validation level', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: '   ', lastName: 'Smith' } }, {
+      const res = await patch(app, ME_URL, { firstName: '   ', lastName: 'Smith' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
@@ -368,7 +366,7 @@ describe('Me Endpoint', () => {
     })
 
     it('should trim valid strings at validation layer', async () => {
-      const res = await patch(app, ME_URL, { data: { firstName: '  Jane  ', lastName: '  Smith  ' } }, {
+      const res = await patch(app, ME_URL, { firstName: '  Jane  ', lastName: '  Smith  ' }, {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer mock-token',
       })
