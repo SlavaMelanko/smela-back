@@ -3,7 +3,6 @@ import { getUser, updateUser } from '@/use-cases/user/me'
 import type { AppCtx } from '../../@shared'
 import type { UpdateProfileCtx } from './schema'
 
-// /me
 export const getMeHandler = async (c: AppCtx) => {
   const user = c.get('user')
 

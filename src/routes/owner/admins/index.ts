@@ -19,7 +19,6 @@ import {
 
 const ownerAdminsRoute = new Hono<AppContext>()
 
-// /admins
 ownerAdminsRoute.get(
   '/admins',
   requestValidator('query', getAdminsQuerySchema),
@@ -32,14 +31,12 @@ ownerAdminsRoute.post(
   createAdminHandler,
 )
 
-// /admins/:adminId
 ownerAdminsRoute.get(
   '/admins/:adminId',
   requestValidator('param', getAdminParamsSchema),
   getAdminHandler,
 )
 
-// /admins/:adminId/resend-invite
 ownerAdminsRoute.post(
   '/admins/:adminId/resend-invite',
   requestValidator('param', resendAdminInviteParamsSchema),

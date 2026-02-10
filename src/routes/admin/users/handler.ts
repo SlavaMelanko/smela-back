@@ -3,7 +3,6 @@ import { getUser, searchUsers } from '@/use-cases/admin'
 
 import type { GetUserCtx, GetUsersCtx } from './schema'
 
-// /users
 export const getUsersHandler = async (c: GetUsersCtx) => {
   const { search, roles, statuses, page, limit } = c.req.valid('query')
 
@@ -14,7 +13,6 @@ export const getUsersHandler = async (c: GetUsersCtx) => {
   return c.json({ ...data, pagination: paginationResult }, HttpStatus.OK)
 }
 
-// /users/:id
 export const getUserHandler = async (c: GetUserCtx) => {
   const { id } = c.req.valid('param')
 

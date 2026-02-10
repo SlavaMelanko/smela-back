@@ -13,17 +13,15 @@ import {
 
 const teamsMembersRoute = new Hono<AppContext>()
 
-// /teams/:teamId/members
 teamsMembersRoute.post(
-  '/teams/:teamId/members',
+  '/',
   requestValidator('param', teamParamsSchema),
   requestValidator('json', inviteMemberBodySchema),
   createMemberHandler,
 )
 
-// /teams/:teamId/members/:memberId/resend-invite
 teamsMembersRoute.post(
-  '/teams/:teamId/members/:memberId/resend-invite',
+  '/:memberId/resend-invite',
   requestValidator('param', resendMemberInviteParamsSchema),
   resendMemberInviteHandler,
 )

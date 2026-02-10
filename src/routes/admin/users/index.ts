@@ -9,14 +9,12 @@ import { getUserParamsSchema, getUsersQuerySchema } from './schema'
 
 const adminUsersRoute = new Hono<AppContext>()
 
-// /users
 adminUsersRoute.get(
   '/users',
   requestValidator('query', getUsersQuerySchema),
   getUsersHandler,
 )
 
-// /users/:id
 adminUsersRoute.get(
   '/users/:id',
   requestValidator('param', getUserParamsSchema),

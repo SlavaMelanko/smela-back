@@ -4,7 +4,6 @@ import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedQueryCtx } from '../
 
 import { requestValidationRules as rules } from '../../@shared'
 
-// /admins
 export const getAdminsQuerySchema = z.object({
   search: rules.userFilter.search.optional(),
   statuses: rules.userFilter.statuses.optional(),
@@ -29,7 +28,6 @@ export const createAdminBodySchema = z.object({
 export type CreateAdminBody = z.infer<typeof createAdminBodySchema>
 export type CreateAdminCtx = ValidatedJsonCtx<CreateAdminBody>
 
-// /admins/:adminId
 export const getAdminParamsSchema = z.object({
   adminId: rules.data.id,
 })
@@ -37,7 +35,6 @@ export const getAdminParamsSchema = z.object({
 export type GetAdminParams = z.infer<typeof getAdminParamsSchema>
 export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
 
-// /admins/:adminId/resend-invite
 export const resendAdminInviteParamsSchema = z.object({
   adminId: rules.data.id,
 })

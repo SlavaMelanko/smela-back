@@ -1,4 +1,3 @@
-// /teams/:teamId
 export {
   type TeamParamsCtx,
   teamParamsSchema,

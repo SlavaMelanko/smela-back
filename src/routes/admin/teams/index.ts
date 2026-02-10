@@ -20,7 +20,6 @@ import {
 
 const adminTeamsRoute = new Hono<AppContext>()
 
-// /teams
 adminTeamsRoute.get(
   '/teams',
   requestValidator('query', getTeamsQuerySchema),
@@ -33,7 +32,6 @@ adminTeamsRoute.post(
   createTeamHandler,
 )
 
-// /teams/:teamId
 adminTeamsRoute.get(
   '/teams/:teamId',
   requestValidator('param', teamParamsSchema),
@@ -47,7 +45,6 @@ adminTeamsRoute.patch(
   updateTeamHandler,
 )
 
-// /teams/:teamId/members/*
-adminTeamsRoute.route('/', teamsMembersRoute)
+adminTeamsRoute.route('/teams/:teamId/members', teamsMembersRoute)
 
 export default adminTeamsRoute

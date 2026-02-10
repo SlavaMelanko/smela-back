@@ -10,7 +10,6 @@ import { teamParamsSchema, updateTeamBodySchema } from './schema'
 
 const teamsRoute = new Hono<AppContext>()
 
-// /teams/:teamId
 teamsRoute.get(
   '/teams/:teamId',
   requestValidator('param', teamParamsSchema),
@@ -24,7 +23,6 @@ teamsRoute.patch(
   updateTeamHandler,
 )
 
-// /teams/:teamId/members/*
-teamsRoute.route('/', teamsMembersRoute)
+teamsRoute.route('/teams/:teamId/members', teamsMembersRoute)
 
 export default teamsRoute

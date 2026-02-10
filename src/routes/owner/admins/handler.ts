@@ -3,7 +3,6 @@ import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '@/use-c
 
 import type { CreateAdminCtx, GetAdminCtx, GetAdminsCtx, ResendAdminInviteCtx } from './schema'
 
-// /admins
 export const getAdminsHandler = async (c: GetAdminsCtx) => {
   const { search, statuses, page, limit } = c.req.valid('query')
 
@@ -23,7 +22,6 @@ export const createAdminHandler = async (c: CreateAdminCtx) => {
   return c.json(result, HttpStatus.CREATED)
 }
 
-// /admins/:adminId
 export const getAdminHandler = async (c: GetAdminCtx) => {
   const { adminId } = c.req.valid('param')
 
@@ -32,7 +30,6 @@ export const getAdminHandler = async (c: GetAdminCtx) => {
   return c.json(result, HttpStatus.OK)
 }
 
-// /admins/:adminId/resend-invite
 export const resendAdminInviteHandler = async (c: ResendAdminInviteCtx) => {
   const { adminId } = c.req.valid('param')
   const { id: inviterId } = c.get('user')

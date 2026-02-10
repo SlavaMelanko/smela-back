@@ -13,7 +13,6 @@ import type {
   UpdateTeamCtx,
 } from './schema'
 
-// /teams
 export const getTeamsHandler = async (c: GetTeamsCtx) => {
   const { search, page, limit } = c.req.valid('query')
 
@@ -32,7 +31,6 @@ export const createTeamHandler = async (c: CreateTeamCtx) => {
   return c.json(result, HttpStatus.CREATED)
 }
 
-// /teams/:teamId
 export const getTeamHandler = async (c: TeamParamsCtx) => {
   const { teamId } = c.req.valid('param')
 

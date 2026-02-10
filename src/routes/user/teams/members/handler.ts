@@ -15,7 +15,6 @@ import type {
   UpdateTeamMemberCtx,
 } from './schema'
 
-// /teams/:teamId/members
 export const getTeamMembersHandler = async (c: TeamMembersParamsCtx) => {
   const { teamId } = c.req.valid('param')
   const { id: userId } = c.get('user')
@@ -35,7 +34,6 @@ export const createMemberHandler = async (c: InviteMemberCtx) => {
   return c.json(result, HttpStatus.CREATED)
 }
 
-// /teams/:teamId/members/:memberId
 export const getTeamMemberHandler = async (c: TeamMemberParamsCtx) => {
   const { teamId, memberId } = c.req.valid('param')
   const { id: userId } = c.get('user')
@@ -55,7 +53,6 @@ export const updateTeamMemberHandler = async (c: UpdateTeamMemberCtx) => {
   return c.json(result, HttpStatus.OK)
 }
 
-// /teams/:teamId/members/:memberId/resend-invite
 export const resendMemberInviteHandler = async (c: ResendMemberInviteCtx) => {
   const { teamId, memberId } = c.req.valid('param')
   const { id: inviterId } = c.get('user')
