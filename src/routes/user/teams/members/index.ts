@@ -4,8 +4,17 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import { getTeamMemberHandler, getTeamMembersHandler, updateTeamMemberHandler } from './handler'
 import {
+  createMemberHandler,
+  getTeamMemberHandler,
+  getTeamMembersHandler,
+  resendMemberInviteHandler,
+  updateTeamMemberHandler,
+} from './handler'
+import {
+  createMemberParamsSchema,
+  inviteMemberBodySchema,
+  resendMemberInviteParamsSchema,
   teamMemberParamsSchema,
   teamMembersParamsSchema,
   updateTeamMemberBodySchema,
@@ -14,22 +23,35 @@ import {
 const teamsMembersRoute = new Hono<AppContext>()
 
 teamsMembersRoute.get(
-  '/teams/:teamId/members',
+  '/',
   requestValidator('param', teamMembersParamsSchema),
   getTeamMembersHandler,
 )
 
+teamsMembersRoute.post(
+  '/',
+  requestValidator('param', createMemberParamsSchema),
+  requestValidator('json', inviteMemberBodySchema),
+  createMemberHandler,
+)
+
 teamsMembersRoute.get(
-  '/teams/:teamId/members/:memberId',
+  '/:memberId',
   requestValidator('param', teamMemberParamsSchema),
   getTeamMemberHandler,
 )
 
 teamsMembersRoute.patch(
-  '/teams/:teamId/members/:memberId',
+  '/:memberId',
   requestValidator('param', teamMemberParamsSchema),
   requestValidator('json', updateTeamMemberBodySchema),
   updateTeamMemberHandler,
+)
+
+teamsMembersRoute.post(
+  '/:memberId/resend-invite',
+  requestValidator('param', resendMemberInviteParamsSchema),
+  resendMemberInviteHandler,
 )
 
 export default teamsMembersRoute

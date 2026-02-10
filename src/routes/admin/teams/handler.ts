@@ -23,20 +23,20 @@ export const getTeamsHandler = async (c: GetTeamsCtx) => {
   return c.json(result, HttpStatus.OK)
 }
 
-export const getTeamHandler = async (c: TeamParamsCtx) => {
-  const { teamId } = c.req.valid('param')
-
-  const result = await getTeam(teamId)
-
-  return c.json(result, HttpStatus.OK)
-}
-
 export const createTeamHandler = async (c: CreateTeamCtx) => {
   const body = c.req.valid('json')
 
   const result = await createTeam(body)
 
   return c.json(result, HttpStatus.CREATED)
+}
+
+export const getTeamHandler = async (c: TeamParamsCtx) => {
+  const { teamId } = c.req.valid('param')
+
+  const result = await getTeam(teamId)
+
+  return c.json(result, HttpStatus.OK)
 }
 
 export const updateTeamHandler = async (c: UpdateTeamCtx) => {

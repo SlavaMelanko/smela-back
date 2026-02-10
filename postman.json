@@ -11,6 +11,25 @@
       "item": [
         {
           "name": "users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastUser = res.users[0];",
+                  "",
+                  "if (lastUser) {",
+                  "    pm.environment.set(\"last_user_id\", lastUser.id);",
+                  "    console.log(\"Saved last_user_id:\", lastUser.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -32,13 +51,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/users/019c04dd-0321-7536-88ec-95a8d8a6c09a",
+              "raw": "{{admin_api_url}}/users/{{last_user_id}}",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "users",
-                "019c04dd-0321-7536-88ec-95a8d8a6c09a"
+                "{{last_user_id}}"
               ]
             }
           },
@@ -46,6 +65,25 @@
         },
         {
           "name": "teams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastTeam = res.teams[0];",
+                  "",
+                  "if (lastTeam) {",
+                  "    pm.environment.set(\"last_team_id\", lastTeam.id);",
+                  "    console.log(\"Saved last_team_id:\", lastTeam.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -63,12 +101,31 @@
         },
         {
           "name": "teams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastTeam = res.team;",
+                  "",
+                  "if (lastTeam) {",
+                  "    pm.environment.set(\"last_team_id\", lastTeam.id);",
+                  "    console.log(\"Saved last_team_id:\", lastTeam.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Books ToDo\",\n    \"website\": \"https://books-todo.com\"\n}",
+              "raw": "{\n    \"name\": \"Books For You\",\n    \"website\": \"https://b4u.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -93,13 +150,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263",
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263"
+                "{{last_team_id}}"
               ]
             }
           },
@@ -120,20 +177,39 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d"
+                "{{last_team_id}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "teams/:id/invites",
+          "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const member = res.user;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", member.id);",
+                  "    console.log(\"Saved last_member_id:\", member.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -147,27 +223,27 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites",
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
-                "invites"
+                "{{last_team_id}}",
+                "members"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "teams/:id/invites/:memberId/resend",
+          "name": "teams/:id/members/:id/resend-invite",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\"\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -175,16 +251,16 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c3229-b84e-7c09-a0c0-e0dfe851af50/invites/019c3362-5b44-76fb-b4d5-1dd683ff29d8/resend",
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/resend-invite",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c3229-b84e-7c09-a0c0-e0dfe851af50",
-                "invites",
-                "019c3362-5b44-76fb-b4d5-1dd683ff29d8",
-                "resend"
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "resend-invite"
               ]
             }
           },
@@ -407,7 +483,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"{{admin_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "raw": "{\n    \"email\": \"{{owner_email}}\",\n    \"password\": \"{{owner_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -568,7 +644,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"6eac2fa00819ebf254346b74036108b983db9691e81d250e2fe6efe51bc9c70c\",\n    \"password\": \"{{initial_password}}\"\n}\n",
+              "raw": "{\n    \"token\": \"f6ba2d60ed7efb017b2d535b07a227a1d6d68e57c174a369d30612836fb1e267\",\n    \"password\": \"{{initial_password}}\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -626,7 +702,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
+              "raw": "{\n    \"lastName\": \"Melanko\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -663,13 +739,13 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263"
+                "{{last_team_id}}"
               ]
             }
           },
@@ -690,13 +766,13 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d"
+                "{{last_team_id}}"
               ]
             }
           },
@@ -708,13 +784,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/members",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
+                "{{last_team_id}}",
                 "members"
               ]
             }
@@ -722,56 +798,26 @@
           "response": []
         },
         {
-          "name": "teams/:id/members/:id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members/019c380a-2650-7cdb-acfb-e251edc92537",
-              "host": [
-                "{{user_verified_only_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
-                "members",
-                "019c380a-2650-7cdb-acfb-e251edc92537"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id/members/:id",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"position\": \"designer\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
+          "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const member = res.user;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", member.id);",
+                  "    console.log(\"Saved last_member_id:\", member.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
-            },
-            "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members/019c380a-2650-7cdb-acfb-e251edc92537",
-              "host": [
-                "{{user_verified_only_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
-                "members",
-                "019c380a-2650-7cdb-acfb-e251edc92537"
-              ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id/invites",
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -785,27 +831,47 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
-                "invites"
+                "{{last_team_id}}",
+                "members"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "teams/:id/invites/:id/resend",
+          "name": "teams/:id/members/:id",
           "request": {
-            "method": "POST",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{invite_member_email}}\"\n}",
+              "raw": "{\n    \"position\": \"Lead dev\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -813,16 +879,45 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites/019c46e1-f86b-7d86-ac8a-85e551a409f7/resend",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
-                "invites",
-                "019c46e1-f86b-7d86-ac8a-85e551a409f7",
-                "resend"
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id/resend-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/resend-invite",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "resend-invite"
               ]
             }
           },
@@ -835,9 +930,73 @@
       "item": [
         {
           "name": "admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastAdmin = res.admins[0];",
+                  "",
+                  "if (lastAdmin) {",
+                  "    pm.environment.set(\"last_admin_id\", lastAdmin.id);",
+                  "    console.log(\"Saved last_admin_id:\", lastAdmin.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastAdmin = res.admin;",
+                  "",
+                  "if (lastAdmin) {",
+                  "    pm.environment.set(\"last_admin_id\", lastAdmin.id);",
+                  "    console.log(\"Saved last_admin_id:\", lastAdmin.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"view\": true,\n        \"create\": true,\n        \"edit\": true,\n        \"delete\": true\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{owner_api_url}}/admins",
               "host": [
@@ -856,60 +1015,32 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{owner_api_url}}/admins/019c04dd-02ac-7f72-8a2b-077963055a5a",
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
-                "019c04dd-02ac-7f72-8a2b-077963055a5a"
+                "{{last_admin_id}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "admins/invites",
+          "name": "admins/:id/resend-invite",
           "request": {
             "method": "POST",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+admin3@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
-              "raw": "{{owner_api_url}}/admins/invites",
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/resend-invite",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
-                "invites"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "admins/invites/:adminId/resend",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{owner_api_url}}/admins/invitations/019c3353-29db-79b3-8383-46a7d9c1742f/resend",
-              "host": [
-                "{{owner_api_url}}"
-              ],
-              "path": [
-                "admins",
-                "invitations",
-                "019c3353-29db-79b3-8383-46a7d9c1742f",
-                "resend"
+                "{{last_admin_id}}",
+                "resend-invite"
               ]
             }
           },

@@ -3,7 +3,7 @@ import { inviteMember, resendMemberInvite } from '@/use-cases/user'
 
 import type { InviteMemberCtx, ResendMemberInviteCtx } from './schema'
 
-export const inviteMemberHandler = async (c: InviteMemberCtx) => {
+export const createMemberHandler = async (c: InviteMemberCtx) => {
   const { teamId } = c.req.valid('param')
   const member = c.req.valid('json')
   const { id: inviterId } = c.get('user')

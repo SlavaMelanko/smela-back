@@ -13,9 +13,9 @@ export const getMeHandler = async (c: AppCtx) => {
 
 export const updateMeHandler = async (c: UpdateProfileCtx) => {
   const user = c.get('user')
-  const payload = c.req.valid('json')
+  const body = c.req.valid('json')
 
-  const result = await updateUser(user.id, payload.data)
+  const result = await updateUser(user.id, body)
 
   return c.json(result)
 }

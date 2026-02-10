@@ -1,7 +1,10 @@
 export {
   inviteMemberBodySchema,
   type InviteMemberCtx,
+  teamInvitesParamsSchema as teamParamsSchema,
+} from '../../../@shared'
+
+export {
   type ResendMemberInviteCtx,
   resendMemberInviteParamsSchema,
-  teamInvitesParamsSchema as teamParamsSchema,
 } from '../../../@shared'

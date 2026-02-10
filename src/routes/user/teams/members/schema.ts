@@ -11,6 +11,12 @@ export const teamMembersParamsSchema = z.object({
 export type TeamMembersParams = z.infer<typeof teamMembersParamsSchema>
 export type TeamMembersParamsCtx = ValidatedParamCtx<TeamMembersParams>
 
+export {
+  teamInvitesParamsSchema as createMemberParamsSchema,
+  inviteMemberBodySchema,
+  type InviteMemberCtx,
+} from '../../../@shared'
+
 export const teamMemberParamsSchema = z.object({
   teamId: rules.data.id,
   memberId: rules.data.id,
@@ -25,3 +31,8 @@ export const updateTeamMemberBodySchema = z.object({
 
 export type UpdateTeamMemberBody = z.infer<typeof updateTeamMemberBodySchema>
 export type UpdateTeamMemberCtx = ValidatedParamJsonCtx<TeamMemberParams, UpdateTeamMemberBody>
+
+export {
+  type ResendMemberInviteCtx,
+  resendMemberInviteParamsSchema,
+} from '../../../@shared'

@@ -10,7 +10,7 @@ import {
   getTeamsHandler,
   updateTeamHandler,
 } from './handler'
-import teamsInvitesRoute from './invites'
+import teamsMembersRoute from './members'
 import {
   createTeamBodySchema,
   getTeamsQuerySchema,
@@ -25,16 +25,19 @@ adminTeamsRoute.get(
   requestValidator('query', getTeamsQuerySchema),
   getTeamsHandler,
 )
-adminTeamsRoute.get(
-  '/teams/:teamId',
-  requestValidator('param', teamParamsSchema),
-  getTeamHandler,
-)
+
 adminTeamsRoute.post(
   '/teams',
   requestValidator('json', createTeamBodySchema),
   createTeamHandler,
 )
+
+adminTeamsRoute.get(
+  '/teams/:teamId',
+  requestValidator('param', teamParamsSchema),
+  getTeamHandler,
+)
+
 adminTeamsRoute.patch(
   '/teams/:teamId',
   requestValidator('param', teamParamsSchema),
@@ -42,6 +45,6 @@ adminTeamsRoute.patch(
   updateTeamHandler,
 )
 
-adminTeamsRoute.route('/', teamsInvitesRoute)
+adminTeamsRoute.route('/teams/:teamId/members', teamsMembersRoute)
 
 export default adminTeamsRoute

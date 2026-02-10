@@ -14,6 +14,7 @@ adminUsersRoute.get(
   requestValidator('query', getUsersQuerySchema),
   getUsersHandler,
 )
+
 adminUsersRoute.get(
   '/users/:id',
   requestValidator('param', getUserParamsSchema),

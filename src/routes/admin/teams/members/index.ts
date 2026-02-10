@@ -4,26 +4,26 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import { inviteMemberHandler, resendMemberInviteHandler } from './handler'
+import { createMemberHandler, resendMemberInviteHandler } from './handler'
 import {
   inviteMemberBodySchema,
   resendMemberInviteParamsSchema,
   teamParamsSchema,
 } from './schema'
 
-const teamsInvitesRoute = new Hono<AppContext>()
+const teamsMembersRoute = new Hono<AppContext>()
 
-teamsInvitesRoute.post(
-  '/teams/:teamId/invites',
+teamsMembersRoute.post(
+  '/',
   requestValidator('param', teamParamsSchema),
   requestValidator('json', inviteMemberBodySchema),
-  inviteMemberHandler,
+  createMemberHandler,
 )
 
-teamsInvitesRoute.post(
-  '/teams/:teamId/invites/:memberId/resend',
+teamsMembersRoute.post(
+  '/:memberId/resend-invite',
   requestValidator('param', resendMemberInviteParamsSchema),
   resendMemberInviteHandler,
 )
 
-export default teamsInvitesRoute
+export default teamsMembersRoute

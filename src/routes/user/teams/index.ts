@@ -5,7 +5,6 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { getTeamHandler, updateTeamHandler } from './handler'
-import teamsInvitesRoute from './invites'
 import teamsMembersRoute from './members'
 import { teamParamsSchema, updateTeamBodySchema } from './schema'
 
@@ -24,8 +23,6 @@ teamsRoute.patch(
   updateTeamHandler,
 )
 
-teamsRoute.route('/', teamsInvitesRoute)
-
-teamsRoute.route('/', teamsMembersRoute)
+teamsRoute.route('/teams/:teamId/members', teamsMembersRoute)
 
 export default teamsRoute
