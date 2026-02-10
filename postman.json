@@ -93,13 +93,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "raw": "{{admin_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d"
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263"
               ]
             }
           },
@@ -139,7 +139,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member4@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -147,13 +147,13 @@
               }
             },
             "url": {
-              "raw": "{{admin_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites",
+              "raw": "{{admin_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites",
               "host": [
                 "{{admin_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
                 "invites"
               ]
             }
@@ -167,7 +167,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\",\n    \"permissions\": {\n        \"view\": true,\n        \"edit\": true,\n        \"create\": true,\n        \"delete\": true\n    }\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member1@gmail.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -266,7 +266,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{initial_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{initial_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"dark\",\n        \"locale\": \"en\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -292,7 +292,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"light\",\n        \"locale\": \"uk\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -407,7 +407,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{initial_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "raw": "{\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"{{admin_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -433,7 +433,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"dark\",\n        \"locale\": \"en\"\n    }\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -568,7 +568,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"081930a069e4b76564cc4be5ca563266fe68227a7f8486eaaa59cce78b19257f\",\n    \"password\": \"{{initial_password}}\"\n}\n",
+              "raw": "{\n    \"token\": \"6eac2fa00819ebf254346b74036108b983db9691e81d250e2fe6efe51bc9c70c\",\n    \"password\": \"{{initial_password}}\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -663,13 +663,13 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d",
+              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d"
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263"
               ]
             }
           },
@@ -708,13 +708,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/members",
+              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/members",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
                 "members"
               ]
             }
@@ -777,7 +777,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member6@gmail.com\"\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -785,13 +785,13 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites",
+              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
                 "invites"
               ]
             }
@@ -805,7 +805,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"slava.melanko+member6@gmail.com\"\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{invite_member_email}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -813,15 +813,15 @@
               }
             },
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/019c37fd-249b-76a4-a24f-96b742d4841d/invites/019c381f-b38d-7360-b4b7-690aaaa4f4b5/resend",
+              "raw": "{{user_verified_only_api_url}}/teams/019c42b2-e17d-76a4-b863-5ad39b9ec263/invites/019c46e1-f86b-7d86-ac8a-85e551a409f7/resend",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
               "path": [
                 "teams",
-                "019c37fd-249b-76a4-a24f-96b742d4841d",
+                "019c42b2-e17d-76a4-b863-5ad39b9ec263",
                 "invites",
-                "019c381f-b38d-7360-b4b7-690aaaa4f4b5",
+                "019c46e1-f86b-7d86-ac8a-85e551a409f7",
                 "resend"
               ]
             }
