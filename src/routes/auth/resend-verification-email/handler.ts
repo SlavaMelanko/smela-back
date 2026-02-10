@@ -3,12 +3,10 @@ import resendVerificationEmail from '@/use-cases/auth/resend-verification-email'
 
 import type { ResendVerificationEmailCtx } from './schema'
 
-const resendVerificationEmailHandler = async (c: ResendVerificationEmailCtx) => {
-  const payload = c.req.valid('json')
+export const resendVerificationEmailHandler = async (c: ResendVerificationEmailCtx) => {
+  const { email, preferences } = c.req.valid('json')
 
-  const result = await resendVerificationEmail(payload.data, payload.preferences)
+  const result = await resendVerificationEmail({ email }, preferences)
 
   return c.json(result, HttpStatus.ACCEPTED)
 }
-
-export default resendVerificationEmailHandler

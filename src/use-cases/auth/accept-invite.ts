@@ -13,10 +13,9 @@ import {
 } from '@/security/token'
 import Status from '@/types/status'
 
-interface AcceptInviteParams {
+export interface AcceptInviteParams {
   token: string
   password: string
-  deviceInfo: DeviceInfo
 }
 
 const validateToken = async (token: string) => {
@@ -49,7 +48,8 @@ const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
 }
 
 const acceptInvite = async (
-  { token, password, deviceInfo }: AcceptInviteParams,
+  { token, password }: AcceptInviteParams,
+  deviceInfo: DeviceInfo,
 ) => {
   const validatedToken = await validateToken(token)
 

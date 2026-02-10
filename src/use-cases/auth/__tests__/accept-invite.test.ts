@@ -133,11 +133,10 @@ describe('Accept Invite', () => {
 
   describe('when token is valid and active', () => {
     it('should validate token, hash password, mark token as used, update password, activate user, and return user with tokens', async () => {
-      const result = await acceptInvite({
-        token: mockTokenString,
-        password: mockPassword,
-        deviceInfo: mockDeviceInfo,
-      })
+      const result = await acceptInvite(
+        { token: mockTokenString, password: mockPassword },
+        mockDeviceInfo,
+      )
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.findByToken).toHaveBeenCalledTimes(1)
@@ -182,7 +181,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: 'invalid-token', password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: 'invalid-token', password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -205,7 +205,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -228,7 +229,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -251,7 +253,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -274,7 +277,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -297,7 +301,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -320,7 +325,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -343,7 +349,8 @@ describe('Accept Invite', () => {
 
       try {
         await acceptInvite(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false)
       } catch (error) {
@@ -361,7 +368,7 @@ describe('Accept Invite', () => {
   describe('edge cases', () => {
     it('should handle empty password', async () => {
       try {
-        await acceptInvite({ token: mockTokenString, password: '', deviceInfo: mockDeviceInfo })
+        await acceptInvite({ token: mockTokenString, password: '' }, mockDeviceInfo)
         expect(true).toBe(false)
       } catch (error) {
         expect(error).toBeDefined()
@@ -371,11 +378,10 @@ describe('Accept Invite', () => {
     it('should handle very long passwords', async () => {
       const longPassword = `A1@${'a'.repeat(1000)}`
 
-      const result = await acceptInvite({
-        token: mockTokenString,
-        password: longPassword,
-        deviceInfo: mockDeviceInfo,
-      })
+      const result = await acceptInvite(
+        { token: mockTokenString, password: longPassword },
+        mockDeviceInfo,
+      )
 
       expect(result).toEqual({
         data: { user: mockActivatedUser, accessToken: mockAccessToken },

@@ -3,15 +3,13 @@ import logInWithEmail from '@/use-cases/auth/login'
 
 import type { LoginCtx } from './schema'
 
-const loginHandler = async (c: LoginCtx) => {
-  const payload = c.req.valid('json')
+export const loginHandler = async (c: LoginCtx) => {
+  const { email, password } = c.req.valid('json')
   const deviceInfo = getDeviceInfo(c)
 
-  const result = await logInWithEmail(payload.data, deviceInfo)
+  const result = await logInWithEmail({ email, password }, deviceInfo)
 
   setRefreshCookie(c, result.refreshToken)
 
   return c.json(result.data, HttpStatus.OK)
 }
-
-export default loginHandler

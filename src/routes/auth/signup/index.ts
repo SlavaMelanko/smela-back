@@ -4,7 +4,7 @@ import type { AppContext } from '@/context'
 
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
-import handler from './handler'
+import { signupHandler } from './handler'
 import schema from './schema'
 
 const signupRoute = new Hono<AppContext>()
@@ -13,7 +13,7 @@ signupRoute.post(
   '/signup',
   requestValidator('json', schema),
   captchaMiddleware(),
-  handler,
+  signupHandler,
 )
 
 export default signupRoute

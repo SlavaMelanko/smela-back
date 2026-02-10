@@ -126,11 +126,10 @@ describe('Reset Password', () => {
 
   describe('when token is valid and active', () => {
     it('should validate token, hash password, mark token as used, update password, and return user with tokens', async () => {
-      const result = await resetPassword({
-        token: mockTokenString,
-        password: mockPassword,
-        deviceInfo: mockDeviceInfo,
-      })
+      const result = await resetPassword(
+        { token: mockTokenString, password: mockPassword },
+        mockDeviceInfo,
+      )
 
       expect(mockTokenRepo.findByToken).toHaveBeenCalledWith(mockTokenString)
       expect(mockTokenRepo.findByToken).toHaveBeenCalledTimes(1)
@@ -170,7 +169,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: 'invalid-token', password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: 'invalid-token', password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -192,7 +192,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -214,7 +215,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -236,7 +238,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -258,7 +261,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -280,7 +284,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -302,7 +307,8 @@ describe('Reset Password', () => {
 
       try {
         await resetPassword(
-          { token: mockTokenString, password: mockPassword, deviceInfo: mockDeviceInfo },
+          { token: mockTokenString, password: mockPassword },
+          mockDeviceInfo,
         )
         expect(true).toBe(false) // should not reach here
       } catch (error) {
@@ -319,7 +325,7 @@ describe('Reset Password', () => {
   describe('edge cases', () => {
     it('should handle empty password', async () => {
       try {
-        await resetPassword({ token: mockTokenString, password: '', deviceInfo: mockDeviceInfo })
+        await resetPassword({ token: mockTokenString, password: '' }, mockDeviceInfo)
         expect(true).toBe(false) // should not reach here due to validation
       } catch (error) {
         // This would be caught by the validation layer before reaching this function
@@ -330,11 +336,10 @@ describe('Reset Password', () => {
     it('should handle very long passwords', async () => {
       const longPassword = `A1@${'a'.repeat(1000)}` // very long password
 
-      const result = await resetPassword({
-        token: mockTokenString,
-        password: longPassword,
-        deviceInfo: mockDeviceInfo,
-      })
+      const result = await resetPassword(
+        { token: mockTokenString, password: longPassword },
+        mockDeviceInfo,
+      )
 
       expect(result).toEqual({
         data: { user: mockUser, accessToken: mockAccessToken },

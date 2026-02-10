@@ -12,10 +12,9 @@ import {
   TokenValidator,
 } from '@/security/token'
 
-interface ResetPasswordParams {
+export interface ResetPasswordParams {
   token: string
   password: string
-  deviceInfo: DeviceInfo
 }
 
 const validateToken = async (token: string) => {
@@ -48,7 +47,8 @@ const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
 }
 
 const resetPassword = async (
-  { token, password, deviceInfo }: ResetPasswordParams,
+  { token, password }: ResetPasswordParams,
+  deviceInfo: DeviceInfo,
 ) => {
   const validatedToken = await validateToken(token)
 

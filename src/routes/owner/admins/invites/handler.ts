@@ -3,7 +3,7 @@ import { inviteAdmin, resendAdminInvitation } from '@/use-cases/owner'
 
 import type { InviteAdminCtx, ResendAdminInviteCtx } from './schema'
 
-export const createInvitationHandler = async (c: InviteAdminCtx) => {
+export const createInviteHandler = async (c: InviteAdminCtx) => {
   const body = c.req.valid('json')
   const { id: inviterId } = c.get('user')
 
@@ -12,7 +12,7 @@ export const createInvitationHandler = async (c: InviteAdminCtx) => {
   return c.json(result, HttpStatus.CREATED)
 }
 
-export const resendInvitationHandler = async (c: ResendAdminInviteCtx) => {
+export const resendInviteHandler = async (c: ResendAdminInviteCtx) => {
   const { adminId } = c.req.valid('param')
   const { id: inviterId } = c.get('user')
 

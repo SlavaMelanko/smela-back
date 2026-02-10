@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import refreshTokenHandler from '../handler'
+import { refreshTokenHandler } from '../handler'
 
 describe('Refresh Token Handler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
