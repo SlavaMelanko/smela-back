@@ -9,7 +9,9 @@ import updateProfileSchema from './schema'
 
 const meRoute = new Hono<AppContext>()
 
+// /me
 meRoute.get('/me', getMeHandler)
+
 meRoute.patch('/me', requestValidator('json', updateProfileSchema), updateMeHandler)
 
 export default meRoute

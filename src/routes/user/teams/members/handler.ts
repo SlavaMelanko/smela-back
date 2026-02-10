@@ -1,8 +1,21 @@
 import { HttpStatus } from '@/net/http'
-import { getTeamMember, getTeamMembers, updateTeamMember } from '@/use-cases/user'
+import {
+  getTeamMember,
+  getTeamMembers,
+  inviteMember,
+  resendMemberInvite,
+  updateTeamMember,
+} from '@/use-cases/user'
 
-import type { TeamMemberParamsCtx, TeamMembersParamsCtx, UpdateTeamMemberCtx } from './schema'
+import type {
+  InviteMemberCtx,
+  ResendMemberInviteCtx,
+  TeamMemberParamsCtx,
+  TeamMembersParamsCtx,
+  UpdateTeamMemberCtx,
+} from './schema'
 
+// /teams/:teamId/members
 export const getTeamMembersHandler = async (c: TeamMembersParamsCtx) => {
   const { teamId } = c.req.valid('param')
   const { id: userId } = c.get('user')
@@ -12,6 +25,17 @@ export const getTeamMembersHandler = async (c: TeamMembersParamsCtx) => {
   return c.json(result, HttpStatus.OK)
 }
 
+export const createMemberHandler = async (c: InviteMemberCtx) => {
+  const { teamId } = c.req.valid('param')
+  const member = c.req.valid('json')
+  const { id: inviterId } = c.get('user')
+
+  const result = await inviteMember(teamId, member, inviterId)
+
+  return c.json(result, HttpStatus.CREATED)
+}
+
+// /teams/:teamId/members/:memberId
 export const getTeamMemberHandler = async (c: TeamMemberParamsCtx) => {
   const { teamId, memberId } = c.req.valid('param')
   const { id: userId } = c.get('user')
@@ -27,6 +51,16 @@ export const updateTeamMemberHandler = async (c: UpdateTeamMemberCtx) => {
   const { id: userId } = c.get('user')
 
   const result = await updateTeamMember(teamId, memberId, body, userId)
+
+  return c.json(result, HttpStatus.OK)
+}
+
+// /teams/:teamId/members/:memberId/resend-invite
+export const resendMemberInviteHandler = async (c: ResendMemberInviteCtx) => {
+  const { teamId, memberId } = c.req.valid('param')
+  const { id: inviterId } = c.get('user')
+
+  const result = await resendMemberInvite(teamId, memberId, inviterId)
 
   return c.json(result, HttpStatus.OK)
 }

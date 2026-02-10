@@ -5,12 +5,12 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { getTeamHandler, updateTeamHandler } from './handler'
-import teamsInvitesRoute from './invites'
 import teamsMembersRoute from './members'
 import { teamParamsSchema, updateTeamBodySchema } from './schema'
 
 const teamsRoute = new Hono<AppContext>()
 
+// /teams/:teamId
 teamsRoute.get(
   '/teams/:teamId',
   requestValidator('param', teamParamsSchema),
@@ -24,8 +24,7 @@ teamsRoute.patch(
   updateTeamHandler,
 )
 
-teamsRoute.route('/', teamsInvitesRoute)
-
+// /teams/:teamId/members/*
 teamsRoute.route('/', teamsMembersRoute)
 
 export default teamsRoute

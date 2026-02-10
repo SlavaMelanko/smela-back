@@ -10,7 +10,7 @@ import {
   getTeamsHandler,
   updateTeamHandler,
 } from './handler'
-import teamsInvitesRoute from './invites'
+import teamsMembersRoute from './members'
 import {
   createTeamBodySchema,
   getTeamsQuerySchema,
@@ -20,21 +20,26 @@ import {
 
 const adminTeamsRoute = new Hono<AppContext>()
 
+// /teams
 adminTeamsRoute.get(
   '/teams',
   requestValidator('query', getTeamsQuerySchema),
   getTeamsHandler,
 )
-adminTeamsRoute.get(
-  '/teams/:teamId',
-  requestValidator('param', teamParamsSchema),
-  getTeamHandler,
-)
+
 adminTeamsRoute.post(
   '/teams',
   requestValidator('json', createTeamBodySchema),
   createTeamHandler,
 )
+
+// /teams/:teamId
+adminTeamsRoute.get(
+  '/teams/:teamId',
+  requestValidator('param', teamParamsSchema),
+  getTeamHandler,
+)
+
 adminTeamsRoute.patch(
   '/teams/:teamId',
   requestValidator('param', teamParamsSchema),
@@ -42,6 +47,7 @@ adminTeamsRoute.patch(
   updateTeamHandler,
 )
 
-adminTeamsRoute.route('/', teamsInvitesRoute)
+// /teams/:teamId/members/*
+adminTeamsRoute.route('/', teamsMembersRoute)
 
 export default adminTeamsRoute

@@ -3,6 +3,7 @@ import { getTeam, updateTeam } from '@/use-cases/user'
 
 import type { TeamParamsCtx, UpdateTeamCtx } from './schema'
 
+// /teams/:teamId
 export const getTeamHandler = async (c: TeamParamsCtx) => {
   const { teamId } = c.req.valid('param')
   const { id: userId } = c.get('user')

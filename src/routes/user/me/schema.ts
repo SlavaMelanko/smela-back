@@ -4,6 +4,7 @@ import type { ValidatedJsonCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 
+// /me
 const updateProfileSchema = z.object({
   data: z.object({
     firstName: rules.data.firstName.optional(),
