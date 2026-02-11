@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { AuthRecord, User } from '@/data'
+import type { AuthRecord, Team, User } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -21,6 +21,8 @@ describe('Login with Email', () => {
   let mockAuthRecord: AuthRecord
   let mockAuthRepo: any
   let mockRefreshTokenRepo: any
+  let mockTeamRepo: any
+  let mockTeam: Team | undefined
 
   let mockComparePasswords: any
 
@@ -67,11 +69,16 @@ describe('Login with Email', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
     }
+    mockTeam = undefined
+    mockTeamRepo = {
+      findUserTeam: mock(async () => mockTeam),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
+      teamRepo: mockTeamRepo,
     }))
 
     mockComparePasswords = mock(async () => true)
@@ -104,15 +111,33 @@ describe('Login with Email', () => {
   })
 
   describe('successful login', () => {
-    it('should return user and token for valid credentials', async () => {
+    it('should return user, team, and token for valid credentials', async () => {
       const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.data.team).toBeNull()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)
+    })
+
+    it('should return team info when user belongs to a team', async () => {
+      mockTeam = {
+        id: 'team-123',
+        name: 'Acme Corp',
+        website: 'https://acme.com',
+        description: 'A company',
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      }
+      mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
+
+      const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
+
+      expect(result.data.team).toEqual(mockTeam)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockUser.id)
     })
 
     it('should handle different user roles correctly', async () => {

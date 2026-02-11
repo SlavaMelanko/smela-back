@@ -2,7 +2,7 @@ import { and, count, desc, eq, sql } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamMemberWithTeam, TeamWithMembers } from './types'
+import type { Team, TeamMemberDetails, TeamWithMembers } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
@@ -80,22 +80,13 @@ export const findTeamById = async (
   return team
 }
 
-export const findTeam = async (
+export const findTeamMembers = async (
   teamId: string,
   tx?: Database,
-): Promise<TeamWithMembers | undefined> => {
+): Promise<TeamMemberDetails[]> => {
   const executor = tx || db
 
-  const [team] = await executor
-    .select()
-    .from(teamsTable)
-    .where(eq(teamsTable.id, teamId))
-
-  if (!team) {
-    return undefined
-  }
-
-  const memberRows = await executor
+  return executor
     .select({
       id: teamMembersTable.userId,
       firstName: usersTable.firstName,
@@ -109,25 +100,6 @@ export const findTeam = async (
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
     .where(eq(teamMembersTable.teamId, teamId))
-
-  return {
-    ...team,
-    members: memberRows,
-  }
-}
-
-export const findTeamByName = async (
-  name: string,
-  tx?: Database,
-): Promise<Team | undefined> => {
-  const executor = tx || db
-
-  const [team] = await executor
-    .select()
-    .from(teamsTable)
-    .where(eq(teamsTable.name, name))
-
-  return team
 }
 
 export const findTeamMember = async (
@@ -160,85 +132,43 @@ export const findTeamMember = async (
   return member
 }
 
-export const findUserTeams = async (
+export const findTeamWithMembers = async (
+  teamId: string,
+  tx?: Database,
+): Promise<TeamWithMembers | undefined> => {
+  const [team, members] = await Promise.all([
+    findTeamById(teamId, tx),
+    findTeamMembers(teamId, tx),
+  ])
+
+  if (!team) {
+    return undefined
+  }
+
+  return {
+    ...team,
+    members,
+  }
+}
+
+export const findUserTeam = async (
   userId: string,
   tx?: Database,
-): Promise<TeamMemberWithTeam[]> => {
+): Promise<Team | undefined> => {
   const executor = tx || db
 
-  const results = await executor
+  const [result] = await executor
     .select({
-      id: teamMembersTable.id,
-      userId: teamMembersTable.userId,
-      teamId: teamMembersTable.teamId,
-      position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
-      joinedAt: teamMembersTable.joinedAt,
-      team: teamsTable,
+      id: teamsTable.id,
+      name: teamsTable.name,
+      website: teamsTable.website,
+      description: teamsTable.description,
+      createdAt: teamsTable.createdAt,
+      updatedAt: teamsTable.updatedAt,
     })
     .from(teamMembersTable)
     .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
     .where(eq(teamMembersTable.userId, userId))
 
-  return results.map(row => ({
-    id: row.id,
-    userId: row.userId,
-    teamId: row.teamId,
-    position: row.position,
-    invitedBy: row.invitedBy,
-    joinedAt: row.joinedAt,
-    team: row.team,
-  }))
-}
-
-export const findTeamMembers = async (
-  teamId: string,
-  tx?: Database,
-): Promise<TeamMemberDetails[]> => {
-  const executor = tx || db
-
-  return executor
-    .select({
-      id: teamMembersTable.userId,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      status: usersTable.status,
-      position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
-      joinedAt: teamMembersTable.joinedAt,
-    })
-    .from(teamMembersTable)
-    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
-    .where(eq(teamMembersTable.teamId, teamId))
-}
-
-export const findTeamMemberById = async (
-  teamId: string,
-  memberId: string,
-  tx?: Database,
-): Promise<TeamMemberDetails | undefined> => {
-  const executor = tx || db
-
-  const [member] = await executor
-    .select({
-      id: teamMembersTable.userId,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      status: usersTable.status,
-      position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
-      joinedAt: teamMembersTable.joinedAt,
-    })
-    .from(teamMembersTable)
-    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
-    .where(
-      and(
-        eq(teamMembersTable.teamId, teamId),
-        eq(teamMembersTable.userId, memberId),
-      ),
-    )
-
-  return member
+  return result
 }

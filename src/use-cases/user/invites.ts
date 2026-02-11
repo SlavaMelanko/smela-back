@@ -61,7 +61,7 @@ export const inviteMember = async (
       passwordHash,
     }, tx)
 
-    await teamRepo.addMember({
+    await teamRepo.createMember({
       userId: newUser.id,
       teamId,
       position: member.position,

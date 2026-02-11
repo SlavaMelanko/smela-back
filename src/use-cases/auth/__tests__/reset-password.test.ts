@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { TokenRecord, User } from '@/data'
+import type { Team, TokenRecord, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
@@ -24,6 +24,8 @@ describe('Reset Password', () => {
   let mockAuthRepo: any
   let mockUserRepo: any
   let mockRefreshTokenRepo: any
+  let mockTeamRepo: any
+  let mockTeam: Team | undefined
   let mockTransaction: any
 
   let mockTokenValidator: any
@@ -81,6 +83,10 @@ describe('Reset Password', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => {}),
     }
+    mockTeam = undefined
+    mockTeamRepo = {
+      findUserTeam: mock(async () => mockTeam),
+    }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
     }
@@ -90,6 +96,7 @@ describe('Reset Password', () => {
       authRepo: mockAuthRepo,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
+      teamRepo: mockTeamRepo,
       db: mockTransaction,
     }))
 
@@ -155,9 +162,29 @@ describe('Reset Password', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockUser, accessToken: mockAccessToken },
+        data: { user: mockUser, team: null, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
+    })
+
+    it('should include team info when user belongs to a team', async () => {
+      mockTeam = {
+        id: 'team-456',
+        name: 'Tech Inc',
+        website: null,
+        description: null,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      }
+      mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
+
+      const result = await resetPassword(
+        { token: mockTokenString, password: mockPassword },
+        mockDeviceInfo,
+      )
+
+      expect(result.data.team).toEqual(mockTeam)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockUser.id)
     })
   })
 
@@ -342,7 +369,7 @@ describe('Reset Password', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockUser, accessToken: mockAccessToken },
+        data: { user: mockUser, team: null, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
 
