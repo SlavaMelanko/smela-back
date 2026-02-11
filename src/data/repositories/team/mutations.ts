@@ -52,18 +52,7 @@ export const updateTeam = async (
   return team
 }
 
-export const deleteTeam = async (
-  teamId: string,
-  tx?: Database,
-): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .delete(teamsTable)
-    .where(eq(teamsTable.id, teamId))
-}
-
-export const addTeamMember = async (
+export const createTeamMember = async (
   input: CreateTeamMemberInput,
   tx?: Database,
 ): Promise<TeamMember> => {
@@ -79,23 +68,6 @@ export const addTeamMember = async (
   }
 
   return membership
-}
-
-export const removeTeamMember = async (
-  userId: string,
-  teamId: string,
-  tx?: Database,
-): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .delete(teamMembersTable)
-    .where(
-      and(
-        eq(teamMembersTable.userId, userId),
-        eq(teamMembersTable.teamId, teamId),
-      ),
-    )
 }
 
 export interface UpdateTeamMemberInput {

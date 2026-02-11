@@ -1,8 +1,6 @@
 import {
-  addTeamMember,
   createTeam,
-  deleteTeam,
-  removeTeamMember,
+  createTeamMember,
   updateTeam,
   updateTeamMember,
 } from './mutations'
@@ -20,18 +18,32 @@ export type { TeamSearchParams, TeamSearchResult } from './queries'
 
 export * from './types'
 
-export const teamRepo = {
-  addMember: addTeamMember,
+const teamMutations = {
   create: createTeam,
-  delete: deleteTeam,
+  update: updateTeam,
+}
+
+const teamQueries = {
   find: findTeamWithMembers,
   findById: findTeamById,
   findByName: findTeamByName,
+  findUserTeam,
+  search: searchTeams,
+}
+
+const memberMutations = {
+  createMember: createTeamMember,
+  updateMember: updateTeamMember,
+}
+
+const memberQueries = {
   findMember: findTeamMember,
   findMembers: findTeamMembers,
-  findUserTeam,
-  removeMember: removeTeamMember,
-  search: searchTeams,
-  update: updateTeam,
-  updateMember: updateTeamMember,
+}
+
+export const teamRepo = {
+  ...teamMutations,
+  ...teamQueries,
+  ...memberMutations,
+  ...memberQueries,
 }

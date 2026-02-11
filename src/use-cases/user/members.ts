@@ -55,9 +55,7 @@ export const updateTeamMember = async (
     throw new AppError(ErrorCode.NotFound, 'Member not found')
   }
 
-  await teamRepo.updateMember(memberId, teamId, params)
-
-  const member = await teamRepo.findMember(memberId, teamId)
+  const member = await teamRepo.updateMember(memberId, teamId, params)
 
   return { member }
 }

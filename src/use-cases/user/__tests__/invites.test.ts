@@ -21,7 +21,7 @@ describe('inviteMember', () => {
   let mockUserRepoFindById: any
   let mockUserRepoCreate: any
   let mockAuthRepoCreate: any
-  let mockTeamRepoAddMember: any
+  let mockTeamRepoCreateMember: any
   let mockTokenRepoIssue: any
   let mockTransaction: any
   let mockEmailAgent: any
@@ -67,7 +67,7 @@ describe('inviteMember', () => {
       updatedAt: new Date('2024-01-01'),
     }))
     mockAuthRepoCreate = mock(async () => {})
-    mockTeamRepoAddMember = mock(async () => {})
+    mockTeamRepoCreateMember = mock(async () => {})
     mockTokenRepoIssue = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
       return callback({})
@@ -79,7 +79,7 @@ describe('inviteMember', () => {
     await moduleMocker.mock('@/data', () => ({
       teamRepo: {
         findById: mockTeamRepoFindById,
-        addMember: mockTeamRepoAddMember,
+        createMember: mockTeamRepoCreateMember,
       },
       userRepo: {
         findByEmail: mockUserRepoFindByEmail,
@@ -152,7 +152,7 @@ describe('inviteMember', () => {
   it('should add user to team with invitedBy', async () => {
     await inviteMember(TEAM_1, inviteParams, USER_2)
 
-    expect(mockTeamRepoAddMember).toHaveBeenCalledWith(
+    expect(mockTeamRepoCreateMember).toHaveBeenCalledWith(
       {
         userId: USER_1,
         teamId: TEAM_1,
