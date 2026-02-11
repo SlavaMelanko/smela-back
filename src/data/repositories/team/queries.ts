@@ -2,7 +2,7 @@ import { and, count, desc, eq, sql } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamMemberWithTeam, TeamWithMembers } from './types'
+import type { Team, TeamMemberDetails, TeamWithMembers } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
@@ -160,37 +160,6 @@ export const findTeamMember = async (
   return member
 }
 
-export const findUserTeams = async (
-  userId: string,
-  tx?: Database,
-): Promise<TeamMemberWithTeam[]> => {
-  const executor = tx || db
-
-  const results = await executor
-    .select({
-      id: teamMembersTable.id,
-      userId: teamMembersTable.userId,
-      teamId: teamMembersTable.teamId,
-      position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
-      joinedAt: teamMembersTable.joinedAt,
-      team: teamsTable,
-    })
-    .from(teamMembersTable)
-    .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
-    .where(eq(teamMembersTable.userId, userId))
-
-  return results.map(row => ({
-    id: row.id,
-    userId: row.userId,
-    teamId: row.teamId,
-    position: row.position,
-    invitedBy: row.invitedBy,
-    joinedAt: row.joinedAt,
-    team: row.team,
-  }))
-}
-
 export const findUserTeam = async (
   userId: string,
   tx?: Database,
@@ -209,7 +178,6 @@ export const findUserTeam = async (
     .from(teamMembersTable)
     .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
     .where(eq(teamMembersTable.userId, userId))
-    .limit(1)
 
   return result
 }

@@ -14,7 +14,6 @@ import {
   findTeamMemberById,
   findTeamMembers,
   findUserTeam,
-  findUserTeams,
   searchTeams,
 } from './queries'
 
@@ -33,7 +32,6 @@ export const teamRepo = {
   findMemberById: findTeamMemberById,
   findMembers: findTeamMembers,
   findUserTeam,
-  findUserTeams,
   removeMember: removeTeamMember,
   search: searchTeams,
   update: updateTeam,

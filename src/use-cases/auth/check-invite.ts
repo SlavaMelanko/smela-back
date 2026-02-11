@@ -12,13 +12,13 @@ interface CheckInviteResult {
 }
 
 const checkMemberInvite = async (userId: string): Promise<CheckInviteResult | null> => {
-  const userTeams = await teamRepo.findUserTeams(userId)
+  const userTeam = await teamRepo.findUserTeam(userId)
 
-  if (userTeams.length === 0) {
+  if (!userTeam) {
     return null
   }
 
-  return { type: 'member', teamName: userTeams[0].team.name }
+  return { type: 'member', teamName: userTeam.name }
 }
 
 const checkAdminInvite = async (userId: string): Promise<CheckInviteResult | null> => {

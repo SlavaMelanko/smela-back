@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, TeamMemberWithTeam, TokenRecord, UserRoleRecord } from '@/data'
+import type { Team, TokenRecord, UserRoleRecord } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -23,7 +23,6 @@ describe('Check Invite', () => {
   let mockTokenValidator: any
 
   let mockTeam: Team
-  let mockTeamMemberWithTeam: TeamMemberWithTeam
   let mockAdminRole: UserRoleRecord
 
   beforeEach(async () => {
@@ -49,16 +48,6 @@ describe('Check Invite', () => {
       updatedAt: new Date(),
     }
 
-    mockTeamMemberWithTeam = {
-      id: 1,
-      userId: testUuids.ADMIN_1,
-      teamId: testUuids.TEAM_1,
-      position: 'Developer',
-      invitedBy: testUuids.OWNER_1,
-      joinedAt: new Date(),
-      team: mockTeam,
-    }
-
     mockAdminRole = {
       userId: testUuids.ADMIN_1,
       role: Role.Admin,
@@ -70,7 +59,7 @@ describe('Check Invite', () => {
       findByToken: mock(async () => mockTokenRecord),
     }
     mockTeamRepo = {
-      findUserTeams: mock(async () => [mockTeamMemberWithTeam]),
+      findUserTeam: mock(async () => mockTeam),
     }
     mockUserRoleRepo = {
       findByUserId: mock(async () => mockAdminRole),
@@ -113,8 +102,8 @@ describe('Check Invite', () => {
       )
       expect(mockTokenValidator.validate).toHaveBeenCalledTimes(1)
 
-      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
-      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledTimes(1)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledTimes(1)
 
       expect(mockUserRoleRepo.findByUserId).not.toHaveBeenCalled()
 
@@ -124,13 +113,13 @@ describe('Check Invite', () => {
 
   describe('when token is valid for admin invite', () => {
     beforeEach(() => {
-      mockTeamRepo.findUserTeams.mockResolvedValue([])
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
     })
 
     it('should return admin type and company name for admin invitation token', async () => {
       const result = await checkInvite(mockTokenString)
 
-      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledTimes(1)
 
@@ -152,7 +141,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenNotFound)
       }
 
-      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeam).not.toHaveBeenCalled()
     })
   })
 
@@ -170,7 +159,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenExpired)
       }
 
-      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeam).not.toHaveBeenCalled()
     })
   })
 
@@ -188,7 +177,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenAlreadyUsed)
       }
 
-      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeam).not.toHaveBeenCalled()
     })
   })
 
@@ -206,7 +195,7 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenCancelled)
       }
 
-      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeam).not.toHaveBeenCalled()
     })
   })
 
@@ -224,13 +213,13 @@ describe('Check Invite', () => {
         expect((error as AppError).code).toBe(ErrorCode.TokenTypeMismatch)
       }
 
-      expect(mockTeamRepo.findUserTeams).not.toHaveBeenCalled()
+      expect(mockTeamRepo.findUserTeam).not.toHaveBeenCalled()
     })
   })
 
   describe('when user has no team membership and no admin role', () => {
     it('should throw InternalError', async () => {
-      mockTeamRepo.findUserTeams.mockResolvedValue([])
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
       mockUserRoleRepo.findByUserId.mockResolvedValue(undefined)
 
       try {
@@ -242,14 +231,14 @@ describe('Check Invite', () => {
         expect((error as AppError).message).toBe('Invalid invitation state')
       }
 
-      expect(mockTeamRepo.findUserTeams).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
     })
   })
 
   describe('when user has non-admin role', () => {
     it('should throw InternalError', async () => {
-      mockTeamRepo.findUserTeams.mockResolvedValue([])
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
       mockUserRoleRepo.findByUserId.mockResolvedValue({
         ...mockAdminRole,
         role: Role.User,
@@ -268,7 +257,7 @@ describe('Check Invite', () => {
 
   describe('when database query fails', () => {
     it('should propagate the error', async () => {
-      mockTeamRepo.findUserTeams.mockRejectedValue(new Error('Database connection failed'))
+      mockTeamRepo.findUserTeam.mockRejectedValue(new Error('Database connection failed'))
 
       try {
         await checkInvite(mockTokenString)

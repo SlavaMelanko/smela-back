@@ -25,7 +25,3 @@ export interface TeamMemberDetails {
 export type TeamWithMembers = Team & {
   members: TeamMemberDetails[]
 }
-
-export type TeamMemberWithTeam = TeamMember & {
-  team: Team
-}
