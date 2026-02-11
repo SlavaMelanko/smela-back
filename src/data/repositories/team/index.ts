@@ -7,12 +7,11 @@ import {
   updateTeamMember,
 } from './mutations'
 import {
-  findTeam,
   findTeamById,
   findTeamByName,
   findTeamMember,
-  findTeamMemberById,
   findTeamMembers,
+  findTeamWithMembers,
   findUserTeam,
   searchTeams,
 } from './queries'
@@ -25,11 +24,10 @@ export const teamRepo = {
   addMember: addTeamMember,
   create: createTeam,
   delete: deleteTeam,
-  find: findTeam,
+  find: findTeamWithMembers,
   findById: findTeamById,
   findByName: findTeamByName,
   findMember: findTeamMember,
-  findMemberById: findTeamMemberById,
   findMembers: findTeamMembers,
   findUserTeam,
   removeMember: removeTeamMember,

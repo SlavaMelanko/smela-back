@@ -24,7 +24,7 @@ export const getTeamMember = async (
     throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
   }
 
-  const member = await teamRepo.findMemberById(teamId, memberId)
+  const member = await teamRepo.findMember(memberId, teamId)
 
   if (!member) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
@@ -49,7 +49,7 @@ export const updateTeamMember = async (
     throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
   }
 
-  const existing = await teamRepo.findMemberById(teamId, memberId)
+  const existing = await teamRepo.findMember(memberId, teamId)
 
   if (!existing) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
@@ -57,7 +57,7 @@ export const updateTeamMember = async (
 
   await teamRepo.updateMember(memberId, teamId, params)
 
-  const member = await teamRepo.findMemberById(teamId, memberId)
+  const member = await teamRepo.findMember(memberId, teamId)
 
   return { member }
 }
