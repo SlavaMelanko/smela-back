@@ -191,6 +191,29 @@ export const findUserTeams = async (
   }))
 }
 
+export const findUserTeam = async (
+  userId: string,
+  tx?: Database,
+): Promise<Team | undefined> => {
+  const executor = tx || db
+
+  const [result] = await executor
+    .select({
+      id: teamsTable.id,
+      name: teamsTable.name,
+      website: teamsTable.website,
+      description: teamsTable.description,
+      createdAt: teamsTable.createdAt,
+      updatedAt: teamsTable.updatedAt,
+    })
+    .from(teamMembersTable)
+    .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
+    .where(eq(teamMembersTable.userId, userId))
+    .limit(1)
+
+  return result
+}
+
 export const findTeamMembers = async (
   teamId: string,
   tx?: Database,

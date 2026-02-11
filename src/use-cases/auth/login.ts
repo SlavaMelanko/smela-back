@@ -1,7 +1,7 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, refreshTokenRepo, userRepo } from '@/data'
+import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { comparePasswordHashes } from '@/security/password'
@@ -59,11 +59,14 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const accessToken = await createAccessToken(user)
-  const refreshToken = await createRefreshToken(user.id, deviceInfo)
+  const [accessToken, refreshToken, team] = await Promise.all([
+    createAccessToken(user),
+    createRefreshToken(user.id, deviceInfo),
+    teamRepo.findUserTeam(user.id),
+  ])
 
   return {
-    data: { user, accessToken },
+    data: { user, team: team ?? null, accessToken },
     refreshToken,
   }
 }
