@@ -116,6 +116,36 @@ export const findTeamMembers = async (
     .where(eq(teamMembersTable.teamId, teamId))
 }
 
+export const findTeamMember = async (
+  userId: string,
+  teamId: string,
+  tx?: Database,
+): Promise<TeamMemberDetails | undefined> => {
+  const executor = tx || db
+
+  const [member] = await executor
+    .select({
+      id: teamMembersTable.userId,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
+      position: teamMembersTable.position,
+      invitedBy: teamMembersTable.invitedBy,
+      joinedAt: teamMembersTable.joinedAt,
+    })
+    .from(teamMembersTable)
+    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
+    .where(
+      and(
+        eq(teamMembersTable.userId, userId),
+        eq(teamMembersTable.teamId, teamId),
+      ),
+    )
+
+  return member
+}
+
 export const findTeamWithMembers = async (
   teamId: string,
   tx?: Database,
@@ -155,34 +185,4 @@ export const findUserTeam = async (
     .where(eq(teamMembersTable.userId, userId))
 
   return result
-}
-
-export const findTeamMember = async (
-  userId: string,
-  teamId: string,
-  tx?: Database,
-): Promise<TeamMemberDetails | undefined> => {
-  const executor = tx || db
-
-  const [member] = await executor
-    .select({
-      id: teamMembersTable.userId,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      status: usersTable.status,
-      position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
-      joinedAt: teamMembersTable.joinedAt,
-    })
-    .from(teamMembersTable)
-    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
-    .where(
-      and(
-        eq(teamMembersTable.userId, userId),
-        eq(teamMembersTable.teamId, teamId),
-      ),
-    )
-
-  return member
 }
