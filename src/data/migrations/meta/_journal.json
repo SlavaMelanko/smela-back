@@ -8,6 +8,13 @@
       "when": 1770573144545,
       "tag": "0000_furry_shotgun",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770843818659,
+      "tag": "0001_keen_thunderball",
+      "breakpoints": true
     }
   ]
 }

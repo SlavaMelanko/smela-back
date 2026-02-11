@@ -13,7 +13,7 @@ import {
   updateTeam,
 } from '../teams'
 
-const { TEAM_1, TEAM_2 } = testUuids
+const { TEAM_1 } = testUuids
 
 describe('getTeams', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -115,7 +115,6 @@ describe('createTeam', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockTeam: Team
-  let mockTeamRepoFindByName: any
   let mockTeamRepoCreate: any
 
   beforeEach(async () => {
@@ -128,12 +127,10 @@ describe('createTeam', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockTeamRepoFindByName = mock(async () => undefined)
     mockTeamRepoCreate = mock(async () => mockTeam)
 
     await moduleMocker.mock('@/data', () => ({
       teamRepo: {
-        findByName: mockTeamRepoFindByName,
         create: mockTeamRepoCreate,
       },
     }))
@@ -143,24 +140,13 @@ describe('createTeam', () => {
     await moduleMocker.clear()
   })
 
-  it('should create team when name is unique', async () => {
+  it('should create team', async () => {
     const params = { name: 'New Team', website: 'https://newteam.com' }
 
     const result = await createTeam(params)
 
-    expect(mockTeamRepoFindByName).toHaveBeenCalledWith('New Team')
     expect(mockTeamRepoCreate).toHaveBeenCalledWith(params)
     expect(result).toEqual({ team: mockTeam })
-  })
-
-  it('should throw Conflict error when team name already exists', async () => {
-    mockTeamRepoFindByName.mockImplementation(async () => mockTeam)
-
-    expect(createTeam({ name: 'New Team' })).rejects.toThrow(AppError)
-    expect(createTeam({ name: 'New Team' })).rejects.toMatchObject({
-      code: ErrorCode.Conflict,
-      message: 'Team with this name already exists',
-    })
   })
 })
 
@@ -170,7 +156,6 @@ describe('updateTeam', () => {
   let mockExistingTeam: Team
   let mockUpdatedTeam: Team
   let mockTeamRepoFindById: any
-  let mockTeamRepoFindByName: any
   let mockTeamRepoUpdate: any
 
   beforeEach(async () => {
@@ -190,13 +175,11 @@ describe('updateTeam', () => {
     }
 
     mockTeamRepoFindById = mock(async () => mockExistingTeam)
-    mockTeamRepoFindByName = mock(async () => undefined)
     mockTeamRepoUpdate = mock(async () => mockUpdatedTeam)
 
     await moduleMocker.mock('@/data', () => ({
       teamRepo: {
         findById: mockTeamRepoFindById,
-        findByName: mockTeamRepoFindByName,
         update: mockTeamRepoUpdate,
       },
     }))
@@ -223,29 +206,6 @@ describe('updateTeam', () => {
     expect(updateTeam(testUuids.NON_EXISTENT, { name: 'Test' })).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Team not found',
-    })
-  })
-
-  it('should check name uniqueness when name is being changed', async () => {
-    await updateTeam(TEAM_1, { name: 'Updated Team' })
-
-    expect(mockTeamRepoFindByName).toHaveBeenCalledWith('Updated Team')
-  })
-
-  it('should not check name uniqueness when name is unchanged', async () => {
-    await updateTeam(TEAM_1, { name: 'Old Team' })
-
-    expect(mockTeamRepoFindByName).not.toHaveBeenCalled()
-  })
-
-  it('should throw Conflict error when new name already exists', async () => {
-    const otherTeam: Team = { ...mockExistingTeam, id: TEAM_2, name: 'Taken Name' }
-    mockTeamRepoFindByName.mockImplementation(async () => otherTeam)
-
-    expect(updateTeam(TEAM_1, { name: 'Taken Name' })).rejects.toThrow(AppError)
-    expect(updateTeam(TEAM_1, { name: 'Taken Name' })).rejects.toMatchObject({
-      code: ErrorCode.Conflict,
-      message: 'Team with this name already exists',
     })
   })
 })

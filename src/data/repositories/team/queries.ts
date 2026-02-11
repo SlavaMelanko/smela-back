@@ -80,20 +80,6 @@ export const findTeamById = async (
   return team
 }
 
-export const findTeamByName = async (
-  name: string,
-  tx?: Database,
-): Promise<Team | undefined> => {
-  const executor = tx || db
-
-  const [team] = await executor
-    .select()
-    .from(teamsTable)
-    .where(eq(teamsTable.name, name))
-
-  return team
-}
-
 export const findTeamMembers = async (
   teamId: string,
   tx?: Database,

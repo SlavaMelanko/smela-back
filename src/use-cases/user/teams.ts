@@ -36,12 +36,6 @@ export interface CreateTeamParams {
 }
 
 export const createTeam = async (params: CreateTeamParams) => {
-  const existing = await teamRepo.findByName(params.name)
-
-  if (existing) {
-    throw new AppError(ErrorCode.Conflict, 'Team with this name already exists')
-  }
-
   const team = await teamRepo.create(params)
 
   return { team }
@@ -70,14 +64,6 @@ export const updateTeam = async (
 
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to update this team')
-    }
-  }
-
-  if (params.name && params.name !== existing.name) {
-    const nameConflict = await teamRepo.findByName(params.name)
-
-    if (nameConflict) {
-      throw new AppError(ErrorCode.Conflict, 'Team with this name already exists')
     }
   }
 
