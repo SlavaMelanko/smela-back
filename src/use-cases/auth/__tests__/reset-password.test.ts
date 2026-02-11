@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, TokenRecord, User } from '@/data'
+import type { TokenRecord, User, UserTeamInfo } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
@@ -25,7 +25,7 @@ describe('Reset Password', () => {
   let mockUserRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: Team | undefined
+  let mockTeam: UserTeamInfo | undefined
   let mockTransaction: any
 
   let mockTokenValidator: any
@@ -171,10 +171,7 @@ describe('Reset Password', () => {
       mockTeam = {
         id: 'team-456',
         name: 'Tech Inc',
-        website: null,
-        description: null,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+        position: 'Developer',
       }
       mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
 

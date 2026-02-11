@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { AuthRecord, Team, User } from '@/data'
+import type { AuthRecord, User, UserTeamInfo } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -22,7 +22,7 @@ describe('Login with Email', () => {
   let mockAuthRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: Team | undefined
+  let mockTeam: UserTeamInfo | undefined
 
   let mockComparePasswords: any
 
@@ -127,10 +127,7 @@ describe('Login with Email', () => {
       mockTeam = {
         id: 'team-123',
         name: 'Acme Corp',
-        website: 'https://acme.com',
-        description: 'A company',
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+        position: 'Software Engineer',
       }
       mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
 

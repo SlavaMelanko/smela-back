@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, UpdateUserInput, User } from '@/data'
+import type { UpdateUserInput, User, UserTeamInfo } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -14,7 +14,7 @@ describe('User Me Use Cases', () => {
   let mockUser: User
   let mockUserRepo: any
   let mockTeamRepo: any
-  let mockTeam: Team | undefined
+  let mockTeam: UserTeamInfo | undefined
 
   beforeEach(async () => {
     mockUser = {
@@ -62,10 +62,7 @@ describe('User Me Use Cases', () => {
       mockTeam = {
         id: 'team-789',
         name: 'My Team',
-        website: 'https://myteam.io',
-        description: 'My team description',
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
+        position: 'Product Manager',
       }
       mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
 

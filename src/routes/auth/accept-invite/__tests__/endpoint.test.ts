@@ -18,7 +18,7 @@ describe('Accept Invite Endpoint', () => {
 
   beforeEach(async () => {
     mockAcceptInvite = mock(async () => ({
-      data: { user: { id: testUuids.USER_1 }, accessToken: 'test-token' },
+      data: { user: { id: testUuids.USER_1 }, team: null, accessToken: 'test-token' },
       refreshToken: 'refresh-token',
     }))
 
@@ -45,7 +45,7 @@ describe('Accept Invite Endpoint', () => {
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
-      expect(data).toEqual({ user: { id: testUuids.USER_1 }, accessToken: 'test-token' })
+      expect(data).toEqual({ user: { id: testUuids.USER_1 }, team: null, accessToken: 'test-token' })
 
       expect(mockAcceptInvite).toHaveBeenCalledWith(
         { token: validPayload.token, password: validPayload.password },
