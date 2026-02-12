@@ -25,3 +25,9 @@ export interface TeamMemberDetails {
 export type TeamWithMembers = Team & {
   members: TeamMemberDetails[]
 }
+
+export interface UserTeamInfo {
+  id: string
+  name: string
+  position: string | null
+}

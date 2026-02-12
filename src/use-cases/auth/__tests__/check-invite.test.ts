@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, TokenRecord, UserRoleRecord } from '@/data'
+import type { TokenRecord, UserRoleRecord, UserTeamInfo } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
@@ -22,7 +22,7 @@ describe('Check Invite', () => {
 
   let mockTokenValidator: any
 
-  let mockTeam: Team
+  let mockTeam: UserTeamInfo
   let mockAdminRole: UserRoleRecord
 
   beforeEach(async () => {
@@ -42,10 +42,7 @@ describe('Check Invite', () => {
     mockTeam = {
       id: testUuids.TEAM_1,
       name: 'Acme Corp',
-      website: 'https://acme.com',
-      description: 'Test team',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      position: 'Team Member',
     }
 
     mockAdminRole = {

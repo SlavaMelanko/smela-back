@@ -1,7 +1,7 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
@@ -74,11 +74,14 @@ const acceptInvite = async (
     throw new AppError(ErrorCode.InternalError, 'User not found after accepting invite')
   }
 
-  const accessToken = await createAccessToken(user)
-  const refreshToken = await createRefreshToken(user.id, deviceInfo)
+  const [accessToken, refreshToken, team] = await Promise.all([
+    createAccessToken(user),
+    createRefreshToken(user.id, deviceInfo),
+    teamRepo.findUserTeam(user.id),
+  ])
 
   return {
-    data: { user, accessToken },
+    data: { user, team: team ?? null, accessToken },
     refreshToken,
   }
 }

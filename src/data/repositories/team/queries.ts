@@ -2,7 +2,7 @@ import { and, count, desc, eq, sql } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamWithMembers } from './types'
+import type { Team, TeamMemberDetails, TeamWithMembers, UserTeamInfo } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
@@ -154,17 +154,14 @@ export const findTeamWithMembers = async (
 export const findUserTeam = async (
   userId: string,
   tx?: Database,
-): Promise<Team | undefined> => {
+): Promise<UserTeamInfo | undefined> => {
   const executor = tx || db
 
   const [result] = await executor
     .select({
       id: teamsTable.id,
       name: teamsTable.name,
-      website: teamsTable.website,
-      description: teamsTable.description,
-      createdAt: teamsTable.createdAt,
-      updatedAt: teamsTable.updatedAt,
+      position: teamMembersTable.position,
     })
     .from(teamMembersTable)
     .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
