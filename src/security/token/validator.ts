@@ -11,6 +11,7 @@ class TokenValidator {
     TokenValidator.shouldExist(tokenRecord)
     TokenValidator.shouldNotBeUsed(tokenRecord)
     TokenValidator.shouldNotBeDeprecated(tokenRecord)
+    TokenValidator.shouldNotBeCancelled(tokenRecord)
     TokenValidator.shouldNotBeExpired(tokenRecord)
     TokenValidator.hasExpectedType(tokenRecord, expectedType)
 
@@ -32,6 +33,12 @@ class TokenValidator {
   static shouldNotBeDeprecated(tokenRecord: TokenRecord): void {
     if (tokenRecord.status === TokenStatus.Deprecated) {
       throw new AppError(ErrorCode.TokenDeprecated)
+    }
+  }
+
+  static shouldNotBeCancelled(tokenRecord: TokenRecord): void {
+    if (tokenRecord.status === TokenStatus.Cancelled) {
+      throw new AppError(ErrorCode.TokenCancelled)
     }
   }
 

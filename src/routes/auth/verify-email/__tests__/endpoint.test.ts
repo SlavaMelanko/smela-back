@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -20,7 +20,7 @@ describe('Verify Email Endpoint', () => {
     mockVerifyEmail = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
@@ -49,14 +49,14 @@ describe('Verify Email Endpoint', () => {
     it('should return user and token on successful email verification', async () => {
       const validToken = 'a'.repeat(64)
 
-      const res = await post(app, VERIFY_EMAIL_URL, { data: { token: validToken } })
+      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
@@ -76,7 +76,7 @@ describe('Verify Email Endpoint', () => {
     })
 
     it('should require token parameter', async () => {
-      const res = await post(app, VERIFY_EMAIL_URL, { data: {} })
+      const res = await post(app, VERIFY_EMAIL_URL, {})
 
       expect(res.status).toBe(HttpStatus.BAD_REQUEST)
       const json = await res.json()
@@ -93,7 +93,7 @@ describe('Verify Email Endpoint', () => {
       ]
 
       for (const token of invalidTokens) {
-        const res = await post(app, VERIFY_EMAIL_URL, { data: { token } })
+        const res = await post(app, VERIFY_EMAIL_URL, { token })
 
         expect(res.status).toBe(HttpStatus.BAD_REQUEST)
         const json = await res.json()
@@ -105,7 +105,7 @@ describe('Verify Email Endpoint', () => {
       const validToken = 'a'.repeat(64)
 
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type', headers: {}, body: { data: { token: validToken } } },
+        { name: 'missing Content-Type', headers: {}, body: { token: validToken } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]
@@ -124,7 +124,7 @@ describe('Verify Email Endpoint', () => {
 
       const validToken = 'c'.repeat(64)
 
-      const res = await post(app, VERIFY_EMAIL_URL, { data: { token: validToken } })
+      const res = await post(app, VERIFY_EMAIL_URL, { token: validToken })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
       expect(mockVerifyEmail).toHaveBeenCalledTimes(1)

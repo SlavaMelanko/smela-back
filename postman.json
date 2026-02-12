@@ -1,511 +1,1084 @@
 {
-	"info": {
-		"_postman_id": "9c7099c3-e4ea-4170-8700-993548944f24",
-		"name": "smela REST API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "3880760"
-	},
-	"item": [
-		{
-			"name": "admin",
-			"item": [
-				{
-					"name": "users",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{admin_api_url}}/users",
-							"host": [
-								"{{admin_api_url}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "users/:id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{admin_api_url}}/users/42",
-							"host": [
-								"{{admin_api_url}}"
-							],
-							"path": [
-								"users",
-								"42"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "auth",
-			"item": [
-				{
-					"name": "signup",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var responseData = pm.response.json();",
-									"// Save the token as an environment variable",
-									"pm.environment.set(\"access_token\", responseData.accessToken);",
-									"",
-									"pm.test(\"Response status code is 201\", function () {",
-									"    pm.expect(pm.response.code).to.eql(201);",
-									"});",
-									"",
-									"pm.test(\"Validate the user object schema\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
-									"",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    pm.expect(responseData.user.id).to.be.a('number');",
-									"    pm.expect(responseData.user.firstName).to.be.a('string');",
-									"    pm.expect(responseData.user.lastName).to.be.a('string');",
-									"    pm.expect(responseData.user.email).to.be.a('string').and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"    pm.expect(responseData.user.role).to.be.a('string');",
-									"    pm.expect(responseData.user.status).to.be.a('string');",
-									"    pm.expect(responseData.user.createdAt).to.be.a('string');",
-									"    pm.expect(responseData.user.updatedAt).to.be.a('string');",
-									"});",
-									"",
-									"",
-									"pm.test(\"Email is in a valid format\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
-									"    pm.expect(responseData.user.email).to.exist.and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"});",
-									"",
-									"",
-									"pm.test(\"CreatedAt and UpdatedAt are in a valid date format\", function () {",
-									"    const responseData = pm.response.json();",
-									"",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    // Check if createdAt and updatedAt are valid date formats",
-									"    const isValidDate = (dateString) => {",
-									"        const date = new Date(dateString);",
-									"        return !isNaN(date.getTime());",
-									"    };",
-									"",
-									"    pm.expect(isValidDate(responseData.user.createdAt)).to.be.true;",
-									"    pm.expect(isValidDate(responseData.user.updatedAt)).to.be.true;",
-									"});",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"firstName\": \"Slava\",\n        \"email\": \"{{user_email}}\",\n        \"password\": \"{{initial_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/signup",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"signup"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "resend-verification-email",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/resend-verification-email",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"resend-verification-email"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "verify-email",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var responseData = pm.response.json();",
-									"// Save the token as an environment variable",
-									"pm.environment.set(\"access_token\", responseData.accessToken);",
-									"",
-									"// Existing tests",
-									"pm.test(\"Response status code is 200\", function () {",
-									"    pm.expect(pm.response.code).to.equal(200);",
-									"});",
-									"",
-									"pm.test(\"Validate the user object schema\", function () {",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData).to.have.property('user').that.is.an('object');",
-									"    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
-									"",
-									"    pm.expect(responseData.user.id).to.be.a('number');",
-									"    pm.expect(responseData.user.firstName).to.be.a('string');",
-									"    pm.expect(responseData.user.lastName).to.be.a('string');",
-									"    pm.expect(responseData.user.email).to.be.a('string').that.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"    pm.expect(responseData.user.role).to.be.a('string');",
-									"    pm.expect(responseData.user.status).to.be.a('string');",
-									"    pm.expect(responseData.user.createdAt).to.be.a('string');",
-									"    pm.expect(responseData.user.updatedAt).to.be.a('string');",
-									"",
-									"    pm.expect(responseData).to.have.property('token').that.is.a('string');",
-									"});",
-									"",
-									"pm.test(\"Email is in a valid format\", function () {",
-									"    pm.expect(responseData.user).to.have.property('email').that.is.a('string').and.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
-									"});",
-									"",
-									"pm.test(\"The token must be a non-empty string\", function () {",
-									"    pm.expect(responseData).to.have.property('token').that.is.a('string').and.is.not.empty;",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"token\": \"2f2f69f037200103e01e1c8553c60e8e0f188b8aba8c855572fb700d631e87a9\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/verify-email",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"verify-email"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json()",
-									"",
-									"if (response.accessToken) {",
-									"  pm.environment.set('access_token', response.accessToken)",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{admin_email}}\",\n        \"password\": \"{{admin_password}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/login",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "request-password-reset",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"email\": \"{{user_email}}\"\n    },\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/request-password-reset",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"request-password-reset"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "reset-password",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"token\": \"2bae77a059a4f2fbb1f5029ff6aaccd53cd32f594bf59bb112f0d9972cc0ffa3\",\n        \"password\": \"{{new_password}}\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/reset-password",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"reset-password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "refresh-token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const response = pm.response.json()",
-									"",
-									"if (response.accessToken) {",
-									"  pm.environment.set('access_token', response.accessToken)",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{auth_api_url}}/refresh-token",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"refresh-token"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "logout",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.environment.set('access_token', '')"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{auth_api_url}}/logout",
-							"host": [
-								"{{auth_api_url}}"
-							],
-							"path": [
-								"logout"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user",
-			"item": [
-				{
-					"name": "me",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{user_allow_new_api_url}}/me",
-							"host": [
-								"{{user_allow_new_api_url}}"
-							],
-							"path": [
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "me",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{user_allow_new_api_url}}/me",
-							"host": [
-								"{{user_allow_new_api_url}}"
-							],
-							"path": [
-								"me"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{access_token}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	]
+  "info": {
+    "_postman_id": "7206fb29-37d5-4b05-816b-7d61b6784041",
+    "name": "smela REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3880760"
+  },
+  "item": [
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastUser = res.users[0];",
+                  "",
+                  "if (lastUser) {",
+                  "    pm.environment.set(\"last_user_id\", lastUser.id);",
+                  "    console.log(\"Saved last_user_id:\", lastUser.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/users",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/users/{{last_user_id}}",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "users",
+                "{{last_user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastTeam = res.teams[0];",
+                  "",
+                  "if (lastTeam) {",
+                  "    pm.environment.set(\"last_team_id\", lastTeam.id);",
+                  "    console.log(\"Saved last_team_id:\", lastTeam.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/teams",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastTeam = res.team;",
+                  "",
+                  "if (lastTeam) {",
+                  "    pm.environment.set(\"last_team_id\", lastTeam.id);",
+                  "    console.log(\"Saved last_team_id:\", lastTeam.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Books For You\",\n    \"website\": \"https://b4u.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/teams",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"This is the test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const member = res.user;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", member.id);",
+                  "    console.log(\"Saved last_member_id:\", member.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id/resend-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/resend-invite",
+              "host": [
+                "{{admin_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var responseData = pm.response.json();",
+                  "// Save the token as an environment variable",
+                  "pm.environment.set(\"access_token\", responseData.accessToken);",
+                  "",
+                  "pm.test(\"Response status code is 201\", function () {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Validate the user object schema\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
+                  "",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    pm.expect(responseData.user.id).to.be.a('number');",
+                  "    pm.expect(responseData.user.firstName).to.be.a('string');",
+                  "    pm.expect(responseData.user.lastName).to.be.a('string');",
+                  "    pm.expect(responseData.user.email).to.be.a('string').and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "    pm.expect(responseData.user.role).to.be.a('string');",
+                  "    pm.expect(responseData.user.status).to.be.a('string');",
+                  "    pm.expect(responseData.user.createdAt).to.be.a('string');",
+                  "    pm.expect(responseData.user.updatedAt).to.be.a('string');",
+                  "});",
+                  "",
+                  "",
+                  "pm.test(\"Email is in a valid format\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.exist.and.to.be.an('object');",
+                  "    pm.expect(responseData.user.email).to.exist.and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "});",
+                  "",
+                  "",
+                  "pm.test(\"CreatedAt and UpdatedAt are in a valid date format\", function () {",
+                  "    const responseData = pm.response.json();",
+                  "",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    // Check if createdAt and updatedAt are valid date formats",
+                  "    const isValidDate = (dateString) => {",
+                  "        const date = new Date(dateString);",
+                  "        return !isNaN(date.getTime());",
+                  "    };",
+                  "",
+                  "    pm.expect(isValidDate(responseData.user.createdAt)).to.be.true;",
+                  "    pm.expect(isValidDate(responseData.user.updatedAt)).to.be.true;",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{initial_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"dark\",\n        \"locale\": \"en\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/signup",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resend-verification-email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"light\",\n        \"locale\": \"uk\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/resend-verification-email",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "resend-verification-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var responseData = pm.response.json();",
+                  "// Save the token as an environment variable",
+                  "pm.environment.set(\"access_token\", responseData.accessToken);",
+                  "",
+                  "// Existing tests",
+                  "pm.test(\"Response status code is 200\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Validate the user object schema\", function () {",
+                  "    pm.expect(responseData).to.be.an('object');",
+                  "    pm.expect(responseData).to.have.property('user').that.is.an('object');",
+                  "    pm.expect(responseData.user).to.have.all.keys('id', 'firstName', 'lastName', 'email', 'role', 'status', 'createdAt', 'updatedAt');",
+                  "",
+                  "    pm.expect(responseData.user.id).to.be.a('number');",
+                  "    pm.expect(responseData.user.firstName).to.be.a('string');",
+                  "    pm.expect(responseData.user.lastName).to.be.a('string');",
+                  "    pm.expect(responseData.user.email).to.be.a('string').that.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "    pm.expect(responseData.user.role).to.be.a('string');",
+                  "    pm.expect(responseData.user.status).to.be.a('string');",
+                  "    pm.expect(responseData.user.createdAt).to.be.a('string');",
+                  "    pm.expect(responseData.user.updatedAt).to.be.a('string');",
+                  "",
+                  "    pm.expect(responseData).to.have.property('token').that.is.a('string');",
+                  "});",
+                  "",
+                  "pm.test(\"Email is in a valid format\", function () {",
+                  "    pm.expect(responseData.user).to.have.property('email').that.is.a('string').and.matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is invalid\");",
+                  "});",
+                  "",
+                  "pm.test(\"The token must be a non-empty string\", function () {",
+                  "    pm.expect(responseData).to.have.property('token').that.is.a('string').and.is.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"6c9ec022ca779a2396c5882b50ddc4c7d99b0c2d6503b12ce9764dac182f475c\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/verify-email",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()",
+                  "",
+                  "if (response.accessToken) {",
+                  "  pm.environment.set('access_token', response.accessToken)",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{owner_email}}\",\n    \"password\": \"{{owner_password}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/login",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "request-password-reset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"captcha\": {\n        \"token\": \"03AAYGu2S8_HuuT4N0xE8N8zQJ9nQJ8nQJ8nQJ8nQJ8nQJ8nQJ8n---\"\n    },\n    \"preferences\": {\n        \"theme\": \"dark\",\n        \"locale\": \"en\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/request-password-reset",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "request-password-reset"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"a3e3fad5ea11db103203099e3724384eaaccac932fca77539973f978f08582cb\",\n    \"password\": \"{{new_password}}\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/reset-password",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh-token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()",
+                  "",
+                  "if (response.accessToken) {",
+                  "  pm.environment.set('access_token', response.accessToken)",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/refresh-token",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set('access_token', '')"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{auth_api_url}}/logout",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "accept-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"f6ba2d60ed7efb017b2d535b07a227a1d6d68e57c174a369d30612836fb1e267\",\n    \"password\": \"{{initial_password}}\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/accept-invite",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "accept-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_allow_new_api_url}}/me",
+              "host": [
+                "{{user_allow_new_api_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"lastName\": \"Melanko\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_allow_new_api_url}}/me",
+              "host": [
+                "{{user_allow_new_api_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"data\": {\n        \"lastName\": \"Melanko\"\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"My first team\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const member = res.user;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", member.id);",
+                  "    console.log(\"Saved last_member_id:\", member.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"position\": \"Lead dev\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id/resend-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/resend-invite",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "owner",
+      "item": [
+        {
+          "name": "admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastAdmin = res.admins[0];",
+                  "",
+                  "if (lastAdmin) {",
+                  "    pm.environment.set(\"last_admin_id\", lastAdmin.id);",
+                  "    console.log(\"Saved last_admin_id:\", lastAdmin.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const lastAdmin = res.admin;",
+                  "",
+                  "if (lastAdmin) {",
+                  "    pm.environment.set(\"last_admin_id\", lastAdmin.id);",
+                  "    console.log(\"Saved last_admin_id:\", lastAdmin.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"view\": true,\n        \"create\": true,\n        \"edit\": true,\n        \"delete\": true\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{owner_api_url}}/admins",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id/resend-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/resend-invite",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
 }

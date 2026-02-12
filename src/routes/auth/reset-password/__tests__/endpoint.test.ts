@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
@@ -17,7 +17,10 @@ describe('Reset Password Endpoint', () => {
   let mockResetPassword: any
 
   beforeEach(async () => {
-    mockResetPassword = mock(async () => ({ data: { success: true } }))
+    mockResetPassword = mock(async () => ({
+      data: { user: { id: testUuids.USER_1 }, accessToken: 'test-token' },
+      refreshToken: 'refresh-token',
+    }))
 
     await moduleMocker.mock('@/use-cases/auth/reset-password', () => ({
       default: mockResetPassword,
@@ -31,26 +34,28 @@ describe('Reset Password Endpoint', () => {
   })
 
   const validPayload = {
-    data: {
-      token: '1'.repeat(TOKEN_LENGTH),
-      password: 'NewSecure@123',
-    },
+    token: '1'.repeat(TOKEN_LENGTH),
+    password: 'NewSecure@123',
   }
 
   describe('POST /auth/reset-password', () => {
-    it('should reset password and return success', async () => {
+    it('should reset password and return user with tokens', async () => {
       const res = await post(app, RESET_PASSWORD_URL, validPayload)
 
       expect(res.status).toBe(HttpStatus.OK)
 
       const data = await res.json()
-      expect(data).toEqual({ success: true })
+      expect(data).toEqual({ user: { id: testUuids.USER_1 }, accessToken: 'test-token' })
 
-      expect(mockResetPassword).toHaveBeenCalledWith({
-        token: validPayload.data.token,
-        password: validPayload.data.password,
-      })
+      expect(mockResetPassword).toHaveBeenCalledWith(
+        { token: validPayload.token, password: validPayload.password },
+        { ipAddress: null, userAgent: null },
+      )
       expect(mockResetPassword).toHaveBeenCalledTimes(1)
+
+      // Verify refresh token cookie is set
+      const cookies = res.headers.get('set-cookie')
+      expect(cookies).toContain('refresh-token')
     })
 
     it('should handle reset password errors', async () => {
@@ -72,11 +77,11 @@ describe('Reset Password Endpoint', () => {
       ]
 
       for (const testCase of invalidTokens) {
-        const payload: any = { data: { ...validPayload.data } }
+        const payload: any = { ...validPayload }
         if (testCase.token !== null) {
-          payload.data.token = testCase.token
+          payload.token = testCase.token
         } else {
-          delete payload.data.token
+          delete payload.token
         }
 
         const res = await post(app, RESET_PASSWORD_URL, payload)
@@ -96,11 +101,11 @@ describe('Reset Password Endpoint', () => {
       ]
 
       for (const testCase of invalidPasswords) {
-        const payload: any = { data: { ...validPayload.data } }
+        const payload: any = { ...validPayload }
         if (testCase.password !== null) {
-          payload.data.password = testCase.password
+          payload.password = testCase.password
         } else {
-          delete payload.data.password
+          delete payload.password
         }
 
         const res = await post(app, RESET_PASSWORD_URL, payload)

@@ -3,12 +3,10 @@ import requestPasswordReset from '@/use-cases/auth/request-password-reset'
 
 import type { RequestPasswordResetCtx } from './schema'
 
-const requestPasswordResetHandler = async (c: RequestPasswordResetCtx) => {
-  const payload = c.req.valid('json')
+export const requestPasswordResetHandler = async (c: RequestPasswordResetCtx) => {
+  const { email, preferences } = c.req.valid('json')
 
-  const result = await requestPasswordReset(payload.data, payload.preferences)
+  const result = await requestPasswordReset({ email }, preferences)
 
-  return c.json(result.data, HttpStatus.ACCEPTED)
+  return c.json(result, HttpStatus.ACCEPTED)
 }
-
-export default requestPasswordResetHandler

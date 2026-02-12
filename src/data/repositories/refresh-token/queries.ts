@@ -21,7 +21,7 @@ export const findByTokenHash = async (
 }
 
 export const findActiveByUserId = async (
-  userId: number,
+  userId: string,
   tx?: Database,
 ): Promise<RefreshToken[]> => {
   const executor = tx || db
@@ -39,7 +39,7 @@ export const findActiveByUserId = async (
 }
 
 export const countActiveByUserId = async (
-  userId: number,
+  userId: string,
   tx?: Database,
 ): Promise<number> => {
   const executor = tx || db

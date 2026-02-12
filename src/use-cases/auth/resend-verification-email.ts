@@ -10,11 +10,11 @@ export interface ResendVerificationEmailParams {
   email: string
 }
 
-const createEmailVerificationToken = async (userId: number) => {
+const createEmailVerificationToken = async (userId: string) => {
   const { type, token, expiresAt } = generateToken(TokenType.EmailVerification)
 
   await db.transaction(async (tx) => {
-    await tokenRepo.replace(userId, { userId, type, token, expiresAt }, tx)
+    await tokenRepo.issue(userId, { userId, type, token, expiresAt }, tx)
   })
 
   return token
@@ -41,7 +41,7 @@ const resendVerificationEmail = async (
     })
   }
 
-  return { data: { success: true } }
+  return { success: true }
 }
 
 export default resendVerificationEmail

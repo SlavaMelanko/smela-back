@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'bun:test'
 
-import { comparePasswords, hashPassword } from '../index'
+import { comparePasswordHashes, hashPassword } from '../index'
 
 describe('Password Security', () => {
-  describe('hashPassword and comparePasswords', () => {
+  describe('hashPassword and comparePasswordHashes', () => {
     it('should hash password and verify it successfully', async () => {
       const plainPassword = 'SecurePassword123!'
       const hashedPassword = await hashPassword(plainPassword)
@@ -12,7 +12,7 @@ describe('Password Security', () => {
       expect(hashedPassword).not.toBe(plainPassword)
       expect(hashedPassword.length).toBeGreaterThan(0)
 
-      const isValid = await comparePasswords(plainPassword, hashedPassword)
+      const isValid = await comparePasswordHashes(plainPassword, hashedPassword)
 
       expect(isValid).toBe(true)
     })
@@ -22,7 +22,7 @@ describe('Password Security', () => {
       const wrongPassword = 'WrongPassword456!'
       const hashedPassword = await hashPassword(plainPassword)
 
-      const isValid = await comparePasswords(wrongPassword, hashedPassword)
+      const isValid = await comparePasswordHashes(wrongPassword, hashedPassword)
 
       expect(isValid).toBe(false)
     })
@@ -31,7 +31,7 @@ describe('Password Security', () => {
       const plainPassword = 'ValidPassword123!'
       const hashedPassword = await hashPassword(plainPassword)
 
-      const isValid = await comparePasswords('', hashedPassword)
+      const isValid = await comparePasswordHashes('', hashedPassword)
 
       expect(isValid).toBe(false)
     })
@@ -39,7 +39,7 @@ describe('Password Security', () => {
     it('should return false when comparing with empty hash', async () => {
       const plainPassword = 'ValidPassword123!'
 
-      const isValid = await comparePasswords(plainPassword, '')
+      const isValid = await comparePasswordHashes(plainPassword, '')
 
       expect(isValid).toBe(false)
     })
@@ -73,8 +73,8 @@ describe('Password Security', () => {
       const hash1 = await hashPassword(password)
       const hash2 = await hashPassword(password)
 
-      const isValid1 = await comparePasswords(password, hash1)
-      const isValid2 = await comparePasswords(password, hash2)
+      const isValid1 = await comparePasswordHashes(password, hash1)
+      const isValid2 = await comparePasswordHashes(password, hash2)
 
       expect(isValid1).toBe(true)
       expect(isValid2).toBe(true)
@@ -86,7 +86,7 @@ describe('Password Security', () => {
       const longPassword = 'a'.repeat(200)
       const hashedPassword = await hashPassword(longPassword)
 
-      const isValid = await comparePasswords(longPassword, hashedPassword)
+      const isValid = await comparePasswordHashes(longPassword, hashedPassword)
 
       expect(isValid).toBe(true)
     })
@@ -95,7 +95,7 @@ describe('Password Security', () => {
       const specialPassword = '!@#$%^&*()_+-=[]{}|;:,.<>?'
       const hashedPassword = await hashPassword(specialPassword)
 
-      const isValid = await comparePasswords(specialPassword, hashedPassword)
+      const isValid = await comparePasswordHashes(specialPassword, hashedPassword)
 
       expect(isValid).toBe(true)
     })
@@ -104,7 +104,7 @@ describe('Password Security', () => {
       const unicodePassword = 'Пароль123!😀🔐'
       const hashedPassword = await hashPassword(unicodePassword)
 
-      const isValid = await comparePasswords(unicodePassword, hashedPassword)
+      const isValid = await comparePasswordHashes(unicodePassword, hashedPassword)
 
       expect(isValid).toBe(true)
     })

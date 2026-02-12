@@ -11,6 +11,7 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
 
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.TokenCancelled]: HttpStatus.GONE,
   [ErrorCode.TokenDeprecated]: HttpStatus.GONE,
   [ErrorCode.TokenExpired]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.TokenNotFound]: HttpStatus.BAD_REQUEST,
@@ -26,9 +27,12 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   [ErrorCode.CaptchaInvalidToken]: HttpStatus.BAD_REQUEST,
   [ErrorCode.CaptchaValidationFailed]: HttpStatus.BAD_REQUEST,
 
+  // Resource errors
+  [ErrorCode.Conflict]: HttpStatus.CONFLICT,
+  [ErrorCode.NotFound]: HttpStatus.NOT_FOUND,
+
   // System errors
   [ErrorCode.InternalError]: HttpStatus.INTERNAL_SERVER_ERROR,
-  [ErrorCode.NotFound]: HttpStatus.NOT_FOUND,
   [ErrorCode.ValidationError]: HttpStatus.BAD_REQUEST,
 
   // Request errors

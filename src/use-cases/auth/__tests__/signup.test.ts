@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__/module-mocker'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
@@ -55,7 +55,7 @@ describe('Signup with Email', () => {
     }
 
     mockNewUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -72,7 +72,7 @@ describe('Signup with Email', () => {
       create: mock(async () => 1),
     }
     mockTokenRepo = {
-      replace: mock(async () => {}),
+      issue: mock(async () => {}),
     }
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
@@ -149,7 +149,6 @@ describe('Signup with Email', () => {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -197,7 +196,7 @@ describe('Signup with Email', () => {
     it('should create email verification token', async () => {
       await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      expect(mockTokenRepo.replace).toHaveBeenCalledWith(
+      expect(mockTokenRepo.issue).toHaveBeenCalledWith(
         mockNewUser.id,
         {
           userId: mockNewUser.id,
@@ -207,7 +206,7 @@ describe('Signup with Email', () => {
         },
         expect.anything(),
       )
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
     })
 
     it('should send email verification email with verification token', async () => {
@@ -274,7 +273,7 @@ describe('Signup with Email', () => {
   describe('when email is already in use', () => {
     it('should throw EmailAlreadyInUse error', async () => {
       const existingUser = {
-        id: 2,
+        id: testUuids.USER_2,
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'john@example.com',
@@ -298,7 +297,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockUserRepo.create).not.toHaveBeenCalled()
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -322,7 +321,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -346,7 +345,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -354,7 +353,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Token replacement failed')
       })
 
@@ -370,7 +369,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -394,7 +393,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
@@ -413,7 +412,6 @@ describe('Signup with Email', () => {
           firstName: mockSignupParams.firstName,
           lastName: mockSignupParams.lastName,
           email: uppercaseEmail,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -439,7 +437,6 @@ describe('Signup with Email', () => {
           firstName: 'Al',
           lastName: 'Bo',
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -453,21 +450,10 @@ describe('Signup with Email', () => {
       )
     })
 
-    it('should always assign user role regardless of input', async () => {
+    it('should return user with default User role', async () => {
       const result = await signUpWithEmail(mockSignupParams, mockDeviceInfo)
 
-      const expectedUser = mockNewUser
-      expect(mockUserRepo.create).toHaveBeenCalledWith(
-        {
-          firstName: mockSignupParams.firstName,
-          lastName: mockSignupParams.lastName,
-          email: mockSignupParams.email,
-          role: Role.User,
-          status: Status.New,
-        },
-        expect.anything(),
-      )
-      expect(result.data.user).toEqual(expectedUser)
+      expect(result.data.user).toEqual(mockNewUser)
       expect(result.data.user.role).toBe(Role.User)
     })
 
@@ -505,7 +491,6 @@ describe('Signup with Email', () => {
           firstName: longFirstName,
           lastName: longLastName,
           email: mockSignupParams.email,
-          role: Role.User,
           status: Status.New,
         },
         expect.anything(),
@@ -531,7 +516,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).not.toHaveBeenCalled()
       expect(mockUserRepo.create).not.toHaveBeenCalled()
       expect(mockAuthRepo.create).not.toHaveBeenCalled()
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
@@ -539,7 +524,7 @@ describe('Signup with Email', () => {
 
   describe('when token replacement fails', () => {
     it('should throw the error and rollback transaction', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Token replacement failed')
       })
 
@@ -555,7 +540,7 @@ describe('Signup with Email', () => {
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1)
       expect(mockAuthRepo.create).toHaveBeenCalledTimes(1)
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })

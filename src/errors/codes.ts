@@ -4,11 +4,12 @@
 enum ErrorCode {
   AlreadyVerified = 'auth/already-verified',
   EmailAlreadyInUse = 'auth/email-already-in-use',
-  Forbidden = 'auth/unverified-account',
+  Forbidden = 'auth/forbidden',
   InvalidCredentials = 'auth/invalid-credentials',
   Unauthorized = 'auth/unauthorized',
 
   TokenAlreadyUsed = 'token/already-used',
+  TokenCancelled = 'token/cancelled',
   TokenDeprecated = 'token/deprecated',
   TokenExpired = 'token/expired',
   TokenNotFound = 'token/not-found',
@@ -22,6 +23,7 @@ enum ErrorCode {
   CaptchaInvalidToken = 'captcha/invalid-token',
   CaptchaValidationFailed = 'captcha/validation-failed',
 
+  Conflict = 'resource/conflict',
   InternalError = 'system/internal-error',
   NotFound = 'resource/not-found',
   ValidationError = 'validation/error',

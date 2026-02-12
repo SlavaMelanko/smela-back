@@ -44,7 +44,7 @@ export const revokeByHash = async (
 }
 
 export const revokeAllUserTokens = async (
-  userId: number,
+  userId: string,
   tx?: Database,
 ): Promise<void> => {
   const executor = tx || db

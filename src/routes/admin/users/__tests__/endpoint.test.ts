@@ -2,10 +2,10 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { SearchResult, User } from '@/data'
+import type { User } from '@/data'
 import type { UserClaims } from '@/security/jwt'
 
-import { createTestApp, ModuleMocker } from '@/__tests__'
+import { createTestApp, ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -27,7 +27,7 @@ describe('Admin Users Endpoint', () => {
   beforeEach(async () => {
     mockUsers = [
       {
-        id: 1,
+        id: testUuids.USER_1,
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
@@ -37,26 +37,24 @@ describe('Admin Users Endpoint', () => {
         updatedAt: new Date('2024-01-01'),
       },
       {
-        id: 2,
+        id: testUuids.USER_2,
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'jane@example.com',
-        role: Role.Enterprise,
+        role: Role.User,
         status: Status.Verified,
         createdAt: new Date('2024-01-02'),
         updatedAt: new Date('2024-01-02'),
       },
     ]
 
-    mockSearchUsers = mock(async (): Promise<{ data: SearchResult }> => ({
-      data: {
-        users: mockUsers,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 2,
-          totalPages: 1,
-        },
+    mockSearchUsers = mock(async () => ({
+      data: { users: mockUsers },
+      pagination: {
+        page: 1,
+        limit: DEFAULT_LIMIT,
+        total: 2,
+        totalPages: 1,
       },
     }))
 
@@ -65,7 +63,7 @@ describe('Admin Users Endpoint', () => {
     }))
 
     mockAdminClaims = {
-      id: 100,
+      id: testUuids.ADMIN_1,
       email: 'admin@example.com',
       role: Role.Admin,
       status: Status.Active,
@@ -93,7 +91,7 @@ describe('Admin Users Endpoint', () => {
       expect(data).toEqual({
         users: [
           {
-            id: 1,
+            id: testUuids.USER_1,
             firstName: 'John',
             lastName: 'Doe',
             email: 'john@example.com',
@@ -103,11 +101,11 @@ describe('Admin Users Endpoint', () => {
             updatedAt: '2024-01-01T00:00:00.000Z',
           },
           {
-            id: 2,
+            id: testUuids.USER_2,
             firstName: 'Jane',
             lastName: 'Smith',
             email: 'jane@example.com',
-            role: Role.Enterprise,
+            role: Role.User,
             status: Status.Verified,
             createdAt: '2024-01-02T00:00:00.000Z',
             updatedAt: '2024-01-02T00:00:00.000Z',

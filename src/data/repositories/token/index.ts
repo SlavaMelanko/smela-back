@@ -1,11 +1,11 @@
-import { createToken, replaceToken, updateToken } from './mutations'
+import { createToken, issueToken, updateToken } from './mutations'
 import { findByToken } from './queries'
 
 export * from './types'
 
 export const tokenRepo = {
   create: createToken,
-  replace: replaceToken,
+  issue: issueToken,
   findByToken,
   update: updateToken,
 }

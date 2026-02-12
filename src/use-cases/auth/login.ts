@@ -1,10 +1,10 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, refreshTokenRepo, userRepo } from '@/data'
+import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
-import { comparePasswords } from '@/security/password'
+import { comparePasswordHashes } from '@/security/password'
 import { generateHashedToken, TokenType } from '@/security/token'
 
 export interface LoginParams {
@@ -21,7 +21,7 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )
@@ -53,17 +53,20 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const isPasswordValid = await comparePasswords(password, auth.passwordHash)
+  const isPasswordValid = await comparePasswordHashes(password, auth.passwordHash)
 
   if (!isPasswordValid) {
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const accessToken = await createAccessToken(user)
-  const refreshToken = await createRefreshToken(user.id, deviceInfo)
+  const [accessToken, refreshToken, team] = await Promise.all([
+    createAccessToken(user),
+    createRefreshToken(user.id, deviceInfo),
+    teamRepo.findUserTeam(user.id),
+  ])
 
   return {
-    data: { user, accessToken },
+    data: { user, team: team ?? null, accessToken },
     refreshToken,
   }
 }

@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm'
 import {
   index,
-  integer,
   pgTable,
   serial,
   timestamp,
   uniqueIndex,
+  uuid,
   varchar,
 } from 'drizzle-orm/pg-core'
 
@@ -18,7 +18,7 @@ export const authProviderEnum = createPgEnum('auth_provider', AuthProvider)
 
 export const authTable = pgTable('auth', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   provider: authProviderEnum('provider').notNull().$type<AuthProvider>(),
   identifier: varchar('identifier', { length: 255 }).notNull(),
   passwordHash: varchar('password_hash', { length: 255 }),

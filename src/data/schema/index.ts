@@ -1,5 +1,7 @@
 export * from './auth'
 export * from './rbac'
 export * from './refresh-tokens'
+export * from './teams'
 export * from './tokens'
+export * from './user-roles'
 export * from './users'

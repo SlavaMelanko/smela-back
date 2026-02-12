@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { AuthRecord, User } from '@/data'
+import type { AuthRecord, User, UserTeamInfo } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { AuthProvider, Role, Status } from '@/types'
 
@@ -21,6 +21,8 @@ describe('Login with Email', () => {
   let mockAuthRecord: AuthRecord
   let mockAuthRepo: any
   let mockRefreshTokenRepo: any
+  let mockTeamRepo: any
+  let mockTeam: UserTeamInfo | undefined
 
   let mockComparePasswords: any
 
@@ -40,7 +42,7 @@ describe('Login with Email', () => {
     }
 
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
@@ -54,7 +56,7 @@ describe('Login with Email', () => {
     }
     mockAuthRecord = {
       id: 1,
-      userId: 1,
+      userId: testUuids.USER_1,
       provider: AuthProvider.Local,
       identifier: 'test@example.com',
       passwordHash: '$2b$10$hashedPassword123',
@@ -67,17 +69,22 @@ describe('Login with Email', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
     }
+    mockTeam = undefined
+    mockTeamRepo = {
+      findUserTeam: mock(async () => mockTeam),
+    }
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: mockUserRepo,
       authRepo: mockAuthRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
+      teamRepo: mockTeamRepo,
     }))
 
     mockComparePasswords = mock(async () => true)
 
     await moduleMocker.mock('@/security/password', () => ({
-      comparePasswords: mockComparePasswords,
+      comparePasswordHashes: mockComparePasswords,
     }))
 
     mockJwtToken = 'login-jwt-token-123'
@@ -104,15 +111,30 @@ describe('Login with Email', () => {
   })
 
   describe('successful login', () => {
-    it('should return user and token for valid credentials', async () => {
+    it('should return user, team, and token for valid credentials', async () => {
       const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.data.team).toBeNull()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)
+    })
+
+    it('should return team info when user belongs to a team', async () => {
+      mockTeam = {
+        id: 'team-123',
+        name: 'Acme Corp',
+        position: 'Software Engineer',
+      }
+      mockTeamRepo.findUserTeam.mockImplementation(async () => mockTeam)
+
+      const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
+
+      expect(result.data.team).toEqual(mockTeam)
+      expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockUser.id)
     })
 
     it('should handle different user roles correctly', async () => {
@@ -301,7 +323,7 @@ describe('Login with Email', () => {
     })
 
     it('should handle user with all possible roles', async () => {
-      const roles = [Role.User, Role.Admin, Role.Owner, Role.Enterprise]
+      const roles = [Role.User, Role.Admin, Role.Owner]
 
       for (const role of roles) {
         const userWithRole = { ...mockUser, role }

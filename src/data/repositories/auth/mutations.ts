@@ -18,7 +18,7 @@ export const createAuth = async (auth: CreateAuthInput, tx?: Database): Promise<
 }
 
 export const updateAuth = async (
-  userId: number,
+  userId: string,
   updates: UpdateAuthInput,
   tx?: Database,
 ): Promise<void> => {

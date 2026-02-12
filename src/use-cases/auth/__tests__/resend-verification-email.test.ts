@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
 import { hours, nowPlus } from '@/utils/chrono'
@@ -25,7 +25,7 @@ describe('Resend Verification Email', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -39,7 +39,7 @@ describe('Resend Verification Email', () => {
       findByEmail: mock(async () => mockUser),
     }
     mockTokenRepo = {
-      replace: mock(async () => {}),
+      issue: mock(async () => {}),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
@@ -82,15 +82,15 @@ describe('Resend Verification Email', () => {
 
       expect(mockTransaction.transaction).toHaveBeenCalledTimes(1)
 
-      expect(mockTokenRepo.replace).toHaveBeenCalledWith(mockUser.id, {
+      expect(mockTokenRepo.issue).toHaveBeenCalledWith(mockUser.id, {
         userId: mockUser.id,
         type: TokenType.EmailVerification,
         token: mockTokenString,
         expiresAt: mockExpiresAt,
       }, {})
-      expect(mockTokenRepo.replace).toHaveBeenCalledTimes(1)
+      expect(mockTokenRepo.issue).toHaveBeenCalledTimes(1)
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
     })
 
     it('should send an email verification email with the new token', async () => {
@@ -112,8 +112,8 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: 'nonexistent@example.com' })
 
-      expect(result).toEqual({ data: { success: true } })
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(result).toEqual({ success: true })
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
@@ -129,8 +129,8 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: verifiedUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(result).toEqual({ success: true })
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
@@ -146,15 +146,15 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: suspendedUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
-      expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+      expect(result).toEqual({ success: true })
+      expect(mockTokenRepo.issue).not.toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 
   describe('when token replacement fails', () => {
     it('should throw the error and not send email', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Database error')
       })
 
@@ -166,7 +166,7 @@ describe('Resend Verification Email', () => {
         expect((error as Error).message).toBe('Database error')
       }
 
-      expect(mockTokenRepo.replace).toHaveBeenCalled()
+      expect(mockTokenRepo.issue).toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
@@ -177,7 +177,7 @@ describe('Resend Verification Email', () => {
       const result = await resendVerificationEmail({ email: upperCaseEmail })
 
       expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(upperCaseEmail)
-      expect(result.data.success).toBe(true)
+      expect(result.success).toBe(true)
     })
 
     it('should reject users with ineligible statuses to prevent enumeration', async () => {
@@ -195,8 +195,8 @@ describe('Resend Verification Email', () => {
 
         const result = await resendVerificationEmail({ email: userWithStatus.email })
 
-        expect(result).toEqual({ data: { success: true } })
-        expect(mockTokenRepo.replace).not.toHaveBeenCalled()
+        expect(result).toEqual({ success: true })
+        expect(mockTokenRepo.issue).not.toHaveBeenCalled()
         expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
       }
     })
@@ -210,16 +210,16 @@ describe('Resend Verification Email', () => {
 
       const result = await resendVerificationEmail({ email: mockUser.email })
 
-      expect(result).toEqual({ data: { success: true } })
+      expect(result).toEqual({ success: true })
 
-      expect(mockTokenRepo.replace).toHaveBeenCalled()
+      expect(mockTokenRepo.issue).toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).toHaveBeenCalled()
     })
   })
 
   describe('when replace fails due to transaction error', () => {
     it('should throw the error and not send email', async () => {
-      mockTokenRepo.replace.mockImplementation(async () => {
+      mockTokenRepo.issue.mockImplementation(async () => {
         throw new Error('Database connection failed')
       })
 
@@ -231,7 +231,7 @@ describe('Resend Verification Email', () => {
         expect((error as Error).message).toBe('Database connection failed')
       }
 
-      expect(mockTokenRepo.replace).toHaveBeenCalled()
+      expect(mockTokenRepo.issue).toHaveBeenCalled()
       expect(mockEmailAgent.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })

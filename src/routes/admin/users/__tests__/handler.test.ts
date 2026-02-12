@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { SearchResult, User } from '@/data'
+import type { User } from '@/data'
 
-import { ModuleMocker } from '@/__tests__'
+import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { adminUserDetailHandler, adminUsersHandler } from '../handler'
+import { getUserHandler, getUsersHandler } from '../handler'
 
 describe('adminUsersHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -22,7 +22,7 @@ describe('adminUsersHandler', () => {
   beforeEach(async () => {
     mockUsers = [
       {
-        id: 1,
+        id: testUuids.USER_1,
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
@@ -38,7 +38,7 @@ describe('adminUsersHandler', () => {
     mockContext = {
       req: {
         valid: mock(() => ({
-          roles: [Role.User, Role.Enterprise],
+          roles: [Role.User],
           statuses: undefined,
           page: 1,
           limit: DEFAULT_LIMIT,
@@ -47,15 +47,13 @@ describe('adminUsersHandler', () => {
       json: mockJson,
     }
 
-    mockSearchUsers = mock(async (): Promise<{ data: SearchResult }> => ({
-      data: {
-        users: mockUsers,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 1,
-          totalPages: 1,
-        },
+    mockSearchUsers = mock(async () => ({
+      data: { users: mockUsers },
+      pagination: {
+        page: 1,
+        limit: DEFAULT_LIMIT,
+        total: 1,
+        totalPages: 1,
       },
     }))
 
@@ -69,16 +67,16 @@ describe('adminUsersHandler', () => {
   })
 
   it('should call searchUsers with correct parameters', async () => {
-    await adminUsersHandler(mockContext)
+    await getUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
-      { roles: [Role.User, Role.Enterprise], statuses: undefined },
+      { roles: [Role.User], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
   })
 
   it('should return users and pagination with OK status', async () => {
-    const result = await adminUsersHandler(mockContext)
+    const result = await getUsersHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith(
       {
@@ -100,7 +98,7 @@ describe('adminUsersHandler', () => {
       throw new Error('Database connection failed')
     })
 
-    expect(adminUsersHandler(mockContext)).rejects.toThrow('Database connection failed')
+    expect(getUsersHandler(mockContext)).rejects.toThrow('Database connection failed')
   })
 })
 
@@ -115,7 +113,7 @@ describe('adminUserDetailHandler', () => {
 
   beforeEach(async () => {
     mockUser = {
-      id: 1,
+      id: testUuids.USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -129,12 +127,12 @@ describe('adminUserDetailHandler', () => {
 
     mockContext = {
       req: {
-        valid: mock(() => ({ id: 1 })),
+        valid: mock(() => ({ id: testUuids.USER_1 })),
       },
       json: mockJson,
     }
 
-    mockGetUser = mock(async () => ({ data: { user: mockUser } }))
+    mockGetUser = mock(async () => ({ user: mockUser }))
 
     await moduleMocker.mock('@/use-cases/admin', () => ({
       getUser: mockGetUser,
@@ -146,13 +144,13 @@ describe('adminUserDetailHandler', () => {
   })
 
   it('should call getUser with correct user id', async () => {
-    await adminUserDetailHandler(mockContext)
+    await getUserHandler(mockContext)
 
-    expect(mockGetUser).toHaveBeenCalledWith(1)
+    expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
   })
 
   it('should return user with OK status', async () => {
-    const result = await adminUserDetailHandler(mockContext)
+    const result = await getUserHandler(mockContext)
 
     expect(mockJson).toHaveBeenCalledWith({ user: mockUser }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
@@ -163,6 +161,6 @@ describe('adminUserDetailHandler', () => {
       throw new Error('User not found')
     })
 
-    expect(adminUserDetailHandler(mockContext)).rejects.toThrow('User not found')
+    expect(getUserHandler(mockContext)).rejects.toThrow('User not found')
   })
 })

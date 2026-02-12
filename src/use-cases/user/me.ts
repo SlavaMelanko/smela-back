@@ -1,6 +1,6 @@
 import type { UpdateUserInput } from '@/data'
 
-import { userRepo } from '@/data'
+import { teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
@@ -9,8 +9,11 @@ const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   ) as UpdateUserInput
 }
 
-export const getUser = async (userId: number) => {
-  const user = await userRepo.findById(userId)
+export const getUser = async (userId: string) => {
+  const [user, team] = await Promise.all([
+    userRepo.findById(userId),
+    teamRepo.findUserTeam(userId),
+  ])
 
   if (!user) {
     // This represents a data inconsistency - user has valid JWT,
@@ -18,20 +21,23 @@ export const getUser = async (userId: number) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  return { data: { user } }
+  return { user, team: team ?? null }
 }
 
-export const updateUser = async (userId: number, updates: UpdateUserInput) => {
+export const updateUser = async (userId: string, updates: UpdateUserInput) => {
   const validUpdates = prepareValidUpdates(updates)
 
   if (Object.keys(validUpdates).length === 0) {
     return getUser(userId)
   }
 
-  const updatedUser = await userRepo.update(userId, {
-    ...validUpdates,
-    updatedAt: new Date(),
-  })
+  const [updatedUser, team] = await Promise.all([
+    userRepo.update(userId, {
+      ...validUpdates,
+      updatedAt: new Date(),
+    }),
+    teamRepo.findUserTeam(userId),
+  ])
 
-  return { data: { user: updatedUser } }
+  return { user: updatedUser, team: team ?? null }
 }

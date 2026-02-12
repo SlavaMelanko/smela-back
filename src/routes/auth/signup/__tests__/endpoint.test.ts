@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
@@ -23,7 +23,7 @@ describe('Signup Endpoint', () => {
     mockSignUpWithEmail = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -71,12 +71,10 @@ describe('Signup Endpoint', () => {
   describe('POST /auth/signup', () => {
     it('should set cookie with JWT token on successful signup', async () => {
       const validPayload = {
-        data: {
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-        },
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        password: 'ValidPass123!',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       }
 
@@ -87,7 +85,7 @@ describe('Signup Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -112,12 +110,10 @@ describe('Signup Endpoint', () => {
 
     it('should pass preferences to use-case when provided', async () => {
       const validPayload = {
-        data: {
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-        },
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        password: 'ValidPass123!',
         captcha: { token: VALID_CAPTCHA_TOKEN },
         preferences: { locale: 'uk', theme: 'dark' },
       }
@@ -135,12 +131,12 @@ describe('Signup Endpoint', () => {
 
     it('should validate required field formats', async () => {
       const invalidData = [
-        { data: { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty firstName
-        { data: { firstName: 'John', lastName: 'X', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // lastName too short (1 char)
-        { data: { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid email format
-        { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // password too short
-        { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // password missing numbers
-        { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // password missing special chars
+        { firstName: '', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty firstName
+        { firstName: 'John', lastName: 'X', email: 'test@example.com', password: 'ValidPass123!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // lastName too short (1 char)
+        { firstName: 'John', lastName: 'Doe', email: 'invalid', password: 'ValidPass123!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid email format
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'short', captcha: { token: VALID_CAPTCHA_TOKEN } }, // password too short
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoNumbers!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // password missing numbers
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'NoSpecial123', captcha: { token: VALID_CAPTCHA_TOKEN } }, // password missing special chars
       ]
 
       for (const body of invalidData) {
@@ -154,10 +150,10 @@ describe('Signup Endpoint', () => {
 
     it('should require all required fields', async () => {
       const incompleteRequests = [
-        { data: { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing firstName
-        { data: { firstName: 'John', password: 'ValidPass123!' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing lastName and email
-        { data: { firstName: 'John', lastName: 'Doe', email: 'test@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing password
-        { captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing data object
+        { lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing firstName
+        { firstName: 'John', password: 'ValidPass123!', captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing lastName and email
+        { firstName: 'John', lastName: 'Doe', email: 'test@example.com', captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing password
+        { captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing all fields
         {}, // completely empty
       ]
 
@@ -172,12 +168,10 @@ describe('Signup Endpoint', () => {
 
     it('should handle malformed requests', async () => {
       const validPayload = {
-        data: {
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-        },
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        password: 'ValidPass123!',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       }
 
@@ -200,12 +194,10 @@ describe('Signup Endpoint', () => {
       })
 
       const res = await post(app, SIGNUP_URL, {
-        data: {
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          password: 'ValidPass123!',
-        },
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        password: 'ValidPass123!',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 

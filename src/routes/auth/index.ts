@@ -1,3 +1,5 @@
+export { default as acceptInviteRoute } from './accept-invite'
+export { default as checkInviteRoute } from './check-invite'
 export { default as loginRoute } from './login'
 export { default as logoutRoute } from './logout'
 export { default as refreshTokenRoute } from './refresh-token'

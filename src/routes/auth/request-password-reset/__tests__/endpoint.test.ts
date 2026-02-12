@@ -17,7 +17,7 @@ describe('Request Password Reset Endpoint', () => {
   let mockRequestPasswordReset: any
 
   beforeEach(async () => {
-    mockRequestPasswordReset = mock(async () => ({ data: { success: true } }))
+    mockRequestPasswordReset = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/request-password-reset', () => ({
       default: mockRequestPasswordReset,
@@ -35,7 +35,7 @@ describe('Request Password Reset Endpoint', () => {
   describe('POST /auth/request-password-reset', () => {
     it('should return success response on valid request', async () => {
       const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
-        data: { email: 'test@example.com' },
+        email: 'test@example.com',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
@@ -53,7 +53,7 @@ describe('Request Password Reset Endpoint', () => {
 
     it('should pass preferences to use-case when provided', async () => {
       const res = await post(app, REQUEST_PASSWORD_RESET_URL, {
-        data: { email: 'test@example.com' },
+        email: 'test@example.com',
         captcha: { token: VALID_CAPTCHA_TOKEN },
         preferences: { locale: 'uk', theme: 'dark' },
       })
@@ -69,18 +69,17 @@ describe('Request Password Reset Endpoint', () => {
     it('should validate required fields', async () => {
       const invalidRequests = [
         // Invalid email formats
-        { data: { email: '' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty email
-        { data: { email: 'invalid' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid format
-        { data: { email: 'test@' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // incomplete
-        { data: { email: '@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing local part
-        { data: {}, captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing email field
-        { captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing data object
+        { email: '', captcha: { token: VALID_CAPTCHA_TOKEN } }, // empty email
+        { email: 'invalid', captcha: { token: VALID_CAPTCHA_TOKEN } }, // invalid format
+        { email: 'test@', captcha: { token: VALID_CAPTCHA_TOKEN } }, // incomplete
+        { email: '@example.com', captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing local part
+        { captcha: { token: VALID_CAPTCHA_TOKEN } }, // missing email field
 
         // Invalid captcha
-        { data: { email: 'test@example.com' } }, // missing captcha
-        { data: { email: 'test@example.com' }, captcha: {} }, // empty captcha object
-        { data: { email: 'test@example.com' }, captcha: { token: '' } }, // empty captcha token
-        { data: { email: 'test@example.com' }, captcha: { token: 'invalid-token' } }, // invalid captcha token
+        { email: 'test@example.com' }, // missing captcha
+        { email: 'test@example.com', captcha: {} }, // empty captcha object
+        { email: 'test@example.com', captcha: { token: '' } }, // empty captcha token
+        { email: 'test@example.com', captcha: { token: 'invalid-token' } }, // invalid captcha token
       ]
 
       for (const body of invalidRequests) {
@@ -94,7 +93,7 @@ describe('Request Password Reset Endpoint', () => {
 
     it('should handle malformed requests', async () => {
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type header', headers: {}, body: { data: { email: 'test@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing Content-Type header', headers: {}, body: { email: 'test@example.com', captcha: { token: VALID_CAPTCHA_TOKEN } } },
         { name: 'undefined body', headers: { 'Content-Type': 'application/json' }, body: undefined },
         { name: 'empty body', headers: { 'Content-Type': 'application/json' }, body: {} },
         { name: 'malformed JSON body', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },

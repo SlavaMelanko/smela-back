@@ -9,7 +9,7 @@ import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
 import { generateHashedToken, generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, Status } from '@/types'
 
 export interface SignupParams {
   firstName: string
@@ -33,7 +33,6 @@ const createNewUser = async (
       firstName,
       lastName,
       email,
-      role: Role.User,
       status: Status.New,
     }, tx)
 
@@ -44,7 +43,7 @@ const createNewUser = async (
       passwordHash: hashedPassword,
     }, tx)
 
-    await tokenRepo.replace(newUser.id, {
+    await tokenRepo.issue(newUser.id, {
       userId: newUser.id,
       type,
       token: verificationToken,
@@ -66,7 +65,7 @@ const createAccessToken = async (user: User) => signJwt(
   },
 )
 
-const createRefreshToken = async (userId: number, deviceInfo: DeviceInfo) => {
+const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
   )

@@ -2,7 +2,7 @@ import type { Hono } from 'hono'
 
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { createTestApp, ModuleMocker, post } from '@/__tests__'
+import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
@@ -22,7 +22,7 @@ describe('Refresh Token Endpoint', () => {
     mockRefreshAuthTokens = mock(async () => ({
       data: {
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',
@@ -68,7 +68,7 @@ describe('Refresh Token Endpoint', () => {
       const data = await res.json()
       expect(data).toEqual({
         user: {
-          id: 1,
+          id: testUuids.USER_1,
           firstName: 'John',
           lastName: 'Doe',
           email: 'test@example.com',

@@ -17,7 +17,7 @@ describe('Resend Verification Email Endpoint', () => {
   let mockResendVerificationEmail: any
 
   beforeEach(async () => {
-    mockResendVerificationEmail = mock(async () => ({ data: { success: true } }))
+    mockResendVerificationEmail = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/resend-verification-email', () => ({
       default: mockResendVerificationEmail,
@@ -35,7 +35,7 @@ describe('Resend Verification Email Endpoint', () => {
   describe('POST /auth/resend-verification-email', () => {
     it('should return success when verification email is resent', async () => {
       const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, {
-        data: { email: 'test@example.com' },
+        email: 'test@example.com',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
@@ -53,7 +53,7 @@ describe('Resend Verification Email Endpoint', () => {
 
     it('should pass preferences to use-case when provided', async () => {
       const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, {
-        data: { email: 'test@example.com' },
+        email: 'test@example.com',
         captcha: { token: VALID_CAPTCHA_TOKEN },
         preferences: { locale: 'uk', theme: 'dark' },
       })
@@ -72,7 +72,7 @@ describe('Resend Verification Email Endpoint', () => {
       })
 
       const res = await post(app, RESEND_VERIFICATION_EMAIL_URL, {
-        data: { email: 'test@example.com' },
+        email: 'test@example.com',
         captcha: { token: VALID_CAPTCHA_TOKEN },
       })
 
@@ -82,11 +82,10 @@ describe('Resend Verification Email Endpoint', () => {
 
     it('should validate request format and required fields', async () => {
       const invalidRequests = [
-        { name: 'empty email', body: { data: { email: '' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
-        { name: 'invalid email format', body: { data: { email: 'invalid' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
-        { name: 'missing email field', body: { data: {}, captcha: { token: VALID_CAPTCHA_TOKEN } } },
-        { name: 'missing data object', body: { captcha: { token: VALID_CAPTCHA_TOKEN } } },
-        { name: 'missing captcha', body: { data: { email: 'test@example.com' } } },
+        { name: 'empty email', body: { email: '', captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'invalid email format', body: { email: 'invalid', captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing email field', body: { captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing captcha', body: { email: 'test@example.com' } },
         { name: 'missing all fields', body: {} },
       ]
 
@@ -101,7 +100,7 @@ describe('Resend Verification Email Endpoint', () => {
 
     it('should handle malformed requests', async () => {
       const scenarios: Array<{ name: string, headers?: Record<string, string>, body?: any }> = [
-        { name: 'missing Content-Type', headers: {}, body: { data: { email: 'test@example.com' }, captcha: { token: VALID_CAPTCHA_TOKEN } } },
+        { name: 'missing Content-Type', headers: {}, body: { email: 'test@example.com', captcha: { token: VALID_CAPTCHA_TOKEN } } },
         { name: 'malformed JSON', headers: { 'Content-Type': 'application/json' }, body: '{ invalid json' },
         { name: 'missing request body', headers: { 'Content-Type': 'application/json' }, body: '' },
       ]

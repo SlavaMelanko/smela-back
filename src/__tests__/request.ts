@@ -27,3 +27,11 @@ export const get = async (
   headers?: Record<string, string>,
 ) =>
   doRequest(app, url, 'GET', undefined, headers)
+
+export const patch = async (
+  app: Hono,
+  url: string,
+  body?: any,
+  headers: Record<string, string> = { 'Content-Type': 'application/json' },
+) =>
+  doRequest(app, url, 'PATCH', body, headers)

@@ -11,7 +11,7 @@ import { db } from '../../clients'
 import { tokensTable } from '../../schema'
 
 export const deprecateOldTokens = async (
-  userId: number,
+  userId: string,
   tokenType: TokenType,
   tx?: Database,
 ) => {
@@ -44,8 +44,8 @@ export const createToken = async (token: CreateTokenInput, tx?: Database): Promi
   return createdToken.id
 }
 
-export const replaceToken = async (
-  userId: number,
+export const issueToken = async (
+  userId: string,
   token: CreateTokenInput,
   tx: Database,
 ): Promise<void> => {

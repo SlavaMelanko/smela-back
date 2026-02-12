@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
+import { testUuids } from '@/__tests__'
 import env from '@/env'
 import { ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
@@ -16,7 +17,7 @@ describe('Auth Middleware Factory', () => {
   let app: Hono<AppContext>
 
   const mockUser = {
-    id: 123,
+    id: testUuids.USER_1,
     email: 'test@example.com',
     role: Role.User,
     status: Status.Verified,

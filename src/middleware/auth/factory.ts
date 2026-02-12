@@ -40,7 +40,7 @@ const createAuthMiddleware = (
 
     c.set('user', userClaims)
 
-    getErrorTracker().setUser({ id: String(userClaims.id) })
+    getErrorTracker().setUser({ id: userClaims.id })
   } catch (error) {
     if (error instanceof AppError) {
       throw error

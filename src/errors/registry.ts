@@ -13,7 +13,7 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'Email is already in use.',
   },
   [ErrorCode.Forbidden]: {
-    error: 'Unverified account.',
+    error: 'Forbidden.',
   },
   [ErrorCode.InvalidCredentials]: {
     error: 'Invalid email or password.',
@@ -25,6 +25,9 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   // Token errors
   [ErrorCode.TokenAlreadyUsed]: {
     error: 'Token has already been used.',
+  },
+  [ErrorCode.TokenCancelled]: {
+    error: 'Token has been cancelled.',
   },
   [ErrorCode.TokenDeprecated]: {
     error: 'Token has been deprecated.',
@@ -61,12 +64,17 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
     error: 'reCAPTCHA token validation failed.',
   },
 
-  // System errors
-  [ErrorCode.InternalError]: {
-    error: 'Internal server error.',
+  // Resource errors
+  [ErrorCode.Conflict]: {
+    error: 'Resource already exists.',
   },
   [ErrorCode.NotFound]: {
     error: 'Resource not found.',
+  },
+
+  // System errors
+  [ErrorCode.InternalError]: {
+    error: 'Internal server error.',
   },
   [ErrorCode.ValidationError]: {
     error: 'Validation error.',
