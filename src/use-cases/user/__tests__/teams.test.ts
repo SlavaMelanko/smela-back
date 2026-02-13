@@ -70,6 +70,7 @@ describe('getTeam', () => {
 
   let mockTeam: TeamWithMembers
   let mockTeamRepoFind: any
+  let mockTeamRepoFindMember: any
 
   beforeEach(async () => {
     mockTeam = {
@@ -83,9 +84,13 @@ describe('getTeam', () => {
     }
 
     mockTeamRepoFind = mock(async () => mockTeam)
+    mockTeamRepoFindMember = mock(async () => ({ userId: testUuids.USER_1, teamId: TEAM_1 }))
 
     await moduleMocker.mock('@/data', () => ({
-      teamRepo: { find: mockTeamRepoFind },
+      teamRepo: {
+        find: mockTeamRepoFind,
+        findMember: mockTeamRepoFindMember,
+      },
     }))
   })
 
@@ -93,14 +98,42 @@ describe('getTeam', () => {
     await moduleMocker.clear()
   })
 
-  it('should return team when found', async () => {
+  it('should return team when found (admin access, no userId)', async () => {
     const result = await getTeam(TEAM_1)
 
     expect(mockTeamRepoFind).toHaveBeenCalledWith(TEAM_1)
     expect(result).toEqual({ team: mockTeam })
   })
 
-  it('should throw NotFound error when team does not exist', async () => {
+  it('should return team for authorized user', async () => {
+    const result = await getTeam(TEAM_1, testUuids.USER_1)
+
+    expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, TEAM_1)
+    expect(mockTeamRepoFind).toHaveBeenCalledWith(TEAM_1)
+    expect(result).toEqual({ team: mockTeam })
+  })
+
+  it('should throw Forbidden error for unauthorized user (prevents enumeration)', async () => {
+    mockTeamRepoFindMember.mockImplementation(async () => undefined)
+
+    expect(getTeam(TEAM_1, testUuids.USER_2)).rejects.toThrow(AppError)
+    expect(getTeam(TEAM_1, testUuids.USER_2)).rejects.toMatchObject({
+      code: ErrorCode.Forbidden,
+      message: 'Not authorized to access this team',
+    })
+  })
+
+  it('should throw Forbidden error for non-existent team (prevents enumeration)', async () => {
+    mockTeamRepoFindMember.mockImplementation(async () => undefined)
+
+    expect(getTeam(testUuids.NON_EXISTENT, testUuids.USER_1)).rejects.toThrow(AppError)
+    expect(getTeam(testUuids.NON_EXISTENT, testUuids.USER_1)).rejects.toMatchObject({
+      code: ErrorCode.Forbidden,
+      message: 'Not authorized to access this team',
+    })
+  })
+
+  it('should throw NotFound error when team does not exist (admin access)', async () => {
     mockTeamRepoFind.mockImplementation(async () => undefined)
 
     expect(getTeam(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
@@ -157,6 +190,7 @@ describe('updateTeam', () => {
   let mockUpdatedTeam: Team
   let mockTeamRepoFindById: any
   let mockTeamRepoUpdate: any
+  let mockTeamRepoFindMember: any
 
   beforeEach(async () => {
     mockExistingTeam = {
@@ -176,11 +210,13 @@ describe('updateTeam', () => {
 
     mockTeamRepoFindById = mock(async () => mockExistingTeam)
     mockTeamRepoUpdate = mock(async () => mockUpdatedTeam)
+    mockTeamRepoFindMember = mock(async () => ({ userId: testUuids.USER_1, teamId: TEAM_1 }))
 
     await moduleMocker.mock('@/data', () => ({
       teamRepo: {
         findById: mockTeamRepoFindById,
         update: mockTeamRepoUpdate,
+        findMember: mockTeamRepoFindMember,
       },
     }))
   })
@@ -189,7 +225,7 @@ describe('updateTeam', () => {
     await moduleMocker.clear()
   })
 
-  it('should update team when it exists', async () => {
+  it('should update team when it exists (admin access, no userId)', async () => {
     const params = { name: 'Updated Team' }
 
     const result = await updateTeam(TEAM_1, params)
@@ -199,7 +235,28 @@ describe('updateTeam', () => {
     expect(result).toEqual({ team: mockUpdatedTeam })
   })
 
-  it('should throw NotFound error when team does not exist', async () => {
+  it('should update team for authorized user', async () => {
+    const params = { name: 'Updated Team' }
+
+    const result = await updateTeam(TEAM_1, params, testUuids.USER_1)
+
+    expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, TEAM_1)
+    expect(mockTeamRepoFindById).toHaveBeenCalledWith(TEAM_1)
+    expect(mockTeamRepoUpdate).toHaveBeenCalledWith(TEAM_1, params)
+    expect(result).toEqual({ team: mockUpdatedTeam })
+  })
+
+  it('should throw Forbidden error for unauthorized user (prevents enumeration)', async () => {
+    mockTeamRepoFindMember.mockImplementation(async () => undefined)
+
+    expect(updateTeam(TEAM_1, { name: 'Test' }, testUuids.USER_2)).rejects.toThrow(AppError)
+    expect(updateTeam(TEAM_1, { name: 'Test' }, testUuids.USER_2)).rejects.toMatchObject({
+      code: ErrorCode.Forbidden,
+      message: 'Not authorized to update this team',
+    })
+  })
+
+  it('should throw NotFound error when team does not exist (admin access)', async () => {
     mockTeamRepoFindById.mockImplementation(async () => undefined)
 
     expect(updateTeam(testUuids.NON_EXISTENT, { name: 'Test' })).rejects.toThrow(AppError)

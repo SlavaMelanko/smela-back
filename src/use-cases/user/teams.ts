@@ -11,19 +11,18 @@ export const getTeams = async (
 }
 
 export const getTeam = async (teamId: string, userId?: string) => {
-  const team = await teamRepo.find(teamId)
-
-  if (!team) {
-    throw new AppError(ErrorCode.NotFound, 'Team not found')
-  }
-
-  // If userId provided, verify membership (user-level access)
   if (userId) {
     const membership = await teamRepo.findMember(userId, teamId)
 
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
     }
+  }
+
+  const team = await teamRepo.find(teamId)
+
+  if (!team) {
+    throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
 
   return { team }
@@ -52,19 +51,18 @@ export const updateTeam = async (
   params: UpdateTeamParams,
   userId?: string,
 ) => {
-  const existing = await teamRepo.findById(teamId)
-
-  if (!existing) {
-    throw new AppError(ErrorCode.NotFound, 'Team not found')
-  }
-
-  // If userId provided, verify membership (user-level access)
   if (userId) {
     const membership = await teamRepo.findMember(userId, teamId)
 
     if (!membership) {
       throw new AppError(ErrorCode.Forbidden, 'Not authorized to update this team')
     }
+  }
+
+  const existing = await teamRepo.findById(teamId)
+
+  if (!existing) {
+    throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
 
   const team = await teamRepo.update(teamId, params)
