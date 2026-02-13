@@ -1,12 +1,10 @@
 import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
-export const getTeamMembers = async (teamId: string, userId: string) => {
-  const membership = await teamRepo.findMember(userId, teamId)
+import { assertTeamAccess } from './authorization'
 
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
+export const getTeamMembers = async (teamId: string, userId: string) => {
+  await assertTeamAccess(userId, teamId)
 
   const members = await teamRepo.findMembers(teamId)
 
@@ -18,11 +16,7 @@ export const getTeamMember = async (
   memberId: string,
   userId: string,
 ) => {
-  const membership = await teamRepo.findMember(userId, teamId)
-
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
+  await assertTeamAccess(userId, teamId)
 
   const member = await teamRepo.findMember(memberId, teamId)
 
@@ -43,11 +37,7 @@ export const updateTeamMember = async (
   params: UpdateTeamMemberParams,
   userId: string,
 ) => {
-  const membership = await teamRepo.findMember(userId, teamId)
-
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
+  await assertTeamAccess(userId, teamId)
 
   const existing = await teamRepo.findMember(memberId, teamId)
 
