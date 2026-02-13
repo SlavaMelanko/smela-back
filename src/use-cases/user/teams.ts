@@ -3,6 +3,8 @@ import type { PaginationParams, TeamSearchParams } from '@/data'
 import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
+import { assertTeamAccess } from './authorization'
+
 export const getTeams = async (
   params: TeamSearchParams,
   pagination: PaginationParams,
@@ -12,11 +14,7 @@ export const getTeams = async (
 
 export const getTeam = async (teamId: string, userId?: string) => {
   if (userId) {
-    const membership = await teamRepo.findMember(userId, teamId)
-
-    if (!membership) {
-      throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-    }
+    await assertTeamAccess(userId, teamId)
   }
 
   const team = await teamRepo.find(teamId)
@@ -52,11 +50,7 @@ export const updateTeam = async (
   userId?: string,
 ) => {
   if (userId) {
-    const membership = await teamRepo.findMember(userId, teamId)
-
-    if (!membership) {
-      throw new AppError(ErrorCode.Forbidden, 'Not authorized to update this team')
-    }
+    await assertTeamAccess(userId, teamId)
   }
 
   const existing = await teamRepo.findById(teamId)

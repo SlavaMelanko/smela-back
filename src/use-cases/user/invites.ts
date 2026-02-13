@@ -3,7 +3,9 @@ import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
-import { AuthProvider, isAdmin, Role, Status } from '@/types'
+import { AuthProvider, Role, Status } from '@/types'
+
+import { assertTeamAccess } from './authorization'
 
 export interface InviteMemberParams {
   firstName: string
@@ -27,13 +29,8 @@ export const inviteMember = async (
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
-  // Check authorization: admins can invite to any team, regular users only to their own
-  if (!isAdmin(inviter.role)) {
-    const membership = await teamRepo.findMember(inviterId, teamId)
-    if (!membership) {
-      throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
-    }
-  }
+  // Check authorization with admin bypass
+  await assertTeamAccess(inviterId, teamId, inviter.role)
 
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')
@@ -117,13 +114,8 @@ export const resendMemberInvite = async (
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
-  // Check authorization: admins can resend to any team, regular users only to their own
-  if (!isAdmin(inviter.role)) {
-    const inviterMembership = await teamRepo.findMember(inviterId, teamId)
-    if (!inviterMembership) {
-      throw new AppError(ErrorCode.Forbidden, 'Not authorized to invite to this team')
-    }
-  }
+  // Check authorization with admin bypass
+  await assertTeamAccess(inviterId, teamId, inviter.role)
 
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')

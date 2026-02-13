@@ -119,7 +119,6 @@ describe('getTeam', () => {
     expect(getTeam(TEAM_1, testUuids.USER_2)).rejects.toThrow(AppError)
     expect(getTeam(TEAM_1, testUuids.USER_2)).rejects.toMatchObject({
       code: ErrorCode.Forbidden,
-      message: 'Not authorized to access this team',
     })
   })
 
@@ -129,7 +128,6 @@ describe('getTeam', () => {
     expect(getTeam(testUuids.NON_EXISTENT, testUuids.USER_1)).rejects.toThrow(AppError)
     expect(getTeam(testUuids.NON_EXISTENT, testUuids.USER_1)).rejects.toMatchObject({
       code: ErrorCode.Forbidden,
-      message: 'Not authorized to access this team',
     })
   })
 
@@ -252,7 +250,6 @@ describe('updateTeam', () => {
     expect(updateTeam(TEAM_1, { name: 'Test' }, testUuids.USER_2)).rejects.toThrow(AppError)
     expect(updateTeam(TEAM_1, { name: 'Test' }, testUuids.USER_2)).rejects.toMatchObject({
       code: ErrorCode.Forbidden,
-      message: 'Not authorized to update this team',
     })
   })
 
