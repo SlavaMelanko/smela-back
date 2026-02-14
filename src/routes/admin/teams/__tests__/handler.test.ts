@@ -5,12 +5,7 @@ import type { Team } from '@/data'
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 
-import {
-  createTeamHandler,
-  getTeamHandler,
-  getTeamsHandler,
-  updateTeamHandler,
-} from '../handler'
+import { createTeamHandler, getTeamsHandler } from '../handler'
 
 const { TEAM_1 } = testUuids
 
@@ -118,65 +113,6 @@ describe('getTeamsHandler', () => {
   })
 })
 
-describe('getTeamHandler', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockContext: any
-  let mockJson: any
-  let mockGetTeam: any
-
-  const mockTeam: Team = {
-    id: TEAM_1,
-    name: 'Acme Corp',
-    website: 'https://acme.com',
-    description: 'A test team',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  }
-
-  beforeEach(async () => {
-    mockJson = mock((data: any, status: number) => ({ data, status }))
-
-    mockContext = {
-      req: {
-        valid: mock(() => ({ teamId: TEAM_1 })),
-      },
-      json: mockJson,
-    }
-
-    mockGetTeam = mock(async () => ({ team: mockTeam }))
-
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      getTeam: mockGetTeam,
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should call getTeam with correct id', async () => {
-    await getTeamHandler(mockContext)
-
-    expect(mockGetTeam).toHaveBeenCalledWith(TEAM_1)
-  })
-
-  it('should return team with OK status', async () => {
-    const result = await getTeamHandler(mockContext)
-
-    expect(mockJson).toHaveBeenCalledWith({ team: mockTeam }, HttpStatus.OK)
-    expect(result.status).toBe(HttpStatus.OK)
-  })
-
-  it('should propagate error when getTeam throws', async () => {
-    mockGetTeam.mockImplementation(async () => {
-      throw new Error('Team not found')
-    })
-
-    expect(getTeamHandler(mockContext)).rejects.toThrow('Team not found')
-  })
-})
-
 describe('createTeamHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
@@ -241,70 +177,5 @@ describe('createTeamHandler', () => {
     })
 
     expect(createTeamHandler(mockContext)).rejects.toThrow('Team with this name already exists')
-  })
-})
-
-describe('updateTeamHandler', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockContext: any
-  let mockJson: any
-  let mockUpdateTeam: any
-
-  const mockTeam: Team = {
-    id: TEAM_1,
-    name: 'Updated Team',
-    website: 'https://updated.com',
-    description: 'An updated team',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-02'),
-  }
-
-  beforeEach(async () => {
-    mockJson = mock((data: any, status: number) => ({ data, status }))
-
-    mockContext = {
-      req: {
-        valid: mock((type: string) => {
-          if (type === 'param') {
-            return { teamId: TEAM_1 }
-          }
-
-          return { name: 'Updated Team' }
-        }),
-      },
-      json: mockJson,
-    }
-
-    mockUpdateTeam = mock(async () => ({ team: mockTeam }))
-
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      updateTeam: mockUpdateTeam,
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should call updateTeam with correct id and body', async () => {
-    await updateTeamHandler(mockContext)
-
-    expect(mockUpdateTeam).toHaveBeenCalledWith(TEAM_1, { name: 'Updated Team' })
-  })
-
-  it('should return updated team with OK status', async () => {
-    const result = await updateTeamHandler(mockContext)
-
-    expect(mockJson).toHaveBeenCalledWith({ team: mockTeam }, HttpStatus.OK)
-    expect(result.status).toBe(HttpStatus.OK)
-  })
-
-  it('should propagate error when updateTeam throws', async () => {
-    mockUpdateTeam.mockImplementation(async () => {
-      throw new Error('Team not found')
-    })
-
-    expect(updateTeamHandler(mockContext)).rejects.toThrow('Team not found')
   })
 })
