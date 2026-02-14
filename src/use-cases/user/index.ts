@@ -1,5 +1,3 @@
-export { assertTeamAccess } from './authorization'
-
 export { inviteMember, resendMemberInvite } from './invites'
 
 export { getUser, updateUser } from './me'

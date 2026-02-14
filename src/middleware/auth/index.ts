@@ -4,7 +4,6 @@ import {
   isAdmin,
   isNewOrActive,
   isOwner,
-  isUser,
   isUserOrAdmin,
 } from '@/types'
 
@@ -22,9 +21,9 @@ export const userRelaxedAuthMiddleware = createAuthMiddleware(isNewOrActive, isU
  * Strict user authentication middleware - requires verified users only.
  * - Uses JWT via Authorization: Bearer <token> header.
  * - Requires user status to be Verified, Trial, or Active.
- * - Requires user role to be User.
+ * - Accepts all roles: User, Admin, Owner (for role inheritance).
  */
-export const userStrictAuthMiddleware = createAuthMiddleware(isActive, isUser)
+export const userStrictAuthMiddleware = createAuthMiddleware(isActive, isUserOrAdmin)
 
 /**
  * Admin authentication middleware - requires admin privileges.
