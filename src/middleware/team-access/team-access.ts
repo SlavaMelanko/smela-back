@@ -10,6 +10,11 @@ import { isAdmin } from '@/types'
  * Team access middleware - ensures user has access to the team.
  *
  * Note: teamId is already validated by requestValidator middleware
+ *
+ * TODO: Add Redis caching for team membership queries
+ * Currently queries database on every request (~1-5ms per query).
+ * With Redis cache: 80-95% hit rate, 20-50x faster response time.
+ * See: https://github.com/SlavaMelanko/smela-back/issues/58
  */
 export const teamAccessMiddleware = createMiddleware<AppContext>(async (c, next) => {
   const teamId = c.req.param('teamId')!
