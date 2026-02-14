@@ -5,9 +5,8 @@ import type { TeamParamsCtx, UpdateTeamCtx } from './schema'
 
 export const getTeamHandler = async (c: TeamParamsCtx) => {
   const { teamId } = c.req.valid('param')
-  const { id: userId } = c.get('user')
 
-  const result = await getTeam(teamId, userId)
+  const result = await getTeam(teamId)
 
   return c.json(result, HttpStatus.OK)
 }
@@ -15,9 +14,8 @@ export const getTeamHandler = async (c: TeamParamsCtx) => {
 export const updateTeamHandler = async (c: UpdateTeamCtx) => {
   const { teamId } = c.req.valid('param')
   const body = c.req.valid('json')
-  const { id: userId } = c.get('user')
 
-  const result = await updateTeam(teamId, body, userId)
+  const result = await updateTeam(teamId, body)
 
   return c.json(result, HttpStatus.OK)
 }

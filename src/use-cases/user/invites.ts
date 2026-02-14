@@ -5,8 +5,6 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
 
-import { assertTeamAccess } from './authorization'
-
 export interface InviteMemberParams {
   firstName: string
   lastName?: string
@@ -28,9 +26,6 @@ export const inviteMember = async (
   if (!inviter) {
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
-
-  // Check authorization with admin bypass
-  await assertTeamAccess(inviterId, teamId, inviter.role)
 
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')
@@ -113,9 +108,6 @@ export const resendMemberInvite = async (
   if (!inviter) {
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
-
-  // Check authorization with admin bypass
-  await assertTeamAccess(inviterId, teamId, inviter.role)
 
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')

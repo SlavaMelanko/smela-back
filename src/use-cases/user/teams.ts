@@ -3,8 +3,6 @@ import type { PaginationParams, TeamSearchParams } from '@/data'
 import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
-import { assertTeamAccess } from './authorization'
-
 export const getTeams = async (
   params: TeamSearchParams,
   pagination: PaginationParams,
@@ -12,11 +10,7 @@ export const getTeams = async (
   return teamRepo.search(params, pagination)
 }
 
-export const getTeam = async (teamId: string, userId?: string) => {
-  if (userId) {
-    await assertTeamAccess(userId, teamId)
-  }
-
+export const getTeam = async (teamId: string) => {
   const team = await teamRepo.find(teamId)
 
   if (!team) {
@@ -47,12 +41,7 @@ export interface UpdateTeamParams {
 export const updateTeam = async (
   teamId: string,
   params: UpdateTeamParams,
-  userId?: string,
 ) => {
-  if (userId) {
-    await assertTeamAccess(userId, teamId)
-  }
-
   const existing = await teamRepo.findById(teamId)
 
   if (!existing) {

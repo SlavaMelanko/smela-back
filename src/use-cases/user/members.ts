@@ -1,11 +1,7 @@
 import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
-import { assertTeamAccess } from './authorization'
-
-export const getTeamMembers = async (teamId: string, userId: string) => {
-  await assertTeamAccess(userId, teamId)
-
+export const getTeamMembers = async (teamId: string) => {
   const members = await teamRepo.findMembers(teamId)
 
   return { members }
@@ -14,10 +10,7 @@ export const getTeamMembers = async (teamId: string, userId: string) => {
 export const getTeamMember = async (
   teamId: string,
   memberId: string,
-  userId: string,
 ) => {
-  await assertTeamAccess(userId, teamId)
-
   const member = await teamRepo.findMember(memberId, teamId)
 
   if (!member) {
@@ -35,10 +28,7 @@ export const updateTeamMember = async (
   teamId: string,
   memberId: string,
   params: UpdateTeamMemberParams,
-  userId: string,
 ) => {
-  await assertTeamAccess(userId, teamId)
-
   const existing = await teamRepo.findMember(memberId, teamId)
 
   if (!existing) {
