@@ -8,7 +8,7 @@ import { isHttps, isValidOrigin, normalizeOrigin } from '@/net/url'
 
 import { ALLOWED_HEADERS, ALLOWED_METHODS, EXPOSED_HEADERS, MAX_AGE_ONE_HOUR } from '../constants'
 
-const stagingAndProdCors = (): MiddlewareHandler => {
+export const stagingAndProdCors = (): MiddlewareHandler => {
   const allowedOrigins = env.ALLOWED_ORIGINS?.split(',')
     .map(o => o.trim())
     .filter(Boolean)
@@ -47,5 +47,3 @@ const stagingAndProdCors = (): MiddlewareHandler => {
     credentials: true,
   })
 }
-
-export default stagingAndProdCors

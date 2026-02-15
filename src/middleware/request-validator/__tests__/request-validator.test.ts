@@ -8,7 +8,7 @@ import { onError } from '@/handlers'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
-import requestValidator from '../request-validator'
+import { requestValidator } from '../request-validator'
 
 describe('Request Validator Middleware', () => {
   it('should accept valid email and password together', async () => {

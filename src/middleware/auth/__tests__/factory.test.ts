@@ -11,7 +11,7 @@ import HttpStatus from '@/net/http/status'
 import { signJwt } from '@/security/jwt'
 import { Role, Status } from '@/types'
 
-import createAuthMiddleware from '../factory'
+import { createAuthMiddleware } from '../factory'
 
 describe('Auth Middleware Factory', () => {
   let app: Hono<AppContext>

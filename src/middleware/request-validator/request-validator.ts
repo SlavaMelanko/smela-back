@@ -18,7 +18,7 @@ const makeErrorMessage = (issues: ZodIssue[]): string => {
   return `[${fieldName}]: ${errorMessage.toLowerCase()}`
 }
 
-const requestValidator = <Target extends keyof ValidationTargets, Schema extends ZodSchema>(
+export const requestValidator = <Target extends keyof ValidationTargets, Schema extends ZodSchema>(
   target: Target,
   schema: Schema,
 ) =>
@@ -33,5 +33,3 @@ const requestValidator = <Target extends keyof ValidationTargets, Schema extends
       throw new AppError(ErrorCode.ValidationError, message)
     }
   })
-
-export default requestValidator
