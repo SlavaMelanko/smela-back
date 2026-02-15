@@ -26,7 +26,7 @@ interface CaptchaInput {
  *
  * Expects `captcha.token` to be present in the validated request body.
  */
-const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
+export const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
   const captchaVerifier = createCaptchaVerifier()
 
   return createMiddleware<AppContext, string, CaptchaInput>(async (c, next) => {
@@ -43,8 +43,6 @@ const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
       throw new AppError(ErrorCode.CaptchaValidationFailed)
     }
 
-    await next()
+    return next()
   })
 }
-
-export default captchaMiddleware

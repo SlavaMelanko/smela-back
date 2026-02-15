@@ -7,7 +7,7 @@ import {
   isUserOrAdmin,
 } from '@/types'
 
-import createAuthMiddleware from './factory'
+import { createAuthMiddleware } from './factory'
 
 /**
  * Relaxed user authentication middleware - allows new users.

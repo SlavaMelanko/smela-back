@@ -7,7 +7,7 @@ const BEARER_PREFIX = 'Bearer '
  * @param c Hono context object.
  * @returns The extracted token or null if not found.
  */
-const extractAccessToken = (c: Context): string | null => {
+export const extractAccessToken = (c: Context): string | null => {
   const authHeader = c.req.header('Authorization')
 
   if (!authHeader) {
@@ -22,5 +22,3 @@ const extractAccessToken = (c: Context): string | null => {
 
   return token || null
 }
-
-export default extractAccessToken
