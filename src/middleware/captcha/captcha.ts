@@ -43,6 +43,6 @@ export const captchaMiddleware = (): MiddlewareHandler<AppContext> => {
       throw new AppError(ErrorCode.CaptchaValidationFailed)
     }
 
-    await next()
+    return next()
   })
 }

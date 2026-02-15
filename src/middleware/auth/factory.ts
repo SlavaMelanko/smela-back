@@ -49,5 +49,5 @@ export const createAuthMiddleware = (
     throw new AppError(ErrorCode.Unauthorized, 'Invalid authentication token')
   }
 
-  await next()
+  return next()
 })
