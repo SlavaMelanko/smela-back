@@ -11,6 +11,12 @@ export type CreateTeamMemberInput = typeof teamMembersTable.$inferInsert
 export type Team = TeamRecord
 export type TeamMember = TeamMemberRecord
 
+export interface TeamMemberInviter {
+  id: string | null
+  firstName: string | null
+  lastName: string | null
+}
+
 export interface TeamMemberDetails {
   id: string
   firstName: string
@@ -18,7 +24,7 @@ export interface TeamMemberDetails {
   email: string
   status: string
   position: string | null
-  invitedBy: string | null
+  inviter: TeamMemberInviter | null
   joinedAt: Date | null
 }
 

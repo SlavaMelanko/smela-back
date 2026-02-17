@@ -1,4 +1,5 @@
 import { and, count, desc, eq, sql } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
@@ -85,8 +86,9 @@ export const findTeamMembers = async (
   tx?: Database,
 ): Promise<TeamMemberDetails[]> => {
   const executor = tx || db
+  const invitersTable = alias(usersTable, 'inviters')
 
-  return executor
+  const rows = await executor
     .select({
       id: teamMembersTable.userId,
       firstName: usersTable.firstName,
@@ -94,13 +96,20 @@ export const findTeamMembers = async (
       email: usersTable.email,
       status: usersTable.status,
       position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
       joinedAt: teamMembersTable.joinedAt,
+      inviter: {
+        id: invitersTable.id,
+        firstName: invitersTable.firstName,
+        lastName: invitersTable.lastName,
+      },
     })
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
+    .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
     .where(eq(teamMembersTable.teamId, teamId))
     .orderBy(desc(teamMembersTable.joinedAt))
+
+  return rows
 }
 
 export const findTeamMember = async (
@@ -109,8 +118,9 @@ export const findTeamMember = async (
   tx?: Database,
 ): Promise<TeamMemberDetails | undefined> => {
   const executor = tx || db
+  const invitersTable = alias(usersTable, 'inviters')
 
-  const [member] = await executor
+  const [row] = await executor
     .select({
       id: teamMembersTable.userId,
       firstName: usersTable.firstName,
@@ -118,11 +128,16 @@ export const findTeamMember = async (
       email: usersTable.email,
       status: usersTable.status,
       position: teamMembersTable.position,
-      invitedBy: teamMembersTable.invitedBy,
       joinedAt: teamMembersTable.joinedAt,
+      inviter: {
+        id: invitersTable.id,
+        firstName: invitersTable.firstName,
+        lastName: invitersTable.lastName,
+      },
     })
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
+    .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
     .where(
       and(
         eq(teamMembersTable.userId, userId),
@@ -130,7 +145,7 @@ export const findTeamMember = async (
       ),
     )
 
-  return member
+  return row
 }
 
 export const findTeamWithMembers = async (
