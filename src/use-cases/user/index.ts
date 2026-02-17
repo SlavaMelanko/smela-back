@@ -1,4 +1,4 @@
-export { inviteMember, resendMemberInvite } from './invites'
+export { cancelMemberInvite, inviteMember, resendMemberInvite } from './invites'
 
 export { getUser, updateUser } from './me'
 

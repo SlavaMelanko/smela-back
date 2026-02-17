@@ -144,3 +144,25 @@ export const resendMemberInvite = async (
 
   return { success: true }
 }
+
+export const cancelMemberInvite = async (teamId: string, memberId: string) => {
+  const [member, membership] = await Promise.all([
+    userRepo.findById(memberId),
+    teamRepo.findMember(memberId, teamId),
+  ])
+
+  if (!member || !membership) {
+    throw new AppError(ErrorCode.NotFound, 'Member not found')
+  }
+
+  if (member.status !== Status.Pending) {
+    throw new AppError(ErrorCode.BadRequest, 'Member has already accepted invitation')
+  }
+
+  await db.transaction(async (tx) => {
+    await tokenRepo.deprecate(memberId, TokenType.UserInvite, tx)
+    await userRepo.update(memberId, { status: Status.Archived }, tx)
+  })
+
+  return { success: true }
+}

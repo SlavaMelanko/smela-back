@@ -120,7 +120,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
   return { admin }
 }
 
-export const resendAdminInvitation = async (adminId: string, inviterId: string) => {
+export const resendAdminInvite = async (adminId: string, inviterId: string) => {
   const [admin, inviter] = await Promise.all([
     userRepo.findById(adminId),
     userRepo.findById(inviterId),
@@ -152,6 +152,25 @@ export const resendAdminInvitation = async (adminId: string, inviterId: string) 
     inviter.firstName,
     env.COMPANY_NAME,
   )
+
+  return { success: true }
+}
+
+export const cancelAdminInvite = async (adminId: string) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  if (admin.status !== Status.Pending) {
+    throw new AppError(ErrorCode.BadRequest, 'Admin has already accepted invitation')
+  }
+
+  await db.transaction(async (tx) => {
+    await tokenRepo.deprecate(adminId, TokenType.UserInvite, tx)
+    await userRepo.update(adminId, { status: Status.Archived }, tx)
+  })
 
   return { success: true }
 }

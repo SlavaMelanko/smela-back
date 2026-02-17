@@ -5,12 +5,14 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import {
+  cancelAdminInviteHandler,
   createAdminHandler,
   getAdminHandler,
   getAdminsHandler,
   resendAdminInviteHandler,
 } from './handler'
 import {
+  cancelAdminInviteParamsSchema,
   createAdminBodySchema,
   getAdminParamsSchema,
   getAdminsQuerySchema,
@@ -41,6 +43,12 @@ ownerAdminsRoute.post(
   '/admins/:adminId/resend-invite',
   requestValidator('param', resendAdminInviteParamsSchema),
   resendAdminInviteHandler,
+)
+
+ownerAdminsRoute.post(
+  '/admins/:adminId/cancel-invite',
+  requestValidator('param', cancelAdminInviteParamsSchema),
+  cancelAdminInviteHandler,
 )
 
 export default ownerAdminsRoute

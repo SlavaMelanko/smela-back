@@ -33,6 +33,8 @@ export type UpdateTeamMemberBody = z.infer<typeof updateTeamMemberBodySchema>
 export type UpdateTeamMemberCtx = ValidatedParamJsonCtx<TeamMemberParams, UpdateTeamMemberBody>
 
 export {
+  type CancelMemberInviteCtx,
+  cancelMemberInviteParamsSchema,
   type ResendMemberInviteCtx,
   resendMemberInviteParamsSchema,
 } from '../../../@shared'

@@ -27,3 +27,11 @@ export const resendMemberInviteParamsSchema = z.object({
 
 export type ResendMemberInviteParams = z.infer<typeof resendMemberInviteParamsSchema>
 export type ResendMemberInviteCtx = ValidatedParamCtx<ResendMemberInviteParams>
+
+export const cancelMemberInviteParamsSchema = z.object({
+  teamId: dataRules.id,
+  memberId: dataRules.id,
+})
+
+export type CancelMemberInviteParams = z.infer<typeof cancelMemberInviteParamsSchema>
+export type CancelMemberInviteCtx = ValidatedParamCtx<CancelMemberInviteParams>

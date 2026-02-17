@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '../admins'
+import { cancelAdminInvite, getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '../admins'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -328,7 +328,7 @@ describe('inviteAdmin', () => {
   })
 })
 
-describe('resendAdminInvitation', () => {
+describe('resendAdminInvite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockAdmin: User
@@ -416,11 +416,11 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.NON_EXISTENT,
       testUuids.OWNER_1,
     )).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.NON_EXISTENT,
       testUuids.OWNER_1,
     )).rejects.toMatchObject({
@@ -441,8 +441,8 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
@@ -460,8 +460,8 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.BadRequest,
       message: 'Admin has already accepted invitation',
     })
@@ -476,11 +476,11 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.ADMIN_1,
       testUuids.NON_EXISTENT,
     )).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.ADMIN_1,
       testUuids.NON_EXISTENT,
     )).rejects.toMatchObject({
@@ -490,7 +490,7 @@ describe('resendAdminInvitation', () => {
   })
 
   it('should issue new token and send invitation email with current inviter name', async () => {
-    const result = await resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)
+    const result = await resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)
 
     expect(mockTokenIssue).toHaveBeenCalledWith(
       testUuids.ADMIN_1,
@@ -508,6 +508,92 @@ describe('resendAdminInvitation', () => {
       'new-invitation-token',
       'Owner',
       'Test Company',
+    )
+    expect(result).toEqual({ success: true })
+  })
+})
+
+describe('cancelAdminInvite', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockAdmin: User
+  let mockFindById: any
+  let mockTokenDeprecate: any
+  let mockUserUpdate: any
+  let mockTransaction: any
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: testUuids.ADMIN_1,
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@example.com',
+      role: Role.Admin,
+      status: Status.Pending,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindById = mock(async () => mockAdmin)
+    mockTokenDeprecate = mock(async () => {})
+    mockUserUpdate = mock(async () => ({ ...mockAdmin, status: Status.Archived }))
+
+    // eslint-disable-next-line ts/no-unsafe-return
+    mockTransaction = mock(async (callback: any) => callback({}))
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: { findById: mockFindById, update: mockUserUpdate },
+      tokenRepo: { deprecate: mockTokenDeprecate },
+      db: { transaction: mockTransaction },
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      TokenType: { UserInvite: 'user_invite' },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should throw NotFound when admin does not exist', async () => {
+    mockFindById.mockImplementation(async () => undefined)
+
+    expect(cancelAdminInvite(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.NON_EXISTENT)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw NotFound when user is not Admin role', async () => {
+    mockFindById.mockImplementation(async () => ({ ...mockAdmin, role: Role.User }))
+
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw BadRequest when admin has already accepted invitation', async () => {
+    mockFindById.mockImplementation(async () => ({ ...mockAdmin, status: Status.Active }))
+
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.BadRequest,
+      message: 'Admin has already accepted invitation',
+    })
+  })
+
+  it('should deprecate token and archive user in a transaction', async () => {
+    const result = await cancelAdminInvite(testUuids.ADMIN_1)
+
+    expect(mockTokenDeprecate).toHaveBeenCalledWith(testUuids.ADMIN_1, 'user_invite', expect.anything())
+    expect(mockUserUpdate).toHaveBeenCalledWith(
+      testUuids.ADMIN_1,
+      { status: Status.Archived },
+      expect.anything(),
     )
     expect(result).toEqual({ success: true })
   })
