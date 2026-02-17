@@ -125,7 +125,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Books For You\",\n    \"website\": \"https://b4u.com\"\n}",
+              "raw": "{\n    \"name\": \"Caddy\",\n    \"website\": \"https://caddy.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -800,6 +800,36 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "teams/:id/members/:id/cancel-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/cancel-invite",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "cancel-invite"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -919,6 +949,25 @@
                 "admins",
                 "{{last_admin_id}}",
                 "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id/cancel-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/cancel-invite",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "cancel-invite"
               ]
             }
           },

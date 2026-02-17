@@ -41,3 +41,10 @@ export const resendAdminInviteParamsSchema = z.object({
 
 export type ResendAdminInviteParams = z.infer<typeof resendAdminInviteParamsSchema>
 export type ResendAdminInviteCtx = ValidatedParamCtx<ResendAdminInviteParams>
+
+export const cancelAdminInviteParamsSchema = z.object({
+  adminId: rules.data.id,
+})
+
+export type CancelAdminInviteParams = z.infer<typeof cancelAdminInviteParamsSchema>
+export type CancelAdminInviteCtx = ValidatedParamCtx<CancelAdminInviteParams>

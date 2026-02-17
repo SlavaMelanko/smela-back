@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '../admins'
+import { getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '../admins'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -328,7 +328,7 @@ describe('inviteAdmin', () => {
   })
 })
 
-describe('resendAdminInvitation', () => {
+describe('resendAdminInvite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockAdmin: User
@@ -416,11 +416,11 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.NON_EXISTENT,
       testUuids.OWNER_1,
     )).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.NON_EXISTENT,
       testUuids.OWNER_1,
     )).rejects.toMatchObject({
@@ -441,8 +441,8 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.NotFound,
       message: 'Admin not found',
     })
@@ -460,8 +460,8 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toThrow(AppError)
+    expect(resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)).rejects.toMatchObject({
       code: ErrorCode.BadRequest,
       message: 'Admin has already accepted invitation',
     })
@@ -476,11 +476,11 @@ describe('resendAdminInvitation', () => {
       return undefined
     })
 
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.ADMIN_1,
       testUuids.NON_EXISTENT,
     )).rejects.toThrow(AppError)
-    expect(resendAdminInvitation(
+    expect(resendAdminInvite(
       testUuids.ADMIN_1,
       testUuids.NON_EXISTENT,
     )).rejects.toMatchObject({
@@ -490,7 +490,7 @@ describe('resendAdminInvitation', () => {
   })
 
   it('should issue new token and send invitation email with current inviter name', async () => {
-    const result = await resendAdminInvitation(testUuids.ADMIN_1, testUuids.OWNER_1)
+    const result = await resendAdminInvite(testUuids.ADMIN_1, testUuids.OWNER_1)
 
     expect(mockTokenIssue).toHaveBeenCalledWith(
       testUuids.ADMIN_1,

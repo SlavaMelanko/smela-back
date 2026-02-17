@@ -1,7 +1,7 @@
 import { HttpStatus } from '@/net/http'
-import { getAdmin, getAdmins, inviteAdmin, resendAdminInvitation } from '@/use-cases/owner'
+import { cancelAdminInvite, getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '@/use-cases/owner'
 
-import type { CreateAdminCtx, GetAdminCtx, GetAdminsCtx, ResendAdminInviteCtx } from './schema'
+import type { CancelAdminInviteCtx, CreateAdminCtx, GetAdminCtx, GetAdminsCtx, ResendAdminInviteCtx } from './schema'
 
 export const getAdminsHandler = async (c: GetAdminsCtx) => {
   const { search, statuses, page, limit } = c.req.valid('query')
@@ -34,7 +34,15 @@ export const resendAdminInviteHandler = async (c: ResendAdminInviteCtx) => {
   const { adminId } = c.req.valid('param')
   const { id: inviterId } = c.get('user')
 
-  const result = await resendAdminInvitation(adminId, inviterId)
+  const result = await resendAdminInvite(adminId, inviterId)
+
+  return c.json(result, HttpStatus.OK)
+}
+
+export const cancelAdminInviteHandler = async (c: CancelAdminInviteCtx) => {
+  const { adminId } = c.req.valid('param')
+
+  const result = await cancelAdminInvite(adminId)
 
   return c.json(result, HttpStatus.OK)
 }

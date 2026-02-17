@@ -5,6 +5,7 @@ import type { AppContext } from '@/context'
 import { requestValidator, teamAccessMiddleware } from '@/middleware'
 
 import {
+  cancelMemberInviteHandler,
   createMemberHandler,
   getTeamMemberHandler,
   getTeamMembersHandler,
@@ -12,6 +13,7 @@ import {
   updateTeamMemberHandler,
 } from './handler'
 import {
+  cancelMemberInviteParamsSchema,
   createMemberParamsSchema,
   inviteMemberBodySchema,
   resendMemberInviteParamsSchema,
@@ -57,6 +59,13 @@ teamsMembersRoute.post(
   requestValidator('param', resendMemberInviteParamsSchema),
   teamAccessMiddleware,
   resendMemberInviteHandler,
+)
+
+teamsMembersRoute.post(
+  '/:memberId/cancel-invite',
+  requestValidator('param', cancelMemberInviteParamsSchema),
+  teamAccessMiddleware,
+  cancelMemberInviteHandler,
 )
 
 export default teamsMembersRoute

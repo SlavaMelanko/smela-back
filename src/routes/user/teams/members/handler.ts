@@ -1,5 +1,6 @@
 import { HttpStatus } from '@/net/http'
 import {
+  cancelMemberInvite,
   getTeamMember,
   getTeamMembers,
   inviteMember,
@@ -8,6 +9,7 @@ import {
 } from '@/use-cases/user'
 
 import type {
+  CancelMemberInviteCtx,
   InviteMemberCtx,
   ResendMemberInviteCtx,
   TeamMemberParamsCtx,
@@ -55,6 +57,14 @@ export const resendMemberInviteHandler = async (c: ResendMemberInviteCtx) => {
   const { id: inviterId } = c.get('user')
 
   const result = await resendMemberInvite(teamId, memberId, inviterId)
+
+  return c.json(result, HttpStatus.OK)
+}
+
+export const cancelMemberInviteHandler = async (c: CancelMemberInviteCtx) => {
+  const { teamId, memberId } = c.req.valid('param')
+
+  const result = await cancelMemberInvite(teamId, memberId)
 
   return c.json(result, HttpStatus.OK)
 }
