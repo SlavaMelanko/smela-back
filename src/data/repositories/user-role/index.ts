@@ -1,11 +1,11 @@
 import { assign, remove } from './mutations'
-import { findByUserId, findInvites } from './queries'
+import { findByUserId, findInviters } from './queries'
 
 export * from './types'
 
 export const userRoleRepo = {
   assign,
   findByUserId,
-  findInvites,
+  findInviters,
   remove,
 }
