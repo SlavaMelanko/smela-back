@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '../admins'
+import { cancelAdminInvite, getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '../admins'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -508,6 +508,92 @@ describe('resendAdminInvite', () => {
       'new-invitation-token',
       'Owner',
       'Test Company',
+    )
+    expect(result).toEqual({ success: true })
+  })
+})
+
+describe('cancelAdminInvite', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockAdmin: User
+  let mockFindById: any
+  let mockTokenDeprecate: any
+  let mockUserUpdate: any
+  let mockTransaction: any
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: testUuids.ADMIN_1,
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@example.com',
+      role: Role.Admin,
+      status: Status.Pending,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockFindById = mock(async () => mockAdmin)
+    mockTokenDeprecate = mock(async () => {})
+    mockUserUpdate = mock(async () => ({ ...mockAdmin, status: Status.Archived }))
+
+    // eslint-disable-next-line ts/no-unsafe-return
+    mockTransaction = mock(async (callback: any) => callback({}))
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: { findById: mockFindById, update: mockUserUpdate },
+      tokenRepo: { deprecate: mockTokenDeprecate },
+      db: { transaction: mockTransaction },
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      TokenType: { UserInvite: 'user_invite' },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should throw NotFound when admin does not exist', async () => {
+    mockFindById.mockImplementation(async () => undefined)
+
+    expect(cancelAdminInvite(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.NON_EXISTENT)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw NotFound when user is not Admin role', async () => {
+    mockFindById.mockImplementation(async () => ({ ...mockAdmin, role: Role.User }))
+
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Admin not found',
+    })
+  })
+
+  it('should throw BadRequest when admin has already accepted invitation', async () => {
+    mockFindById.mockImplementation(async () => ({ ...mockAdmin, status: Status.Active }))
+
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toThrow(AppError)
+    expect(cancelAdminInvite(testUuids.ADMIN_1)).rejects.toMatchObject({
+      code: ErrorCode.BadRequest,
+      message: 'Admin has already accepted invitation',
+    })
+  })
+
+  it('should deprecate token and archive user in a transaction', async () => {
+    const result = await cancelAdminInvite(testUuids.ADMIN_1)
+
+    expect(mockTokenDeprecate).toHaveBeenCalledWith(testUuids.ADMIN_1, 'user_invite', expect.anything())
+    expect(mockUserUpdate).toHaveBeenCalledWith(
+      testUuids.ADMIN_1,
+      { status: Status.Archived },
+      expect.anything(),
     )
     expect(result).toEqual({ success: true })
   })
