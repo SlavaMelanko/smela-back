@@ -100,6 +100,7 @@ export const findTeamMembers = async (
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
     .where(eq(teamMembersTable.teamId, teamId))
+    .orderBy(desc(teamMembersTable.joinedAt))
 }
 
 export const findTeamMember = async (
