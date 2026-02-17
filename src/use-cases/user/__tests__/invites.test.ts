@@ -175,16 +175,18 @@ describe('inviteMember', () => {
     )
   })
 
-  it('should return user data with role', async () => {
+  it('should return member data with team details', async () => {
     const result = await inviteMember(TEAM_1, inviteParams, USER_2)
 
-    expect(result.user).toEqual({
+    expect(result.member).toEqual({
       id: USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
       status: Status.Pending,
-      role: Role.User,
+      position: 'Developer',
+      invitedBy: USER_2,
+      joinedAt: expect.any(Date),
     })
   })
 })

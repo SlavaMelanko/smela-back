@@ -3,7 +3,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, Status } from '@/types'
 
 export interface InviteMemberParams {
   firstName: string
@@ -35,7 +35,7 @@ export const inviteMember = async (
     throw new AppError(ErrorCode.EmailAlreadyInUse)
   }
 
-  const { user, token } = await db.transaction(async (tx) => {
+  const { member: newMember, token } = await db.transaction(async (tx) => {
     const newUser = await userRepo.create({
       firstName: member.firstName,
       lastName: member.lastName,
@@ -70,27 +70,29 @@ export const inviteMember = async (
     }, tx)
 
     return {
-      user: {
+      member: {
         id: newUser.id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
         status: newUser.status,
-        role: Role.User,
+        position: member.position ?? null,
+        invitedBy: inviterId,
+        joinedAt: newUser.createdAt,
       },
       token,
     }
   })
 
   await emailAgent.sendUserInvitationEmail(
-    user.firstName,
-    user.email,
+    newMember.firstName,
+    newMember.email,
     token,
     inviter.firstName,
     team.name,
   )
 
-  return { user }
+  return { member: newMember }
 }
 
 export const resendMemberInvite = async (
