@@ -10,12 +10,8 @@ export interface CreateUserRoleInput {
   invitedBy?: string
 }
 
-export interface InviteInviter {
+export interface Inviter {
   id: string
   firstName: string
   lastName: string | null
-}
-
-export interface InviteInfo {
-  inviter: InviteInviter
 }

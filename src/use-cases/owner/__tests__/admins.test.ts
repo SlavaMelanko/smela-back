@@ -82,7 +82,9 @@ describe('getAdmins', () => {
 
   it('should include invite info when available', async () => {
     const inviteInfo = {
-      inviter: { id: testUuids.OWNER_1, firstName: 'Owner', lastName: 'User' },
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
     }
     mockFindInvites.mockImplementation(
       async () => new Map([[testUuids.ADMIN_1, inviteInfo]]),
@@ -136,7 +138,9 @@ describe('getAdmin', () => {
 
   it('should include invite info when available', async () => {
     const inviteInfo = {
-      inviter: { id: testUuids.OWNER_1, firstName: 'Owner', lastName: 'User' },
+      id: testUuids.OWNER_1,
+      firstName: 'Owner',
+      lastName: 'User',
     }
     mockFindInvites.mockImplementation(
       async () => new Map([[testUuids.ADMIN_1, inviteInfo]]),
