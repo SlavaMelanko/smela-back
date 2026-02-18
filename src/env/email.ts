@@ -14,7 +14,7 @@ export const emailEnvVars = (nodeEnv?: string) => ({
   EMAIL_SENDER_PROFILES: z.string().transform((str) => {
     const parsed = JSON.parse(str) as unknown
     const profileSchema = z.record(z.string(), z.object({
-      email: z.string().email(),
+      email: z.email(),
       name: z.string(),
     }))
 

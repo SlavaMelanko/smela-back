@@ -5,5 +5,5 @@ export const captchaEnvVars = {
 }
 
 export const sentryEnvVars = {
-  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: z.url().optional(),
 }

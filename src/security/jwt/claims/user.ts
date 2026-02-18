@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { Role, Status } from '@/types'
 
 export const userClaimsSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   role: z.nativeEnum(Role),
   status: z.nativeEnum(Status),
 })

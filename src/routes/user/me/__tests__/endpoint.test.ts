@@ -352,7 +352,8 @@ describe('Me Endpoint', () => {
       expect(res.status).toBe(HttpStatus.BAD_REQUEST)
 
       const data = await res.json()
-      expect(data.error).toBe('[firstName]: string must contain at least 2 character(s)')
+      const issues = JSON.parse(data.error as string) as { path: string[], code: string }[]
+      expect(issues[0]).toMatchObject({ path: ['firstName'], code: 'too_small' })
     })
 
     it('should reject whitespace-only strings at validation level', async () => {
