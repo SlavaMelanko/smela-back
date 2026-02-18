@@ -172,7 +172,7 @@ const seedSystemUsers = async () => {
     {
       firstName: 'Slava',
       lastName: 'Owner',
-      email: 'slava.owner@smela.com',
+      email: 'owner@smela.me',
       password: 'Passw0rd!',
       role: Role.Owner,
       status: Status.Active,
@@ -180,7 +180,7 @@ const seedSystemUsers = async () => {
     {
       firstName: 'Slava',
       lastName: 'Admin',
-      email: 'slava.admin@smela.com',
+      email: 'admin@smela.me',
       password: 'Passw0rd!',
       role: Role.Admin,
       status: Status.Active,
