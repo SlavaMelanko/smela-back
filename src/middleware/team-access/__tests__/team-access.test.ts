@@ -53,7 +53,7 @@ describe('Team Access Middleware', () => {
       const res = await app.request(`/teams/${testUuids.TEAM_1}`)
 
       expect(res.status).toBe(HttpStatus.OK)
-      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, testUuids.TEAM_1)
+      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
 
       const json = await res.json()
       expect(json.message).toBe('success')
@@ -77,7 +77,7 @@ describe('Team Access Middleware', () => {
       const res = await app.request(`/teams/${testUuids.TEAM_1}`)
 
       expect(res.status).toBe(HttpStatus.FORBIDDEN)
-      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, testUuids.TEAM_1)
+      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
 
       const json = await res.json()
       expect(json.code).toBe(ErrorCode.Forbidden)
@@ -101,7 +101,7 @@ describe('Team Access Middleware', () => {
       const res = await app.request(`/teams/${testUuids.TEAM_2}`)
 
       expect(res.status).toBe(HttpStatus.FORBIDDEN)
-      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, testUuids.TEAM_2)
+      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_2, testUuids.USER_1)
     })
   })
 
@@ -249,7 +249,7 @@ describe('Team Access Middleware', () => {
       await app.request(`/teams/${testUuids.TEAM_1}`)
 
       expect(mockTeamRepoFindMember).toHaveBeenCalledTimes(1)
-      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.USER_1, testUuids.TEAM_1)
+      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
     })
   })
 

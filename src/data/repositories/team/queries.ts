@@ -81,12 +81,21 @@ export const findTeamById = async (
   return team
 }
 
+/**
+ * Gets all team members or a single member if userId is specified
+ */
 export const findTeamMembers = async (
   teamId: string,
+  userId?: string,
   tx?: Database,
 ): Promise<TeamMemberDetails[]> => {
   const executor = tx || db
   const invitersTable = alias(usersTable, 'inviters')
+
+  const whereConditions = [eq(teamMembersTable.teamId, teamId)]
+  if (userId) {
+    whereConditions.push(eq(teamMembersTable.userId, userId))
+  }
 
   const rows = await executor
     .select({
@@ -106,7 +115,7 @@ export const findTeamMembers = async (
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
     .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
-    .where(eq(teamMembersTable.teamId, teamId))
+    .where(and(...whereConditions))
     .orderBy(desc(teamMembersTable.joinedAt))
 
   return rows
@@ -127,39 +136,13 @@ export const countTeamMembers = async (
 }
 
 export const findTeamMember = async (
-  userId: string,
   teamId: string,
+  userId: string,
   tx?: Database,
 ): Promise<TeamMemberDetails | undefined> => {
-  const executor = tx || db
-  const invitersTable = alias(usersTable, 'inviters')
+  const members = await findTeamMembers(teamId, userId, tx)
 
-  const [row] = await executor
-    .select({
-      id: teamMembersTable.userId,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      status: usersTable.status,
-      position: teamMembersTable.position,
-      joinedAt: teamMembersTable.joinedAt,
-      inviter: {
-        id: invitersTable.id,
-        firstName: invitersTable.firstName,
-        lastName: invitersTable.lastName,
-      },
-    })
-    .from(teamMembersTable)
-    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
-    .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
-    .where(
-      and(
-        eq(teamMembersTable.userId, userId),
-        eq(teamMembersTable.teamId, teamId),
-      ),
-    )
-
-  return row
+  return members[0]
 }
 
 export const findTeamWithMemberCount = async (

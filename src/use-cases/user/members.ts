@@ -11,7 +11,7 @@ export const getTeamMember = async (
   teamId: string,
   memberId: string,
 ) => {
-  const member = await teamRepo.findMember(memberId, teamId)
+  const member = await teamRepo.findMember(teamId, memberId)
 
   if (!member) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
@@ -29,7 +29,7 @@ export const updateTeamMember = async (
   memberId: string,
   params: UpdateTeamMemberParams,
 ) => {
-  const existing = await teamRepo.findMember(memberId, teamId)
+  const existing = await teamRepo.findMember(teamId, memberId)
 
   if (!existing) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
