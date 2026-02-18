@@ -48,7 +48,9 @@ describe('Request Validator Middleware', () => {
 
     const json = await response.json()
     expect(json).toHaveProperty('code', ErrorCode.ValidationError)
-    expect(json).toHaveProperty('error', '"password" is required')
+
+    const issues = JSON.parse(json.error as string) as { code: string, path: string[] }[]
+    expect(issues[0]).toMatchObject({ code: 'invalid_type', path: ['password'] })
   })
 
   it('should return validation error when token exceeds required length', async () => {
@@ -71,6 +73,8 @@ describe('Request Validator Middleware', () => {
 
     const json = await response.json()
     expect(json).toHaveProperty('code', ErrorCode.ValidationError)
-    expect(json).toHaveProperty('error', '[token]: token must be exactly 64 characters long')
+
+    const issues = JSON.parse(json.error as string) as { path: string[], message: string }[]
+    expect(issues[0]).toMatchObject({ path: ['token'], message: `Token must be exactly ${TOKEN_LENGTH} characters long` })
   })
 })
