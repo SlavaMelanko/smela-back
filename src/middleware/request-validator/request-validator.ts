@@ -11,7 +11,7 @@ const makeErrorMessage = (issues: ZodIssue[]): string => {
   const errorMessage = firstIssue?.message || 'Invalid request'
   const fieldName = firstIssue?.path.join('.')
 
-  if (errorMessage === 'Required') {
+  if (firstIssue?.code === 'invalid_type' && errorMessage.includes('received undefined')) {
     return `"${fieldName}" is required`
   }
 
@@ -24,7 +24,7 @@ export const requestValidator = <Target extends keyof ValidationTargets, Schema 
 ) =>
   zValidator(target, schema, (result, _c) => {
     if (!result.success) {
-      const issues = result.error.issues as ZodIssue[]
+      const issues = result.error.issues
 
       logger.error(issues)
 
