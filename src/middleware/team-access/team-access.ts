@@ -26,7 +26,7 @@ export const teamAccessMiddleware = createMiddleware<AppContext>(async (c, next)
   }
 
   // Regular users must be team members
-  const membership = await teamRepo.findMember(userId, teamId)
+  const membership = await teamRepo.findMember(teamId, userId)
 
   if (!membership) {
     throw new AppError(ErrorCode.Forbidden)

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { Team, TeamSearchResult, TeamWithMembers } from '@/data'
+import type { Team, TeamSearchResult, TeamWithMemberCount } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import AppError from '@/errors/app-error'
@@ -68,7 +68,7 @@ describe('getTeams', () => {
 describe('getTeam', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockTeam: TeamWithMembers
+  let mockTeam: TeamWithMemberCount
   let mockTeamRepoFind: any
   let mockTeamRepoFindMember: any
 
@@ -80,7 +80,7 @@ describe('getTeam', () => {
       description: 'A test team',
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
-      members: [],
+      memberCount: 0,
     }
 
     mockTeamRepoFind = mock(async () => mockTeam)

@@ -3,7 +3,7 @@ import { alias } from 'drizzle-orm/pg-core'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamWithMembers, UserTeamInfo } from './types'
+import type { Team, TeamMemberDetails, TeamWithMemberCount, UserTeamInfo } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
@@ -81,12 +81,21 @@ export const findTeamById = async (
   return team
 }
 
+/**
+ * Gets all team members or a single member if userId is specified
+ */
 export const findTeamMembers = async (
   teamId: string,
+  userId?: string,
   tx?: Database,
 ): Promise<TeamMemberDetails[]> => {
   const executor = tx || db
   const invitersTable = alias(usersTable, 'inviters')
+
+  const whereConditions = [eq(teamMembersTable.teamId, teamId)]
+  if (userId) {
+    whereConditions.push(eq(teamMembersTable.userId, userId))
+  }
 
   const rows = await executor
     .select({
@@ -106,55 +115,43 @@ export const findTeamMembers = async (
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
     .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
-    .where(eq(teamMembersTable.teamId, teamId))
+    .where(and(...whereConditions))
     .orderBy(desc(teamMembersTable.joinedAt))
 
   return rows
 }
 
-export const findTeamMember = async (
-  userId: string,
+export const countTeamMembers = async (
   teamId: string,
   tx?: Database,
-): Promise<TeamMemberDetails | undefined> => {
+): Promise<number> => {
   const executor = tx || db
-  const invitersTable = alias(usersTable, 'inviters')
 
-  const [row] = await executor
-    .select({
-      id: teamMembersTable.userId,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-      status: usersTable.status,
-      position: teamMembersTable.position,
-      joinedAt: teamMembersTable.joinedAt,
-      inviter: {
-        id: invitersTable.id,
-        firstName: invitersTable.firstName,
-        lastName: invitersTable.lastName,
-      },
-    })
+  const [result] = await executor
+    .select({ value: count() })
     .from(teamMembersTable)
-    .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
-    .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
-    .where(
-      and(
-        eq(teamMembersTable.userId, userId),
-        eq(teamMembersTable.teamId, teamId),
-      ),
-    )
+    .where(eq(teamMembersTable.teamId, teamId))
 
-  return row
+  return result?.value ?? 0
 }
 
-export const findTeamWithMembers = async (
+export const findTeamMember = async (
+  teamId: string,
+  userId: string,
+  tx?: Database,
+): Promise<TeamMemberDetails | undefined> => {
+  const members = await findTeamMembers(teamId, userId, tx)
+
+  return members[0]
+}
+
+export const findTeamWithMemberCount = async (
   teamId: string,
   tx?: Database,
-): Promise<TeamWithMembers | undefined> => {
-  const [team, members] = await Promise.all([
+): Promise<TeamWithMemberCount | undefined> => {
+  const [team, memberCount] = await Promise.all([
     findTeamById(teamId, tx),
-    findTeamMembers(teamId, tx),
+    countTeamMembers(teamId, tx),
   ])
 
   if (!team) {
@@ -163,7 +160,7 @@ export const findTeamWithMembers = async (
 
   return {
     ...team,
-    members,
+    memberCount,
   }
 }
 

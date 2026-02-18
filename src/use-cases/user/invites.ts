@@ -104,7 +104,7 @@ export const resendMemberInvite = async (
     userRepo.findById(inviterId),
     teamRepo.findById(teamId),
     userRepo.findById(memberId),
-    teamRepo.findMember(memberId, teamId),
+    teamRepo.findMember(teamId, memberId),
   ])
 
   if (!inviter) {
@@ -148,7 +148,7 @@ export const resendMemberInvite = async (
 export const cancelMemberInvite = async (teamId: string, memberId: string) => {
   const [member, membership] = await Promise.all([
     userRepo.findById(memberId),
-    teamRepo.findMember(memberId, teamId),
+    teamRepo.findMember(teamId, memberId),
   ])
 
   if (!member || !membership) {
