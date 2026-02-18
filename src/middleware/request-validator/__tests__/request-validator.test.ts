@@ -13,7 +13,7 @@ import { requestValidator } from '../request-validator'
 describe('Request Validator Middleware', () => {
   it('should accept valid email and password together', async () => {
     const schema = z.object({
-      email: z.string().email(),
+      email: z.email(),
       password: z.string().min(8),
     })
 
@@ -34,7 +34,7 @@ describe('Request Validator Middleware', () => {
 
   it('should return validation error when required password field is missing', async () => {
     const schema = z.object({
-      email: z.string().email(),
+      email: z.email(),
       password: z.string().min(8),
     })
 

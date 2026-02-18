@@ -7,12 +7,12 @@ import { Role } from '@/types'
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
 export const dataRules = {
-  id: z.string().uuid(),
+  id: z.uuid(),
 
   email: z
     .string()
     .transform(normalizeEmail)
-    .refine(email => z.string().email().safeParse(email).success, {
+    .refine(email => z.email().safeParse(email).success, {
       message: 'Invalid email',
     }),
 
