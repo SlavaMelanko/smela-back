@@ -8,7 +8,7 @@ import {
   findTeamById,
   findTeamMember,
   findTeamMembers,
-  findTeamWithMembers,
+  findTeamWithMemberCount,
   findUserTeam,
   searchTeams,
 } from './queries'
@@ -23,7 +23,7 @@ const teamMutations = {
 }
 
 const teamQueries = {
-  find: findTeamWithMembers,
+  find: findTeamWithMemberCount,
   findById: findTeamById,
   findUserTeam,
   search: searchTeams,

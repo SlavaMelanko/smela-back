@@ -3,7 +3,7 @@ import { alias } from 'drizzle-orm/pg-core'
 
 import type { Database } from '../../clients'
 import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamWithMembers, UserTeamInfo } from './types'
+import type { Team, TeamMemberDetails, TeamWithMemberCount, UserTeamInfo } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
@@ -112,6 +112,20 @@ export const findTeamMembers = async (
   return rows
 }
 
+export const countTeamMembers = async (
+  teamId: string,
+  tx?: Database,
+): Promise<number> => {
+  const executor = tx || db
+
+  const [result] = await executor
+    .select({ value: count() })
+    .from(teamMembersTable)
+    .where(eq(teamMembersTable.teamId, teamId))
+
+  return result?.value ?? 0
+}
+
 export const findTeamMember = async (
   userId: string,
   teamId: string,
@@ -148,13 +162,13 @@ export const findTeamMember = async (
   return row
 }
 
-export const findTeamWithMembers = async (
+export const findTeamWithMemberCount = async (
   teamId: string,
   tx?: Database,
-): Promise<TeamWithMembers | undefined> => {
-  const [team, members] = await Promise.all([
+): Promise<TeamWithMemberCount | undefined> => {
+  const [team, memberCount] = await Promise.all([
     findTeamById(teamId, tx),
-    findTeamMembers(teamId, tx),
+    countTeamMembers(teamId, tx),
   ])
 
   if (!team) {
@@ -163,7 +177,7 @@ export const findTeamWithMembers = async (
 
   return {
     ...team,
-    members,
+    memberCount,
   }
 }
 

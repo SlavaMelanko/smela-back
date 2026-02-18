@@ -28,8 +28,8 @@ export interface TeamMemberDetails {
   joinedAt: Date | null
 }
 
-export type TeamWithMembers = Team & {
-  members: TeamMemberDetails[]
+export type TeamWithMemberCount = Team & {
+  memberCount: number
 }
 
 export interface UserTeamInfo {
