@@ -34,6 +34,7 @@ export interface ErrorTracker {
    * Sets the user context for error tracking.
    *
    * @param user - User information to associate with errors.
+   * @param user.id - The user's unique identifier.
    */
   setUser: (user: { id: string }) => void
 

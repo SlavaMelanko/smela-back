@@ -1,12 +1,12 @@
 import type { ValidationTargets } from 'hono'
-import type { ZodIssue, ZodSchema } from 'zod'
+import type { ZodError, ZodSchema } from 'zod'
 
 import { zValidator } from '@hono/zod-validator'
 
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 
-const makeErrorMessage = (issues: ZodIssue[]): string => {
+const makeErrorMessage = (issues: ZodError['issues']): string => {
   const firstIssue = issues[0]
   const errorMessage = firstIssue?.message || 'Invalid request'
   const fieldName = firstIssue?.path.join('.')
