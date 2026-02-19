@@ -1,6 +1,6 @@
 CREATE TYPE "public"."auth_provider" AS ENUM('local', 'google', 'github');--> statement-breakpoint
-CREATE TYPE "public"."action" AS ENUM('view', 'create', 'edit', 'delete');--> statement-breakpoint
-CREATE TYPE "public"."resource" AS ENUM('users', 'admins');--> statement-breakpoint
+CREATE TYPE "public"."action" AS ENUM('view', 'manage');--> statement-breakpoint
+CREATE TYPE "public"."resource" AS ENUM('users', 'admins', 'teams');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('owner', 'admin', 'user');--> statement-breakpoint
 CREATE TYPE "public"."token_status" AS ENUM('pending', 'used', 'deprecated', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."token_type" AS ENUM('email_verification', 'password_reset', 'refresh_token', 'user_invite');--> statement-breakpoint
@@ -58,7 +58,6 @@ CREATE TABLE "teams" (
 	"description" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "teams_name_unique" UNIQUE("name"),
 	CONSTRAINT "teams_website_unique" UNIQUE("website")
 );
 --> statement-breakpoint
