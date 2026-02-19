@@ -100,14 +100,14 @@ const assignPermissionsToRole = async ({
 const seedOwnerPermissions = async () => {
   await assignPermissionsToRole({
     role: Role.Owner,
-    resources: [Resource.Users, Resource.Admins],
+    resources: [Resource.Admins, Resource.Users, Resource.Teams],
   })
 }
 
 const seedDefaultAdminPermissions = async () => {
   await assignPermissionsToRole({
     role: Role.Admin,
-    resources: [Resource.Users],
+    resources: [Resource.Users, Resource.Teams],
   })
 }
 
