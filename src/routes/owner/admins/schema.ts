@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
+import { permissionsSchema } from '../../@shared/permissions-schema'
 
 export const getAdminsQuerySchema = z.object({
   search: rules.userFilter.search.optional(),
@@ -17,12 +18,7 @@ export const createAdminBodySchema = z.object({
   firstName: rules.data.firstName,
   lastName: rules.data.lastName.optional(),
   email: rules.data.email,
-  permissions: z.object({
-    view: z.boolean(),
-    edit: z.boolean(),
-    create: z.boolean(),
-    delete: z.boolean(),
-  }),
+  permissions: permissionsSchema,
 })
 
 export type CreateAdminBody = z.infer<typeof createAdminBodySchema>

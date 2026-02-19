@@ -1,4 +1,5 @@
 import type { PaginationParams, SearchParams } from '@/data'
+import type { Permissions } from '@/routes/@shared/permissions-schema'
 
 import { authRepo, db, tokenRepo, userRepo, userRoleRepo } from '@/data'
 import env from '@/env'
@@ -51,12 +52,7 @@ export interface AdminInvitationParams {
   firstName: string
   lastName?: string
   email: string
-  permissions: {
-    view: boolean
-    edit: boolean
-    create: boolean
-    delete: boolean
-  }
+  permissions: Permissions
 }
 
 export const inviteAdmin = async (params: AdminInvitationParams, inviterId: string) => {

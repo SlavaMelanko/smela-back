@@ -701,7 +701,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"users\": {\n            \"view\": true,\n            \"manage\": true\n        },\n        \"teams\": {\n            \"view\": true,\n            \"manage\": true\n        }\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -898,7 +898,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"view\": true,\n        \"create\": true,\n        \"edit\": true,\n        \"delete\": true\n    }\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"users\": {\n            \"view\": true,\n            \"manage\": true\n        },\n        \"teams\": {\n            \"view\": true,\n            \"manage\": true\n        }\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"

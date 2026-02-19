@@ -207,10 +207,9 @@ describe('inviteAdmin', () => {
     lastName: 'Admin',
     email: 'newadmin@example.com',
     permissions: {
-      view: true,
-      edit: true,
-      create: false,
-      delete: false,
+      users: { view: true, manage: false },
+      admins: { view: true, manage: false },
+      teams: { view: false, manage: false },
     },
   }
 

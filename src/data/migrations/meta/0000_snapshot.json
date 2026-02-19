@@ -1,5 +1,5 @@
 {
-  "id": "e85f4865-ee10-4309-9d71-b8d961081112",
+  "id": "02cb0f63-25ad-4042-ae39-9b736663451c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -579,13 +579,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "teams_name_unique": {
-          "name": "teams_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        },
         "teams_website_unique": {
           "name": "teams_website_unique",
           "nullsNotDistinct": false,
@@ -883,9 +876,7 @@
       "schema": "public",
       "values": [
         "view",
-        "create",
-        "edit",
-        "delete"
+        "manage"
       ]
     },
     "public.resource": {
@@ -893,7 +884,8 @@
       "schema": "public",
       "values": [
         "users",
-        "admins"
+        "admins",
+        "teams"
       ]
     },
     "public.role": {
