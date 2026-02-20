@@ -39,8 +39,8 @@ export const validateEnvVars = (envVars: NodeJS.ProcessEnv = process.env) => {
     }
   } catch (error: unknown) {
     console.error(
-      '❌ Failed to parse environment variables:',
-      error instanceof ZodError ? error.flatten().fieldErrors : error,
+      'Failed to parse environment variables:',
+      error instanceof ZodError ? z.flattenError(error).fieldErrors : error,
     )
 
     process.exit(1)
