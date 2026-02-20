@@ -69,6 +69,8 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
     throw new AppError(ErrorCode.NotFound, 'Inviter not found')
   }
 
+  const role = Role.Admin
+
   const { admin, token } = await db.transaction(async (tx) => {
     const newAdmin = await userRepo.create({
       firstName: params.firstName,
@@ -89,11 +91,11 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
 
     await userRoleRepo.assign({
       userId: newAdmin.id,
-      role: Role.Admin,
+      role,
       invitedBy: inviterId,
     }, tx)
 
-    await rbacRepo.setUserPermissions(newAdmin.id, Role.Admin, params.permissions, tx)
+    await rbacRepo.setUserPermissions(newAdmin.id, role, params.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
@@ -104,7 +106,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       expiresAt,
     }, tx)
 
-    return { admin: { ...newAdmin, role: Role.Admin }, token }
+    return { admin: { ...newAdmin, role }, token }
   })
 
   await emailAgent.sendUserInvitationEmail(

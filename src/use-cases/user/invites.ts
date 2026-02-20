@@ -1,15 +1,18 @@
-import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
+import type { Permissions } from '@/routes/@shared/permissions-schema'
+
+import { authRepo, db, rbacRepo, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
-import { AuthProvider, Status } from '@/types'
+import { AuthProvider, Role, Status } from '@/types'
 
 export interface InviteMemberParams {
   firstName: string
   lastName?: string
   email: string
   position?: string
+  permissions: Permissions
 }
 
 export const inviteMember = async (
@@ -59,6 +62,8 @@ export const inviteMember = async (
       position: member.position,
       invitedBy: inviterId,
     }, tx)
+
+    await rbacRepo.setUserPermissions(newUser.id, Role.User, member.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
