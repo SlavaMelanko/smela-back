@@ -199,6 +199,7 @@ describe('inviteAdmin', () => {
   let mockUserRoleAssign: any
   let mockAuthCreate: any
   let mockTokenIssue: any
+  let mockRbacSet: any
   let mockTransaction: any
   let mockSendUserInvitationEmail: any
 
@@ -231,6 +232,7 @@ describe('inviteAdmin', () => {
     mockUserRoleAssign = mock(async () => ({}))
     mockAuthCreate = mock(async () => ({}))
     mockTokenIssue = mock(async () => ({}))
+    mockRbacSet = mock(async () => {})
     mockSendUserInvitationEmail = mock(async () => {})
 
     // eslint-disable-next-line ts/no-unsafe-return
@@ -245,6 +247,7 @@ describe('inviteAdmin', () => {
       userRoleRepo: { assign: mockUserRoleAssign },
       authRepo: { create: mockAuthCreate },
       tokenRepo: { issue: mockTokenIssue },
+      rbacRepo: { setUserPermissions: mockRbacSet },
       db: { transaction: mockTransaction },
     }))
 

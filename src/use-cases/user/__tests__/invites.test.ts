@@ -23,6 +23,7 @@ describe('inviteMember', () => {
   let mockAuthRepoCreate: any
   let mockTeamRepoCreateMember: any
   let mockTokenRepoIssue: any
+  let mockRbacSet: any
   let mockTransaction: any
   let mockEmailAgent: any
 
@@ -31,6 +32,11 @@ describe('inviteMember', () => {
     lastName: 'Doe',
     email: 'john@example.com',
     position: 'Developer',
+    permissions: {
+      users: { view: true, manage: false },
+      admins: { view: false, manage: false },
+      teams: { view: true, manage: true },
+    },
   }
 
   beforeEach(async () => {
@@ -69,6 +75,7 @@ describe('inviteMember', () => {
     mockAuthRepoCreate = mock(async () => {})
     mockTeamRepoCreateMember = mock(async () => {})
     mockTokenRepoIssue = mock(async () => {})
+    mockRbacSet = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
       return callback({})
     })
@@ -88,6 +95,7 @@ describe('inviteMember', () => {
       },
       authRepo: { create: mockAuthRepoCreate },
       tokenRepo: { issue: mockTokenRepoIssue },
+      rbacRepo: { setUserPermissions: mockRbacSet },
       db: { transaction: mockTransaction },
     }))
 

@@ -1,5 +1,6 @@
 export * from './auth'
 export * from './pagination'
+export * from './rbac'
 export * from './refresh-token'
 export * from './team'
 export * from './token'
