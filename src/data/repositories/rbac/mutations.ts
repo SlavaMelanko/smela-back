@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 
 import type { Permissions } from '@/routes/@shared/permissions-schema'
 import type { Role } from '@/types'
@@ -33,10 +33,4 @@ export const setUserPermissions = async (
       target: [userPermissionsTable.userId, userPermissionsTable.permissionId],
       set: { granted: sql`excluded.granted` },
     })
-}
-
-export const remove = async (userId: string, tx?: Database): Promise<void> => {
-  await (tx || db)
-    .delete(userPermissionsTable)
-    .where(eq(userPermissionsTable.userId, userId))
 }

@@ -1,4 +1,4 @@
-import { remove, setUserPermissions } from './mutations'
+import { setUserPermissions } from './mutations'
 import { findRolePermissions, findUserPermissions } from './queries'
 
 export * from './queries'
@@ -8,5 +8,4 @@ export const rbacRepo = {
   findRolePermissions,
   findUserPermissions,
   setUserPermissions,
-  remove,
 }

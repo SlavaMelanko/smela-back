@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import Resource from '@/types/resource'
 
-const resourcePermissions = z.object({ view: z.boolean(), manage: z.boolean() })
+const resourcePermissions = z.object({ view: z.boolean(), manage: z.boolean() }).optional()
 
 export const permissionsSchema = z.object(
   Object.fromEntries(
