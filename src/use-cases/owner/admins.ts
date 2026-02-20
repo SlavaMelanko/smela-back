@@ -1,7 +1,7 @@
 import type { PaginationParams, SearchParams } from '@/data'
 import type { Permissions } from '@/routes/@shared/permissions-schema'
 
-import { authRepo, db, tokenRepo, userRepo, userRoleRepo } from '@/data'
+import { authRepo, db, rbacRepo, tokenRepo, userRepo, userRoleRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
@@ -92,6 +92,8 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       role: Role.Admin,
       invitedBy: inviterId,
     }, tx)
+
+    await rbacRepo.setUserPermissions(newAdmin.id, Role.Admin, params.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
