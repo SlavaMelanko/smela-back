@@ -1,11 +1,28 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
+import { authRepo, rbacRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { comparePasswordHashes } from '@/security/password'
 import { generateHashedToken, TokenType } from '@/security/token'
+import { Action, Resource, Role } from '@/types'
+
+const ALL_PERMISSIONS = Object.values(Action).flatMap(action =>
+  Object.values(Resource).map(resource => `${action}:${resource}`),
+)
+
+const specifyPermissions = async (userId: string, role: Role): Promise<string[]> => {
+  if (role === Role.Owner) {
+    return ALL_PERMISSIONS
+  }
+
+  const rows = await rbacRepo.findUserPermissions(userId, role)
+
+  return rows
+    .filter(row => row.override === true || (row.override === null && row.default))
+    .map(row => `${row.action}:${row.resource}`)
+}
 
 export interface LoginParams {
   email: string
@@ -59,14 +76,15 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const [accessToken, refreshToken, team] = await Promise.all([
+  const [accessToken, refreshToken, team, permissions] = await Promise.all([
     createAccessToken(user),
     createRefreshToken(user.id, deviceInfo),
     teamRepo.findUserTeam(user.id),
+    specifyPermissions(user.id, user.role),
   ])
 
   return {
-    data: { user, team: team ?? null, accessToken },
+    data: { user, team: team ?? null, accessToken, permissions },
     refreshToken,
   }
 }

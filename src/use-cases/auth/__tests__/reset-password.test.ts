@@ -97,6 +97,7 @@ describe('Reset Password', () => {
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
       teamRepo: mockTeamRepo,
+      rbacRepo: { findUserPermissions: mock(async () => []) },
       db: mockTransaction,
     }))
 
@@ -162,7 +163,7 @@ describe('Reset Password', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockUser, team: null, accessToken: mockAccessToken, permissions: [] },
         refreshToken: mockRefreshToken,
       })
     })
@@ -366,7 +367,7 @@ describe('Reset Password', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockUser, team: null, accessToken: mockAccessToken, permissions: [] },
         refreshToken: mockRefreshToken,
       })
 

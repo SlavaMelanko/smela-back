@@ -79,6 +79,7 @@ describe('Login with Email', () => {
       authRepo: mockAuthRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
       teamRepo: mockTeamRepo,
+      rbacRepo: { findUserPermissions: mock(async () => []) },
     }))
 
     mockComparePasswords = mock(async () => true)
