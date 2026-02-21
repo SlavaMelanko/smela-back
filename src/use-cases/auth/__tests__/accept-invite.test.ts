@@ -102,6 +102,7 @@ describe('Accept Invite', () => {
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
       teamRepo: mockTeamRepo,
+      rbacRepo: { findUserPermissions: mock(async () => []) },
       db: mockTransaction,
     }))
 
@@ -172,7 +173,12 @@ describe('Accept Invite', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockActivatedUser,
+          team: null,
+          accessToken: mockAccessToken,
+          permissions: [],
+        },
         refreshToken: mockRefreshToken,
       })
     })
@@ -389,7 +395,12 @@ describe('Accept Invite', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockActivatedUser,
+          team: null,
+          accessToken: mockAccessToken,
+          permissions: [],
+        },
         refreshToken: mockRefreshToken,
       })
 
