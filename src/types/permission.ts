@@ -7,6 +7,4 @@ enum Permission {
   ManageTeams = 'manage:teams',
 }
 
-export const ALL_PERMISSIONS = Object.values(Permission)
-
 export default Permission
