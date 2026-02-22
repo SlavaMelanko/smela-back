@@ -1,7 +1,7 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, db, rbacRepo, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
@@ -11,19 +11,8 @@ import {
   TokenType,
   TokenValidator,
 } from '@/security/token'
-import { ALL_PERMISSIONS, Role } from '@/types'
 
-const specifyPermissions = async (userId: string, role: Role): Promise<string[]> => {
-  if (role === Role.Owner) {
-    return ALL_PERMISSIONS
-  }
-
-  const rows = await rbacRepo.findUserPermissions(userId, role)
-
-  return rows
-    .filter(row => row.override === true || (row.override === null && row.default))
-    .map(row => `${row.action}:${row.resource}`)
-}
+import { resolvePermissions } from '../resolve-permissions'
 
 export interface ResetPasswordParams {
   token: string
@@ -87,7 +76,7 @@ const resetPassword = async (
     createAccessToken(user),
     createRefreshToken(user.id, deviceInfo),
     teamRepo.findUserTeam(user.id),
-    specifyPermissions(user.id, user.role),
+    resolvePermissions(user.id, user.role),
   ])
 
   return {
