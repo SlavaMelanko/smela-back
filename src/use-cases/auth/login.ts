@@ -6,11 +6,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { signJwt } from '@/security/jwt'
 import { comparePasswordHashes } from '@/security/password'
 import { generateHashedToken, TokenType } from '@/security/token'
-import { Action, Resource, Role } from '@/types'
-
-const ALL_PERMISSIONS = Object.values(Action).flatMap(action =>
-  Object.values(Resource).map(resource => `${action}:${resource}`),
-)
+import { ALL_PERMISSIONS, Role } from '@/types'
 
 const specifyPermissions = async (userId: string, role: Role): Promise<string[]> => {
   if (role === Role.Owner) {

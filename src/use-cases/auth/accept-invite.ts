@@ -11,12 +11,8 @@ import {
   TokenType,
   TokenValidator,
 } from '@/security/token'
-import { Action, Resource, Role } from '@/types'
+import { ALL_PERMISSIONS, Role } from '@/types'
 import Status from '@/types/status'
-
-const ALL_PERMISSIONS = Object.values(Action).flatMap(action =>
-  Object.values(Resource).map(resource => `${action}:${resource}`),
-)
 
 const specifyPermissions = async (userId: string, role: Role): Promise<string[]> => {
   if (role === Role.Owner) {
