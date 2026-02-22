@@ -111,6 +111,13 @@ const seedDefaultAdminPermissions = async () => {
   })
 }
 
+const seedDefaultUserPermissions = async () => {
+  await assignPermissionsToRole({
+    role: Role.User,
+    resources: [Resource.Teams],
+  })
+}
+
 const seedTeams = async () => {
   const teams = [
     {
@@ -307,6 +314,7 @@ const seed = async () => {
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
+  await seedDefaultUserPermissions()
   await seedSystemUsers()
   const teamId = await seedTeams()
   await seedTestUsers(teamId)
