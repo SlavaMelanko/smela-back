@@ -8,10 +8,10 @@ export const userFilterRules = {
   statuses: z
     .string()
     .transform(val => val.split(','))
-    .pipe(z.array(z.nativeEnum(Status))),
+    .pipe(z.array(z.enum(Status))),
 
   roles: z
     .string()
     .transform(val => val.split(','))
-    .pipe(z.array(z.nativeEnum(Role))),
+    .pipe(z.array(z.enum(Role))),
 }
