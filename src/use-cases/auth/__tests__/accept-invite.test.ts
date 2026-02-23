@@ -90,7 +90,7 @@ describe('Accept Invite', () => {
       create: mock(async () => {}),
     }
     mockTeamRepo = {
-      findUserTeam: mock(async () => null),
+      findUserTeam: mock(async () => undefined),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
@@ -172,7 +172,7 @@ describe('Accept Invite', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockActivatedUser, team: undefined, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
     })
@@ -389,7 +389,7 @@ describe('Accept Invite', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockActivatedUser, team: undefined, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
 

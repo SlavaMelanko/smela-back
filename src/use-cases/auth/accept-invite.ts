@@ -53,7 +53,7 @@ const acceptInvite = async (
   ])
 
   return {
-    data: { user, team: team ?? null, accessToken },
+    data: { user, team, accessToken },
     refreshToken,
   }
 }
