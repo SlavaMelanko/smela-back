@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, isNotNull, isNull, or } from 'drizzle-orm'
 
 import type { Action, Resource, Role } from '@/types'
 
@@ -7,11 +7,9 @@ import type { Database } from '../../clients'
 import { db } from '../../clients'
 import { permissionsTable, rolePermissionsTable, userPermissionsTable } from '../../schema'
 
-export interface PermissionRow {
+export interface ActivePermissionRow {
   action: Action
   resource: Resource
-  default: boolean
-  override: boolean | null // null = no user override, use role default
 }
 
 export interface RolePermissionRow {
@@ -35,19 +33,24 @@ export const findRolePermissions = async (
     .where(eq(rolePermissionsTable.role, role))
 }
 
+/**
+ * Returns all permissions effectively granted to a user given their role.
+ *
+ * A permission is included when:
+ * - The user has an explicit override (`granted = true`), or
+ * - No user override exists and the role has the permission by default
+ *
+ * Explicit revocations (`granted = false`) are excluded.
+ */
 export const findUserPermissions = async (
   userId: string,
   role: Role,
   tx?: Database,
-): Promise<PermissionRow[]> => {
-  const executor = tx || db
-
-  return executor
+): Promise<ActivePermissionRow[]> => {
+  return (tx || db)
     .select({
       action: permissionsTable.action,
       resource: permissionsTable.resource,
-      default: sql<boolean>`${rolePermissionsTable.id} IS NOT NULL`,
-      override: userPermissionsTable.granted,
     })
     .from(permissionsTable)
     .leftJoin(rolePermissionsTable, and(
@@ -58,4 +61,13 @@ export const findUserPermissions = async (
       eq(userPermissionsTable.permissionId, permissionsTable.id),
       eq(userPermissionsTable.userId, userId),
     ))
+    .where(
+      or(
+        eq(userPermissionsTable.granted, true),
+        and(
+          isNull(userPermissionsTable.granted),
+          isNotNull(rolePermissionsTable.id),
+        ),
+      ),
+    )
 }
