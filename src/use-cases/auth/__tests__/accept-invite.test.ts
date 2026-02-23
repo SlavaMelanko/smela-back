@@ -83,8 +83,7 @@ describe('Accept Invite', () => {
       update: mock(async () => {}),
     }
     mockUserRepo = {
-      findById: mock(async () => mockActivatedUser),
-      update: mock(async () => {}),
+      update: mock(async () => mockActivatedUser),
     }
     mockRefreshTokenRepo = {
       create: mock(async () => {}),
@@ -167,7 +166,6 @@ describe('Accept Invite', () => {
       }, {})
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(mockUserRepo.findById).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockSignJwt).toHaveBeenCalledTimes(1)
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
