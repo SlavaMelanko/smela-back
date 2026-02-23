@@ -1,7 +1,6 @@
 import type { DeviceInfo } from '@/net/http/device'
 
 import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
-import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import Status from '@/types/status'
@@ -25,7 +24,7 @@ const acceptInvite = async (
 ) => {
   const validatedToken = await validateToken(token)
 
-  await db.transaction(async (tx) => {
+  const user = await db.transaction(async (tx) => {
     // Mark token as used
     await tokenRepo.update(validatedToken.id, {
       status: TokenStatus.Used,
@@ -37,14 +36,8 @@ const acceptInvite = async (
     await authRepo.update(validatedToken.userId, { passwordHash }, tx)
 
     // Activate user
-    await userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
+    return userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
   })
-
-  const user = await userRepo.findById(validatedToken.userId)
-
-  if (!user) {
-    throw new AppError(ErrorCode.InternalError, 'User not found after accepting invite')
-  }
 
   const [accessToken, refreshToken, team] = await Promise.all([
     createAccessToken(user),

@@ -8,6 +8,7 @@ import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
 import { usersTable } from '../../schema'
+import { findUserById } from './queries'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -42,8 +43,14 @@ export const updateUser = async (
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')
   }
 
-  // Role is not known here; callers that need it should re-query
-  return { ...updatedUser, role: Role.User }
+  // Since role lives in a separate table - call `userRepo.findById` to get the real role.
+  const userWithRole = await findUserById(userId, tx)
+
+  if (!userWithRole) {
+    throw new AppError(ErrorCode.InternalError, 'Failed to fetch user after update')
+  }
+
+  return userWithRole
 }
 
 export const deleteUser = async (email: string, tx?: Database): Promise<void> => {
