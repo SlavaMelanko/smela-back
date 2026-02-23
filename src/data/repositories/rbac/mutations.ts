@@ -4,9 +4,10 @@ import type { Permissions } from '@/routes/@shared/permissions-schema'
 import type { Role } from '@/types'
 
 import type { Database } from '../../clients'
+import type { CreateUserRoleInput, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
-import { userPermissionsTable } from '../../schema'
+import { userPermissionsTable, userRolesTable } from '../../schema'
 import { findRolePermissions } from './queries'
 
 export const setUserPermissions = async (
@@ -33,4 +34,18 @@ export const setUserPermissions = async (
       target: [userPermissionsTable.userId, userPermissionsTable.permissionId],
       set: { granted: sql`excluded.granted` },
     })
+}
+
+export const assignRole = async (
+  input: CreateUserRoleInput,
+  tx?: Database,
+): Promise<UserRoleRecord> => {
+  const executor = tx || db
+
+  const [created] = await executor
+    .insert(userRolesTable)
+    .values(input)
+    .returning()
+
+  return created
 }

@@ -13,8 +13,6 @@ import {
   searchTeams,
 } from './queries'
 
-export type { TeamSearchParams, TeamSearchResult } from './queries'
-
 export * from './types'
 
 const teamMutations = {

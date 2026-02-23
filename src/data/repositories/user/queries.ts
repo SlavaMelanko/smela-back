@@ -1,12 +1,10 @@
 import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
 
-import type { Status } from '@/types'
-
 import { Role } from '@/types'
 
 import type { Database } from '../../clients'
-import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { User } from './types'
+import type { PaginationParams } from '../pagination'
+import type { SearchParams, SearchResult, User } from './types'
 
 import { db } from '../../clients'
 import { userRolesTable, usersTable } from '../../schema'
@@ -49,17 +47,6 @@ export const findUserById = async (userId: string, tx?: Database) =>
 
 export const findUserByEmail = async (email: string, tx?: Database) =>
   findUserBy(eq(usersTable.email, email), tx)
-
-export interface SearchParams {
-  search?: string
-  roles: Role[]
-  statuses?: Status[]
-}
-
-export interface SearchResult {
-  users: User[]
-  pagination: PaginatedResult
-}
 
 const buildRoleCondition = (roles: Role[]) => {
   if (roles.length === 0) {

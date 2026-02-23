@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import type { ActivePermissionRow } from '@/data/repositories/rbac/queries'
+import type { ActivePermissionRow } from '@/data/repositories/rbac/types'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { Action, Permission, Resource, Role } from '@/types'

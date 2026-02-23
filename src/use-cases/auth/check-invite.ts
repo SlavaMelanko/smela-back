@@ -1,4 +1,4 @@
-import { teamRepo, tokenRepo, userRoleRepo } from '@/data'
+import { rbacRepo, teamRepo, tokenRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType, TokenValidator } from '@/security/token'
@@ -22,7 +22,7 @@ const checkMemberInvite = async (userId: string): Promise<CheckInviteResult | nu
 }
 
 const checkAdminInvite = async (userId: string): Promise<CheckInviteResult | null> => {
-  const userRole = await userRoleRepo.findByUserId(userId)
+  const userRole = await rbacRepo.findRole(userId)
 
   if (userRole?.role !== Role.Admin) {
     return null
