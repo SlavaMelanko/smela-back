@@ -21,6 +21,7 @@ describe('Auth Middleware Factory', () => {
     email: 'test@example.com',
     role: Role.User,
     status: Status.Verified,
+    permissions: [],
   }
 
   beforeEach(() => {

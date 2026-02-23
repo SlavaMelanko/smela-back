@@ -39,6 +39,7 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [],
         },
         { secret: 'test-secret' },
       )
@@ -53,6 +54,7 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
+        permissions: [],
       })
       expect(payload.iat).toBeGreaterThanOrEqual(now - 1)
       expect(payload.nbf).toBeGreaterThanOrEqual(now - 1)
@@ -69,6 +71,7 @@ describe('JWT Unit Tests', () => {
         email: 'test@example.com',
         role: Role.User,
         status: Status.Active,
+        permissions: [],
         exp: nowInSeconds() + 3600,
       }))
 
@@ -122,6 +125,7 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [],
           exp: nowInSeconds() + 3600,
         }
 
@@ -152,6 +156,7 @@ describe('JWT Unit Tests', () => {
           email: 'test@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [],
           exp: nowInSeconds() + 3600,
         }
 

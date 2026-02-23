@@ -67,6 +67,7 @@ describe('Admin Users Endpoint', () => {
       email: 'admin@example.com',
       role: Role.Admin,
       status: Status.Active,
+      permissions: [],
     }
 
     const adminMiddleware: any = async (c: any, next: any) => {

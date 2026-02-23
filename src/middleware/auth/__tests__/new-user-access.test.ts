@@ -24,7 +24,13 @@ describe('Auth Middleware - New User Access', () => {
   describe('Strict Auth - Status Validation', () => {
     it('should reject New status', async () => {
       const token = await signJwt(
-        { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status: Status.New },
+        {
+          id: testUuids.USER_1,
+          email: 'user@example.com',
+          role: Role.User,
+          status: Status.New,
+          permissions: [],
+        },
         { secret: env.JWT_SECRET },
       )
 
@@ -51,7 +57,7 @@ describe('Auth Middleware - New User Access', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status, permissions: [] },
           { secret: env.JWT_SECRET },
         )
 
@@ -80,7 +86,7 @@ describe('Auth Middleware - New User Access', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: testUuids.USER_2, email: 'user@example.com', role: Role.User, status },
+          { id: testUuids.USER_2, email: 'user@example.com', role: Role.User, status, permissions: [] },
           { secret: env.JWT_SECRET },
         )
 
@@ -101,7 +107,7 @@ describe('Auth Middleware - New User Access', () => {
 
     it('should reject Suspended status', async () => {
       const token = await signJwt(
-        { id: testUuids.USER_3, email: 'user@example.com', role: Role.User, status: Status.Suspended },
+        { id: testUuids.USER_3, email: 'user@example.com', role: Role.User, status: Status.Suspended, permissions: [] },
         { secret: env.JWT_SECRET },
       )
 

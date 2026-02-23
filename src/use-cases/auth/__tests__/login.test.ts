@@ -22,7 +22,7 @@ describe('Login with Email', () => {
   let mockAuthRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | undefined
+  let mockTeam: UserTeamInfo | null
 
   let mockComparePasswords: any
 
@@ -69,7 +69,7 @@ describe('Login with Email', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
     }
-    mockTeam = undefined
+    mockTeam = null
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }

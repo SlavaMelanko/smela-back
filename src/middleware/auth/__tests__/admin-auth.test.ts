@@ -24,7 +24,7 @@ describe('Admin Authentication Middleware', () => {
   describe('Role Validation', () => {
     it('should allow Owner with Active status', async () => {
       const ownerToken = await signJwt(
-        { id: testUuids.OWNER_1, email: 'owner@example.com', role: Role.Owner, status: Status.Active },
+        { id: testUuids.OWNER_1, email: 'owner@example.com', role: Role.Owner, status: Status.Active, permissions: [] },
         { secret: env.JWT_SECRET },
       )
 
@@ -44,7 +44,7 @@ describe('Admin Authentication Middleware', () => {
 
     it('should allow Admin with Active status', async () => {
       const adminToken = await signJwt(
-        { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status: Status.Active },
+        { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status: Status.Active, permissions: [] },
         { secret: env.JWT_SECRET },
       )
 
@@ -64,7 +64,7 @@ describe('Admin Authentication Middleware', () => {
 
     it('should reject User role with Active status', async () => {
       const userToken = await signJwt(
-        { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status: Status.Active },
+        { id: testUuids.USER_1, email: 'user@example.com', role: Role.User, status: Status.Active, permissions: [] },
         { secret: env.JWT_SECRET },
       )
 
@@ -93,7 +93,7 @@ describe('Admin Authentication Middleware', () => {
         testApp.onError(onError)
 
         const token = await signJwt(
-          { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status },
+          { id: testUuids.ADMIN_1, email: 'admin@example.com', role: Role.Admin, status, permissions: [] },
           { secret: env.JWT_SECRET },
         )
 

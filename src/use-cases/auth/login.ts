@@ -1,5 +1,6 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
+import type { Permission } from '@/types'
 
 import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
@@ -14,12 +15,13 @@ export interface LoginParams {
   password: string
 }
 
-const createAccessToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User, permissions: Permission[]) => signJwt(
   {
     id: user.id,
     email: user.email,
     role: user.role,
     status: user.status,
+    permissions,
   },
 )
 
@@ -61,15 +63,18 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const [accessToken, refreshToken, team, permissions] = await Promise.all([
-    createAccessToken(user),
-    createRefreshToken(user.id, deviceInfo),
+  const [team, permissions] = await Promise.all([
     teamRepo.findUserTeam(user.id),
     resolvePermissions(user.id, user.role),
   ])
 
+  const [accessToken, refreshToken] = await Promise.all([
+    createAccessToken(user, permissions),
+    createRefreshToken(user.id, deviceInfo),
+  ])
+
   return {
-    data: { user, team: team ?? null, accessToken, permissions },
+    data: { user, team, accessToken, permissions },
     refreshToken,
   }
 }

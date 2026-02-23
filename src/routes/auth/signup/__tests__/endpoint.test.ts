@@ -16,35 +16,23 @@ describe('Signup Endpoint', () => {
 
   let app: Hono
   let mockSignUpWithEmail: any
-  let mockSetRefreshCookie: any
-  let mockGetDeviceInfo: any
 
   beforeEach(async () => {
     mockSignUpWithEmail = mock(async () => ({
-      data: {
-        user: {
-          id: testUuids.USER_1,
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'test@example.com',
-          role: Role.User,
-          status: Status.New,
-          createdAt: new Date('2024-01-01'),
-          updatedAt: new Date('2024-01-01'),
-        },
-        accessToken: 'signup-jwt-token',
+      user: {
+        id: testUuids.USER_1,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test@example.com',
+        role: Role.User,
+        status: Status.New,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
-      refreshToken: 'refresh-token-123',
     }))
 
     await moduleMocker.mock('@/use-cases/auth/signup', () => ({
       default: mockSignUpWithEmail,
-    }))
-
-    mockSetRefreshCookie = mock(() => {})
-    mockGetDeviceInfo = mock(() => ({
-      ipAddress: '192.168.1.1',
-      userAgent: 'Mozilla/5.0 (Test)',
     }))
 
     await moduleMocker.mock('@/net/http', () => ({
@@ -55,8 +43,6 @@ describe('Signup Endpoint', () => {
         BAD_REQUEST: 400,
         NOT_FOUND: 404,
       },
-      setRefreshCookie: mockSetRefreshCookie,
-      getDeviceInfo: mockGetDeviceInfo,
     }))
 
     await mockCaptchaSuccess()
@@ -94,16 +80,11 @@ describe('Signup Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        accessToken: 'signup-jwt-token',
       })
-
-      expect(mockSetRefreshCookie).toHaveBeenCalledTimes(1)
-      expect(mockSetRefreshCookie).toHaveBeenCalledWith(expect.any(Object), 'refresh-token-123')
 
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
       expect(mockSignUpWithEmail).toHaveBeenCalledWith(
         { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' },
-        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
         undefined,
       )
     })
@@ -124,7 +105,6 @@ describe('Signup Endpoint', () => {
 
       expect(mockSignUpWithEmail).toHaveBeenCalledWith(
         { firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'ValidPass123!' },
-        { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
         { locale: 'uk', theme: 'dark' },
       )
     })
@@ -202,7 +182,6 @@ describe('Signup Endpoint', () => {
       })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
-      expect(mockSetRefreshCookie).not.toHaveBeenCalled()
       expect(mockSignUpWithEmail).toHaveBeenCalledTimes(1)
     })
   })

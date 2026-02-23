@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 
 import { testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
-import { Role, Status } from '@/types'
+import { Permission, Role, Status } from '@/types'
 
 import { signJwt, verifyJwt } from '../jwt'
 
@@ -12,6 +12,7 @@ describe('JWT Integration Tests', () => {
     email: 'test@example.com',
     role: Role.User,
     status: Status.Active,
+    permissions: [Permission.ViewUsers],
   }
 
   describe('signJwt + verifyJwt round-trip', () => {
@@ -29,6 +30,7 @@ describe('JWT Integration Tests', () => {
       expect(resultUserClaims.email).toBe(testUserClaims.email)
       expect(resultUserClaims.role).toBe(testUserClaims.role)
       expect(resultUserClaims.status).toBe(testUserClaims.status)
+      expect(resultUserClaims.permissions).toEqual(testUserClaims.permissions)
     })
 
     it('should respect custom expiration time', async () => {

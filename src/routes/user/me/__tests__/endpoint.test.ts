@@ -73,6 +73,7 @@ describe('Me Endpoint', () => {
       email: 'test@example.com',
       role: Role.User,
       status: Status.Active,
+      permissions: [],
     }
 
     const userMiddleware: any = async (c: any, next: any) => {

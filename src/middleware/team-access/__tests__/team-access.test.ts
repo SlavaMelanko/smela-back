@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
+import type { Permission } from '@/types'
 
 import { testUuids } from '@/__tests__'
 import { ErrorCode } from '@/errors'
@@ -44,6 +45,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -68,6 +70,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -92,6 +95,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -113,6 +117,7 @@ describe('Team Access Middleware', () => {
           email: 'admin@example.com',
           role: Role.Admin,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -135,6 +140,7 @@ describe('Team Access Middleware', () => {
           email: 'admin@example.com',
           role: Role.Admin,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -156,6 +162,7 @@ describe('Team Access Middleware', () => {
           email: 'owner@example.com',
           role: Role.Owner,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -178,6 +185,7 @@ describe('Team Access Middleware', () => {
           email: 'owner@example.com',
           role: Role.Owner,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -199,6 +207,7 @@ describe('Team Access Middleware', () => {
           email: 'admin@example.com',
           role: Role.Admin,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -217,6 +226,7 @@ describe('Team Access Middleware', () => {
           email: 'owner@example.com',
           role: Role.Owner,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -240,6 +250,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -263,6 +274,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })
@@ -289,6 +301,7 @@ describe('Team Access Middleware', () => {
           email: 'user@example.com',
           role: Role.User,
           status: Status.Active,
+          permissions: [] as Permission[],
         })
         await next()
       })

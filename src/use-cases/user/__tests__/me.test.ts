@@ -15,7 +15,7 @@ describe('User Me Use Cases', () => {
   let mockUser: User
   let mockUserRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | undefined
+  let mockTeam: UserTeamInfo | null
   let mockPermissions: Permission[]
   let mockResolvePermissions: any
 
@@ -37,7 +37,7 @@ describe('User Me Use Cases', () => {
         ...updates,
       })),
     }
-    mockTeam = undefined
+    mockTeam = null
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }

@@ -1,10 +1,13 @@
 import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
+import type { Permission } from '@/types'
 
-import { db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
+
+import { resolvePermissions } from '../resolve-permissions'
 
 export interface VerifyEmailParams {
   token: string
@@ -16,12 +19,13 @@ const validateToken = async (token: string) => {
   return TokenValidator.validate(tokenRecord, TokenType.EmailVerification)
 }
 
-const createAccessToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User, permissions: Permission[]) => signJwt(
   {
     id: user.id,
     email: user.email,
     role: user.role,
     status: user.status,
+    permissions,
   },
 )
 
@@ -55,11 +59,18 @@ const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo)
     return userRepo.update(validatedToken.userId, { status: Status.Verified }, tx)
   })
 
-  const accessToken = await createAccessToken(updatedUser)
-  const refreshToken = await createRefreshToken(updatedUser.id, deviceInfo)
+  const [team, permissions] = await Promise.all([
+    teamRepo.findUserTeam(updatedUser.id),
+    resolvePermissions(updatedUser.id, updatedUser.role),
+  ])
+
+  const [accessToken, refreshToken] = await Promise.all([
+    createAccessToken(updatedUser, permissions),
+    createRefreshToken(updatedUser.id, deviceInfo),
+  ])
 
   return {
-    data: { user: updatedUser, accessToken },
+    data: { user: updatedUser, team, accessToken, permissions },
     refreshToken,
   }
 }

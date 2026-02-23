@@ -75,6 +75,8 @@ describe('Refresh Auth Tokens', () => {
       db: mockDb,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
+      teamRepo: { findUserTeam: mock(async () => null) },
+      rbacRepo: { findUserPermissions: mock(async () => []) },
     }))
 
     mockHashToken = mock(async () => 'hashed_token_123')
@@ -380,6 +382,7 @@ describe('Refresh Auth Tokens', () => {
         email: mockUser.email,
         role: mockUser.role,
         status: mockUser.status,
+        permissions: [],
       })
     })
 

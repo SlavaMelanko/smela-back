@@ -1,11 +1,14 @@
 import type { Database, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
+import type { Permission } from '@/types'
 
-import { db, refreshTokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, hashToken, TokenType } from '@/security/token'
+
+import { resolvePermissions } from '../resolve-permissions'
 
 const validateToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
@@ -30,12 +33,13 @@ const validateToken = async (refreshToken: string | undefined) => {
   return { storedToken, hashedToken }
 }
 
-const createAccessToken = async (user: User) => signJwt(
+const createAccessToken = async (user: User, permissions: Permission[]) => signJwt(
   {
     id: user.id,
     email: user.email,
     role: user.role,
     status: user.status,
+    permissions,
   },
 )
 
@@ -92,19 +96,25 @@ const refreshAuthTokens = async (
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  return db.transaction(async (tx) => {
-    // Create new tokens first (OAuth 2.0 best practice)
-    const accessToken = await createAccessToken(user)
-    const newRefreshToken = await createRefreshToken(user.id, deviceInfo, tx)
+  const [team, permissions, newRefreshToken] = await Promise.all([
+    teamRepo.findUserTeam(user.id),
+    resolvePermissions(user.id, user.role),
+    db.transaction(async (tx) => {
+      const newRefreshToken = await createRefreshToken(user.id, deviceInfo, tx)
 
-    // Revoke old token last to prevent user lockout on failures
-    await refreshTokenRepo.revokeByHash(hashedToken, tx)
+      // Revoke old token last to prevent user lockout on failures
+      await refreshTokenRepo.revokeByHash(hashedToken, tx)
 
-    return {
-      data: { user, accessToken },
-      refreshToken: newRefreshToken,
-    }
-  })
+      return newRefreshToken
+    }),
+  ])
+
+  const accessToken = await createAccessToken(user, permissions)
+
+  return {
+    data: { user, team, accessToken, permissions },
+    refreshToken: newRefreshToken,
+  }
 }
 
 export default refreshAuthTokens

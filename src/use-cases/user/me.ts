@@ -25,7 +25,7 @@ export const getUser = async (userId: string) => {
 
   const permissions = await resolvePermissions(user.id, user.role)
 
-  return { user, team: team ?? null, permissions }
+  return { user, team, permissions }
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
@@ -45,5 +45,5 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
 
   const permissions = await resolvePermissions(updatedUser.id, updatedUser.role)
 
-  return { user: updatedUser, team: team ?? null, permissions }
+  return { user: updatedUser, team, permissions }
 }

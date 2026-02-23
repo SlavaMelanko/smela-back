@@ -25,7 +25,7 @@ describe('Reset Password', () => {
   let mockUserRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | undefined
+  let mockTeam: UserTeamInfo | null
   let mockTransaction: any
 
   let mockTokenValidator: any
@@ -83,7 +83,7 @@ describe('Reset Password', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => {}),
     }
-    mockTeam = undefined
+    mockTeam = null
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }
