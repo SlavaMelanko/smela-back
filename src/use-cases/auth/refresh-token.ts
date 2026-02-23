@@ -1,13 +1,11 @@
-import type { Database, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
-import type { Permission } from '@/types'
 
 import { db, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
-import { signJwt } from '@/security/jwt'
-import { generateHashedToken, hashToken, TokenType } from '@/security/token'
+import { hashToken } from '@/security/token'
 
+import { createAccessToken, createRefreshToken } from '../create-tokens'
 import { resolvePermissions } from '../resolve-permissions'
 
 const validateToken = async (refreshToken: string | undefined) => {
@@ -31,36 +29,6 @@ const validateToken = async (refreshToken: string | undefined) => {
   }
 
   return { storedToken, hashedToken }
-}
-
-const createAccessToken = async (user: User, permissions: Permission[]) => signJwt(
-  {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-    permissions,
-  },
-)
-
-const createRefreshToken = async (
-  userId: string,
-  deviceInfo: DeviceInfo,
-  tx?: Database,
-) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  }, tx)
-
-  return raw
 }
 
 const validateDevice = (

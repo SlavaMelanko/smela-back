@@ -1,18 +1,11 @@
-import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
-import type { Permission } from '@/types'
 
-import { authRepo, db, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
-import {
-  generateHashedToken,
-  TokenStatus,
-  TokenType,
-  TokenValidator,
-} from '@/security/token'
+import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 
+import { createAccessToken, createRefreshToken } from '../create-tokens'
 import { resolvePermissions } from '../resolve-permissions'
 
 export interface ResetPasswordParams {
@@ -24,30 +17,6 @@ const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
   return TokenValidator.validate(tokenRecord, TokenType.PasswordReset)
-}
-
-const createAccessToken = async (user: User, permissions: Permission[]) => signJwt({
-  id: user.id,
-  email: user.email,
-  role: user.role,
-  status: user.status,
-  permissions,
-})
-
-const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  })
-
-  return raw
 }
 
 const resetPassword = async (
