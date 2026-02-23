@@ -34,7 +34,7 @@ export const dataRules = {
     z.union([z.literal(''), z.string().trim().min(2).max(50)]),
   ),
 
-  role: z.nativeEnum(Role),
+  role: z.enum(Role),
 
   securityToken: z.string().length(
     TOKEN_LENGTH,
