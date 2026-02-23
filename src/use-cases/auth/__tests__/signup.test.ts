@@ -240,7 +240,7 @@ describe('Signup with Email', () => {
         ipAddress: mockDeviceInfo.ipAddress,
         userAgent: mockDeviceInfo.userAgent,
         expiresAt: mockRefreshExpiresAt,
-      })
+      }, undefined)
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
     })
 
