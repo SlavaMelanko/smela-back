@@ -100,6 +100,7 @@ describe('User Me Use Cases', () => {
       expect(result.user.lastName).toBe('Smith')
       expect(result.team).toBeNull()
       expect(result.permissions).toEqual(mockPermissions)
+
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         lastName: 'Smith',
@@ -113,6 +114,7 @@ describe('User Me Use Cases', () => {
       expect(result.user.firstName).toBe('Jane')
       expect(result.team).toBeNull()
       expect(result.permissions).toEqual(mockPermissions)
+
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         updatedAt: expect.any(Date),
@@ -125,6 +127,7 @@ describe('User Me Use Cases', () => {
       expect(result.user.lastName).toBe('Smith')
       expect(result.team).toBeNull()
       expect(result.permissions).toEqual(mockPermissions)
+
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         lastName: 'Smith',
         updatedAt: expect.any(Date),
@@ -135,6 +138,7 @@ describe('User Me Use Cases', () => {
       const result = await updateUser(testUuids.USER_1, {})
 
       expect(result).toEqual({ user: mockUser, team: null, permissions: mockPermissions })
+
       expect(mockUserRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
     })
@@ -145,8 +149,10 @@ describe('User Me Use Cases', () => {
 
       expect(result.user.firstName).toBe('Jane')
       expect(result.user.lastName).toBe('')
+
       expect(result.team).toBeNull()
       expect(result.permissions).toEqual(mockPermissions)
+
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         firstName: 'Jane',
         lastName: '',
@@ -161,6 +167,7 @@ describe('User Me Use Cases', () => {
       expect(result.user.lastName).toBe('Smith')
       expect(result.team).toBeNull()
       expect(result.permissions).toEqual(mockPermissions)
+
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
         lastName: 'Smith',
         updatedAt: expect.any(Date),
