@@ -19,7 +19,7 @@ export const networkEnvVars = (nodeEnv?: string) => {
     ALLOWED_ORIGINS: z.string().optional().superRefine((val, ctx) => {
       if ((nodeEnv === 'staging' || nodeEnv === 'production') && (!val || val.trim() === '')) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'ALLOWED_ORIGINS is required for staging/production environments',
         })
       }
