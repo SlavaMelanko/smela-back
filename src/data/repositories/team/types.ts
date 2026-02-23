@@ -1,4 +1,5 @@
 import type { teamMembersTable, teamsTable } from '../../schema'
+import type { PaginatedResult } from '../pagination'
 
 export type TeamRecord = typeof teamsTable.$inferSelect
 export type TeamMemberRecord = typeof teamMembersTable.$inferSelect
@@ -36,4 +37,13 @@ export interface UserTeamInfo {
   id: string
   name: string
   position: string | null
+}
+
+export interface TeamSearchParams {
+  search?: string
+}
+
+export interface TeamSearchResult {
+  teams: Team[]
+  pagination: PaginatedResult
 }

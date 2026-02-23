@@ -1,4 +1,4 @@
-import type { Role } from '@/types'
+import type { Action, Resource, Role } from '@/types'
 
 import type { userPermissionsTable, userRolesTable } from '../../schema'
 
@@ -15,4 +15,15 @@ export interface Inviter {
   id: string
   firstName: string
   lastName: string | null
+}
+
+export interface ActivePermissionRow {
+  action: Action
+  resource: Resource
+}
+
+export interface RolePermissionRow {
+  permissionId: number
+  action: Action
+  resource: Resource
 }

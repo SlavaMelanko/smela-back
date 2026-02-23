@@ -1,23 +1,12 @@
 import { and, eq, inArray, isNotNull, isNull, or } from 'drizzle-orm'
 
-import type { Action, Resource, Role } from '@/types'
+import type { Role } from '@/types'
 
 import type { Database } from '../../clients'
-import type { Inviter, UserRoleRecord } from './types'
+import type { ActivePermissionRow, Inviter, RolePermissionRow, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
 import { permissionsTable, rolePermissionsTable, userPermissionsTable, userRolesTable, usersTable } from '../../schema'
-
-export interface ActivePermissionRow {
-  action: Action
-  resource: Resource
-}
-
-export interface RolePermissionRow {
-  permissionId: number
-  action: Action
-  resource: Resource
-}
 
 export const findRolePermissions = async (
   role: Role,

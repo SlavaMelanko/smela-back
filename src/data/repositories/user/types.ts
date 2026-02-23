@@ -1,6 +1,7 @@
 import type { Role, Status } from '@/types'
 
 import type { usersTable } from '../../schema'
+import type { PaginatedResult } from '../pagination'
 
 // Database type
 export type UserRecord = typeof usersTable.$inferSelect
@@ -13,4 +14,16 @@ export type UpdateUserInput = Partial<CreateUserInput>
 export type User = UserRecord & {
   role: Role
   status: Status
+}
+
+// Search types
+export interface SearchParams {
+  search?: string
+  roles: Role[]
+  statuses?: Status[]
+}
+
+export interface SearchResult {
+  users: User[]
+  pagination: PaginatedResult
 }

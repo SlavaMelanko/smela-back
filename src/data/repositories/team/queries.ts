@@ -2,21 +2,12 @@ import { and, count, desc, eq, sql } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
 import type { Database } from '../../clients'
-import type { PaginatedResult, PaginationParams } from '../pagination'
-import type { Team, TeamMemberDetails, TeamWithMemberCount, UserTeamInfo } from './types'
+import type { PaginationParams } from '../pagination'
+import type { Team, TeamMemberDetails, TeamSearchParams, TeamSearchResult, TeamWithMemberCount, UserTeamInfo } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
 import { calcOffset } from '../pagination'
-
-export interface TeamSearchParams {
-  search?: string
-}
-
-export interface TeamSearchResult {
-  teams: Team[]
-  pagination: PaginatedResult
-}
 
 export const searchTeams = async (
   filters: TeamSearchParams,
