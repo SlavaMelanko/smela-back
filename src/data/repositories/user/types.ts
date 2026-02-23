@@ -16,7 +16,6 @@ export type User = UserRecord & {
   status: Status
 }
 
-// Search types
 export interface SearchParams {
   search?: string
   roles: Role[]
