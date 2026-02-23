@@ -162,7 +162,7 @@ describe('Reset Password', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockUser, team: undefined, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
     })
@@ -366,7 +366,7 @@ describe('Reset Password', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: { user: mockUser, team: undefined, accessToken: mockAccessToken },
         refreshToken: mockRefreshToken,
       })
 

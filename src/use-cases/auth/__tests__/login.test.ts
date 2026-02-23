@@ -117,7 +117,7 @@ describe('Login with Email', () => {
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
-      expect(result.data.team).toBeNull()
+      expect(result.data.team).toBeUndefined()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)

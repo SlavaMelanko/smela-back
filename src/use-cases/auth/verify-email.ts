@@ -1,10 +1,10 @@
-import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
-import { signJwt } from '@/security/jwt'
-import { generateHashedToken, TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { db, tokenRepo, userRepo } from '@/data'
+import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
 import { Status } from '@/types'
+
+import { createAccessToken, createRefreshToken } from '../create-tokens'
 
 export interface VerifyEmailParams {
   token: string
@@ -14,31 +14,6 @@ const validateToken = async (token: string) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
   return TokenValidator.validate(tokenRecord, TokenType.EmailVerification)
-}
-
-const createAccessToken = async (user: User) => signJwt(
-  {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-  },
-)
-
-const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  })
-
-  return raw
 }
 
 const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo) => {

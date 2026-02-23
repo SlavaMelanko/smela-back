@@ -21,7 +21,7 @@ export const getUser = async (userId: string) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  return { user, team: team ?? null }
+  return { user, team }
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
@@ -39,5 +39,5 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     teamRepo.findUserTeam(userId),
   ])
 
-  return { user: updatedUser, team: team ?? null }
+  return { user: updatedUser, team }
 }

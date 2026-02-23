@@ -1,15 +1,15 @@
-import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 import type { UserPreferences } from '@/types'
 
-import { authRepo, db, refreshTokenRepo, tokenRepo, userRepo } from '@/data'
+import { authRepo, db, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
-import { signJwt } from '@/security/jwt'
 import { hashPassword } from '@/security/password'
-import { generateHashedToken, generateToken, TokenType } from '@/security/token'
+import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { AuthProvider, Status } from '@/types'
+
+import { createAccessToken, createRefreshToken } from '../create-tokens'
 
 export interface SignupParams {
   firstName: string
@@ -54,31 +54,6 @@ const createNewUser = async (
   })
 
   return { newUser, verificationToken }
-}
-
-const createAccessToken = async (user: User) => signJwt(
-  {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-  },
-)
-
-const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  })
-
-  return raw
 }
 
 const signUpWithEmail = async (
