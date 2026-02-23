@@ -1,7 +1,7 @@
 import type { PaginationParams, SearchParams } from '@/data'
 import type { Permissions } from '@/routes/@shared/permissions-schema'
 
-import { authRepo, db, rbacRepo, tokenRepo, userRepo, userRoleRepo } from '@/data'
+import { authRepo, db, rbacRepo, tokenRepo, userRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
@@ -18,7 +18,7 @@ export const getAdmins = async (params: SearchParams, pagination: PaginationPara
   const result = await userRepo.search(normalizeRoles(params), pagination)
 
   const adminIds = result.users.map(u => u.id)
-  const inviters = await userRoleRepo.findInviters(adminIds)
+  const inviters = await rbacRepo.findInviters(adminIds)
 
   const admins = result.users.map(admin => ({
     ...admin,
@@ -38,7 +38,7 @@ export const getAdmin = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  const inviters = await userRoleRepo.findInviters([adminId])
+  const inviters = await rbacRepo.findInviters([adminId])
 
   return {
     admin: {
@@ -89,7 +89,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       passwordHash,
     }, tx)
 
-    await userRoleRepo.assign({
+    await rbacRepo.assignRole({
       userId: newAdmin.id,
       role,
       invitedBy: inviterId,

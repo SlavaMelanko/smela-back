@@ -40,7 +40,7 @@ describe('getAdmins', () => {
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: { search: mockUserRepoSearch },
-      userRoleRepo: { findInviters: mockFindInvites },
+      rbacRepo: { findInviters: mockFindInvites },
     }))
   })
 
@@ -121,7 +121,7 @@ describe('getAdmin', () => {
 
     await moduleMocker.mock('@/data', () => ({
       userRepo: { findById: mockFindById },
-      userRoleRepo: { findInviters: mockFindInvites },
+      rbacRepo: { findInviters: mockFindInvites },
     }))
   })
 
@@ -244,10 +244,12 @@ describe('inviteAdmin', () => {
         findById: mockUserFindById,
         create: mockUserCreate,
       },
-      userRoleRepo: { assign: mockUserRoleAssign },
+      rbacRepo: {
+        assignRole: mockUserRoleAssign,
+        setUserPermissions: mockRbacSet,
+      },
       authRepo: { create: mockAuthCreate },
       tokenRepo: { issue: mockTokenIssue },
-      rbacRepo: { setUserPermissions: mockRbacSet },
       db: { transaction: mockTransaction },
     }))
 
