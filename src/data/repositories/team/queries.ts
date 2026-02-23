@@ -167,7 +167,7 @@ export const findTeamWithMemberCount = async (
 export const findUserTeam = async (
   userId: string,
   tx?: Database,
-): Promise<UserTeamInfo | null> => {
+): Promise<UserTeamInfo | undefined> => {
   const executor = tx || db
 
   const [result] = await executor
@@ -180,5 +180,5 @@ export const findUserTeam = async (
     .innerJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
     .where(eq(teamMembersTable.userId, userId))
 
-  return result ?? null
+  return result
 }

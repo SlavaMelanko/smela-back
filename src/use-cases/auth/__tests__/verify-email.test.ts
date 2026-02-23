@@ -77,7 +77,7 @@ describe('Verify Email', () => {
       tokenRepo: mockTokenRepo,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
-      teamRepo: { findUserTeam: mock(async () => null) },
+      teamRepo: { findUserTeam: mock(async () => undefined) },
       rbacRepo: { findUserPermissions: mock(async () => []) },
       authRepo: {},
       db: mockTransaction,

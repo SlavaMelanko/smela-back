@@ -25,7 +25,7 @@ describe('Reset Password', () => {
   let mockUserRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | null
+  let mockTeam: UserTeamInfo | undefined
   let mockTransaction: any
 
   let mockTokenValidator: any
@@ -83,7 +83,7 @@ describe('Reset Password', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => {}),
     }
-    mockTeam = null
+    mockTeam = undefined
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }
@@ -163,7 +163,7 @@ describe('Reset Password', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken, permissions: [] },
+        data: { user: mockUser, team: undefined, accessToken: mockAccessToken, permissions: [] },
         refreshToken: mockRefreshToken,
       })
     })
@@ -367,7 +367,7 @@ describe('Reset Password', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken, permissions: [] },
+        data: { user: mockUser, team: undefined, accessToken: mockAccessToken, permissions: [] },
         refreshToken: mockRefreshToken,
       })
 

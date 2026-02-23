@@ -15,7 +15,7 @@ describe('User Me Use Cases', () => {
   let mockUser: User
   let mockUserRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | null
+  let mockTeam: UserTeamInfo | undefined
   let mockPermissions: Permission[]
   let mockResolvePermissions: any
 
@@ -37,7 +37,7 @@ describe('User Me Use Cases', () => {
         ...updates,
       })),
     }
-    mockTeam = null
+    mockTeam = undefined
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }
@@ -61,7 +61,7 @@ describe('User Me Use Cases', () => {
     it('should return user and team null when user has no team', async () => {
       const result = await getUser(testUuids.USER_1)
 
-      expect(result).toEqual({ user: mockUser, team: null, permissions: mockPermissions })
+      expect(result).toEqual({ user: mockUser, team: undefined, permissions: mockPermissions })
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(testUuids.USER_1)
       expect(mockResolvePermissions).toHaveBeenCalledWith(mockUser.id, mockUser.role)
@@ -98,7 +98,7 @@ describe('User Me Use Cases', () => {
 
       expect(result.user.firstName).toBe('Jane')
       expect(result.user.lastName).toBe('Smith')
-      expect(result.team).toBeNull()
+      expect(result.team).toBeUndefined()
       expect(result.permissions).toEqual(mockPermissions)
 
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
@@ -112,7 +112,7 @@ describe('User Me Use Cases', () => {
       const result = await updateUser(testUuids.USER_1, { firstName: 'Jane' })
 
       expect(result.user.firstName).toBe('Jane')
-      expect(result.team).toBeNull()
+      expect(result.team).toBeUndefined()
       expect(result.permissions).toEqual(mockPermissions)
 
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
@@ -125,7 +125,7 @@ describe('User Me Use Cases', () => {
       const result = await updateUser(testUuids.USER_1, { lastName: 'Smith' })
 
       expect(result.user.lastName).toBe('Smith')
-      expect(result.team).toBeNull()
+      expect(result.team).toBeUndefined()
       expect(result.permissions).toEqual(mockPermissions)
 
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
@@ -137,7 +137,7 @@ describe('User Me Use Cases', () => {
     it('should return current user and team when no valid updates provided', async () => {
       const result = await updateUser(testUuids.USER_1, {})
 
-      expect(result).toEqual({ user: mockUser, team: null, permissions: mockPermissions })
+      expect(result).toEqual({ user: mockUser, team: undefined, permissions: mockPermissions })
 
       expect(mockUserRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
@@ -150,7 +150,7 @@ describe('User Me Use Cases', () => {
       expect(result.user.firstName).toBe('Jane')
       expect(result.user.lastName).toBe('')
 
-      expect(result.team).toBeNull()
+      expect(result.team).toBeUndefined()
       expect(result.permissions).toEqual(mockPermissions)
 
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {
@@ -165,7 +165,7 @@ describe('User Me Use Cases', () => {
       const result = await updateUser(testUuids.USER_1, { firstName: undefined, lastName: 'Smith' })
 
       expect(result.user.lastName).toBe('Smith')
-      expect(result.team).toBeNull()
+      expect(result.team).toBeUndefined()
       expect(result.permissions).toEqual(mockPermissions)
 
       expect(mockUserRepo.update).toHaveBeenCalledWith(testUuids.USER_1, {

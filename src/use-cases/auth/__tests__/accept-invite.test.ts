@@ -90,7 +90,7 @@ describe('Accept Invite', () => {
       create: mock(async () => {}),
     }
     mockTeamRepo = {
-      findUserTeam: mock(async () => null),
+      findUserTeam: mock(async () => undefined),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
@@ -175,7 +175,7 @@ describe('Accept Invite', () => {
       expect(result).toEqual({
         data: {
           user: mockActivatedUser,
-          team: null,
+          team: undefined,
           accessToken: mockAccessToken,
           permissions: [],
         },
@@ -397,7 +397,7 @@ describe('Accept Invite', () => {
       expect(result).toEqual({
         data: {
           user: mockActivatedUser,
-          team: null,
+          team: undefined,
           accessToken: mockAccessToken,
           permissions: [],
         },

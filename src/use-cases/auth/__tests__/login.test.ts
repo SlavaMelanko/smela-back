@@ -22,7 +22,7 @@ describe('Login with Email', () => {
   let mockAuthRepo: any
   let mockRefreshTokenRepo: any
   let mockTeamRepo: any
-  let mockTeam: UserTeamInfo | null
+  let mockTeam: UserTeamInfo | undefined
 
   let mockComparePasswords: any
 
@@ -69,7 +69,7 @@ describe('Login with Email', () => {
     mockRefreshTokenRepo = {
       create: mock(async () => 1),
     }
-    mockTeam = null
+    mockTeam = undefined
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }
@@ -118,7 +118,7 @@ describe('Login with Email', () => {
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
-      expect(result.data.team).toBeNull()
+      expect(result.data.team).toBeUndefined()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)

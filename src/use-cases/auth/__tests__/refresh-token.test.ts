@@ -75,7 +75,7 @@ describe('Refresh Auth Tokens', () => {
       db: mockDb,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
-      teamRepo: { findUserTeam: mock(async () => null) },
+      teamRepo: { findUserTeam: mock(async () => undefined) },
       rbacRepo: { findUserPermissions: mock(async () => []) },
     }))
 

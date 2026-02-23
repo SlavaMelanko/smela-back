@@ -110,7 +110,7 @@ describe('Check Invite', () => {
 
   describe('when token is valid for admin invite', () => {
     beforeEach(() => {
-      mockTeamRepo.findUserTeam.mockResolvedValue(null)
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
     })
 
     it('should return admin type and company name for admin invitation token', async () => {
@@ -216,7 +216,7 @@ describe('Check Invite', () => {
 
   describe('when user has no team membership and no admin role', () => {
     it('should throw InternalError', async () => {
-      mockTeamRepo.findUserTeam.mockResolvedValue(null)
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
       mockUserRoleRepo.findByUserId.mockResolvedValue(undefined)
 
       try {
@@ -235,7 +235,7 @@ describe('Check Invite', () => {
 
   describe('when user has non-admin role', () => {
     it('should throw InternalError', async () => {
-      mockTeamRepo.findUserTeam.mockResolvedValue(null)
+      mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
       mockUserRoleRepo.findByUserId.mockResolvedValue({
         ...mockAdminRole,
         role: Role.User,
