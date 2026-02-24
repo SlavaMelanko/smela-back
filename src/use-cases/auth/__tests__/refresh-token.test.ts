@@ -75,6 +75,7 @@ describe('Refresh Auth Tokens', () => {
       db: mockDb,
       userRepo: mockUserRepo,
       refreshTokenRepo: mockRefreshTokenRepo,
+      teamRepo: { findUserTeam: mock(async () => null) },
     }))
 
     mockHashToken = mock(async () => 'hashed_token_123')

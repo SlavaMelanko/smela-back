@@ -1,6 +1,6 @@
 import type { DeviceInfo } from '@/net/http/device'
 
-import { db, refreshTokenRepo, userRepo } from '@/data'
+import { db, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { hashToken } from '@/security/token'
@@ -55,7 +55,10 @@ const refreshAuthTokens = async (
 ) => {
   const { storedToken, hashedToken } = await validateToken(refreshToken)
 
-  const user = await userRepo.findById(storedToken.userId)
+  const [user, team] = await Promise.all([
+    userRepo.findById(storedToken.userId),
+    teamRepo.findUserTeam(storedToken.userId),
+  ])
 
   if (!user) {
     throw new AppError(ErrorCode.InvalidRefreshToken)
@@ -63,18 +66,19 @@ const refreshAuthTokens = async (
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  return db.transaction(async (tx) => {
+  const { accessToken, newRefreshToken } = await db.transaction(async (tx) => {
     // Create new tokens first (OAuth 2.0 best practice)
     const [accessToken, newRefreshToken] = await createAuthTokens(user, deviceInfo, tx)
-
     // Revoke old token last to prevent user lockout on failures
     await refreshTokenRepo.revokeByHash(hashedToken, tx)
 
-    return {
-      data: { user, accessToken },
-      refreshToken: newRefreshToken,
-    }
+    return { accessToken, newRefreshToken }
   })
+
+  return {
+    data: { user, team, accessToken },
+    refreshToken: newRefreshToken,
+  }
 }
 
 export default refreshAuthTokens
