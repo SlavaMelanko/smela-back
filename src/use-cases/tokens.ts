@@ -32,6 +32,15 @@ export const createRefreshToken = async (
   return raw
 }
 
+export const createAuthTokens = async (
+  user: User,
+  deviceInfo: DeviceInfo,
+  tx?: Database,
+) => Promise.all([
+  createAccessToken(user),
+  createRefreshToken(user.id, deviceInfo, tx),
+])
+
 export const validateOneTimeToken = async (token: string, type: TokenType) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 

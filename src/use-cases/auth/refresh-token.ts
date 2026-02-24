@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { hashToken } from '@/security/token'
 
-import { createAccessToken, createRefreshToken } from '../tokens'
+import { createAuthTokens } from '../tokens'
 
 const validateToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
@@ -65,8 +65,7 @@ const refreshAuthTokens = async (
 
   return db.transaction(async (tx) => {
     // Create new tokens first (OAuth 2.0 best practice)
-    const accessToken = await createAccessToken(user)
-    const newRefreshToken = await createRefreshToken(user.id, deviceInfo, tx)
+    const [accessToken, newRefreshToken] = await createAuthTokens(user, deviceInfo, tx)
 
     // Revoke old token last to prevent user lockout on failures
     await refreshTokenRepo.revokeByHash(hashedToken, tx)

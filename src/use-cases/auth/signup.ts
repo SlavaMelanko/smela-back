@@ -9,7 +9,7 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { AuthProvider, Status } from '@/types'
 
-import { createAccessToken, createRefreshToken } from '../tokens'
+import { createAuthTokens } from '../tokens'
 
 export interface SignupParams {
   firstName: string
@@ -86,8 +86,7 @@ const signUpWithEmail = async (
     logger.error({ error }, `Failed to send email verification email to ${newUser.email}`)
   })
 
-  const accessToken = await createAccessToken(newUser)
-  const refreshToken = await createRefreshToken(newUser.id, deviceInfo)
+  const [accessToken, refreshToken] = await createAuthTokens(newUser, deviceInfo)
 
   return {
     data: { user: newUser, accessToken },
