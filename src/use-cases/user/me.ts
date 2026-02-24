@@ -31,7 +31,7 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     return getUser(userId)
   }
 
-  const [updatedUser, team] = await Promise.all([
+  const [user, team] = await Promise.all([
     userRepo.update(userId, {
       ...validUpdates,
       updatedAt: new Date(),
@@ -39,5 +39,5 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     teamRepo.findUserTeam(userId),
   ])
 
-  return { user: updatedUser, team }
+  return { user, team }
 }
