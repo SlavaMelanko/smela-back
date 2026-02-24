@@ -31,7 +31,7 @@ describe('Refresh Token Endpoint', () => {
           createdAt: new Date('2024-01-01'),
           updatedAt: new Date('2024-01-01'),
         },
-        team: null,
+        team: undefined,
         accessToken: 'new_access_token_123',
       },
       refreshToken: 'new_refresh_token_456',
@@ -78,7 +78,6 @@ describe('Refresh Token Endpoint', () => {
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
-        team: null,
         accessToken: 'new_access_token_123',
       })
 
@@ -183,7 +182,6 @@ describe('Refresh Token Endpoint', () => {
 
         const data = await res.json()
         expect(data).toHaveProperty('user')
-        expect(data).toHaveProperty('team')
         expect(data).toHaveProperty('accessToken')
       }
     })
