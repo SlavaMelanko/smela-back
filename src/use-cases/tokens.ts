@@ -1,9 +1,9 @@
 import type { Database, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { refreshTokenRepo } from '@/data'
+import { refreshTokenRepo, tokenRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
-import { generateHashedToken, TokenType } from '@/security/token'
+import { generateHashedToken, TokenType, TokenValidator } from '@/security/token'
 
 export const createAccessToken = async (user: User) => signJwt({
   id: user.id,
@@ -30,4 +30,10 @@ export const createRefreshToken = async (
   }, tx)
 
   return raw
+}
+
+export const validateOneTimeToken = async (token: string, type: TokenType) => {
+  const tokenRecord = await tokenRepo.findByToken(token)
+
+  return TokenValidator.validate(tokenRecord, type)
 }

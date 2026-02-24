@@ -3,26 +3,20 @@ import type { DeviceInfo } from '@/net/http/device'
 import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
-import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { TokenStatus, TokenType } from '@/security/token'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
 
 export interface ResetPasswordParams {
   token: string
   password: string
 }
 
-const validateToken = async (token: string) => {
-  const tokenRecord = await tokenRepo.findByToken(token)
-
-  return TokenValidator.validate(tokenRecord, TokenType.PasswordReset)
-}
-
 const resetPassword = async (
   { token, password }: ResetPasswordParams,
   deviceInfo: DeviceInfo,
 ) => {
-  const validatedToken = await validateToken(token)
+  const validatedToken = await validateOneTimeToken(token, TokenType.PasswordReset)
 
   await db.transaction(async (tx) => {
     // Mark token as used

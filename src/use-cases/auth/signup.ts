@@ -9,7 +9,7 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { AuthProvider, Status } from '@/types'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken } from '../tokens'
 
 export interface SignupParams {
   firstName: string

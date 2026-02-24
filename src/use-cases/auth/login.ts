@@ -4,7 +4,7 @@ import { authRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { comparePasswordHashes } from '@/security/password'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken } from '../tokens'
 
 export interface LoginParams {
   email: string

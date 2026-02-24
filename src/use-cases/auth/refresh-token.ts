@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { hashToken } from '@/security/token'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken } from '../tokens'
 
 const validateToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
