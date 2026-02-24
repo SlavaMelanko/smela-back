@@ -72,7 +72,7 @@ describe('resolvePermissions', () => {
     expect(result).toContain(Permission.ManageTeams)
   })
 
-  it('should strip Users and Teams permissions when hasTeam is false', async () => {
+  it('should strip Users and Teams permissions for Role.User without a team', async () => {
     mockFindUserPermissions.mockImplementation(async () => [
       { action: Action.View, resource: Resource.Users },
       { action: Action.View, resource: Resource.Admins },
@@ -82,7 +82,7 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.USER_1, Role.Owner, false)
+    const result = await resolvePermissions(testUuids.USER_1, Role.User, false)
 
     expect(result).toHaveLength(2)
     expect(result).toContain(Permission.ViewAdmins)
@@ -93,14 +93,25 @@ describe('resolvePermissions', () => {
     expect(result).not.toContain(Permission.ManageTeams)
   })
 
-  it('should return only Admins permissions when hasTeam is false', async () => {
+  it('should not strip Users and Teams permissions for Admin without a team', async () => {
     mockFindUserPermissions.mockImplementation(async () => [
-      { action: Action.View, resource: Resource.Admins },
+      { action: Action.View, resource: Resource.Users },
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
     const result = await resolvePermissions(testUuids.ADMIN_1, Role.Admin, false)
 
-    expect(result).toEqual([Permission.ViewAdmins])
+    expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
+  })
+
+  it('should not strip Users and Teams permissions for Owner without a team', async () => {
+    mockFindUserPermissions.mockImplementation(async () => [
+      { action: Action.View, resource: Resource.Users },
+      { action: Action.Manage, resource: Resource.Teams },
+    ])
+
+    const result = await resolvePermissions(testUuids.USER_1, Role.Owner, false)
+
+    expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
   })
 })
