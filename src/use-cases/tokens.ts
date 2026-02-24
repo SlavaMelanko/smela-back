@@ -32,7 +32,7 @@ export const createRefreshToken = async (
   return raw
 }
 
-export const validateStringToken = async (token: string, type: TokenType) => {
+export const validateOneTimeToken = async (token: string, type: TokenType) => {
   const tokenRecord = await tokenRepo.findByToken(token)
 
   return TokenValidator.validate(tokenRecord, type)

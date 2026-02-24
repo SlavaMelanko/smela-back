@@ -4,14 +4,14 @@ import { db, tokenRepo, userRepo } from '@/data'
 import { TokenStatus, TokenType } from '@/security/token'
 import { Status } from '@/types'
 
-import { createAccessToken, createRefreshToken, validateStringToken } from '../tokens'
+import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
 
 export interface VerifyEmailParams {
   token: string
 }
 
 const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo) => {
-  const validatedToken = await validateStringToken(token, TokenType.EmailVerification)
+  const validatedToken = await validateOneTimeToken(token, TokenType.EmailVerification)
 
   const updatedUser = await db.transaction(async (tx) => {
     // Mark token as used

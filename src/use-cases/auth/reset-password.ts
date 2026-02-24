@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType } from '@/security/token'
 
-import { createAccessToken, createRefreshToken, validateStringToken } from '../tokens'
+import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
 
 export interface ResetPasswordParams {
   token: string
@@ -16,7 +16,7 @@ const resetPassword = async (
   { token, password }: ResetPasswordParams,
   deviceInfo: DeviceInfo,
 ) => {
-  const validatedToken = await validateStringToken(token, TokenType.PasswordReset)
+  const validatedToken = await validateOneTimeToken(token, TokenType.PasswordReset)
 
   await db.transaction(async (tx) => {
     // Mark token as used

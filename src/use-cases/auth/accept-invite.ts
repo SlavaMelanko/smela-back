@@ -5,7 +5,7 @@ import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType } from '@/security/token'
 import Status from '@/types/status'
 
-import { createAccessToken, createRefreshToken, validateStringToken } from '../tokens'
+import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
 
 export interface AcceptInviteParams {
   token: string
@@ -16,7 +16,7 @@ const acceptInvite = async (
   { token, password }: AcceptInviteParams,
   deviceInfo: DeviceInfo,
 ) => {
-  const validatedToken = await validateStringToken(token, TokenType.UserInvite)
+  const validatedToken = await validateOneTimeToken(token, TokenType.UserInvite)
 
   const user = await db.transaction(async (tx) => {
     // Mark token as used
