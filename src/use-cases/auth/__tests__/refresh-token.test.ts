@@ -26,6 +26,7 @@ describe('Refresh Auth Tokens', () => {
   let mockSignJwt: any
 
   let mockLogger: any
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockRefreshToken = 'valid_refresh_token_123'
@@ -104,6 +105,12 @@ describe('Refresh Auth Tokens', () => {
     await moduleMocker.mock('@/logging', () => ({
       logger: mockLogger,
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissions: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -111,12 +118,13 @@ describe('Refresh Auth Tokens', () => {
   })
 
   describe('successful token refresh', () => {
-    it('should return new access token and refresh token for valid refresh token', async () => {
+    it('should return new access token, refresh token, and permissions for valid refresh token', async () => {
       const result = await refreshAuthTokens(mockRefreshToken, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
+      expect(result.data.permissions).toBeUndefined()
       expect(result.refreshToken).toBe('new_refresh_token_456')
       expect(result.data.user).toEqual(mockUser)
     })

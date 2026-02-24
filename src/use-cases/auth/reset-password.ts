@@ -5,7 +5,8 @@ import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType } from '@/security/token'
 
-import { createAuthTokens, validateOneTimeToken } from '../tokens'
+import { resolvePermissions } from '../resolve-permissions'
+import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
 
 export interface ResetPasswordParams {
   token: string
@@ -36,13 +37,16 @@ const resetPassword = async (
     throw new AppError(ErrorCode.InternalError, 'User not found after password reset')
   }
 
-  const [team, [accessToken, refreshToken]] = await Promise.all([
-    teamRepo.findUserTeam(user.id),
-    createAuthTokens(user, deviceInfo),
+  const team = await teamRepo.findUserTeam(user.id)
+
+  const [permissions, accessToken, refreshToken] = await Promise.all([
+    resolvePermissions(user.id, user.role, !!team),
+    createAccessToken(user),
+    createRefreshToken(user.id, deviceInfo),
   ])
 
   return {
-    data: { user, team, accessToken },
+    data: { user, team, permissions, accessToken },
     refreshToken,
   }
 }

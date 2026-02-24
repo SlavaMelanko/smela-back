@@ -4,7 +4,8 @@ import { authRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { comparePasswordHashes } from '@/security/password'
 
-import { createAuthTokens } from '../tokens'
+import { resolvePermissions } from '../resolve-permissions'
+import { createAccessToken, createRefreshToken } from '../tokens'
 
 export interface LoginParams {
   email: string
@@ -33,13 +34,16 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const [team, [accessToken, refreshToken]] = await Promise.all([
-    teamRepo.findUserTeam(user.id),
-    createAuthTokens(user, deviceInfo),
+  const team = await teamRepo.findUserTeam(user.id)
+
+  const [permissions, accessToken, refreshToken] = await Promise.all([
+    resolvePermissions(user.id, user.role, !!team),
+    createAccessToken(user),
+    createRefreshToken(user.id, deviceInfo),
   ])
 
   return {
-    data: { user, team, accessToken },
+    data: { user, team, permissions, accessToken },
     refreshToken,
   }
 }

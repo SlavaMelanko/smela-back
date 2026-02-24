@@ -3,6 +3,8 @@ import type { UpdateUserInput } from '@/data'
 import { teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
+import { resolvePermissions } from '../resolve-permissions'
+
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   return Object.fromEntries(
     Object.entries(updates).filter(([_, v]) => v !== undefined),
@@ -21,7 +23,9 @@ export const getUser = async (userId: string) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  return { user, team }
+  const permissions = await resolvePermissions(userId, user.role, !!team)
+
+  return { user, team, permissions }
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
@@ -39,5 +43,7 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     teamRepo.findUserTeam(userId),
   ])
 
-  return { user, team }
+  const permissions = await resolvePermissions(userId, user.role, !!team)
+
+  return { user, team, permissions }
 }
