@@ -1,23 +1,17 @@
 import type { DeviceInfo } from '@/net/http/device'
 
 import { db, tokenRepo, userRepo } from '@/data'
-import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { TokenStatus, TokenType } from '@/security/token'
 import { Status } from '@/types'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken, validateStringToken } from '../tokens'
 
 export interface VerifyEmailParams {
   token: string
 }
 
-const validateToken = async (token: string) => {
-  const tokenRecord = await tokenRepo.findByToken(token)
-
-  return TokenValidator.validate(tokenRecord, TokenType.EmailVerification)
-}
-
 const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo) => {
-  const validatedToken = await validateToken(token)
+  const validatedToken = await validateStringToken(token, TokenType.EmailVerification)
 
   const updatedUser = await db.transaction(async (tx) => {
     // Mark token as used

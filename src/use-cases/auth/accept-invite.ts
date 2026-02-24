@@ -2,27 +2,21 @@ import type { DeviceInfo } from '@/net/http/device'
 
 import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
 import { hashPassword } from '@/security/password'
-import { TokenStatus, TokenType, TokenValidator } from '@/security/token'
+import { TokenStatus, TokenType } from '@/security/token'
 import Status from '@/types/status'
 
-import { createAccessToken, createRefreshToken } from '../create-tokens'
+import { createAccessToken, createRefreshToken, validateStringToken } from '../tokens'
 
 export interface AcceptInviteParams {
   token: string
   password: string
 }
 
-const validateToken = async (token: string) => {
-  const tokenRecord = await tokenRepo.findByToken(token)
-
-  return TokenValidator.validate(tokenRecord, TokenType.UserInvite)
-}
-
 const acceptInvite = async (
   { token, password }: AcceptInviteParams,
   deviceInfo: DeviceInfo,
 ) => {
-  const validatedToken = await validateToken(token)
+  const validatedToken = await validateStringToken(token, TokenType.UserInvite)
 
   const user = await db.transaction(async (tx) => {
     // Mark token as used
