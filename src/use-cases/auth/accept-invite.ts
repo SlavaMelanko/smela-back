@@ -5,7 +5,7 @@ import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType } from '@/security/token'
 import Status from '@/types/status'
 
-import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
+import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
 export interface AcceptInviteParams {
   token: string
@@ -33,10 +33,9 @@ const acceptInvite = async (
     return userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
   })
 
-  const [accessToken, refreshToken, team] = await Promise.all([
-    createAccessToken(user),
-    createRefreshToken(user.id, deviceInfo),
+  const [team, [accessToken, refreshToken]] = await Promise.all([
     teamRepo.findUserTeam(user.id),
+    createAuthTokens(user, deviceInfo),
   ])
 
   return {

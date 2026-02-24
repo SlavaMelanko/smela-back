@@ -31,6 +31,7 @@ describe('Refresh Token Endpoint', () => {
           createdAt: new Date('2024-01-01'),
           updatedAt: new Date('2024-01-01'),
         },
+        team: undefined,
         accessToken: 'new_access_token_123',
       },
       refreshToken: 'new_refresh_token_456',

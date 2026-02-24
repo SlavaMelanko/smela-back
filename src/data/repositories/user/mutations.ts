@@ -52,11 +52,3 @@ export const updateUser = async (
 
   return userWithRole
 }
-
-export const deleteUser = async (email: string, tx?: Database): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .delete(usersTable)
-    .where(eq(usersTable.email, email))
-}

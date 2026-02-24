@@ -4,7 +4,7 @@ import { db, tokenRepo, userRepo } from '@/data'
 import { TokenStatus, TokenType } from '@/security/token'
 import { Status } from '@/types'
 
-import { createAccessToken, createRefreshToken, validateOneTimeToken } from '../tokens'
+import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
 export interface VerifyEmailParams {
   token: string
@@ -24,8 +24,7 @@ const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo)
     return userRepo.update(validatedToken.userId, { status: Status.Verified }, tx)
   })
 
-  const accessToken = await createAccessToken(updatedUser)
-  const refreshToken = await createRefreshToken(updatedUser.id, deviceInfo)
+  const [accessToken, refreshToken] = await createAuthTokens(updatedUser, deviceInfo)
 
   return {
     data: { user: updatedUser, accessToken },
