@@ -1,3 +1,4 @@
+import Action from './action'
 import Resource from './resource'
 
 enum Permission {
@@ -10,13 +11,13 @@ enum Permission {
 }
 
 export const getAdminDefaultPermissions = () => ({
-  [Resource.Users]: { view: true, manage: true },
-  [Resource.Teams]: { view: true, manage: true },
+  [Resource.Users]: { [Action.View]: true, [Action.Manage]: true },
+  [Resource.Teams]: { [Action.View]: true, [Action.Manage]: true },
 })
 
 export const getMemberDefaultPermissions = () => ({
-  [Resource.Users]: { view: true, manage: false },
-  [Resource.Teams]: { view: true, manage: false },
+  [Resource.Users]: { [Action.View]: true, [Action.Manage]: false },
+  [Resource.Teams]: { [Action.View]: true, [Action.Manage]: false },
 })
 
 export default Permission
