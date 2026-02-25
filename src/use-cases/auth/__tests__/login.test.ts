@@ -30,6 +30,7 @@ describe('Login with Email', () => {
   let mockCreateJwt: any
 
   let mockGenerateHashedToken: any
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockLoginParams = {
@@ -104,6 +105,12 @@ describe('Login with Email', () => {
       generateHashedToken: mockGenerateHashedToken,
       TokenType: { RefreshToken: 'refresh_token' },
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissions: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -111,13 +118,14 @@ describe('Login with Email', () => {
   })
 
   describe('successful login', () => {
-    it('should return user, team, and token for valid credentials', async () => {
+    it('should return user, team, permissions, and token for valid credentials', async () => {
       const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
       expect(result.data.team).toBeUndefined()
+      expect(result.data.permissions).toBeUndefined()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)

@@ -15,6 +15,7 @@ describe('User Me Use Cases', () => {
   let mockUserRepo: any
   let mockTeamRepo: any
   let mockTeam: UserTeamInfo | undefined
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockUser = {
@@ -43,6 +44,12 @@ describe('User Me Use Cases', () => {
       userRepo: mockUserRepo,
       teamRepo: mockTeamRepo,
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissions: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -50,15 +57,15 @@ describe('User Me Use Cases', () => {
   })
 
   describe('getUser', () => {
-    it('should return user and team undefined when user has no team', async () => {
+    it('should return user, team undefined, and permissions when user has no team', async () => {
       const result = await getUser(testUuids.USER_1)
 
-      expect(result).toEqual({ user: mockUser, team: undefined })
+      expect(result).toEqual({ user: mockUser, team: undefined, permissions: undefined })
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(testUuids.USER_1)
     })
 
-    it('should return user and team info when user belongs to a team', async () => {
+    it('should return user, team info, and permissions when user belongs to a team', async () => {
       mockTeam = {
         id: 'team-789',
         name: 'My Team',
@@ -68,7 +75,7 @@ describe('User Me Use Cases', () => {
 
       const result = await getUser(testUuids.USER_1)
 
-      expect(result).toEqual({ user: mockUser, team: mockTeam })
+      expect(result).toEqual({ user: mockUser, team: mockTeam, permissions: undefined })
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(testUuids.USER_1)
     })
 
@@ -118,10 +125,10 @@ describe('User Me Use Cases', () => {
       })
     })
 
-    it('should return current user and team when no valid updates provided', async () => {
+    it('should return current user, team, and permissions when no valid updates provided', async () => {
       const result = await updateUser(testUuids.USER_1, {})
 
-      expect(result).toEqual({ user: mockUser, team: undefined })
+      expect(result).toEqual({ user: mockUser, team: undefined, permissions: undefined })
       expect(mockUserRepo.update).not.toHaveBeenCalled()
       expect(mockUserRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
     })

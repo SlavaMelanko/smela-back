@@ -5,7 +5,8 @@ import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { hashToken } from '@/security/token'
 
-import { createAuthTokens } from '../tokens'
+import { resolvePermissions } from '../resolve-permissions'
+import { createAccessToken, createRefreshToken } from '../tokens'
 
 const validateToken = async (refreshToken: string | undefined) => {
   if (!refreshToken) {
@@ -66,17 +67,22 @@ const refreshAuthTokens = async (
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  const { accessToken, newRefreshToken } = await db.transaction(async (tx) => {
-    // Create new tokens first (OAuth 2.0 best practice)
-    const [accessToken, newRefreshToken] = await createAuthTokens(user, deviceInfo, tx)
-    // Revoke old token last to prevent user lockout on failures
-    await refreshTokenRepo.revokeByHash(hashedToken, tx)
+  const permissions = await resolvePermissions(user.id, user.role, !!team)
 
-    return { accessToken, newRefreshToken }
-  })
+  const [accessToken, newRefreshToken] = await Promise.all([
+    createAccessToken(user, permissions),
+    db.transaction(async (tx) => {
+      // Create new refresh token first (OAuth 2.0 best practice)
+      const newRefreshToken = await createRefreshToken(user.id, deviceInfo, tx)
+      // Revoke old token last to prevent user lockout on failures
+      await refreshTokenRepo.revokeByHash(hashedToken, tx)
+
+      return newRefreshToken
+    }),
+  ])
 
   return {
-    data: { user, team, accessToken },
+    data: { user, team, permissions, accessToken },
     refreshToken: newRefreshToken,
   }
 }
