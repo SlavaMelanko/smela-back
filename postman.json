@@ -676,6 +676,26 @@
           "response": []
         },
         {
+          "name": "teams/:id/members/permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/permissions",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "teams/:id/members",
           "event": [
             {
@@ -867,6 +887,37 @@
               ],
               "path": [
                 "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/permissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "permissions"
               ]
             }
           },
