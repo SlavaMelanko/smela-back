@@ -34,8 +34,11 @@ const acceptInvite = async (
     return userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
   })
 
-  const team = await teamRepo.findUserTeam(user.id)
-  const permissions = await resolvePermissions(user.id, user.role, !!team)
+  const [team, permissions] = await Promise.all([
+    teamRepo.findUserTeam(user.id),
+    resolvePermissions(user.id),
+  ])
+
   const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
 
   return {

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1771529403238,
-      "tag": "0000_stiff_piledriver",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1771578750059,
-      "tag": "0001_panoramic_norman_osborn",
+      "when": 1772040693988,
+      "tag": "0000_mixed_true_believers",
       "breakpoints": true
     }
   ]

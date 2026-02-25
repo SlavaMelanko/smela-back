@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { ActivePermissionRow } from '@/data/repositories/rbac/types'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
-import { Action, Permission, Resource, Role } from '@/types'
+import { Action, Permission, Resource } from '@/types'
 
 import { resolvePermissions } from '../resolve-permissions'
 
@@ -27,10 +27,10 @@ describe('resolvePermissions', () => {
   })
 
   it('should return undefined when user has no permissions', async () => {
-    const result = await resolvePermissions(testUuids.USER_1, Role.User, false)
+    const result = await resolvePermissions(testUuids.USER_1)
 
     expect(result).toBeUndefined()
-    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.USER_1, Role.User)
+    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.USER_1)
   })
 
   it('should map action:resource rows to typed Permission values', async () => {
@@ -39,19 +39,19 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.ADMIN_1, Role.Admin, true)
+    const result = await resolvePermissions(testUuids.ADMIN_1)
 
     expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
   })
 
-  it('should pass userId and role to the repository', async () => {
-    await resolvePermissions(testUuids.ADMIN_1, Role.Admin, false)
+  it('should pass userId to the repository', async () => {
+    await resolvePermissions(testUuids.ADMIN_1)
 
-    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1, Role.Admin)
+    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockFindUserPermissions).toHaveBeenCalledTimes(1)
   })
 
-  it('should return all permissions when multiple rows are returned and hasTeam is true', async () => {
+  it('should return all permissions when multiple rows are returned', async () => {
     mockFindUserPermissions.mockImplementation(async () => [
       { action: Action.View, resource: Resource.Users },
       { action: Action.View, resource: Resource.Admins },
@@ -61,7 +61,7 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.USER_1, Role.Owner, true)
+    const result = await resolvePermissions(testUuids.USER_1)
 
     expect(result).toHaveLength(6)
     expect(result).toContain(Permission.ViewUsers)
@@ -70,48 +70,5 @@ describe('resolvePermissions', () => {
     expect(result).toContain(Permission.ManageUsers)
     expect(result).toContain(Permission.ManageAdmins)
     expect(result).toContain(Permission.ManageTeams)
-  })
-
-  it('should strip Users and Teams permissions for Role.User without a team', async () => {
-    mockFindUserPermissions.mockImplementation(async () => [
-      { action: Action.View, resource: Resource.Users },
-      { action: Action.View, resource: Resource.Admins },
-      { action: Action.View, resource: Resource.Teams },
-      { action: Action.Manage, resource: Resource.Users },
-      { action: Action.Manage, resource: Resource.Admins },
-      { action: Action.Manage, resource: Resource.Teams },
-    ])
-
-    const result = await resolvePermissions(testUuids.USER_1, Role.User, false)
-
-    expect(result).toHaveLength(2)
-    expect(result).toContain(Permission.ViewAdmins)
-    expect(result).toContain(Permission.ManageAdmins)
-    expect(result).not.toContain(Permission.ViewUsers)
-    expect(result).not.toContain(Permission.ViewTeams)
-    expect(result).not.toContain(Permission.ManageUsers)
-    expect(result).not.toContain(Permission.ManageTeams)
-  })
-
-  it('should not strip Users and Teams permissions for Admin without a team', async () => {
-    mockFindUserPermissions.mockImplementation(async () => [
-      { action: Action.View, resource: Resource.Users },
-      { action: Action.Manage, resource: Resource.Teams },
-    ])
-
-    const result = await resolvePermissions(testUuids.ADMIN_1, Role.Admin, false)
-
-    expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
-  })
-
-  it('should not strip Users and Teams permissions for Owner without a team', async () => {
-    mockFindUserPermissions.mockImplementation(async () => [
-      { action: Action.View, resource: Resource.Users },
-      { action: Action.Manage, resource: Resource.Teams },
-    ])
-
-    const result = await resolvePermissions(testUuids.USER_1, Role.Owner, false)
-
-    expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
   })
 })

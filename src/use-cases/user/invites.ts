@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
-import { AuthProvider, Role, Status } from '@/types'
+import { AuthProvider, Status } from '@/types'
 
 export interface InviteMemberParams {
   firstName: string
@@ -63,7 +63,7 @@ export const inviteMember = async (
       invitedBy: inviterId,
     }, tx)
 
-    await rbacRepo.setUserPermissions(newUser.id, Role.User, member.permissions, tx)
+    await rbacRepo.setUserPermissions(newUser.id, member.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 

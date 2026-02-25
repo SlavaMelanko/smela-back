@@ -95,7 +95,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       invitedBy: inviterId,
     }, tx)
 
-    await rbacRepo.setUserPermissions(newAdmin.id, role, params.permissions, tx)
+    await rbacRepo.setUserPermissions(newAdmin.id, params.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
