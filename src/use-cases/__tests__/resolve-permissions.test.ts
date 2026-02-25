@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { ActivePermissionRow } from '@/data/repositories/rbac/types'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
-import { Action, Permission, Resource, Role } from '@/types'
+import { Action, Permission, Resource } from '@/types'
 
 import { resolvePermissions } from '../resolve-permissions'
 
@@ -27,10 +27,10 @@ describe('resolvePermissions', () => {
   })
 
   it('should return undefined when user has no permissions', async () => {
-    const result = await resolvePermissions(testUuids.USER_1, Role.User)
+    const result = await resolvePermissions(testUuids.USER_1)
 
     expect(result).toBeUndefined()
-    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.USER_1, Role.User)
+    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.USER_1)
   })
 
   it('should map action:resource rows to typed Permission values', async () => {
@@ -39,15 +39,15 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.ADMIN_1, Role.Admin)
+    const result = await resolvePermissions(testUuids.ADMIN_1)
 
     expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
   })
 
-  it('should pass userId and role to the repository', async () => {
-    await resolvePermissions(testUuids.ADMIN_1, Role.Admin)
+  it('should pass userId to the repository', async () => {
+    await resolvePermissions(testUuids.ADMIN_1)
 
-    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1, Role.Admin)
+    expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockFindUserPermissions).toHaveBeenCalledTimes(1)
   })
 
@@ -61,7 +61,7 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.USER_1, Role.Owner)
+    const result = await resolvePermissions(testUuids.USER_1)
 
     expect(result).toHaveLength(6)
     expect(result).toContain(Permission.ViewUsers)

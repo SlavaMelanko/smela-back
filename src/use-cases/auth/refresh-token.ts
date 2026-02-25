@@ -67,7 +67,7 @@ const refreshAuthTokens = async (
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  const permissions = await resolvePermissions(user.id, user.role)
+  const permissions = await resolvePermissions(user.id)
 
   const [accessToken, newRefreshToken] = await Promise.all([
     createAccessToken(user, permissions),
