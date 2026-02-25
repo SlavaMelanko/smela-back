@@ -4,9 +4,33 @@ import type { User } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
-import { Role, Status } from '@/types'
+import { Resource, Role, Status } from '@/types'
 
-import { getAdminHandler, getAdminsHandler } from '../handler'
+import { getAdminDefaultPermissionsHandler, getAdminHandler, getAdminsHandler } from '../handler'
+
+describe('getAdminDefaultPermissionsHandler', () => {
+  let mockJson: ReturnType<typeof mock>
+  let mockContext: { json: typeof mockJson }
+
+  beforeEach(() => {
+    mockJson = mock((data: unknown, status: number) => ({ data, status }))
+    mockContext = { json: mockJson }
+  })
+
+  it('should return default admin permissions with OK status', () => {
+    getAdminDefaultPermissionsHandler(mockContext as any, async () => {})
+
+    expect(mockJson).toHaveBeenCalledWith(
+      {
+        permissions: {
+          [Resource.Users]: { view: true, manage: true },
+          [Resource.Teams]: { view: true, manage: true },
+        },
+      },
+      HttpStatus.OK,
+    )
+  })
+})
 
 describe('ownerGetAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

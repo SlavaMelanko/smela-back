@@ -1,7 +1,16 @@
+import type { Handler } from 'hono'
+
+import type { AppContext } from '@/context'
+
 import { HttpStatus } from '@/net/http'
+import { getAdminDefaultPermissions } from '@/types'
 import { cancelAdminInvite, getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from '@/use-cases/owner'
 
 import type { CancelAdminInviteCtx, CreateAdminCtx, GetAdminCtx, GetAdminsCtx, ResendAdminInviteCtx } from './schema'
+
+export const getAdminDefaultPermissionsHandler: Handler<AppContext> = (c) => {
+  return c.json({ permissions: getAdminDefaultPermissions() }, HttpStatus.OK)
+}
 
 export const getAdminsHandler = async (c: GetAdminsCtx) => {
   const { search, statuses, page, limit } = c.req.valid('query')

@@ -7,6 +7,7 @@ import { requestValidator, teamAccessMiddleware } from '@/middleware'
 import {
   cancelMemberInviteHandler,
   createMemberHandler,
+  getMemberDefaultPermissionsHandler,
   getTeamMemberHandler,
   getTeamMembersHandler,
   resendMemberInviteHandler,
@@ -37,6 +38,13 @@ teamsMembersRoute.post(
   requestValidator('json', inviteMemberBodySchema),
   teamAccessMiddleware,
   createMemberHandler,
+)
+
+teamsMembersRoute.get(
+  '/permissions',
+  requestValidator('param', teamMembersParamsSchema),
+  teamAccessMiddleware,
+  getMemberDefaultPermissionsHandler,
 )
 
 teamsMembersRoute.get(

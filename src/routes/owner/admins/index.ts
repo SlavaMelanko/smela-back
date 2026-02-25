@@ -7,6 +7,7 @@ import { requestValidator } from '@/middleware'
 import {
   cancelAdminInviteHandler,
   createAdminHandler,
+  getAdminDefaultPermissionsHandler,
   getAdminHandler,
   getAdminsHandler,
   resendAdminInviteHandler,
@@ -31,6 +32,11 @@ ownerAdminsRoute.post(
   '/admins',
   requestValidator('json', createAdminBodySchema),
   createAdminHandler,
+)
+
+ownerAdminsRoute.get(
+  '/admins/permissions',
+  getAdminDefaultPermissionsHandler,
 )
 
 ownerAdminsRoute.get(

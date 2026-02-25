@@ -1,4 +1,9 @@
+import type { Handler } from 'hono'
+
+import type { AppContext } from '@/context'
+
 import { HttpStatus } from '@/net/http'
+import { getMemberDefaultPermissions } from '@/types'
 import {
   cancelMemberInvite,
   getTeamMember,
@@ -16,6 +21,10 @@ import type {
   TeamMembersParamsCtx,
   UpdateTeamMemberCtx,
 } from './schema'
+
+export const getMemberDefaultPermissionsHandler: Handler<AppContext> = (c) => {
+  return c.json({ permissions: getMemberDefaultPermissions() }, HttpStatus.OK)
+}
 
 export const getTeamMembersHandler = async (c: TeamMembersParamsCtx) => {
   const { teamId } = c.req.valid('param')
