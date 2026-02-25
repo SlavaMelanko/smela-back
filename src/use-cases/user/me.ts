@@ -12,9 +12,10 @@ const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
 }
 
 export const getUser = async (userId: string) => {
-  const [user, team] = await Promise.all([
+  const [user, team, permissions] = await Promise.all([
     userRepo.findById(userId),
     teamRepo.findUserTeam(userId),
+    resolvePermissions(userId),
   ])
 
   if (!user) {
@@ -22,8 +23,6 @@ export const getUser = async (userId: string) => {
     // But doesn't exist in DB
     throw new AppError(ErrorCode.InternalError)
   }
-
-  const permissions = await resolvePermissions(userId)
 
   return { user, team, permissions }
 }
@@ -35,15 +34,14 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     return getUser(userId)
   }
 
-  const [user, team] = await Promise.all([
+  const [user, team, permissions] = await Promise.all([
     userRepo.update(userId, {
       ...validUpdates,
       updatedAt: new Date(),
     }),
     teamRepo.findUserTeam(userId),
+    resolvePermissions(userId),
   ])
-
-  const permissions = await resolvePermissions(userId)
 
   return { user, team, permissions }
 }

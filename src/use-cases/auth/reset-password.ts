@@ -37,8 +37,11 @@ const resetPassword = async (
     throw new AppError(ErrorCode.InternalError, 'User not found after password reset')
   }
 
-  const team = await teamRepo.findUserTeam(user.id)
-  const permissions = await resolvePermissions(user.id)
+  const [team, permissions] = await Promise.all([
+    teamRepo.findUserTeam(user.id),
+    resolvePermissions(user.id),
+  ])
+
   const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
 
   return {
