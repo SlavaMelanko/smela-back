@@ -1,15 +1,17 @@
 import type { Database, User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
+import type { Permission } from '@/types'
 
 import { refreshTokenRepo, tokenRepo } from '@/data'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, TokenType, TokenValidator } from '@/security/token'
 
-export const createAccessToken = async (user: User) => signJwt({
+export const createAccessToken = async (user: User, permissions?: Permission[]) => signJwt({
   id: user.id,
   email: user.email,
   role: user.role,
   status: user.status,
+  permissions,
 })
 
 export const createRefreshToken = async (
@@ -35,9 +37,10 @@ export const createRefreshToken = async (
 export const createAuthTokens = async (
   user: User,
   deviceInfo: DeviceInfo,
+  permissions?: Permission[],
   tx?: Database,
 ) => Promise.all([
-  createAccessToken(user),
+  createAccessToken(user, permissions),
   createRefreshToken(user.id, deviceInfo, tx),
 ])
 
