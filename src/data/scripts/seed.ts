@@ -58,10 +58,10 @@ const seedPermissions = async () => {
 
 const assignPermissionsToRole = async ({
   role,
-  resources,
+  permissions,
 }: {
   role: Role
-  resources: Resource[]
+  permissions: { action: Action, resource: Resource }[]
 }) => {
   const [allPermissions, existingRolePermissions] = await Promise.all([
     db.select().from(permissionsTable),
@@ -70,17 +70,19 @@ const assignPermissionsToRole = async ({
 
   const permissionsToInsert: { role: Role, permissionId: number }[] = []
 
-  for (const resource of resources) {
-    const resourcePermissions = allPermissions.filter(p => p.resource === resource)
+  for (const { action, resource } of permissions) {
+    const permission = allPermissions.find(p => p.resource === resource && p.action === action)
 
-    for (const permission of resourcePermissions) {
-      const alreadyExists = existingRolePermissions.some(
-        rp => rp.role === role && rp.permissionId === permission.id,
-      )
+    if (!permission) {
+      continue
+    }
 
-      if (!alreadyExists) {
-        permissionsToInsert.push({ role, permissionId: permission.id })
-      }
+    const alreadyExists = existingRolePermissions.some(
+      rp => rp.role === role && rp.permissionId === permission.id,
+    )
+
+    if (!alreadyExists) {
+      permissionsToInsert.push({ role, permissionId: permission.id })
     }
   }
 
@@ -100,21 +102,26 @@ const assignPermissionsToRole = async ({
 const seedOwnerPermissions = async () => {
   await assignPermissionsToRole({
     role: Role.Owner,
-    resources: [Resource.Admins, Resource.Users, Resource.Teams],
+    permissions: [
+      { action: Action.View, resource: Resource.Admins },
+      { action: Action.Manage, resource: Resource.Admins },
+      { action: Action.View, resource: Resource.Users },
+      { action: Action.Manage, resource: Resource.Users },
+      { action: Action.View, resource: Resource.Teams },
+      { action: Action.Manage, resource: Resource.Teams },
+    ],
   })
 }
 
 const seedDefaultAdminPermissions = async () => {
   await assignPermissionsToRole({
     role: Role.Admin,
-    resources: [Resource.Users, Resource.Teams],
-  })
-}
-
-const seedDefaultUserPermissions = async () => {
-  await assignPermissionsToRole({
-    role: Role.User,
-    resources: [Resource.Users, Resource.Teams],
+    permissions: [
+      { action: Action.View, resource: Resource.Users },
+      { action: Action.Manage, resource: Resource.Users },
+      { action: Action.View, resource: Resource.Teams },
+      { action: Action.Manage, resource: Resource.Teams },
+    ],
   })
 }
 
@@ -314,7 +321,6 @@ const seed = async () => {
   await seedPermissions()
   await seedOwnerPermissions()
   await seedDefaultAdminPermissions()
-  await seedDefaultUserPermissions()
   await seedSystemUsers()
   const teamId = await seedTeams()
   await seedTestUsers(teamId)
