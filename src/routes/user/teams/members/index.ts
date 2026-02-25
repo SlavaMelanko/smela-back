@@ -42,6 +42,8 @@ teamsMembersRoute.post(
 
 teamsMembersRoute.get(
   '/permissions',
+  requestValidator('param', teamMembersParamsSchema),
+  teamAccessMiddleware,
   getMemberDefaultPermissionsHandler,
 )
 
