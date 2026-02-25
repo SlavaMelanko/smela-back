@@ -23,7 +23,7 @@ export const getUser = async (userId: string) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  const permissions = await resolvePermissions(userId, user.role, !!team)
+  const permissions = await resolvePermissions(userId, user.role)
 
   return { user, team, permissions }
 }
@@ -43,7 +43,7 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     teamRepo.findUserTeam(userId),
   ])
 
-  const permissions = await resolvePermissions(userId, user.role, !!team)
+  const permissions = await resolvePermissions(userId, user.role)
 
   return { user, team, permissions }
 }

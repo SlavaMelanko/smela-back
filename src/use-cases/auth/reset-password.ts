@@ -38,7 +38,7 @@ const resetPassword = async (
   }
 
   const team = await teamRepo.findUserTeam(user.id)
-  const permissions = await resolvePermissions(user.id, user.role, !!team)
+  const permissions = await resolvePermissions(user.id, user.role)
   const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
 
   return {

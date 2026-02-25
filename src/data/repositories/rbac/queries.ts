@@ -8,6 +8,12 @@ import type { ActivePermissionRow, Inviter, RolePermissionRow, UserRoleRecord } 
 import { db } from '../../clients'
 import { permissionsTable, rolePermissionsTable, userPermissionsTable, userRolesTable, usersTable } from '../../schema'
 
+export const findAllPermissions = async (
+  tx?: Database,
+): Promise<(typeof permissionsTable.$inferSelect)[]> => {
+  return (tx || db).select().from(permissionsTable)
+}
+
 export const findRolePermissions = async (
   role: Role,
   tx?: Database,
@@ -27,10 +33,11 @@ export const findRolePermissions = async (
  * Returns all permissions effectively granted to a user given their role.
  *
  * A permission is included when:
- * - The user has an explicit override (`granted = true`), or
+ * - The user has an explicit grant (`granted = true`), or
  * - No user override exists and the role has the permission by default
  *
- * Explicit revocations (`granted = false`) are excluded.
+ * Explicit revocations (`granted = false`) and unset permissions are excluded.
+ * Roles without defaults (e.g. User) rely entirely on explicit grants.
  */
 export const findUserPermissions = async (
   userId: string,
