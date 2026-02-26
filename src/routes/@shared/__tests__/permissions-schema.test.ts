@@ -1,0 +1,106 @@
+import { describe, expect, it } from 'bun:test'
+
+import Resource from '@/types/resource'
+
+import { permissionsSchema } from '../permissions-schema'
+
+describe('permissionsSchema', () => {
+  describe('valid boolean values', () => {
+    it('should accept true for both flags', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: true, manage: true } })
+
+      expect(result[Resource.Users]).toEqual({ view: true, manage: true })
+    })
+
+    it('should accept false for both flags', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: false, manage: false } })
+
+      expect(result[Resource.Users]).toEqual({ view: false, manage: false })
+    })
+
+    it('should accept mixed true/false flags', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: true, manage: false } })
+
+      expect(result[Resource.Users]).toEqual({ view: true, manage: false })
+    })
+  })
+
+  describe('null coercion', () => {
+    it('should coerce null view to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: null, manage: true } })
+
+      expect(result[Resource.Users]).toEqual({ view: false, manage: true })
+    })
+
+    it('should coerce null manage to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: true, manage: null } })
+
+      expect(result[Resource.Users]).toEqual({ view: true, manage: false })
+    })
+
+    it('should coerce both null flags to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: null, manage: null } })
+
+      expect(result[Resource.Users]).toEqual({ view: false, manage: false })
+    })
+  })
+
+  describe('undefined coercion', () => {
+    it('should coerce undefined view to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { manage: true } })
+
+      expect(result[Resource.Users]).toEqual({ view: false, manage: true })
+    })
+
+    it('should coerce undefined manage to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: true } })
+
+      expect(result[Resource.Users]).toEqual({ view: true, manage: false })
+    })
+
+    it('should coerce both undefined flags to false', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: {} })
+
+      expect(result[Resource.Users]).toEqual({ view: false, manage: false })
+    })
+  })
+
+  describe('optional resource', () => {
+    it('should allow a resource to be omitted entirely', () => {
+      const result = permissionsSchema.parse({})
+
+      expect(result[Resource.Users]).toBeUndefined()
+    })
+
+    it('should allow partial resource coverage across multiple resources', () => {
+      const result = permissionsSchema.parse({
+        [Resource.Users]: { view: true, manage: false },
+        [Resource.Teams]: { view: null },
+      })
+
+      expect(result[Resource.Users]).toEqual({ view: true, manage: false })
+      expect(result[Resource.Teams]).toEqual({ view: false, manage: false })
+      expect(result[Resource.Admins]).toBeUndefined()
+    })
+  })
+
+  describe('malformed inputs', () => {
+    it('should reject non-boolean view value', () => {
+      expect(() =>
+        permissionsSchema.parse({ [Resource.Users]: { view: 'yes', manage: true } }),
+      ).toThrow()
+    })
+
+    it('should reject non-boolean manage value', () => {
+      expect(() =>
+        permissionsSchema.parse({ [Resource.Users]: { view: true, manage: 1 } }),
+      ).toThrow()
+    })
+
+    it('should reject a non-object resource value', () => {
+      expect(() =>
+        permissionsSchema.parse({ [Resource.Users]: 'read' }),
+      ).toThrow()
+    })
+  })
+})
