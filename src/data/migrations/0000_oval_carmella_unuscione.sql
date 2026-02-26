@@ -18,16 +18,13 @@ CREATE TABLE "auth" (
 CREATE TABLE "permissions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"action" "action" NOT NULL,
-	"resource" "resource" NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"resource" "resource" NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user_permissions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" uuid NOT NULL,
-	"permission_id" integer NOT NULL,
-	"granted" boolean NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"permission_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "refresh_tokens" (

@@ -1,5 +1,5 @@
 {
-  "id": "f50676dc-b5bc-495d-85b0-35a29b64d9d8",
+  "id": "d686ace1-6c57-4ec4-8c1d-4379f4232873",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -136,13 +136,6 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
@@ -196,19 +189,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
-        },
-        "granted": {
-          "name": "granted",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {

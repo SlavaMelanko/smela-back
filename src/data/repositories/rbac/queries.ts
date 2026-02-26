@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { ActivePermissionRow, Inviter, UserRoleRecord } from './types'
@@ -23,12 +23,7 @@ export const findUserPermissions = async (
     })
     .from(userPermissionsTable)
     .innerJoin(permissionsTable, eq(permissionsTable.id, userPermissionsTable.permissionId))
-    .where(
-      and(
-        eq(userPermissionsTable.userId, userId),
-        eq(userPermissionsTable.granted, true),
-      ),
-    )
+    .where(eq(userPermissionsTable.userId, userId))
 }
 
 export const findRole = async (

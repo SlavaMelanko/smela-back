@@ -16,8 +16,8 @@ export const getAdminDefaultPermissions = () => ({
 })
 
 export const getMemberDefaultPermissions = () => ({
-  [Resource.Users]: { [Action.View]: true, [Action.Manage]: false },
-  [Resource.Teams]: { [Action.View]: true, [Action.Manage]: false },
+  [Resource.Users]: { [Action.View]: true },
+  [Resource.Teams]: { [Action.View]: true },
 })
 
 export default Permission

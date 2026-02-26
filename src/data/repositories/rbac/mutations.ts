@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 
 import type { Permissions } from '@/routes/@shared/permissions-schema'
 
@@ -32,19 +32,39 @@ export const setUserPermissions = async (
 
   const allPerms = await findAllPermissions(tx)
 
-  const overrides = allPerms
-    .filter(p => permissions[p.resource]?.[p.action] !== undefined)
-    .map(p => ({ userId, permissionId: p.id, granted: permissions[p.resource]![p.action] }))
+  const grant = async () => {
+    const toGrant = allPerms
+      .filter(p => permissions[p.resource]?.[p.action] === true)
+      .map(p => ({ userId, permissionId: p.id }))
 
-  if (overrides.length === 0) {
-    return
+    if (toGrant.length === 0) {
+      return
+    }
+
+    await executor
+      .insert(userPermissionsTable)
+      .values(toGrant)
+      .onConflictDoNothing()
   }
 
-  await executor
-    .insert(userPermissionsTable)
-    .values(overrides)
-    .onConflictDoUpdate({
-      target: [userPermissionsTable.userId, userPermissionsTable.permissionId],
-      set: { granted: sql`excluded.granted` },
-    })
+  const revoke = async () => {
+    const toRevoke = allPerms
+      .filter(p => !permissions[p.resource]?.[p.action])
+      .map(p => p.id)
+
+    if (toRevoke.length === 0) {
+      return
+    }
+
+    await executor
+      .delete(userPermissionsTable)
+      .where(
+        and(
+          eq(userPermissionsTable.userId, userId),
+          inArray(userPermissionsTable.permissionId, toRevoke),
+        ),
+      )
+  }
+
+  await Promise.all([grant(), revoke()])
 }
