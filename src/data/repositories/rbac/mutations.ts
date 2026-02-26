@@ -32,22 +32,30 @@ export const setUserPermissions = async (
 
   const allPerms = await findAllPermissions(tx)
 
-  const toGrant = allPerms
-    .filter(p => permissions[p.resource]?.[p.action] === true)
-    .map(p => ({ userId, permissionId: p.id }))
+  const grant = async () => {
+    const toGrant = allPerms
+      .filter(p => permissions[p.resource]?.[p.action] === true)
+      .map(p => ({ userId, permissionId: p.id }))
 
-  const toRevoke = allPerms
-    .filter(p => permissions[p.resource]?.[p.action] === false)
-    .map(p => p.id)
+    if (toGrant.length === 0) {
+      return
+    }
 
-  if (toGrant.length > 0) {
     await executor
       .insert(userPermissionsTable)
       .values(toGrant)
       .onConflictDoNothing()
   }
 
-  if (toRevoke.length > 0) {
+  const revoke = async () => {
+    const toRevoke = allPerms
+      .filter(p => permissions[p.resource]?.[p.action] === false)
+      .map(p => p.id)
+
+    if (toRevoke.length === 0) {
+      return
+    }
+
     await executor
       .delete(userPermissionsTable)
       .where(
@@ -57,4 +65,6 @@ export const setUserPermissions = async (
         ),
       )
   }
+
+  await Promise.all([grant(), revoke()])
 }
