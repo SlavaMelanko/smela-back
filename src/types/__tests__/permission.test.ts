@@ -28,13 +28,13 @@ describe('getMemberDefaultPermissions', () => {
   it('should grant view but not manage for users', () => {
     const permissions = getMemberDefaultPermissions()
 
-    expect(permissions[Resource.Users]).toEqual({ view: true, manage: false })
+    expect(permissions[Resource.Users]).toEqual({ view: true })
   })
 
   it('should grant view but not manage for teams', () => {
     const permissions = getMemberDefaultPermissions()
 
-    expect(permissions[Resource.Teams]).toEqual({ view: true, manage: false })
+    expect(permissions[Resource.Teams]).toEqual({ view: true })
   })
 
   it('should cover all expected resources', () => {

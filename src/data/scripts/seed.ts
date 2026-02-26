@@ -66,9 +66,9 @@ const setUserPermissions = async (
     .map(({ action, resource }) => {
       const perm = allPermissions.find(p => p.action === action && p.resource === resource)
 
-      return perm ? { userId, permissionId: perm.id, granted: true as const } : null
+      return perm ? { userId, permissionId: perm.id } : null
     })
-    .filter(Boolean) as { userId: string, permissionId: number, granted: true }[]
+    .filter(Boolean) as { userId: string, permissionId: number }[]
 
   if (toInsert.length > 0) {
     await db
