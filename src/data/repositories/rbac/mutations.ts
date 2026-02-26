@@ -49,7 +49,7 @@ export const setUserPermissions = async (
 
   const revoke = async () => {
     const toRevoke = allPerms
-      .filter(p => permissions[p.resource]?.[p.action] === false)
+      .filter(p => !permissions[p.resource]?.[p.action])
       .map(p => p.id)
 
     if (toRevoke.length === 0) {
