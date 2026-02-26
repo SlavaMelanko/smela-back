@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1772040693988,
-      "tag": "0000_mixed_true_believers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1772118438374,
-      "tag": "0001_violet_patch",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1772119000924,
-      "tag": "0002_wise_jigsaw",
+      "when": 1772119444677,
+      "tag": "0000_oval_carmella_unuscione",
       "breakpoints": true
     }
   ]
