@@ -19,3 +19,17 @@ COPY --from=install /temp/test/node_modules ./node_modules
 COPY . .
 
 CMD ["bun", "run", "test"]
+
+# Build production bundle
+FROM base AS build
+COPY --from=install /temp/test/node_modules ./node_modules
+COPY . .
+RUN bun run build
+
+# Production image — minimal, no source or devDeps
+FROM oven/bun:1.2.16-slim AS production
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+ENV NODE_ENV=production
+CMD ["bun", "dist/app.js"]
