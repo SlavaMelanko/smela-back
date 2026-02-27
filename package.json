@@ -6,8 +6,8 @@
     "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
     "reinstall": "bun clean && bun install",
     "dev": "bun --watch src/app.ts",
-    "start": "NODE_ENV=production bun src/app.ts",
-    "staging": "NODE_ENV=staging bun src/app.ts",
+    "build": "NODE_ENV=production bun build src/app.ts --outdir dist --target bun --minify",
+    "build:staging": "NODE_ENV=staging bun build src/app.ts --outdir dist --target bun --sourcemap=external",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:custom": "bun src/data/migrations/custom/run.ts",
@@ -24,8 +24,8 @@
     "tsc": "bunx tsc --noEmit",
     "check": "bun run lint && bun run tsc && bun run test",
     "emails": "email dev --dir src/emails --port 3001",
-    "build": "bun build src/app.ts --outdir dist --target bun --sourcemap=external",
     "docker:build": "docker build -t smela-back --target production .",
+    "docker:build:staging": "docker build -t smela-back-staging --target staging .",
     "docker:test": "docker build -t smela-back-test --target test . && docker run --rm smela-back-test"
   },
   "dependencies": {
