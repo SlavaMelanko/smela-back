@@ -1,8 +1,5 @@
 #!/bin/sh
 set -e
 
-# Backup environment files
-python3 scripts/backup-env.py
-
 # Run all tests before push
 bun run test
