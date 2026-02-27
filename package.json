@@ -26,7 +26,7 @@
     "emails": "email dev --dir src/emails --port 3001",
     "build": "bun build src/app.ts --outdir dist --target bun --sourcemap=external",
     "docker:build": "docker build -t smela-back --target production .",
-    "docker:test": "docker run --rm -it smela-back"
+    "docker:test": "docker build -t smela-back-test --target test . && docker run --rm smela-back-test"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",

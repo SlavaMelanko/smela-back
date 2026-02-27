@@ -17,7 +17,6 @@ RUN bun install --frozen-lockfile
 FROM base AS test
 COPY --from=install /temp/test/node_modules ./node_modules
 COPY . .
-
 CMD ["bun", "run", "test"]
 
 # Build production bundle
