@@ -216,7 +216,7 @@ const seedTestUsers = async (teamId: string) => {
     {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      email: faker.internet.email().toLowerCase(),
+      email: 'alyce96@gmail.com', // Use a consistent email for testing
       password: 'Passw0rd!',
       status: Status.Active,
       position: 'Developer',
