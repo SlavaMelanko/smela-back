@@ -22,7 +22,7 @@
     "lint": "bunx eslint --cache src",
     "lint:fix": "bunx eslint --cache --fix src",
     "tsc": "bunx tsc --noEmit",
-    "check": "bun run lint && bun run tsc && bun run test",
+    "check": "bun run lint:fix && bun run tsc && bun run test",
     "emails": "email dev --dir src/emails --port 3001",
     "docker:build": "docker build -t smela-back --target production .",
     "docker:build:staging": "docker build -t smela-back-staging --target staging .",
