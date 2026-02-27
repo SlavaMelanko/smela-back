@@ -1,5 +1,5 @@
 import { HttpStatus } from '@/net/http'
-import { createTeam, getTeams } from '@/use-cases/user'
+import { createTeam, getTeams } from '@/use-cases/admin'
 
 import type { CreateTeamCtx, GetTeamsCtx } from './schema'
 
