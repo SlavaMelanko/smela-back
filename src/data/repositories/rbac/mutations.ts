@@ -7,6 +7,7 @@ import type { CreateUserRoleInput, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
 import { userPermissionsTable, userRolesTable } from '../../schema'
+import { collapsePermissions } from './normalize'
 import { findAllPermissions } from './queries'
 
 export const assignRole = async (
@@ -29,12 +30,12 @@ export const setUserPermissions = async (
   tx?: Database,
 ): Promise<void> => {
   const executor = tx || db
-
+  const normalized = collapsePermissions(permissions)
   const allPerms = await findAllPermissions(tx)
 
   const grant = async () => {
     const toGrant = allPerms
-      .filter(p => permissions[p.resource]?.[p.action] === true)
+      .filter(p => normalized[p.resource]?.[p.action] === true)
       .map(p => ({ userId, permissionId: p.id }))
 
     if (toGrant.length === 0) {
@@ -49,7 +50,7 @@ export const setUserPermissions = async (
 
   const revoke = async () => {
     const toRevoke = allPerms
-      .filter(p => !permissions[p.resource]?.[p.action])
+      .filter(p => !normalized[p.resource]?.[p.action])
       .map(p => p.id)
 
     if (toRevoke.length === 0) {

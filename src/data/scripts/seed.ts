@@ -145,11 +145,8 @@ const seedSystemUsers = async () => {
       role: Role.Owner,
       status: Status.Active,
       permissions: [
-        { action: Action.View, resource: Resource.Admins },
         { action: Action.Manage, resource: Resource.Admins },
-        { action: Action.View, resource: Resource.Users },
         { action: Action.Manage, resource: Resource.Users },
-        { action: Action.View, resource: Resource.Teams },
         { action: Action.Manage, resource: Resource.Teams },
       ],
     },
@@ -161,9 +158,7 @@ const seedSystemUsers = async () => {
       role: Role.Admin,
       status: Status.Active,
       permissions: [
-        { action: Action.View, resource: Resource.Users },
         { action: Action.Manage, resource: Resource.Users },
-        { action: Action.View, resource: Resource.Teams },
         { action: Action.Manage, resource: Resource.Teams },
       ],
     },
@@ -221,9 +216,7 @@ const seedTestUsers = async (teamId: string) => {
       status: Status.Active,
       position: 'Developer',
       permissions: [
-        { action: Action.View, resource: Resource.Users },
         { action: Action.Manage, resource: Resource.Users },
-        { action: Action.View, resource: Resource.Teams },
         { action: Action.Manage, resource: Resource.Teams },
       ],
     },
