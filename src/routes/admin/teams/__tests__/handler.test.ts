@@ -53,7 +53,7 @@ describe('getTeamsHandler', () => {
       },
     }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
+    await moduleMocker.mock('@/use-cases/admin', () => ({
       getTeams: mockGetTeams,
     }))
   })
@@ -145,7 +145,7 @@ describe('createTeamHandler', () => {
 
     mockCreateTeam = mock(async () => ({ team: mockTeam }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
+    await moduleMocker.mock('@/use-cases/admin', () => ({
       createTeam: mockCreateTeam,
     }))
   })
