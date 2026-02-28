@@ -10,7 +10,6 @@ Layered monolithic REST API with authentication and RBAC, focused on security an
 ## 📋 Prerequisites
 
 - [Git](https://git-scm.com/) version control
-- [Python](https://www.python.org/) for Husky git hooks
 - [Docker](https://www.docker.com/) for running PostgreSQL
 - [Bun](https://bun.sh/) runtime (latest version)
 - Email service account ([Resend](https://resend.com/) for production, [Ethereal](https://ethereal.email/) for development)
