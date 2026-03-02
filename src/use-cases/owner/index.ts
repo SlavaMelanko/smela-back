@@ -1,1 +1,8 @@
-export { cancelAdminInvite, getAdmin, getAdmins, inviteAdmin, resendAdminInvite } from './admins'
+export {
+  cancelAdminInvite,
+  getAdmin,
+  getAdmins,
+  inviteAdmin,
+  resendAdminInvite,
+  updateAdmin,
+} from './admins'
