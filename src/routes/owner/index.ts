@@ -1,1 +1,1 @@
-export { default as ownerAdminsRoute } from './admins'
+export { ownerAdminsRoute } from './admins'

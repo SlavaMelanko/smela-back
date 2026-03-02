@@ -23,7 +23,7 @@ import {
   updateAdminParamsSchema,
 } from './schema'
 
-const ownerAdminsRoute = new Hono<AppContext>()
+export const ownerAdminsRoute = new Hono<AppContext>()
 
 ownerAdminsRoute.get(
   '/admins',
@@ -66,5 +66,3 @@ ownerAdminsRoute.post(
   requestValidator('param', cancelAdminInviteParamsSchema),
   cancelAdminInviteHandler,
 )
-
-export default ownerAdminsRoute
