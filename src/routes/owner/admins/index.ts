@@ -11,6 +11,7 @@ import {
   getAdminHandler,
   getAdminsHandler,
   resendAdminInviteHandler,
+  updateAdminHandler,
 } from './handler'
 import {
   cancelAdminInviteParamsSchema,
@@ -18,6 +19,8 @@ import {
   getAdminParamsSchema,
   getAdminsQuerySchema,
   resendAdminInviteParamsSchema,
+  updateAdminBodySchema,
+  updateAdminParamsSchema,
 } from './schema'
 
 const ownerAdminsRoute = new Hono<AppContext>()
@@ -43,6 +46,13 @@ ownerAdminsRoute.get(
   '/admins/:adminId',
   requestValidator('param', getAdminParamsSchema),
   getAdminHandler,
+)
+
+ownerAdminsRoute.patch(
+  '/admins/:adminId',
+  requestValidator('param', updateAdminParamsSchema),
+  requestValidator('json', updateAdminBodySchema),
+  updateAdminHandler,
 )
 
 ownerAdminsRoute.post(

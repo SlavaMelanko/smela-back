@@ -31,23 +31,6 @@ export const getAdmins = async (params: SearchParams, pagination: PaginationPara
   }
 }
 
-export const getAdmin = async (adminId: string) => {
-  const admin = await userRepo.findById(adminId)
-
-  if (!admin || admin.role !== Role.Admin) {
-    throw new AppError(ErrorCode.NotFound, 'Admin not found')
-  }
-
-  const inviters = await rbacRepo.findInviters([adminId])
-
-  return {
-    admin: {
-      ...admin,
-      inviter: inviters.get(adminId),
-    },
-  }
-}
-
 export interface AdminInvitationParams {
   firstName: string
   lastName?: string
@@ -118,6 +101,41 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
   )
 
   return { admin }
+}
+
+export const getAdmin = async (adminId: string) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  const inviters = await rbacRepo.findInviters([adminId])
+
+  return {
+    admin: {
+      ...admin,
+      inviter: inviters.get(adminId),
+    },
+  }
+}
+
+export interface UpdateAdminParams {
+  firstName?: string
+  lastName?: string
+  status?: Status
+}
+
+export const updateAdmin = async (adminId: string, params: UpdateAdminParams) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  const updatedAdmin = await userRepo.update(adminId, params)
+
+  return { admin: updatedAdmin }
 }
 
 export const resendAdminInvite = async (adminId: string, inviterId: string) => {

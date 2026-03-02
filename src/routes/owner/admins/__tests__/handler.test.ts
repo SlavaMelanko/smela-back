@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Resource, Role, Status } from '@/types'
 
-import { getAdminDefaultPermissionsHandler, getAdminHandler, getAdminsHandler } from '../handler'
+import { getAdminDefaultPermissionsHandler, getAdminHandler, getAdminsHandler, updateAdminHandler } from '../handler'
 
 describe('getAdminDefaultPermissionsHandler', () => {
   let mockJson: ReturnType<typeof mock>
@@ -185,5 +185,77 @@ describe('ownerGetAdminHandler', () => {
     })
 
     expect(getAdminHandler(mockContext)).rejects.toThrow('Admin not found')
+  })
+})
+
+describe('ownerUpdateAdminHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+
+  let mockAdmin: User
+  let mockUpdateAdmin: any
+
+  beforeEach(async () => {
+    mockAdmin = {
+      id: testUuids.ADMIN_1,
+      firstName: 'Updated',
+      lastName: 'Name',
+      email: 'admin@example.com',
+      role: Role.Admin,
+      status: Status.Active,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
+    }
+
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: {
+        valid: mock((type: string) => {
+          if (type === 'param') {
+            return { adminId: testUuids.ADMIN_1 }
+          }
+
+          return { firstName: 'Updated', lastName: 'Name' }
+        }),
+      },
+      json: mockJson,
+    }
+
+    mockUpdateAdmin = mock(async () => ({ admin: mockAdmin }))
+
+    await moduleMocker.mock('@/use-cases/owner', () => ({
+      updateAdmin: mockUpdateAdmin,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call updateAdmin with correct params and body', async () => {
+    await updateAdminHandler(mockContext)
+
+    expect(mockUpdateAdmin).toHaveBeenCalledWith(
+      testUuids.ADMIN_1,
+      { firstName: 'Updated', lastName: 'Name' },
+    )
+  })
+
+  it('should return updated admin with OK status', async () => {
+    const result = await updateAdminHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.OK)
+    expect(result.status).toBe(HttpStatus.OK)
+  })
+
+  it('should propagate error when updateAdmin throws', async () => {
+    mockUpdateAdmin.mockImplementation(async () => {
+      throw new Error('Admin not found')
+    })
+
+    expect(updateAdminHandler(mockContext)).rejects.toThrow('Admin not found')
   })
 })
