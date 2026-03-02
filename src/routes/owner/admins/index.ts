@@ -4,24 +4,13 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
+import { ownerAdminByIdRoute } from './$id'
 import {
-  cancelAdminInviteHandler,
   createAdminHandler,
   getAdminDefaultPermissionsHandler,
-  getAdminHandler,
   getAdminsHandler,
-  resendAdminInviteHandler,
-  updateAdminHandler,
 } from './handler'
-import {
-  cancelAdminInviteParamsSchema,
-  createAdminBodySchema,
-  getAdminParamsSchema,
-  getAdminsQuerySchema,
-  resendAdminInviteParamsSchema,
-  updateAdminBodySchema,
-  updateAdminParamsSchema,
-} from './schema'
+import { createAdminBodySchema, getAdminsQuerySchema } from './schema'
 
 export const ownerAdminsRoute = new Hono<AppContext>()
 
@@ -42,27 +31,4 @@ ownerAdminsRoute.get(
   getAdminDefaultPermissionsHandler,
 )
 
-ownerAdminsRoute.get(
-  '/admins/:adminId',
-  requestValidator('param', getAdminParamsSchema),
-  getAdminHandler,
-)
-
-ownerAdminsRoute.patch(
-  '/admins/:adminId',
-  requestValidator('param', updateAdminParamsSchema),
-  requestValidator('json', updateAdminBodySchema),
-  updateAdminHandler,
-)
-
-ownerAdminsRoute.post(
-  '/admins/:adminId/resend-invite',
-  requestValidator('param', resendAdminInviteParamsSchema),
-  resendAdminInviteHandler,
-)
-
-ownerAdminsRoute.post(
-  '/admins/:adminId/cancel-invite',
-  requestValidator('param', cancelAdminInviteParamsSchema),
-  cancelAdminInviteHandler,
-)
+ownerAdminsRoute.route('/admins/:adminId', ownerAdminByIdRoute)

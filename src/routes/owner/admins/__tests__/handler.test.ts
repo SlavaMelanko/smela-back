@@ -6,7 +6,8 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Resource, Role, Status } from '@/types'
 
-import { getAdminDefaultPermissionsHandler, getAdminHandler, getAdminsHandler, updateAdminHandler } from '../handler'
+import { getAdminHandler, updateAdminHandler } from '../$id/handler'
+import { getAdminDefaultPermissionsHandler, getAdminsHandler } from '../handler'
 
 describe('getAdminDefaultPermissionsHandler', () => {
   let mockJson: ReturnType<typeof mock>

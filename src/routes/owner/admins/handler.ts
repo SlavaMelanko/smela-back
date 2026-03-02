@@ -4,23 +4,9 @@ import type { AppContext } from '@/context'
 
 import { HttpStatus } from '@/net/http'
 import { getAdminDefaultPermissions } from '@/types'
-import {
-  cancelAdminInvite,
-  getAdmin,
-  getAdmins,
-  inviteAdmin,
-  resendAdminInvite,
-  updateAdmin,
-} from '@/use-cases/owner'
+import { getAdmins, inviteAdmin } from '@/use-cases/owner'
 
-import type {
-  CancelAdminInviteCtx,
-  CreateAdminCtx,
-  GetAdminCtx,
-  GetAdminsCtx,
-  ResendAdminInviteCtx,
-  UpdateAdminCtx,
-} from './schema'
+import type { CreateAdminCtx, GetAdminsCtx } from './schema'
 
 export const getAdminsHandler = async (c: GetAdminsCtx) => {
   const { search, statuses, page, limit } = c.req.valid('query')
@@ -43,38 +29,4 @@ export const createAdminHandler = async (c: CreateAdminCtx) => {
 
 export const getAdminDefaultPermissionsHandler: Handler<AppContext> = (c) => {
   return c.json({ permissions: getAdminDefaultPermissions() }, HttpStatus.OK)
-}
-
-export const getAdminHandler = async (c: GetAdminCtx) => {
-  const { adminId } = c.req.valid('param')
-
-  const result = await getAdmin(adminId)
-
-  return c.json(result, HttpStatus.OK)
-}
-
-export const updateAdminHandler = async (c: UpdateAdminCtx) => {
-  const { adminId } = c.req.valid('param')
-  const body = c.req.valid('json')
-
-  const result = await updateAdmin(adminId, body)
-
-  return c.json(result, HttpStatus.OK)
-}
-
-export const resendAdminInviteHandler = async (c: ResendAdminInviteCtx) => {
-  const { adminId } = c.req.valid('param')
-  const { id: inviterId } = c.get('user')
-
-  const result = await resendAdminInvite(adminId, inviterId)
-
-  return c.json(result, HttpStatus.OK)
-}
-
-export const cancelAdminInviteHandler = async (c: CancelAdminInviteCtx) => {
-  const { adminId } = c.req.valid('param')
-
-  const result = await cancelAdminInvite(adminId)
-
-  return c.json(result, HttpStatus.OK)
 }
