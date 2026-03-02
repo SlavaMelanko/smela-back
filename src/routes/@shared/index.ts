@@ -10,15 +10,9 @@ import { userFilterRules } from './user-filter-rules'
 export type { AppCtx, ValidatedJsonCtx, ValidatedParamCtx, ValidatedParamJsonCtx, ValidatedQueryCtx } from './handler'
 
 export {
-  type CancelMemberInviteCtx,
-  type CancelMemberInviteParams,
-  cancelMemberInviteParamsSchema,
   type InviteMemberBody,
   inviteMemberBodySchema,
   type InviteMemberCtx,
-  type ResendMemberInviteCtx,
-  type ResendMemberInviteParams,
-  resendMemberInviteParamsSchema,
   type TeamParams as TeamInvitesParams,
   teamParamsSchema as teamInvitesParamsSchema,
 } from './team-invites-schema'

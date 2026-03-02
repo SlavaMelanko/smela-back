@@ -10,7 +10,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import meRoute from '../index'
+import { meRoute } from '../index'
 
 describe('Me Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
