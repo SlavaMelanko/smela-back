@@ -37,6 +37,16 @@ export const resendAdminInviteParamsSchema = z.object({
   adminId: rules.data.id,
 })
 
+export const updateAdminBodySchema = z.object({
+  firstName: rules.data.firstName.optional(),
+  lastName: rules.data.lastName.optional(),
+  status: z.enum(Status).optional(),
+}).strict()
+
+export type UpdateAdminParams = z.infer<typeof updateAdminParamsSchema>
+export type UpdateAdminBody = z.infer<typeof updateAdminBodySchema>
+export type UpdateAdminCtx = ValidatedParamJsonCtx<UpdateAdminParams, UpdateAdminBody>
+
 export type ResendAdminInviteParams = z.infer<typeof resendAdminInviteParamsSchema>
 export type ResendAdminInviteCtx = ValidatedParamCtx<ResendAdminInviteParams>
 
@@ -50,13 +60,3 @@ export type CancelAdminInviteCtx = ValidatedParamCtx<CancelAdminInviteParams>
 export const updateAdminParamsSchema = z.object({
   adminId: rules.data.id,
 })
-
-export const updateAdminBodySchema = z.object({
-  firstName: rules.data.firstName.optional(),
-  lastName: rules.data.lastName.optional(),
-  status: z.enum(Status).optional(),
-}).strict()
-
-export type UpdateAdminParams = z.infer<typeof updateAdminParamsSchema>
-export type UpdateAdminBody = z.infer<typeof updateAdminBodySchema>
-export type UpdateAdminCtx = ValidatedParamJsonCtx<UpdateAdminParams, UpdateAdminBody>
