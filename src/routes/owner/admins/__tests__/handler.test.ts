@@ -6,8 +6,11 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Resource, Role, Status } from '@/types'
 
-import { getAdminHandler, updateAdminHandler } from '../$id/handler'
-import { getAdminDefaultPermissionsHandler, getAdminsHandler } from '../handler'
+import {
+  createAdminHandler,
+  getAdminDefaultPermissionsHandler,
+  getAdminsHandler,
+} from '../handler'
 
 describe('getAdminDefaultPermissionsHandler', () => {
   let mockJson: ReturnType<typeof mock>
@@ -33,7 +36,7 @@ describe('getAdminDefaultPermissionsHandler', () => {
   })
 })
 
-describe('ownerGetAdminsHandler', () => {
+describe('getAdminsHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   const DEFAULT_LIMIT = 25
@@ -73,12 +76,7 @@ describe('ownerGetAdminsHandler', () => {
 
     mockGetAdmins = mock(async () => ({
       data: { users: mockAdmins },
-      pagination: {
-        page: 1,
-        limit: DEFAULT_LIMIT,
-        total: 1,
-        totalPages: 1,
-      },
+      pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
     }))
 
     await moduleMocker.mock('@/use-cases/owner', () => ({
@@ -105,12 +103,7 @@ describe('ownerGetAdminsHandler', () => {
     expect(mockJson).toHaveBeenCalledWith(
       {
         users: mockAdmins,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 1,
-          totalPages: 1,
-        },
+        pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
       },
       HttpStatus.OK,
     )
@@ -126,40 +119,33 @@ describe('ownerGetAdminsHandler', () => {
   })
 })
 
-describe('ownerGetAdminHandler', () => {
+describe('createAdminHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockContext: any
   let mockJson: any
+  let mockInviteAdmin: any
 
-  let mockAdmin: User
-  let mockGetAdmin: any
+  const body = {
+    firstName: 'New',
+    lastName: 'Admin',
+    email: 'newadmin@example.com',
+    permissions: {},
+  }
 
   beforeEach(async () => {
-    mockAdmin = {
-      id: testUuids.ADMIN_1,
-      firstName: 'Admin',
-      lastName: 'User',
-      email: 'admin@example.com',
-      role: Role.Admin,
-      status: Status.Active,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    }
-
     mockJson = mock((data: any, status: number) => ({ data, status }))
 
     mockContext = {
-      req: {
-        valid: mock(() => ({ adminId: testUuids.ADMIN_1 })),
-      },
+      req: { valid: mock(() => body) },
+      get: mock(() => ({ id: testUuids.OWNER_1 })),
       json: mockJson,
     }
 
-    mockGetAdmin = mock(async () => ({ admin: mockAdmin }))
+    mockInviteAdmin = mock(async () => ({ admin: { id: testUuids.ADMIN_1, ...body } }))
 
     await moduleMocker.mock('@/use-cases/owner', () => ({
-      getAdmin: mockGetAdmin,
+      inviteAdmin: mockInviteAdmin,
     }))
   })
 
@@ -167,96 +153,27 @@ describe('ownerGetAdminHandler', () => {
     await moduleMocker.clear()
   })
 
-  it('should call getAdmin with correct admin id', async () => {
-    await getAdminHandler(mockContext)
+  it('should call inviteAdmin with body and inviter id', async () => {
+    await createAdminHandler(mockContext)
 
-    expect(mockGetAdmin).toHaveBeenCalledWith(testUuids.ADMIN_1)
+    expect(mockInviteAdmin).toHaveBeenCalledWith(body, testUuids.OWNER_1)
   })
 
-  it('should return admin with OK status', async () => {
-    const result = await getAdminHandler(mockContext)
+  it('should return created admin with CREATED status', async () => {
+    const result = await createAdminHandler(mockContext)
 
-    expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.OK)
-    expect(result.status).toBe(HttpStatus.OK)
-  })
-
-  it('should propagate error when getAdmin throws', async () => {
-    mockGetAdmin.mockImplementation(async () => {
-      throw new Error('Admin not found')
-    })
-
-    expect(getAdminHandler(mockContext)).rejects.toThrow('Admin not found')
-  })
-})
-
-describe('ownerUpdateAdminHandler', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockContext: any
-  let mockJson: any
-
-  let mockAdmin: User
-  let mockUpdateAdmin: any
-
-  beforeEach(async () => {
-    mockAdmin = {
-      id: testUuids.ADMIN_1,
-      firstName: 'Updated',
-      lastName: 'Name',
-      email: 'admin@example.com',
-      role: Role.Admin,
-      status: Status.Active,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-02'),
-    }
-
-    mockJson = mock((data: any, status: number) => ({ data, status }))
-
-    mockContext = {
-      req: {
-        valid: mock((type: string) => {
-          if (type === 'param') {
-            return { adminId: testUuids.ADMIN_1 }
-          }
-
-          return { firstName: 'Updated', lastName: 'Name' }
-        }),
-      },
-      json: mockJson,
-    }
-
-    mockUpdateAdmin = mock(async () => ({ admin: mockAdmin }))
-
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      updateAdmin: mockUpdateAdmin,
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should call updateAdmin with correct params and body', async () => {
-    await updateAdminHandler(mockContext)
-
-    expect(mockUpdateAdmin).toHaveBeenCalledWith(
-      testUuids.ADMIN_1,
-      { firstName: 'Updated', lastName: 'Name' },
+    expect(mockJson).toHaveBeenCalledWith(
+      { admin: { id: testUuids.ADMIN_1, ...body } },
+      HttpStatus.CREATED,
     )
+    expect(result.status).toBe(HttpStatus.CREATED)
   })
 
-  it('should return updated admin with OK status', async () => {
-    const result = await updateAdminHandler(mockContext)
-
-    expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.OK)
-    expect(result.status).toBe(HttpStatus.OK)
-  })
-
-  it('should propagate error when updateAdmin throws', async () => {
-    mockUpdateAdmin.mockImplementation(async () => {
-      throw new Error('Admin not found')
+  it('should propagate error when inviteAdmin throws', async () => {
+    mockInviteAdmin.mockImplementation(async () => {
+      throw new Error('Email already in use')
     })
 
-    expect(updateAdminHandler(mockContext)).rejects.toThrow('Admin not found')
+    expect(createAdminHandler(mockContext)).rejects.toThrow('Email already in use')
   })
 })
