@@ -7,12 +7,10 @@ import { requestValidator } from '@/middleware'
 import { checkInviteHandler } from './handler'
 import schema from './schema'
 
-const checkInviteRoute = new Hono<AppContext>()
+export const checkInviteRoute = new Hono<AppContext>()
 
 checkInviteRoute.get(
   '/check-invite',
   requestValidator('query', schema),
   checkInviteHandler,
 )
-
-export default checkInviteRoute

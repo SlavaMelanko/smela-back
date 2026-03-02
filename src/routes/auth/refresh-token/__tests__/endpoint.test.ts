@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import refreshTokenRoute from '../index'
+import { refreshTokenRoute } from '../index'
 
 describe('Refresh Token Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
