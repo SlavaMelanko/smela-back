@@ -7,12 +7,10 @@ import { requestValidator } from '@/middleware'
 import { resetPasswordHandler } from './handler'
 import schema from './schema'
 
-const resetPasswordRoute = new Hono<AppContext>()
+export const resetPasswordRoute = new Hono<AppContext>()
 
 resetPasswordRoute.post(
   '/reset-password',
   requestValidator('json', schema),
   resetPasswordHandler,
 )
-
-export default resetPasswordRoute

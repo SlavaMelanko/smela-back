@@ -4,8 +4,6 @@ import type { AppContext } from '@/context'
 
 import { logoutHandler } from './handler'
 
-const logout = new Hono<AppContext>()
+export const logoutRoute = new Hono<AppContext>()
 
-logout.post('/logout', logoutHandler)
-
-export default logout
+logoutRoute.post('/logout', logoutHandler)

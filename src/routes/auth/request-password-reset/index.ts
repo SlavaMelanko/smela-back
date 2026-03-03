@@ -7,7 +7,7 @@ import { captchaMiddleware, requestValidator } from '@/middleware'
 import { requestPasswordResetHandler } from './handler'
 import schema from './schema'
 
-const requestPasswordResetRoute = new Hono<AppContext>()
+export const requestPasswordResetRoute = new Hono<AppContext>()
 
 requestPasswordResetRoute.post(
   '/request-password-reset',
@@ -15,5 +15,3 @@ requestPasswordResetRoute.post(
   captchaMiddleware(),
   requestPasswordResetHandler,
 )
-
-export default requestPasswordResetRoute

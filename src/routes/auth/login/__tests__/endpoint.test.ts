@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 
-import loginRoute from '../index'
+import { loginRoute } from '../index'
 
 describe('Login Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

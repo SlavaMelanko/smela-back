@@ -7,7 +7,7 @@ import { captchaMiddleware, requestValidator } from '@/middleware'
 import { loginHandler } from './handler'
 import schema from './schema'
 
-const loginRoute = new Hono<AppContext>()
+export const loginRoute = new Hono<AppContext>()
 
 loginRoute.post(
   '/login',
@@ -15,5 +15,3 @@ loginRoute.post(
   captchaMiddleware(),
   loginHandler,
 )
-
-export default loginRoute

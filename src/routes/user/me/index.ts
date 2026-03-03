@@ -7,10 +7,8 @@ import { requestValidator } from '@/middleware'
 import { getMeHandler, updateMeHandler } from './handler'
 import updateProfileSchema from './schema'
 
-const meRoute = new Hono<AppContext>()
+export const meRoute = new Hono<AppContext>()
 
 meRoute.get('/me', getMeHandler)
 
 meRoute.patch('/me', requestValidator('json', updateProfileSchema), updateMeHandler)
-
-export default meRoute

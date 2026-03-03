@@ -1,9 +1,9 @@
 import { HttpStatus } from '@/net/http'
 import { getTeam, updateTeam } from '@/use-cases/user'
 
-import type { TeamParamsCtx, UpdateTeamCtx } from './schema'
+import type { TeamIdCtx, UpdateTeamCtx } from './schema'
 
-export const getTeamHandler = async (c: TeamParamsCtx) => {
+export const getTeamHandler = async (c: TeamIdCtx) => {
   const { teamId } = c.req.valid('param')
 
   const result = await getTeam(teamId)

@@ -4,8 +4,6 @@ import type { AppContext } from '@/context'
 
 import { refreshTokenHandler } from './handler'
 
-const refreshToken = new Hono<AppContext>()
+export const refreshTokenRoute = new Hono<AppContext>()
 
-refreshToken.post('/refresh-token', refreshTokenHandler)
-
-export default refreshToken
+refreshTokenRoute.post('/refresh-token', refreshTokenHandler)

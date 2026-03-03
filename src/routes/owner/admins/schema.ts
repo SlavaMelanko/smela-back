@@ -1,8 +1,6 @@
 import { z } from 'zod'
 
-import { Status } from '@/types'
-
-import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedParamJsonCtx, ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedJsonCtx, ValidatedQueryCtx } from '../../@shared'
 
 import { requestValidationRules as rules } from '../../@shared'
 import { permissionsSchema } from '../../@shared/permissions-schema'
@@ -25,38 +23,3 @@ export const createAdminBodySchema = z.object({
 
 export type CreateAdminBody = z.infer<typeof createAdminBodySchema>
 export type CreateAdminCtx = ValidatedJsonCtx<CreateAdminBody>
-
-export const getAdminParamsSchema = z.object({
-  adminId: rules.data.id,
-})
-
-export type GetAdminParams = z.infer<typeof getAdminParamsSchema>
-export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
-
-export const resendAdminInviteParamsSchema = z.object({
-  adminId: rules.data.id,
-})
-
-export const updateAdminBodySchema = z.object({
-  firstName: rules.data.firstName.optional(),
-  lastName: rules.data.lastName.optional(),
-  status: z.enum(Status).optional(),
-}).strict()
-
-export type UpdateAdminParams = z.infer<typeof updateAdminParamsSchema>
-export type UpdateAdminBody = z.infer<typeof updateAdminBodySchema>
-export type UpdateAdminCtx = ValidatedParamJsonCtx<UpdateAdminParams, UpdateAdminBody>
-
-export type ResendAdminInviteParams = z.infer<typeof resendAdminInviteParamsSchema>
-export type ResendAdminInviteCtx = ValidatedParamCtx<ResendAdminInviteParams>
-
-export const cancelAdminInviteParamsSchema = z.object({
-  adminId: rules.data.id,
-})
-
-export type CancelAdminInviteParams = z.infer<typeof cancelAdminInviteParamsSchema>
-export type CancelAdminInviteCtx = ValidatedParamCtx<CancelAdminInviteParams>
-
-export const updateAdminParamsSchema = z.object({
-  adminId: rules.data.id,
-})

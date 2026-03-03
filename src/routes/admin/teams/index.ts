@@ -7,7 +7,7 @@ import { requestValidator } from '@/middleware'
 import { createTeamHandler, getTeamsHandler } from './handler'
 import { createTeamBodySchema, getTeamsQuerySchema } from './schema'
 
-const adminTeamsRoute = new Hono<AppContext>()
+export const adminTeamsRoute = new Hono<AppContext>()
 
 adminTeamsRoute.get(
   '/teams',
@@ -20,5 +20,3 @@ adminTeamsRoute.post(
   requestValidator('json', createTeamBodySchema),
   createTeamHandler,
 )
-
-export default adminTeamsRoute

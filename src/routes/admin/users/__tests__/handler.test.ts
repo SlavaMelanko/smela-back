@@ -6,9 +6,9 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import { getUserHandler, getUsersHandler } from '../handler'
+import { getUsersHandler } from '../handler'
 
-describe('adminUsersHandler', () => {
+describe('getUsersHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   const DEFAULT_LIMIT = 25
@@ -49,12 +49,7 @@ describe('adminUsersHandler', () => {
 
     mockSearchUsers = mock(async () => ({
       data: { users: mockUsers },
-      pagination: {
-        page: 1,
-        limit: DEFAULT_LIMIT,
-        total: 1,
-        totalPages: 1,
-      },
+      pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
     }))
 
     await moduleMocker.mock('@/use-cases/admin', () => ({
@@ -70,7 +65,7 @@ describe('adminUsersHandler', () => {
     await getUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
-      { roles: [Role.User], statuses: undefined },
+      { search: undefined, roles: [Role.User], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
   })
@@ -81,12 +76,7 @@ describe('adminUsersHandler', () => {
     expect(mockJson).toHaveBeenCalledWith(
       {
         users: mockUsers,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 1,
-          totalPages: 1,
-        },
+        pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
       },
       HttpStatus.OK,
     )
@@ -99,68 +89,5 @@ describe('adminUsersHandler', () => {
     })
 
     expect(getUsersHandler(mockContext)).rejects.toThrow('Database connection failed')
-  })
-})
-
-describe('adminUserDetailHandler', () => {
-  const moduleMocker = new ModuleMocker(import.meta.url)
-
-  let mockContext: any
-  let mockJson: any
-
-  let mockUser: User
-  let mockGetUser: any
-
-  beforeEach(async () => {
-    mockUser = {
-      id: testUuids.USER_1,
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      role: Role.User,
-      status: Status.Active,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    }
-
-    mockJson = mock((data: any, status: number) => ({ data, status }))
-
-    mockContext = {
-      req: {
-        valid: mock(() => ({ id: testUuids.USER_1 })),
-      },
-      json: mockJson,
-    }
-
-    mockGetUser = mock(async () => ({ user: mockUser }))
-
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      getUser: mockGetUser,
-    }))
-  })
-
-  afterEach(async () => {
-    await moduleMocker.clear()
-  })
-
-  it('should call getUser with correct user id', async () => {
-    await getUserHandler(mockContext)
-
-    expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
-  })
-
-  it('should return user with OK status', async () => {
-    const result = await getUserHandler(mockContext)
-
-    expect(mockJson).toHaveBeenCalledWith({ user: mockUser }, HttpStatus.OK)
-    expect(result.status).toBe(HttpStatus.OK)
-  })
-
-  it('should propagate error when getUser throws', async () => {
-    mockGetUser.mockImplementation(async () => {
-      throw new Error('User not found')
-    })
-
-    expect(getUserHandler(mockContext)).rejects.toThrow('User not found')
   })
 })

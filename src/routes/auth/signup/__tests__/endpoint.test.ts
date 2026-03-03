@@ -7,7 +7,7 @@ import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import signupRoute from '../index'
+import { signupRoute } from '../index'
 
 describe('Signup Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

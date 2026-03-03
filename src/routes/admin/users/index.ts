@@ -4,10 +4,11 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import { getUserHandler, getUsersHandler } from './handler'
-import { getUserParamsSchema, getUsersQuerySchema } from './schema'
+import { adminUserByIdRoute } from './$id'
+import { getUsersHandler } from './handler'
+import { getUsersQuerySchema } from './schema'
 
-const adminUsersRoute = new Hono<AppContext>()
+export const adminUsersRoute = new Hono<AppContext>()
 
 adminUsersRoute.get(
   '/users',
@@ -15,10 +16,4 @@ adminUsersRoute.get(
   getUsersHandler,
 )
 
-adminUsersRoute.get(
-  '/users/:id',
-  requestValidator('param', getUserParamsSchema),
-  getUserHandler,
-)
-
-export default adminUsersRoute
+adminUsersRoute.route('/users/:id', adminUserByIdRoute)

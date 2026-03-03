@@ -6,7 +6,7 @@ import { createTestApp, get, ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
-import checkInviteRoute from '../index'
+import { checkInviteRoute } from '../index'
 
 describe('Check Invite Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

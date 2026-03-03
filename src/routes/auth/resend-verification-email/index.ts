@@ -7,7 +7,7 @@ import { captchaMiddleware, requestValidator } from '@/middleware'
 import { resendVerificationEmailHandler } from './handler'
 import schema from './schema'
 
-const resendVerificationEmailRoute = new Hono<AppContext>()
+export const resendVerificationEmailRoute = new Hono<AppContext>()
 
 resendVerificationEmailRoute.post(
   '/resend-verification-email',
@@ -15,5 +15,3 @@ resendVerificationEmailRoute.post(
   captchaMiddleware(),
   resendVerificationEmailHandler,
 )
-
-export default resendVerificationEmailRoute
