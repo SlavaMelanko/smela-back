@@ -20,15 +20,10 @@ const selectUserWithRole = (executor: Database) =>
       status: usersTable.status,
       createdAt: usersTable.createdAt,
       updatedAt: usersTable.updatedAt,
-      role: userRolesTable.role,
+      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
     })
     .from(usersTable)
     .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
-
-const toUser = (row: { role: string | null } & Record<string, unknown>): User => ({
-  ...row,
-  role: row.role ?? Role.User,
-}) as User
 
 const findUserBy = async (
   condition: ReturnType<typeof eq>,
@@ -36,10 +31,9 @@ const findUserBy = async (
 ): Promise<User | undefined> => {
   const executor = tx || db
 
-  const [row] = await selectUserWithRole(executor)
-    .where(condition)
+  const [row] = await selectUserWithRole(executor).where(condition)
 
-  return row ? toUser(row) : undefined
+  return row
 }
 
 export const findUserById = async (userId: string, tx?: Database) =>
@@ -53,15 +47,36 @@ const buildRoleCondition = (roles: Role[]) => {
     return undefined
   }
 
-  // "User" is the default role — users without a row in user_roles are regular
-  // users, so we match them via NULL.
+  // "User" is the default role — users without a row in user_roles
+  // are regular users, so we match them via NULL.
   if (roles.includes(Role.User)) {
     return isNull(userRolesTable.userId)
   }
 
-  // Elevated roles (Admin, Owner) have
-  // explicit rows and are matched with inArray
+  // Elevated roles (Admin, Owner) have explicit rows and are matched with inArray
   return inArray(userRolesTable.role, roles)
+}
+
+const buildWhereConditions = ({ search, roles, statuses }: SearchParams) => {
+  const conditions = []
+
+  const roleCondition = buildRoleCondition(roles)
+  if (roleCondition) {
+    conditions.push(roleCondition)
+  }
+
+  if (statuses && statuses.length > 0) {
+    conditions.push(inArray(usersTable.status, statuses))
+  }
+
+  if (search && search.length > 0) {
+    // Use concatenated expression to leverage GIN index (idx_users_search_trgm)
+    conditions.push(
+      sql`(id::text || ' ' || first_name || ' ' || COALESCE(last_name, '') || ' ' || email) ILIKE ${`%${search}%`}`,
+    )
+  }
+
+  return conditions.length > 0 ? and(...conditions) : undefined
 }
 
 export const search = async (
@@ -70,33 +85,8 @@ export const search = async (
   tx?: Database,
 ): Promise<SearchResult> => {
   const executor = tx || db
-  const { search, roles, statuses } = filters
   const { page, limit } = pagination
   const offset = calcOffset(pagination)
-
-  const buildWhereConditions = () => {
-    const conditions = []
-
-    const roleCondition = buildRoleCondition(roles)
-    if (roleCondition) {
-      conditions.push(roleCondition)
-    }
-
-    if (statuses && statuses.length > 0) {
-      conditions.push(inArray(usersTable.status, statuses))
-    }
-
-    if (search && search.length > 0) {
-      // Use concatenated expression to leverage GIN index (idx_users_search_trgm)
-      conditions.push(
-        sql`(id::text || ' ' || first_name || ' ' || COALESCE(last_name, '') || ' ' || email) ILIKE ${`%${search}%`}`,
-      )
-    }
-
-    return conditions.length > 0 ? and(...conditions) : undefined
-  }
-
-  const whereClause = buildWhereConditions()
 
   const searchQuery = selectUserWithRole(executor)
 
@@ -104,6 +94,8 @@ export const search = async (
     .select({ value: count() })
     .from(usersTable)
     .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+
+  const whereClause = buildWhereConditions(filters)
 
   const [rows, countResult] = await Promise.all([
     searchQuery
@@ -118,7 +110,7 @@ export const search = async (
   const totalCount = countResult[0]?.value ?? 0
 
   return {
-    users: rows.map(toUser),
+    users: rows,
     pagination: {
       page,
       limit,
