@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 
 import { AppError, ErrorCode } from '@/errors'
 import { Role } from '@/types'
@@ -7,8 +7,7 @@ import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
-import { usersTable } from '../../schema'
-import { findUserById } from './queries'
+import { userRolesTable, usersTable } from '../../schema'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -33,22 +32,32 @@ export const updateUser = async (
 ): Promise<User> => {
   const executor = tx || db
 
+  const updatedCte = executor.$with('updated').as(
+    executor
+      .update(usersTable)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(usersTable.id, userId))
+      .returning(),
+  )
+
   const [updatedUser] = await executor
-    .update(usersTable)
-    .set({ ...updates, updatedAt: new Date() })
-    .where(eq(usersTable.id, userId))
-    .returning()
+    .with(updatedCte)
+    .select({
+      id: updatedCte.id,
+      firstName: updatedCte.firstName,
+      lastName: updatedCte.lastName,
+      email: updatedCte.email,
+      status: updatedCte.status,
+      createdAt: updatedCte.createdAt,
+      updatedAt: updatedCte.updatedAt,
+      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
+    })
+    .from(updatedCte)
+    .leftJoin(userRolesTable, eq(updatedCte.id, userRolesTable.userId))
 
   if (!updatedUser) {
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')
   }
 
-  // Since role lives in a separate table - call `userRepo.findById` to get the real role.
-  const userWithRole = await findUserById(userId, tx)
-
-  if (!userWithRole) {
-    throw new AppError(ErrorCode.InternalError, 'Failed to fetch user after update')
-  }
-
-  return userWithRole
+  return updatedUser
 }
