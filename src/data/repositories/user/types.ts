@@ -13,7 +13,6 @@ export type UpdateUserInput = Partial<CreateUserInput>
 // Public-facing / API-return type
 export type User = UserRecord & {
   role: Role
-  status: Status
 }
 
 export interface SearchParams {

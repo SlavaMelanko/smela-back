@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
 
 import { Role } from '@/types'
 
@@ -42,8 +42,28 @@ export const findUserById = async (userId: string, tx?: Database) =>
 export const findUserByEmail = async (email: string, tx?: Database) =>
   findUserBy(eq(usersTable.email, email), tx)
 
-const buildWhereConditions = ({ search, statuses }: SearchParams) => {
+const buildRoleCondition = (roles: Role[]) => {
+  if (roles.length === 0) {
+    return undefined
+  }
+
+  // "User" is the default role — users without a row in user_roles
+  // are regular users, so we match them via NULL.
+  if (roles.includes(Role.User)) {
+    return isNull(userRolesTable.userId)
+  }
+
+  // Elevated roles (Admin, Owner) have explicit rows and are matched with inArray
+  return inArray(userRolesTable.role, roles)
+}
+
+const buildWhereConditions = ({ search, roles, statuses }: SearchParams) => {
   const conditions = []
+
+  const roleCondition = buildRoleCondition(roles)
+  if (roleCondition) {
+    conditions.push(roleCondition)
+  }
 
   if (statuses && statuses.length > 0) {
     conditions.push(inArray(usersTable.status, statuses))
