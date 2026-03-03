@@ -1,14 +1,5 @@
-import type { PaginationParams, TeamSearchParams } from '@/data'
-
 import { teamRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-
-export const getTeams = async (
-  params: TeamSearchParams,
-  pagination: PaginationParams,
-) => {
-  return teamRepo.search(params, pagination)
-}
 
 export const getTeam = async (teamId: string) => {
   const team = await teamRepo.find(teamId)
@@ -16,18 +7,6 @@ export const getTeam = async (teamId: string) => {
   if (!team) {
     throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
-
-  return { team }
-}
-
-export interface CreateTeamParams {
-  name: string
-  website?: string
-  description?: string
-}
-
-export const createTeam = async (params: CreateTeamParams) => {
-  const team = await teamRepo.create(params)
 
   return { team }
 }
