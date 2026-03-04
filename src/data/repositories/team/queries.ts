@@ -7,7 +7,20 @@ import type { Team, TeamMemberDetails, TeamSearchParams, TeamSearchResult, TeamW
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
-import { calcOffset } from '../pagination'
+import { buildPagination, calcOffset } from '../pagination'
+
+const buildWhereConditions = ({ search }: TeamSearchParams) => {
+  const conditions = []
+
+  if (search && search.length > 0) {
+    // Use concatenated expression to leverage GIN index (idx_teams_search_trgm)
+    conditions.push(
+      sql`(${teamsTable.id}::text || ' ' || ${teamsTable.name} || ' ' || COALESCE(${teamsTable.website}, '') || ' ' || COALESCE(${teamsTable.description}, '')) ILIKE ${`%${search}%`}`,
+    )
+  }
+
+  return and(...conditions)
+}
 
 export const searchTeams = async (
   filters: TeamSearchParams,
@@ -15,46 +28,26 @@ export const searchTeams = async (
   tx?: Database,
 ): Promise<TeamSearchResult> => {
   const executor = tx || db
-  const { search } = filters
-  const { page, limit } = pagination
-  const offset = calcOffset(pagination)
 
-  const buildWhereConditions = () => {
-    const conditions = []
+  const whereClause = buildWhereConditions(filters)
 
-    if (search && search.length > 0) {
-      // Use concatenated expression to leverage GIN index (idx_teams_search_trgm)
-      conditions.push(
-        sql`(${teamsTable.id}::text || ' ' || ${teamsTable.name} || ' ' || COALESCE(${teamsTable.website}, '') || ' ' || COALESCE(${teamsTable.description}, '')) ILIKE ${`%${search}%`}`,
-      )
-    }
-
-    return and(...conditions)
-  }
-
-  const whereClause = buildWhereConditions()
-
-  const [countResult, teams] = await Promise.all([
-    executor.select({ value: count() }).from(teamsTable).where(whereClause),
+  const [teams, countResult] = await Promise.all([
     executor
       .select()
       .from(teamsTable)
       .where(whereClause)
       .orderBy(desc(teamsTable.createdAt))
-      .limit(limit)
-      .offset(offset),
+      .limit(pagination.limit)
+      .offset(calcOffset(pagination)),
+    executor
+      .select({ value: count() })
+      .from(teamsTable)
+      .where(whereClause),
   ])
-
-  const totalCount = countResult[0]?.value ?? 0
 
   return {
     teams,
-    pagination: {
-      page,
-      limit,
-      total: totalCount,
-      totalPages: Math.ceil(totalCount / limit),
-    },
+    pagination: buildPagination(pagination, countResult),
   }
 }
 

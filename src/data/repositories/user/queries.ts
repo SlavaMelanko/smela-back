@@ -8,7 +8,7 @@ import type { SearchParams, SearchResult, User } from './types'
 
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, userRolesTable, usersTable } from '../../schema'
-import { calcOffset } from '../pagination'
+import { buildPagination, calcOffset } from '../pagination'
 
 const selectUserWithRole = (executor: Database) =>
   executor
@@ -123,8 +123,6 @@ export const search = async (
   tx?: Database,
 ): Promise<SearchResult> => {
   const executor = tx || db
-  const { page, limit } = pagination
-  const offset = calcOffset(pagination)
 
   const searchQuery = selectUserWithRoleAndTeam(executor)
 
@@ -135,25 +133,18 @@ export const search = async (
 
   const whereClause = buildWhereConditions(filters)
 
-  const [rows, countResult] = await Promise.all([
+  const [users, countResult] = await Promise.all([
     searchQuery
       .where(whereClause)
       .orderBy(desc(usersTable.createdAt))
-      .limit(limit)
-      .offset(offset),
+      .limit(pagination.limit)
+      .offset(calcOffset(pagination)),
     countQuery
       .where(whereClause),
   ])
 
-  const totalCount = countResult[0]?.value ?? 0
-
   return {
-    users: rows.map(({ team, ...user }) => team?.id != null ? { ...user, team } : user),
-    pagination: {
-      page,
-      limit,
-      total: totalCount,
-      totalPages: Math.ceil(totalCount / limit),
-    },
+    users: users.map(({ team, ...user }) => team?.id ? { ...user, team } : user),
+    pagination: buildPagination(pagination, countResult),
   }
 }
