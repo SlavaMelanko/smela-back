@@ -60,6 +60,23 @@ const findUserBy = async (
 export const findUserById = async (userId: string, tx?: Database) =>
   findUserBy(eq(usersTable.id, userId), tx)
 
+export const findUserByIdWithTeam = async (
+  userId: string,
+  tx?: Database,
+): Promise<User | undefined> => {
+  const executor = tx || db
+
+  const [row] = await selectUserWithRoleAndTeam(executor).where(eq(usersTable.id, userId))
+
+  if (!row) {
+    return undefined
+  }
+
+  const { team, ...user } = row
+
+  return team?.id != null ? { ...user, team } : user
+}
+
 export const findUserByEmail = async (email: string, tx?: Database) =>
   findUserBy(eq(usersTable.email, email), tx)
 
