@@ -25,7 +25,7 @@ export const searchTeams = async (
     if (search && search.length > 0) {
       // Use concatenated expression to leverage GIN index (idx_teams_search_trgm)
       conditions.push(
-        sql`(id::text || ' ' || name || ' ' || COALESCE(website, '') || ' ' || COALESCE(description, '')) ILIKE ${`%${search}%`}`,
+        sql`(${teamsTable.id}::text || ' ' || ${teamsTable.name} || ' ' || COALESCE(${teamsTable.website}, '') || ' ' || COALESCE(${teamsTable.description}, '')) ILIKE ${`%${search}%`}`,
       )
     }
 

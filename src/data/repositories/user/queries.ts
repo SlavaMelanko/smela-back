@@ -110,7 +110,7 @@ const buildWhereConditions = ({ search, roles, statuses }: SearchParams) => {
   if (search && search.length > 0) {
     // Use concatenated expression to leverage GIN index (idx_users_search_trgm)
     conditions.push(
-      sql`(id::text || ' ' || first_name || ' ' || COALESCE(last_name, '') || ' ' || email) ILIKE ${`%${search}%`}`,
+      sql`(${usersTable.id}::text || ' ' || ${usersTable.firstName} || ' ' || COALESCE(${usersTable.lastName}, '') || ' ' || ${usersTable.email}) ILIKE ${`%${search}%`}`,
     )
   }
 
