@@ -15,8 +15,9 @@ Custom SQL migrations that extend Drizzle ORM's auto-generated migrations.
 The query expression must exactly match the index expression:
 
 - Index: see `0000_search_indexes.sql`
-- Query: `src/data/repositories/user/queries.ts` (search function)
+- Queries: `src/data/repositories/user/queries.ts`, `src/data/repositories/team/queries.ts`
 - To add a searchable column, update both the migration AND the query
+- Raw SQL expressions must use table-qualified column references (e.g. `usersTable.id`) to avoid ambiguity when joins are present
 
 ### Capabilities
 
