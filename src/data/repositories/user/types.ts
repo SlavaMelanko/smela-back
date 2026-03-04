@@ -10,9 +10,15 @@ export type UserRecord = typeof usersTable.$inferSelect
 export type CreateUserInput = typeof usersTable.$inferInsert
 export type UpdateUserInput = Partial<CreateUserInput>
 
+export interface TeamInfo {
+  id: string
+  name: string
+}
+
 // Public-facing / API-return type
 export type User = UserRecord & {
   role: Role
+  team?: TeamInfo
 }
 
 export interface SearchParams {

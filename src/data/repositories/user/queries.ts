@@ -7,7 +7,7 @@ import type { PaginationParams } from '../pagination'
 import type { SearchParams, SearchResult, User } from './types'
 
 import { db } from '../../clients'
-import { userRolesTable, usersTable } from '../../schema'
+import { teamMembersTable, teamsTable, userRolesTable, usersTable } from '../../schema'
 import { calcOffset } from '../pagination'
 
 const selectUserWithRole = (executor: Database) =>
@@ -24,6 +24,27 @@ const selectUserWithRole = (executor: Database) =>
     })
     .from(usersTable)
     .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+
+const selectUserWithRoleAndTeam = (executor: Database) =>
+  executor
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      status: usersTable.status,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
+      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
+      team: {
+        id: teamsTable.id,
+        name: teamsTable.name,
+      },
+    })
+    .from(usersTable)
+    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+    .leftJoin(teamMembersTable, eq(usersTable.id, teamMembersTable.userId))
+    .leftJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
 
 const findUserBy = async (
   condition: ReturnType<typeof eq>,
@@ -88,7 +109,7 @@ export const search = async (
   const { page, limit } = pagination
   const offset = calcOffset(pagination)
 
-  const searchQuery = selectUserWithRole(executor)
+  const searchQuery = selectUserWithRoleAndTeam(executor)
 
   const countQuery = executor
     .select({ value: count() })
@@ -110,7 +131,7 @@ export const search = async (
   const totalCount = countResult[0]?.value ?? 0
 
   return {
-    users: rows,
+    users: rows.map(({ team, ...user }) => team?.id != null ? { ...user, team } : user),
     pagination: {
       page,
       limit,
