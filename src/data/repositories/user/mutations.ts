@@ -7,7 +7,7 @@ import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
-import { userRolesTable, usersTable } from '../../schema'
+import { userRoleTable, usersTable } from '../../schema'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -50,10 +50,10 @@ export const updateUser = async (
       status: updatedCte.status,
       createdAt: updatedCte.createdAt,
       updatedAt: updatedCte.updatedAt,
-      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
+      role: sql<Role>`COALESCE(${userRoleTable.role}, ${Role.User})`,
     })
     .from(updatedCte)
-    .leftJoin(userRolesTable, eq(updatedCte.id, userRolesTable.userId))
+    .leftJoin(userRoleTable, eq(updatedCte.id, userRoleTable.userId))
 
   if (!updatedUser) {
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')

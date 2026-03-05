@@ -1,10 +1,10 @@
 import type { Role } from '@/types'
 
-import type { permissionsTable, userPermissionsTable, userRolesTable } from '../../schema'
+import type { permissionsTable, userPermissionsTable, userRoleTable } from '../../schema'
 
 // Database types
 export type UserPermissionRecord = typeof userPermissionsTable.$inferSelect
-export type UserRoleRecord = typeof userRolesTable.$inferSelect
+export type UserRoleRecord = typeof userRoleTable.$inferSelect
 
 // Input types for create / update / delete / etc
 export interface CreateUserRoleInput {

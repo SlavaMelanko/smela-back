@@ -4,7 +4,7 @@ import { teamRepo } from '@/data'
 
 export interface CreateTeamParams {
   name: string
-  website?: string
+  website: string
   description?: string
 }
 

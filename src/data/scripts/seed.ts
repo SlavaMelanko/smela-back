@@ -16,7 +16,7 @@ import { hashPassword } from '@/security/password'
 import { Action, AuthProvider, Resource, Role, Status } from '@/types'
 
 import { db } from '../clients'
-import { authTable, permissionsTable, teamMembersTable, teamsTable, userPermissionsTable, userRolesTable, usersTable } from '../schema'
+import { authTable, permissionsTable, teamMembersTable, teamsTable, userPermissionsTable, userRoleTable, usersTable } from '../schema'
 
 // Seed faker for consistent data across runs
 faker.seed(42)
@@ -194,7 +194,7 @@ const seedSystemUsers = async () => {
       passwordHash: hashedPassword,
     })
 
-    await db.insert(userRolesTable).values({
+    await db.insert(userRoleTable).values({
       userId: createdUser.id,
       role: user.role,
     })

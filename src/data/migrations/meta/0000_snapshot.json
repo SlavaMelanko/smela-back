@@ -1,5 +1,5 @@
 {
-  "id": "d686ace1-6c57-4ec4-8c1d-4379f4232873",
+  "id": "57d0f1a9-ccbc-4068-8963-e3c4dc1c4e90",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -300,13 +300,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
@@ -550,7 +543,7 @@
           "name": "website",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "description": {
           "name": "description",
@@ -576,15 +569,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "teams_website_unique": {
-          "name": "teams_website_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "website"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -640,7 +625,7 @@
         },
         "metadata": {
           "name": "metadata",
-          "type": "json",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -653,8 +638,8 @@
         }
       },
       "indexes": {
-        "user_type_index": {
-          "name": "user_type_index",
+        "tokens_user_id_type_index": {
+          "name": "tokens_user_id_type_index",
           "columns": [
             {
               "expression": "user_id",
@@ -725,8 +710,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.user_roles": {
-      "name": "user_roles",
+    "public.user_role": {
+      "name": "user_role",
       "schema": "",
       "columns": {
         "user_id": {
@@ -758,9 +743,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_roles_user_id_users_id_fk": {
-          "name": "user_roles_user_id_users_id_fk",
-          "tableFrom": "user_roles",
+        "user_role_user_id_users_id_fk": {
+          "name": "user_role_user_id_users_id_fk",
+          "tableFrom": "user_role",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -771,9 +756,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "user_roles_invited_by_users_id_fk": {
-          "name": "user_roles_invited_by_users_id_fk",
-          "tableFrom": "user_roles",
+        "user_role_invited_by_users_id_fk": {
+          "name": "user_role_invited_by_users_id_fk",
+          "tableFrom": "user_role",
           "tableTo": "users",
           "columnsFrom": [
             "invited_by"

@@ -4,7 +4,7 @@ import type { Database } from '../../clients'
 import type { ActivePermissionRow, Inviter, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
-import { permissionsTable, userPermissionsTable, userRolesTable, usersTable } from '../../schema'
+import { permissionsTable, userPermissionsTable, userRoleTable, usersTable } from '../../schema'
 import { expandPermissions } from './normalize'
 
 export const findAllPermissions = async (
@@ -37,8 +37,8 @@ export const findRole = async (
 
   const [found] = await executor
     .select()
-    .from(userRolesTable)
-    .where(eq(userRolesTable.userId, userId))
+    .from(userRoleTable)
+    .where(eq(userRoleTable.userId, userId))
 
   return found
 }
@@ -54,14 +54,14 @@ export const findInviters = async (
   const executor = tx || db
   const rows = await executor
     .select({
-      userId: userRolesTable.userId,
+      userId: userRoleTable.userId,
       inviterId: usersTable.id,
       firstName: usersTable.firstName,
       lastName: usersTable.lastName,
     })
-    .from(userRolesTable)
-    .innerJoin(usersTable, eq(userRolesTable.invitedBy, usersTable.id))
-    .where(inArray(userRolesTable.userId, userIds))
+    .from(userRoleTable)
+    .innerJoin(usersTable, eq(userRoleTable.invitedBy, usersTable.id))
+    .where(inArray(userRoleTable.userId, userIds))
 
   return new Map(rows.map(r => [r.userId, {
     id: r.inviterId,
