@@ -134,7 +134,7 @@ describe('Accept Invite', () => {
     mockResolvePermissions = mock(async () => undefined)
 
     await moduleMocker.mock('../../resolve-permissions', () => ({
-      resolvePermissions: mockResolvePermissions,
+      resolvePermissionList: mockResolvePermissions,
     }))
   })
 

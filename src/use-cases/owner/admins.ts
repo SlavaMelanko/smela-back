@@ -8,6 +8,7 @@ import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
+import { resolvePermissionMap } from '@/use-cases/resolve-permissions'
 
 const normalizeRoles = (params: SearchParams): SearchParams => ({
   ...params,
@@ -191,4 +192,28 @@ export const cancelAdminInvite = async (adminId: string) => {
   })
 
   return { success: true }
+}
+
+export const getAdminPermissions = async (adminId: string) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  const permissions = await resolvePermissionMap(adminId)
+
+  return { permissions }
+}
+
+export const updateAdminPermissions = async (adminId: string, permissions: Permissions) => {
+  const admin = await userRepo.findById(adminId)
+
+  if (!admin || admin.role !== Role.Admin) {
+    throw new AppError(ErrorCode.NotFound, 'Admin not found')
+  }
+
+  await rbacRepo.setUserPermissions(adminId, permissions)
+
+  return { permissions }
 }

@@ -3,7 +3,7 @@ import type { UpdateUserInput } from '@/data'
 import { teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
-import { resolvePermissions } from '../resolve-permissions'
+import { resolvePermissionList } from '../resolve-permissions'
 
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   return Object.fromEntries(
@@ -15,7 +15,7 @@ export const getUser = async (userId: string) => {
   const [user, team, permissions] = await Promise.all([
     userRepo.findById(userId),
     teamRepo.findUserTeam(userId),
-    resolvePermissions(userId),
+    resolvePermissionList(userId),
   ])
 
   if (!user) {
@@ -40,7 +40,7 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
       updatedAt: new Date(),
     }),
     teamRepo.findUserTeam(userId),
-    resolvePermissions(userId),
+    resolvePermissionList(userId),
   ])
 
   return { user, team, permissions }

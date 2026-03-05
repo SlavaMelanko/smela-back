@@ -130,7 +130,7 @@ describe('Reset Password', () => {
     mockResolvePermissions = mock(async () => undefined)
 
     await moduleMocker.mock('../../resolve-permissions', () => ({
-      resolvePermissions: mockResolvePermissions,
+      resolvePermissionList: mockResolvePermissions,
     }))
   })
 
