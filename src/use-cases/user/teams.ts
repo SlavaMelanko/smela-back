@@ -13,7 +13,7 @@ export const getTeam = async (teamId: string) => {
 
 export interface UpdateTeamParams {
   name?: string
-  website?: string | null
+  website?: string
   description?: string | null
 }
 

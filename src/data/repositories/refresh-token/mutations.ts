@@ -28,10 +28,7 @@ export const revokeByHash = async (
 
   const result = await executor
     .update(refreshTokensTable)
-    .set({
-      revokedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set({ revokedAt: new Date() })
     .where(
       and(
         eq(refreshTokensTable.tokenHash, hash),
@@ -51,10 +48,7 @@ export const revokeAllUserTokens = async (
 
   await executor
     .update(refreshTokensTable)
-    .set({
-      revokedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set({ revokedAt: new Date() })
     .where(
       and(
         eq(refreshTokensTable.userId, userId),

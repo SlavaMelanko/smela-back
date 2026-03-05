@@ -23,7 +23,7 @@ export type TeamParamsCtx = ValidatedParamCtx<TeamParams>
 
 export const createTeamBodySchema = z.object({
   name: teamRules.name,
-  website: teamRules.website.optional(),
+  website: teamRules.website,
   description: teamRules.description.optional(),
 })
 
@@ -32,7 +32,7 @@ export type CreateTeamCtx = ValidatedJsonCtx<CreateTeamBody>
 
 export const updateTeamBodySchema = z.object({
   name: teamRules.name.optional(),
-  website: teamRules.website.nullish(),
+  website: teamRules.website.optional(),
   description: teamRules.description.nullish(),
 })
 

@@ -36,7 +36,6 @@ CREATE TABLE "refresh_tokens" (
 	"expires_at" timestamp with time zone NOT NULL,
 	"revoked_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "refresh_tokens_token_hash_unique" UNIQUE("token_hash")
 );
 --> statement-breakpoint
@@ -52,11 +51,10 @@ CREATE TABLE "team_members" (
 CREATE TABLE "teams" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"website" varchar(255),
+	"website" varchar(255) NOT NULL,
 	"description" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "teams_website_unique" UNIQUE("website")
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "tokens" (
@@ -67,12 +65,12 @@ CREATE TABLE "tokens" (
 	"token" text NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
 	"used_at" timestamp with time zone,
-	"metadata" json,
+	"metadata" jsonb,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "tokens_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
-CREATE TABLE "user_roles" (
+CREATE TABLE "user_role" (
 	"user_id" uuid PRIMARY KEY NOT NULL,
 	"role" "role" NOT NULL,
 	"invited_by" uuid,
@@ -98,8 +96,8 @@ ALTER TABLE "team_members" ADD CONSTRAINT "team_members_user_id_users_id_fk" FOR
 ALTER TABLE "team_members" ADD CONSTRAINT "team_members_team_id_teams_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."teams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team_members" ADD CONSTRAINT "team_members_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_role" ADD CONSTRAINT "user_role_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_role" ADD CONSTRAINT "user_role_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_auth" ON "auth" USING btree ("provider","identifier");--> statement-breakpoint
 CREATE INDEX "auth_user_id_index" ON "auth" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "unique_permission" ON "permissions" USING btree ("action","resource");--> statement-breakpoint
@@ -109,5 +107,5 @@ CREATE INDEX "refresh_tokens_cleanup_index" ON "refresh_tokens" USING btree ("ex
 CREATE UNIQUE INDEX "unique_team_member" ON "team_members" USING btree ("user_id","team_id");--> statement-breakpoint
 CREATE INDEX "team_members_team_index" ON "team_members" USING btree ("team_id");--> statement-breakpoint
 CREATE INDEX "team_members_user_index" ON "team_members" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "user_type_index" ON "tokens" USING btree ("user_id","type");--> statement-breakpoint
+CREATE INDEX "tokens_user_id_type_index" ON "tokens" USING btree ("user_id","type");--> statement-breakpoint
 CREATE INDEX "tokens_status_expires_index" ON "tokens" USING btree ("status","expires_at");

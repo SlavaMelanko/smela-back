@@ -6,7 +6,7 @@ import type { Database } from '../../clients'
 import type { CreateUserRoleInput, UserRoleRecord } from './types'
 
 import { db } from '../../clients'
-import { userPermissionsTable, userRolesTable } from '../../schema'
+import { userPermissionsTable, userRoleTable } from '../../schema'
 import { collapsePermissions } from './normalize'
 import { findAllPermissions } from './queries'
 
@@ -17,7 +17,7 @@ export const assignRole = async (
   const executor = tx || db
 
   const [created] = await executor
-    .insert(userRolesTable)
+    .insert(userRoleTable)
     .values(input)
     .returning()
 

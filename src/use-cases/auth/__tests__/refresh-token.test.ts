@@ -57,7 +57,6 @@ describe('Refresh Auth Tokens', () => {
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       revokedAt: null,
       createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
     }
     mockRefreshTokenRepo = {
       findByHash: mock(async () => mockStoredToken),

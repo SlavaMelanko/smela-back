@@ -7,7 +7,7 @@ import type { PaginationParams } from '../pagination'
 import type { SearchParams, SearchResult, User } from './types'
 
 import { db } from '../../clients'
-import { teamMembersTable, teamsTable, userRolesTable, usersTable } from '../../schema'
+import { teamMembersTable, teamsTable, userRoleTable, usersTable } from '../../schema'
 import { buildPagination, calcOffset } from '../pagination'
 
 const selectUserWithRole = (executor: Database) =>
@@ -20,10 +20,10 @@ const selectUserWithRole = (executor: Database) =>
       status: usersTable.status,
       createdAt: usersTable.createdAt,
       updatedAt: usersTable.updatedAt,
-      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
+      role: sql<Role>`COALESCE(${userRoleTable.role}, ${Role.User})`,
     })
     .from(usersTable)
-    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+    .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
 
 const selectUserWithRoleAndTeam = (executor: Database) =>
   executor
@@ -35,14 +35,14 @@ const selectUserWithRoleAndTeam = (executor: Database) =>
       status: usersTable.status,
       createdAt: usersTable.createdAt,
       updatedAt: usersTable.updatedAt,
-      role: sql<Role>`COALESCE(${userRolesTable.role}, ${Role.User})`,
+      role: sql<Role>`COALESCE(${userRoleTable.role}, ${Role.User})`,
       team: {
         id: teamsTable.id,
         name: teamsTable.name,
       },
     })
     .from(usersTable)
-    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+    .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
     .leftJoin(teamMembersTable, eq(usersTable.id, teamMembersTable.userId))
     .leftJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
 
@@ -85,14 +85,14 @@ const buildRoleCondition = (roles: Role[]) => {
     return undefined
   }
 
-  // "User" is the default role — users without a row in user_roles
+  // "User" is the default role — users without a row in user_role
   // are regular users, so we match them via NULL.
   if (roles.includes(Role.User)) {
-    return isNull(userRolesTable.userId)
+    return isNull(userRoleTable.userId)
   }
 
   // Elevated roles (Admin, Owner) have explicit rows and are matched with inArray
-  return inArray(userRolesTable.role, roles)
+  return inArray(userRoleTable.role, roles)
 }
 
 const buildWhereConditions = ({ search, roles, statuses }: SearchParams) => {
@@ -129,7 +129,7 @@ export const search = async (
   const countQuery = executor
     .select({ value: count() })
     .from(usersTable)
-    .leftJoin(userRolesTable, eq(usersTable.id, userRolesTable.userId))
+    .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
 
   const whereClause = buildWhereConditions(filters)
 

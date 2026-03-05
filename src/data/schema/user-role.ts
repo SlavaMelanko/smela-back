@@ -9,7 +9,7 @@ import type { Role } from '@/types'
 import { roleEnum } from './rbac'
 import { usersTable } from './users'
 
-export const userRolesTable = pgTable('user_roles', {
+export const userRoleTable = pgTable('user_role', {
   userId: uuid('user_id').primaryKey().references(() => usersTable.id, { onDelete: 'cascade' }),
   role: roleEnum('role').notNull().$type<Role>(),
   invitedBy: uuid('invited_by').references(() => usersTable.id, { onDelete: 'set null' }),

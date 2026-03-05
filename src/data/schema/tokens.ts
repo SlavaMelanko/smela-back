@@ -1,6 +1,6 @@
 import {
   index,
-  json,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -24,9 +24,9 @@ export const tokensTable = pgTable('tokens', {
   token: text('token').notNull().unique(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   usedAt: timestamp('used_at', { withTimezone: true }),
-  metadata: json('metadata'),
+  metadata: jsonb('metadata'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => [
-  index('user_type_index').on(table.userId, table.type),
+  index('tokens_user_id_type_index').on(table.userId, table.type),
   index('tokens_status_expires_index').on(table.status, table.expiresAt),
 ])
