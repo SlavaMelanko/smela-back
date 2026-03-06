@@ -16,11 +16,18 @@ export const resolvePermissionList = async (
 
 // Builds a permission matrix keyed by resource, e.g.
 // {
-//   users: { view: true, manage: true },
-//   teams: { view: true },
+//   users: {
+//     view: true,
+//     manage: true
+//   },
+//   teams: {
+//     view: true
+//   },
 // }
+//
 // Suitable for frontend permission grids where resource is the row
 // and actions (view, manage) are the columns with switches.
+//
 // Pass a baseline (all-false map) to get a complete map with unset permissions as false:
 // {
 //   users: {
@@ -29,7 +36,7 @@ export const resolvePermissionList = async (
 //   },
 //   teams: {
 //     view: true,
-//     manage: false
+//     manage: false // <-- explicitly false instead of missing key
 //   },
 // }
 export const resolvePermissionMap = async (
