@@ -2,7 +2,7 @@ import type { Permission } from '@/types'
 
 import { rbacRepo } from '@/data'
 
-export const resolvePermissions = async (
+export const resolvePermissionList = async (
   userId: string,
 ): Promise<Permission[] | undefined> => {
   const rows = await rbacRepo.findUserPermissions(userId)

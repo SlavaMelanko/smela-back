@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { hashPassword } from '@/security/password'
 import { TokenStatus, TokenType } from '@/security/token'
 
-import { resolvePermissions } from '../resolve-permissions'
+import { resolvePermissionList } from '../resolve-permissions'
 import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
 export interface ResetPasswordParams {
@@ -39,7 +39,7 @@ const resetPassword = async (
 
   const [team, permissions] = await Promise.all([
     teamRepo.findUserTeam(user.id),
-    resolvePermissions(user.id),
+    resolvePermissionList(user.id),
   ])
 
   const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
