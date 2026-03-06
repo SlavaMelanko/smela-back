@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { logger } from '@/logging'
 import { hashToken } from '@/security/token'
 
-import { resolvePermissions } from '../resolve-permissions'
+import { resolvePermissionList } from '../resolve-permissions'
 import { createAccessToken, createRefreshToken } from '../tokens'
 
 const validateToken = async (refreshToken: string | undefined) => {
@@ -67,7 +67,7 @@ const refreshAuthTokens = async (
 
   validateDevice(storedToken, deviceInfo, user.id)
 
-  const permissions = await resolvePermissions(user.id)
+  const permissions = await resolvePermissionList(user.id)
 
   const [accessToken, newRefreshToken] = await Promise.all([
     createAccessToken(user, permissions),

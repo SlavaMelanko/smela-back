@@ -5,9 +5,9 @@ import type { ActivePermissionRow } from '@/data/repositories/rbac/types'
 import { ModuleMocker, testUuids } from '@/__tests__'
 import { Action, Permission, Resource } from '@/types'
 
-import { resolvePermissions } from '../resolve-permissions'
+import { resolvePermissionList } from '../resolve-permissions'
 
-describe('resolvePermissions', () => {
+describe('resolvePermissionList', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockFindUserPermissions: any
@@ -27,7 +27,7 @@ describe('resolvePermissions', () => {
   })
 
   it('should return undefined when user has no permissions', async () => {
-    const result = await resolvePermissions(testUuids.USER_1)
+    const result = await resolvePermissionList(testUuids.USER_1)
 
     expect(result).toBeUndefined()
     expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.USER_1)
@@ -39,13 +39,13 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.ADMIN_1)
+    const result = await resolvePermissionList(testUuids.ADMIN_1)
 
     expect(result).toEqual([Permission.ViewUsers, Permission.ManageTeams])
   })
 
   it('should pass userId to the repository', async () => {
-    await resolvePermissions(testUuids.ADMIN_1)
+    await resolvePermissionList(testUuids.ADMIN_1)
 
     expect(mockFindUserPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockFindUserPermissions).toHaveBeenCalledTimes(1)
@@ -61,7 +61,7 @@ describe('resolvePermissions', () => {
       { action: Action.Manage, resource: Resource.Teams },
     ])
 
-    const result = await resolvePermissions(testUuids.USER_1)
+    const result = await resolvePermissionList(testUuids.USER_1)
 
     expect(result).toHaveLength(6)
     expect(result).toContain(Permission.ViewUsers)

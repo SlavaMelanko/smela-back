@@ -4,7 +4,7 @@ import { authRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { comparePasswordHashes } from '@/security/password'
 
-import { resolvePermissions } from '../resolve-permissions'
+import { resolvePermissionList } from '../resolve-permissions'
 import { createAuthTokens } from '../tokens'
 
 export interface LoginParams {
@@ -36,7 +36,7 @@ const logInWithEmail = async (
 
   const [team, permissions] = await Promise.all([
     teamRepo.findUserTeam(user.id),
-    resolvePermissions(user.id),
+    resolvePermissionList(user.id),
   ])
 
   const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
