@@ -1,6 +1,9 @@
 import Action from './action'
 import Resource from './resource'
 
+export type PermissionMap = Partial<Record<Resource, Partial<Record<Action, boolean>>>>
+export type AdminPermissionMap = Omit<Record<Resource, Record<Action, boolean>>, Resource.Admins>
+
 enum Permission {
   ViewUsers = 'view:users',
   ViewAdmins = 'view:admins',
@@ -10,7 +13,15 @@ enum Permission {
   ManageTeams = 'manage:teams',
 }
 
-export const getAdminDefaultPermissions = () => ({
+// All resources and actions an admin can have, all set to false.
+// Used as a baseline before merging stored permissions so frontend always gets a full map
+export const getAdminBasePermissions = (): AdminPermissionMap => ({
+  [Resource.Users]: { [Action.View]: false, [Action.Manage]: false },
+  [Resource.Teams]: { [Action.View]: false, [Action.Manage]: false },
+})
+
+export const getAdminDefaultPermissions = (): AdminPermissionMap => ({
+  ...getAdminBasePermissions(),
   [Resource.Users]: { [Action.View]: true, [Action.Manage]: true },
   [Resource.Teams]: { [Action.View]: true, [Action.Manage]: true },
 })

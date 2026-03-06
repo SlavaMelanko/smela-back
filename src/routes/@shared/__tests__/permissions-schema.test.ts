@@ -66,10 +66,10 @@ describe('permissionsSchema', () => {
   })
 
   describe('optional resource', () => {
-    it('should allow a resource to be omitted entirely', () => {
-      const result = permissionsSchema.parse({})
+    it('should allow a resource to be omitted when others are present', () => {
+      const result = permissionsSchema.parse({ [Resource.Users]: { view: true, manage: false } })
 
-      expect(result[Resource.Users]).toBeUndefined()
+      expect(result[Resource.Teams]).toBeUndefined()
     })
 
     it('should allow partial resource coverage across multiple resources', () => {
@@ -85,6 +85,10 @@ describe('permissionsSchema', () => {
   })
 
   describe('malformed inputs', () => {
+    it('should reject empty object with no resources', () => {
+      expect(() => permissionsSchema.parse({})).toThrow()
+    })
+
     it('should reject non-boolean view value', () => {
       expect(() =>
         permissionsSchema.parse({ [Resource.Users]: { view: 'yes', manage: true } }),

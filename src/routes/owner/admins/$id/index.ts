@@ -10,6 +10,7 @@ import {
   resendAdminInviteHandler,
   updateAdminHandler,
 } from './handler'
+import { ownerAdminPermissionsRoute } from './permissions'
 import { adminIdParamsSchema, updateAdminBodySchema } from './schema'
 
 export const ownerAdminByIdRoute = new Hono<AppContext>()
@@ -38,3 +39,5 @@ ownerAdminByIdRoute.post(
   requestValidator('param', adminIdParamsSchema),
   cancelAdminInviteHandler,
 )
+
+ownerAdminByIdRoute.route('/permissions', ownerAdminPermissionsRoute)

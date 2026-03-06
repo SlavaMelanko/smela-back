@@ -1,4 +1,3 @@
-import type { PaginationParams, SearchParams } from '@/data'
 import type { Permissions } from '@/routes/@shared/permissions-schema'
 
 import { authRepo, db, rbacRepo, tokenRepo, userRepo } from '@/data'
@@ -8,28 +7,6 @@ import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
-
-const normalizeRoles = (params: SearchParams): SearchParams => ({
-  ...params,
-  roles: [Role.Admin],
-})
-
-export const getAdmins = async (params: SearchParams, pagination: PaginationParams) => {
-  const result = await userRepo.search(normalizeRoles(params), pagination)
-
-  const adminIds = result.users.map(u => u.id)
-  const inviters = await rbacRepo.findInviters(adminIds)
-
-  const admins = result.users.map(admin => ({
-    ...admin,
-    inviter: inviters.get(admin.id),
-  }))
-
-  return {
-    data: { admins },
-    pagination: result.pagination,
-  }
-}
 
 export interface AdminInvitationParams {
   firstName: string
@@ -101,41 +78,6 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
   )
 
   return { admin }
-}
-
-export const getAdmin = async (adminId: string) => {
-  const admin = await userRepo.findById(adminId)
-
-  if (!admin || admin.role !== Role.Admin) {
-    throw new AppError(ErrorCode.NotFound, 'Admin not found')
-  }
-
-  const inviters = await rbacRepo.findInviters([adminId])
-
-  return {
-    admin: {
-      ...admin,
-      inviter: inviters.get(adminId),
-    },
-  }
-}
-
-export interface UpdateAdminParams {
-  firstName?: string
-  lastName?: string
-  status?: Status
-}
-
-export const updateAdmin = async (adminId: string, params: UpdateAdminParams) => {
-  const admin = await userRepo.findById(adminId)
-
-  if (!admin || admin.role !== Role.Admin) {
-    throw new AppError(ErrorCode.NotFound, 'Admin not found')
-  }
-
-  const updatedAdmin = await userRepo.update(adminId, params)
-
-  return { admin: updatedAdmin }
 }
 
 export const resendAdminInvite = async (adminId: string, inviterId: string) => {

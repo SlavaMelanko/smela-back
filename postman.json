@@ -987,6 +987,53 @@
           "response": []
         },
         {
+          "name": "admins/:id/permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id/permissions",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"permissions\": {\n        \"users\": {\n            \"manage\": false,\n            \"view\": true\n        },\n        \"teams\": {\n            \"manage\": false,\n            \"view\": false\n        }\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "admins/:id/resend-invite",
           "request": {
             "method": "POST",
