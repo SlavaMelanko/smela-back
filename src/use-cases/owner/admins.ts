@@ -204,7 +204,7 @@ export const getAdminPermissions = async (adminId: string) => {
 
   const permissions = await resolvePermissionMap(adminId)
 
-  return permissions
+  return { permissions }
 }
 
 export const updateAdminPermissions = async (adminId: string, permissions: Permissions) => {
