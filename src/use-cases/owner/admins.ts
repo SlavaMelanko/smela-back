@@ -4,11 +4,11 @@ import type { Permissions } from '@/routes/@shared/permissions-schema'
 import { authRepo, db, rbacRepo, tokenRepo, userRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
-import { logger } from '@/logging'
 import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
+import { getAdminPermissionBaseline } from '@/types/permission'
 import { resolvePermissionMap } from '@/use-cases/resolve-permissions'
 
 const normalizeRoles = (params: SearchParams): SearchParams => ({
@@ -202,7 +202,7 @@ export const getAdminPermissions = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  const permissions = await resolvePermissionMap(adminId)
+  const permissions = await resolvePermissionMap(adminId, getAdminPermissionBaseline())
 
   return { permissions }
 }
@@ -210,13 +210,11 @@ export const getAdminPermissions = async (adminId: string) => {
 export const updateAdminPermissions = async (adminId: string, permissions: Permissions) => {
   const admin = await userRepo.findById(adminId)
 
-  logger.info({ adminId, permissions }, 'Updating permissions for admin')
-
   if (!admin || admin.role !== Role.Admin) {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
   await rbacRepo.setUserPermissions(adminId, permissions)
 
-  return permissions
+  return { permissions }
 }

@@ -1,4 +1,4 @@
-import type { Permission } from '@/types'
+import type { Permission, PermissionMap } from '@/types'
 
 import { rbacRepo } from '@/data'
 
@@ -17,16 +17,21 @@ export const resolvePermissionList = async (
 // Builds a permission matrix keyed by resource, e.g.
 // { users: { view: true }, teams: { view: true, manage: true } }
 // Suitable for frontend permission grids where resource is the row
-// and actions (view, manage) are the columns with switches/checkboxes
+// and actions (view, manage) are the columns with switches/checkboxes.
+// Pass a baseline (all-false map) to get a complete map with unset permissions as false
 export const resolvePermissionMap = async (
   userId: string,
-): Promise<Record<string, Record<string, boolean>>> => {
+  baseline?: PermissionMap,
+): Promise<PermissionMap> => {
   const rows = await rbacRepo.findUserPermissions(userId)
 
-  return rows.reduce<Record<string, Record<string, boolean>>>((acc, row) => {
-    acc[row.resource] ??= {}
-    acc[row.resource][row.action] = true
+  const result: PermissionMap = baseline ? structuredClone(baseline) : {}
 
-    return acc
-  }, {})
+  for (const row of rows) {
+    const resource = result[row.resource] ?? {}
+    resource[row.action] = true
+    result[row.resource] = resource
+  }
+
+  return result
 }
