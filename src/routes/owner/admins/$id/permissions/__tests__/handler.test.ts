@@ -81,7 +81,7 @@ describe('updateAdminPermissionsHandler', () => {
         valid: mock((type: string) =>
           type === 'param'
             ? { adminId: testUuids.ADMIN_1 }
-            : updatedPermissions,
+            : { permissions: updatedPermissions },
         ),
       },
       json: mockJson,

@@ -9,10 +9,15 @@ const resourcePermissions = z
   })
   .optional()
 
-export const permissionsSchema = z.object(
-  Object.fromEntries(
-    Object.values(Resource).map(r => [r, resourcePermissions]),
-  ) as Record<Resource, typeof resourcePermissions>,
-)
+export const permissionsSchema = z
+  .object(
+    Object.fromEntries(
+      Object.values(Resource).map(r => [r, resourcePermissions]),
+    ) as Record<Resource, typeof resourcePermissions>,
+  )
+  .refine(
+    data => Object.values(data).some(v => v !== undefined),
+    { message: 'At least one resource must be specified' },
+  )
 
 export type Permissions = z.infer<typeof permissionsSchema>

@@ -13,9 +13,9 @@ export const getAdminPermissionsHandler = async (c: GetAdminPermissionsCtx) => {
 
 export const updateAdminPermissionsHandler = async (c: UpdateAdminPermissionsCtx) => {
   const { adminId } = c.req.valid('param')
-  const body = c.req.valid('json')
+  const { permissions } = c.req.valid('json')
 
-  const result = await updateAdminPermissions(adminId, body)
+  const result = await updateAdminPermissions(adminId, permissions)
 
   return c.json(result, HttpStatus.OK)
 }

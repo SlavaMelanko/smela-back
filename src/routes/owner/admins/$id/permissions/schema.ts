@@ -13,7 +13,7 @@ const adminIdParamsSchema = z.object({
 export type GetAdminPermissionsParams = z.infer<typeof adminIdParamsSchema>
 export type GetAdminPermissionsCtx = ValidatedParamCtx<GetAdminPermissionsParams>
 
-export const updateAdminPermissionsBodySchema = permissionsSchema
+export const updateAdminPermissionsBodySchema = z.object({ permissions: permissionsSchema })
 
 export type UpdateAdminPermissionsParams = z.infer<typeof adminIdParamsSchema>
 export type UpdateAdminPermissionsBody = z.infer<typeof updateAdminPermissionsBodySchema>
