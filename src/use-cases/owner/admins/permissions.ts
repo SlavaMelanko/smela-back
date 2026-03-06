@@ -27,5 +27,7 @@ export const updateAdminPermissions = async (adminId: string, permissions: Permi
 
   await rbacRepo.setUserPermissions(adminId, permissions)
 
-  return { permissions }
+  const updated = await resolvePermissionMap(adminId, getAdminBasePermissions())
+
+  return { permissions: updated }
 }
