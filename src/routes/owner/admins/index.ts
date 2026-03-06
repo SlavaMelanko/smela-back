@@ -27,7 +27,7 @@ ownerAdminsRoute.post(
 )
 
 ownerAdminsRoute.get(
-  '/admins/permissions',
+  '/admins/default-permissions',
   getAdminDefaultPermissionsHandler,
 )
 

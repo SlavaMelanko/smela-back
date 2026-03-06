@@ -30,7 +30,7 @@ teamsMembersRoute.post(
 )
 
 teamsMembersRoute.get(
-  '/permissions',
+  '/default-permissions',
   requestValidator('param', teamIdParamsSchema),
   teamAccessMiddleware,
   getMemberDefaultPermissionsHandler,
