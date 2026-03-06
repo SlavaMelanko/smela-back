@@ -676,12 +676,12 @@
           "response": []
         },
         {
-          "name": "teams/:id/members/permissions",
+          "name": "teams/:id/members/default-permissions",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/permissions",
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/default-permissions",
               "host": [
                 "{{user_verified_only_api_url}}"
               ],
@@ -689,7 +689,7 @@
                 "teams",
                 "{{last_team_id}}",
                 "members",
-                "permissions"
+                "default-permissions"
               ]
             }
           },
@@ -893,7 +893,7 @@
           "response": []
         },
         {
-          "name": "admins/permissions",
+          "name": "admins/default-permissions",
           "event": [
             {
               "listen": "test",
@@ -911,13 +911,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{owner_api_url}}/admins/permissions",
+              "raw": "{{owner_api_url}}/admins/default-permissions",
               "host": [
                 "{{owner_api_url}}"
               ],
               "path": [
                 "admins",
-                "permissions"
+                "default-permissions"
               ]
             }
           },
