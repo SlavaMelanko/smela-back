@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { getAdmin, getAdmins } from '../admins'
+import { getAdmin, getAdmins } from '..'
 
 describe('getAdmins', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
