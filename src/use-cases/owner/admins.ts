@@ -8,7 +8,7 @@ import { generatePasswordHash } from '@/security/password'
 import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
-import { getAdminPermissionBaseline } from '@/types/permission'
+import { getAdminBasePermissions } from '@/types/permission'
 import { resolvePermissionMap } from '@/use-cases/resolve-permissions'
 
 const normalizeRoles = (params: SearchParams): SearchParams => ({
@@ -202,7 +202,7 @@ export const getAdminPermissions = async (adminId: string) => {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  const permissions = await resolvePermissionMap(adminId, getAdminPermissionBaseline())
+  const permissions = await resolvePermissionMap(adminId, getAdminBasePermissions())
 
   return { permissions }
 }
