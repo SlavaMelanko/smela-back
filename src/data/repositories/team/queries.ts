@@ -88,6 +88,8 @@ export const findTeamMembers = async (
       lastName: usersTable.lastName,
       email: usersTable.email,
       status: usersTable.status,
+      createdAt: usersTable.createdAt,
+      updatedAt: usersTable.updatedAt,
       position: teamMembersTable.position,
       joinedAt: teamMembersTable.joinedAt,
       inviter: {

@@ -26,6 +26,8 @@ export interface TeamMemberDetails {
   lastName: string | null
   email: string
   status: string
+  createdAt: Date
+  updatedAt: Date
   position: string | null
   inviter: TeamMemberInviter | null
   joinedAt: Date | null
