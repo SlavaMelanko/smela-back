@@ -1,4 +1,4 @@
-import { teamRepo } from '@/data'
+import { teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 
 export const getTeamMembers = async (teamId: string) => {
@@ -21,7 +21,13 @@ export const getTeamMember = async (
 }
 
 export interface UpdateTeamMemberParams {
-  position?: string | null
+  membership?: {
+    position?: string | null
+  }
+  member?: {
+    firstName?: string
+    lastName?: string | null
+  }
 }
 
 export const updateTeamMember = async (
@@ -35,7 +41,19 @@ export const updateTeamMember = async (
     throw new AppError(ErrorCode.NotFound, 'Member not found')
   }
 
-  const member = await teamRepo.updateMember(memberId, teamId, params)
+  const updates: Array<Promise<unknown>> = []
+
+  if (params.membership) {
+    updates.push(teamRepo.updateMember(memberId, teamId, params.membership))
+  }
+
+  if (params.member) {
+    updates.push(userRepo.update(memberId, params.member))
+  }
+
+  await Promise.all(updates)
+
+  const member = await teamRepo.findMember(teamId, memberId)
 
   return { member }
 }

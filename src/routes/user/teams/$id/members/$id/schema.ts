@@ -13,7 +13,13 @@ export type MemberIdParams = z.infer<typeof memberIdParamsSchema>
 export type MemberIdCtx = ValidatedParamCtx<MemberIdParams>
 
 export const updateTeamMemberBodySchema = z.object({
-  position: rules.team.position.nullish(),
+  membership: z.object({
+    position: rules.team.position.nullish(),
+  }).optional(),
+  member: z.object({
+    firstName: rules.data.firstName.optional(),
+    lastName: rules.data.lastName.optional(),
+  }).optional(),
 })
 
 export type UpdateTeamMemberBody = z.infer<typeof updateTeamMemberBodySchema>
