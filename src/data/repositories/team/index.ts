@@ -5,6 +5,7 @@ import {
   updateTeamMember,
 } from './mutations'
 import {
+  findSharedTeam,
   findTeamById,
   findTeamMember,
   findTeamMembers,
@@ -23,6 +24,7 @@ const teamMutations = {
 const teamQueries = {
   find: findTeamWithMemberCount,
   findById: findTeamById,
+  findSharedTeam,
   findUserTeam,
   search: searchTeams,
 }

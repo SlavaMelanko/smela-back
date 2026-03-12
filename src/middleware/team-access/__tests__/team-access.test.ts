@@ -12,10 +12,12 @@ import { Role, Status } from '@/types'
 import { teamAccessMiddleware } from '../team-access'
 
 const mockTeamRepoFindMember = mock()
+const mockTeamRepoFindSharedTeam = mock()
 
 void mock.module('@/data', () => ({
   teamRepo: {
     findMember: mockTeamRepoFindMember,
+    findSharedTeam: mockTeamRepoFindSharedTeam,
   },
 }))
 
@@ -26,9 +28,10 @@ describe('Team Access Middleware', () => {
     app = new Hono<AppContext>()
     app.onError(onError)
     mockTeamRepoFindMember.mockClear()
+    mockTeamRepoFindSharedTeam.mockClear()
   })
 
-  describe('Regular User Access', () => {
+  describe('teamId param', () => {
     it('should allow access when user has valid team membership', async () => {
       mockTeamRepoFindMember.mockImplementation(async () => ({
         userId: testUuids.USER_1,
@@ -54,6 +57,7 @@ describe('Team Access Middleware', () => {
 
       expect(res.status).toBe(HttpStatus.OK)
       expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
+      expect(mockTeamRepoFindSharedTeam).not.toHaveBeenCalled()
 
       const json = await res.json()
       expect(json.message).toBe('success')
@@ -105,136 +109,11 @@ describe('Team Access Middleware', () => {
     })
   })
 
-  describe('Admin User Access', () => {
-    it('should allow Admin access without team membership', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.ADMIN_1,
-          email: 'admin@example.com',
-          role: Role.Admin,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
+  describe('userId param', () => {
+    it('should allow access when caller shares a team with the target user', async () => {
+      mockTeamRepoFindSharedTeam.mockImplementation(async () => ({ teamId: testUuids.TEAM_1 }))
 
-      const res = await app.request(`/teams/${testUuids.TEAM_1}`)
-
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-
-      const json = await res.json()
-      expect(json.message).toBe('success')
-    })
-
-    it('should allow Admin access to any team', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.ADMIN_1,
-          email: 'admin@example.com',
-          role: Role.Admin,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
-
-      const res = await app.request(`/teams/${testUuids.TEAM_2}`)
-
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('Owner User Access', () => {
-    it('should allow Owner access without team membership', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.OWNER_1,
-          email: 'owner@example.com',
-          role: Role.Owner,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
-
-      const res = await app.request(`/teams/${testUuids.TEAM_1}`)
-
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-
-      const json = await res.json()
-      expect(json.message).toBe('success')
-    })
-
-    it('should allow Owner access to any team', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.OWNER_1,
-          email: 'owner@example.com',
-          role: Role.Owner,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
-
-      const res = await app.request(`/teams/${testUuids.TEAM_2}`)
-
-      expect(res.status).toBe(HttpStatus.OK)
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('Database Query Optimization', () => {
-    it('should skip database query for Admin users', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.ADMIN_1,
-          email: 'admin@example.com',
-          role: Role.Admin,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
-
-      await app.request(`/teams/${testUuids.TEAM_1}`)
-
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-    })
-
-    it('should skip database query for Owner users', async () => {
-      app.use('/teams/:teamId', async (c, next) => {
-        c.set('user', {
-          id: testUuids.OWNER_1,
-          email: 'owner@example.com',
-          role: Role.Owner,
-          status: Status.Active,
-        })
-        await next()
-      })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
-
-      await app.request(`/teams/${testUuids.TEAM_1}`)
-
-      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
-    })
-
-    it('should query database for regular User', async () => {
-      mockTeamRepoFindMember.mockImplementation(async () => ({
-        userId: testUuids.USER_1,
-        teamId: testUuids.TEAM_1,
-      }))
-
-      app.use('/teams/:teamId', async (c, next) => {
+      app.use('/users/:userId', async (c, next) => {
         c.set('user', {
           id: testUuids.USER_1,
           email: 'user@example.com',
@@ -243,21 +122,109 @@ describe('Team Access Middleware', () => {
         })
         await next()
       })
+      app.use('/users/:userId', teamAccessMiddleware)
+      app.patch('/users/:userId', c => c.json({ message: 'success' }))
+
+      const res = await app.request(`/users/${testUuids.USER_2}`, { method: 'PATCH' })
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockTeamRepoFindSharedTeam).toHaveBeenCalledWith(testUuids.USER_1, testUuids.USER_2)
+      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
+
+      const json = await res.json()
+      expect(json.message).toBe('success')
+    })
+
+    it('should throw Forbidden when caller shares no team with the target user', async () => {
+      mockTeamRepoFindSharedTeam.mockImplementation(async () => undefined)
+
+      app.use('/users/:userId', async (c, next) => {
+        c.set('user', {
+          id: testUuids.USER_1,
+          email: 'user@example.com',
+          role: Role.User,
+          status: Status.Active,
+        })
+        await next()
+      })
+      app.use('/users/:userId', teamAccessMiddleware)
+      app.patch('/users/:userId', c => c.json({ message: 'success' }))
+
+      const res = await app.request(`/users/${testUuids.USER_2}`, { method: 'PATCH' })
+
+      expect(res.status).toBe(HttpStatus.FORBIDDEN)
+      expect(mockTeamRepoFindSharedTeam).toHaveBeenCalledWith(testUuids.USER_1, testUuids.USER_2)
+
+      const json = await res.json()
+      expect(json.code).toBe(ErrorCode.Forbidden)
+    })
+  })
+
+  describe('Admin / Owner bypass', () => {
+    it('should allow Admin access via teamId without membership check', async () => {
+      app.use('/teams/:teamId', async (c, next) => {
+        c.set('user', {
+          id: testUuids.ADMIN_1,
+          email: 'admin@example.com',
+          role: Role.Admin,
+          status: Status.Active,
+        })
+        await next()
+      })
       app.use('/teams/:teamId', teamAccessMiddleware)
       app.get('/teams/:teamId', c => c.json({ message: 'success' }))
 
-      await app.request(`/teams/${testUuids.TEAM_1}`)
+      const res = await app.request(`/teams/${testUuids.TEAM_1}`)
 
-      expect(mockTeamRepoFindMember).toHaveBeenCalledTimes(1)
-      expect(mockTeamRepoFindMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
+      expect(mockTeamRepoFindSharedTeam).not.toHaveBeenCalled()
+    })
+
+    it('should allow Owner access via teamId without membership check', async () => {
+      app.use('/teams/:teamId', async (c, next) => {
+        c.set('user', {
+          id: testUuids.OWNER_1,
+          email: 'owner@example.com',
+          role: Role.Owner,
+          status: Status.Active,
+        })
+        await next()
+      })
+      app.use('/teams/:teamId', teamAccessMiddleware)
+      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
+
+      const res = await app.request(`/teams/${testUuids.TEAM_1}`)
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
+      expect(mockTeamRepoFindSharedTeam).not.toHaveBeenCalled()
+    })
+
+    it('should allow Admin access via userId without shared team check', async () => {
+      app.use('/users/:userId', async (c, next) => {
+        c.set('user', {
+          id: testUuids.ADMIN_1,
+          email: 'admin@example.com',
+          role: Role.Admin,
+          status: Status.Active,
+        })
+        await next()
+      })
+      app.use('/users/:userId', teamAccessMiddleware)
+      app.patch('/users/:userId', c => c.json({ message: 'success' }))
+
+      const res = await app.request(`/users/${testUuids.USER_1}`, { method: 'PATCH' })
+
+      expect(res.status).toBe(HttpStatus.OK)
+      expect(mockTeamRepoFindMember).not.toHaveBeenCalled()
+      expect(mockTeamRepoFindSharedTeam).not.toHaveBeenCalled()
     })
   })
 
   describe('Error Handling', () => {
-    it('should throw AppError with Forbidden code for unauthorized access', async () => {
-      mockTeamRepoFindMember.mockImplementation(async () => undefined)
-
-      app.use('/teams/:teamId', async (c, next) => {
+    it('should throw Forbidden when neither teamId nor userId param is present', async () => {
+      app.use('/resource', async (c, next) => {
         c.set('user', {
           id: testUuids.USER_1,
           email: 'user@example.com',
@@ -266,19 +233,15 @@ describe('Team Access Middleware', () => {
         })
         await next()
       })
-      app.use('/teams/:teamId', teamAccessMiddleware)
-      app.get('/teams/:teamId', c => c.json({ message: 'success' }))
+      app.use('/resource', teamAccessMiddleware)
+      app.get('/resource', c => c.json({ message: 'success' }))
 
-      const res = await app.request(`/teams/${testUuids.TEAM_1}`)
+      const res = await app.request('/resource')
 
       expect(res.status).toBe(HttpStatus.FORBIDDEN)
-
-      const json = await res.json()
-      expect(json.code).toBe(ErrorCode.Forbidden)
-      expect(json.error).toBeDefined()
     })
 
-    it('should propagate database errors', async () => {
+    it('should propagate database errors from findMember', async () => {
       mockTeamRepoFindMember.mockImplementation(async () => {
         throw new Error('Database connection failed')
       })
@@ -296,6 +259,28 @@ describe('Team Access Middleware', () => {
       app.get('/teams/:teamId', c => c.json({ message: 'success' }))
 
       const res = await app.request(`/teams/${testUuids.TEAM_1}`)
+
+      expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
+    })
+
+    it('should propagate database errors from findSharedTeam', async () => {
+      mockTeamRepoFindSharedTeam.mockImplementation(async () => {
+        throw new Error('Database connection failed')
+      })
+
+      app.use('/users/:userId', async (c, next) => {
+        c.set('user', {
+          id: testUuids.USER_1,
+          email: 'user@example.com',
+          role: Role.User,
+          status: Status.Active,
+        })
+        await next()
+      })
+      app.use('/users/:userId', teamAccessMiddleware)
+      app.patch('/users/:userId', c => c.json({ message: 'success' }))
+
+      const res = await app.request(`/users/${testUuids.USER_2}`, { method: 'PATCH' })
 
       expect(res.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR)
     })

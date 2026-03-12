@@ -12,7 +12,7 @@ import {
   verifyEmailRoute,
 } from './auth'
 import { ownerAdminsRoute } from './owner'
-import { meRoute, teamsRoute } from './user'
+import { meRoute, teamsRoute, usersRoute } from './user'
 
 export const authPublicRoutes = [
   acceptInviteRoute,
@@ -29,7 +29,7 @@ export const authPublicRoutes = [
 
 export const userRoutesAllowNew = [meRoute]
 
-export const userRoutesVerifiedOnly = [teamsRoute]
+export const userRoutesVerifiedOnly = [teamsRoute, usersRoute]
 
 export const adminRoutes = [adminTeamsRoute, adminUsersRoute]
 

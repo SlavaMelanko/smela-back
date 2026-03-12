@@ -7,9 +7,15 @@ import { AppError, ErrorCode } from '@/errors'
 import { isAdmin } from '@/types'
 
 /**
- * Team access middleware - ensures user has access to the team.
+ * Team access middleware - ensures the caller has access to a team resource.
  *
- * Note: teamId is already validated by requestValidator middleware
+ * Resolves the team context from route params in order:
+ * - teamId: direct team access — caller must be a member of that team
+ * - userId: cross-user access — caller must share a team with the target user
+ *
+ * Admins and owners bypass the membership check entirely.
+ *
+ * Note: params are already validated by requestValidator middleware
  *
  * TODO: Add Redis caching for team membership queries
  * Currently queries database on every request (~1-5ms per query).
@@ -17,20 +23,36 @@ import { isAdmin } from '@/types'
  * See: https://github.com/SlavaMelanko/smela-back/issues/58
  */
 export const teamAccessMiddleware = createMiddleware<AppContext>(async (c, next) => {
-  const teamId = c.req.param('teamId')!
-  const { id: userId, role } = c.get('user')
+  const { id: callerId, role } = c.get('user')
 
-  // Admins and owners have access to all teams
+  // Admins and owners have access to all teams and users
   if (isAdmin(role)) {
     return next()
   }
 
-  // Regular users must be team members
-  const membership = await teamRepo.findMember(teamId, userId)
+  const teamId = c.req.param('teamId')
 
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden)
+  if (teamId) {
+    const membership = await teamRepo.findMember(teamId, callerId)
+
+    if (!membership) {
+      throw new AppError(ErrorCode.Forbidden)
+    }
+
+    return next()
   }
 
-  return next()
+  const targetUserId = c.req.param('userId')
+
+  if (targetUserId) {
+    const sharedTeam = await teamRepo.findSharedTeam(callerId, targetUserId)
+
+    if (!sharedTeam) {
+      throw new AppError(ErrorCode.Forbidden)
+    }
+
+    return next()
+  }
+
+  throw new AppError(ErrorCode.Forbidden)
 })

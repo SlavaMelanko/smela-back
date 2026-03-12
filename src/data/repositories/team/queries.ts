@@ -150,6 +150,26 @@ export const findTeamWithMemberCount = async (
   }
 }
 
+export const findSharedTeam = async (
+  callerId: string,
+  targetUserId: string,
+  tx?: Database,
+): Promise<{ teamId: string } | undefined> => {
+  const executor = tx || db
+
+  const callerTeams = alias(teamMembersTable, 'caller_teams')
+  const targetTeams = alias(teamMembersTable, 'target_teams')
+
+  const [result] = await executor
+    .select({ teamId: callerTeams.teamId })
+    .from(callerTeams)
+    .innerJoin(targetTeams, eq(callerTeams.teamId, targetTeams.teamId))
+    .where(and(eq(callerTeams.userId, callerId), eq(targetTeams.userId, targetUserId)))
+    .limit(1)
+
+  return result
+}
+
 export const findUserTeam = async (
   userId: string,
   tx?: Database,
