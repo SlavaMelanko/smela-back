@@ -658,6 +658,25 @@
         },
         {
           "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const members = res.members;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", members[0].id);",
+                  "    console.log(\"Saved last_member_id:\", members[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -770,6 +789,35 @@
             "body": {
               "mode": "raw",
               "raw": "{\n    \"position\": \"Lead dev\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
