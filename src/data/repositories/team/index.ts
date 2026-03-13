@@ -1,6 +1,7 @@
 import {
   createTeam,
   createTeamMember,
+  deleteTeamMember,
   updateTeam,
   updateTeamMember,
 } from './mutations'
@@ -29,6 +30,7 @@ const teamQueries = {
 
 const memberMutations = {
   createMember: createTeamMember,
+  deleteMember: deleteTeamMember,
   updateMember: updateTeamMember,
 }
 

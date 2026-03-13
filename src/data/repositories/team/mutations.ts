@@ -99,3 +99,20 @@ export const updateTeamMember = async (
 
   return membership
 }
+
+export const deleteTeamMember = async (
+  userId: string,
+  teamId: string,
+  tx?: Database,
+): Promise<void> => {
+  const executor = tx || db
+
+  await executor
+    .delete(teamMembersTable)
+    .where(
+      and(
+        eq(teamMembersTable.userId, userId),
+        eq(teamMembersTable.teamId, teamId),
+      ),
+    )
+}

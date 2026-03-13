@@ -6,6 +6,7 @@ import { HttpStatus } from '@/net/http'
 import {
   cancelMemberInviteHandler,
   getTeamMemberHandler,
+  removeTeamMemberHandler,
   resendMemberInviteHandler,
   updateTeamMemberHandler,
 } from '../handler'
@@ -120,6 +121,54 @@ describe('updateTeamMemberHandler', () => {
     })
 
     expect(updateTeamMemberHandler(mockContext)).rejects.toThrow('Member not found')
+  })
+})
+
+describe('removeTeamMemberHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockJson: any
+  let mockRemoveTeamMember: any
+
+  beforeEach(async () => {
+    mockJson = mock((data: any, status: number) => ({ data, status }))
+
+    mockContext = {
+      req: { valid: mock(() => mockParams) },
+      json: mockJson,
+    }
+
+    mockRemoveTeamMember = mock(async () => ({ success: true }))
+
+    await moduleMocker.mock('@/use-cases/user', () => ({
+      removeTeamMember: mockRemoveTeamMember,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call removeTeamMember with team id and member id', async () => {
+    await removeTeamMemberHandler(mockContext)
+
+    expect(mockRemoveTeamMember).toHaveBeenCalledWith(testUuids.TEAM_1, testUuids.USER_1)
+  })
+
+  it('should return success with OK status', async () => {
+    const result = await removeTeamMemberHandler(mockContext)
+
+    expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
+    expect(result.status).toBe(HttpStatus.OK)
+  })
+
+  it('should propagate error when removeTeamMember throws', async () => {
+    mockRemoveTeamMember.mockImplementation(async () => {
+      throw new Error('Member not found')
+    })
+
+    expect(removeTeamMemberHandler(mockContext)).rejects.toThrow('Member not found')
   })
 })
 

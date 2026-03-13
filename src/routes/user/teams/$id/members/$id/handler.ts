@@ -2,6 +2,7 @@ import { HttpStatus } from '@/net/http'
 import {
   cancelMemberInvite,
   getTeamMember,
+  removeTeamMember,
   resendMemberInvite,
   updateTeamMember,
 } from '@/use-cases/user'
@@ -30,6 +31,14 @@ export const resendMemberInviteHandler = async (c: MemberIdCtx) => {
   const { id: inviterId } = c.get('user')
 
   const result = await resendMemberInvite(teamId, memberId, inviterId)
+
+  return c.json(result, HttpStatus.OK)
+}
+
+export const removeTeamMemberHandler = async (c: MemberIdCtx) => {
+  const { teamId, memberId } = c.req.valid('param')
+
+  const result = await removeTeamMember(teamId, memberId)
 
   return c.json(result, HttpStatus.OK)
 }

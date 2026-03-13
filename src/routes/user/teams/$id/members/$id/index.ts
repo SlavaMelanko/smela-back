@@ -7,6 +7,7 @@ import { requestValidator, teamAccessMiddleware } from '@/middleware'
 import {
   cancelMemberInviteHandler,
   getTeamMemberHandler,
+  removeTeamMemberHandler,
   resendMemberInviteHandler,
   updateTeamMemberHandler,
 } from './handler'
@@ -27,6 +28,13 @@ teamsMemberByIdRoute.patch(
   requestValidator('json', updateTeamMemberBodySchema),
   teamAccessMiddleware,
   updateTeamMemberHandler,
+)
+
+teamsMemberByIdRoute.delete(
+  '/',
+  requestValidator('param', memberIdParamsSchema),
+  teamAccessMiddleware,
+  removeTeamMemberHandler,
 )
 
 teamsMemberByIdRoute.post(
