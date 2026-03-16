@@ -56,7 +56,6 @@ describe('Login with Email', () => {
       findByEmail: mock(async () => mockUser),
     }
     mockAuthRecord = {
-      id: 1,
       userId: testUuids.USER_1,
       provider: AuthProvider.Local,
       identifier: 'test@example.com',

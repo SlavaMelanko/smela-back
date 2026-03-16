@@ -31,5 +31,4 @@ export const teamMembersTable = pgTable('team_members', {
 }, table => [
   uniqueIndex('unique_team_member').on(table.userId, table.teamId),
   index('team_members_team_index').on(table.teamId),
-  index('team_members_user_index').on(table.userId),
 ])

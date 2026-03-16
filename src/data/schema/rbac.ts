@@ -1,7 +1,9 @@
 import {
   integer,
   pgTable,
+  primaryKey,
   serial,
+  timestamp,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
@@ -15,6 +17,13 @@ export const roleEnum = createPgEnum('role', Role)
 export const actionEnum = createPgEnum('action', Action)
 export const resourceEnum = createPgEnum('resource', Resource)
 
+export const userRoleTable = pgTable('user_role', {
+  userId: uuid('user_id').primaryKey().references(() => usersTable.id, { onDelete: 'cascade' }),
+  role: roleEnum('role').notNull().$type<Role>(),
+  invitedBy: uuid('invited_by').references(() => usersTable.id, { onDelete: 'set null' }),
+  assignedAt: timestamp('assigned_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export const permissionsTable = pgTable('permissions', {
   id: serial('id').primaryKey(),
   action: actionEnum('action').notNull().$type<Action>(),
@@ -24,7 +33,6 @@ export const permissionsTable = pgTable('permissions', {
 ])
 
 export const userPermissionsTable = pgTable('user_permissions', {
-  id: serial('id').primaryKey(),
   userId: uuid('user_id')
     .notNull()
     .references(() => usersTable.id, { onDelete: 'cascade' }),
@@ -32,5 +40,5 @@ export const userPermissionsTable = pgTable('user_permissions', {
     .notNull()
     .references(() => permissionsTable.id, { onDelete: 'cascade' }),
 }, table => [
-  uniqueIndex('unique_user_permission').on(table.userId, table.permissionId),
+  primaryKey({ columns: [table.userId, table.permissionId] }),
 ])
