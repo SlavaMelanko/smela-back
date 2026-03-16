@@ -1,6 +1,7 @@
 import {
   integer,
   pgTable,
+  primaryKey,
   serial,
   uniqueIndex,
   uuid,
@@ -24,7 +25,6 @@ export const permissionsTable = pgTable('permissions', {
 ])
 
 export const userPermissionsTable = pgTable('user_permissions', {
-  id: serial('id').primaryKey(),
   userId: uuid('user_id')
     .notNull()
     .references(() => usersTable.id, { onDelete: 'cascade' }),
@@ -32,5 +32,5 @@ export const userPermissionsTable = pgTable('user_permissions', {
     .notNull()
     .references(() => permissionsTable.id, { onDelete: 'cascade' }),
 }, table => [
-  uniqueIndex('unique_user_permission').on(table.userId, table.permissionId),
+  primaryKey({ columns: [table.userId, table.permissionId] }),
 ])

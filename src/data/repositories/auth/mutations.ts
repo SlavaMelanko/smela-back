@@ -6,15 +6,10 @@ import type { CreateAuthInput, UpdateAuthInput } from './types'
 import { db } from '../../clients'
 import { authTable } from '../../schema'
 
-export const createAuth = async (auth: CreateAuthInput, tx?: Database): Promise<number> => {
+export const createAuth = async (auth: CreateAuthInput, tx?: Database): Promise<void> => {
   const executor = tx || db
 
-  const [createdAuth] = await executor
-    .insert(authTable)
-    .values(auth)
-    .returning({ id: authTable.id })
-
-  return createdAuth.id
+  await executor.insert(authTable).values(auth)
 }
 
 export const updateAuth = async (
