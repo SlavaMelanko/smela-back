@@ -11,20 +11,20 @@ import { refreshTokensTable } from '../../schema'
  * derived from the most recent refresh token creation.
  *
  * @example
- * const lastActive = lastActiveAtSubquery(executor)
- * executor.select({ lastActiveAt: lastActive.lastActiveAt })
+ * const lastActiveSq = lastActiveSubquery(executor)
+ * executor.select({ lastActive: lastActiveSq.lastActive })
  *   .from(usersTable)
- *   .leftJoin(lastActive, eq(usersTable.id, lastActive.userId))
+ *   .leftJoin(lastActiveSq, eq(usersTable.id, lastActiveSq.userId))
  */
-export const lastActiveAtSubquery = (executor: Database) =>
+export const lastActiveSubquery = (executor: Database) =>
   executor
     .select({
       userId: refreshTokensTable.userId,
-      lastActiveAt: max(refreshTokensTable.createdAt).as('last_active_at'),
+      lastActive: max(refreshTokensTable.createdAt).as('last_active'),
     })
     .from(refreshTokensTable)
     .groupBy(refreshTokensTable.userId)
-    .as('last_active')
+    .as('last_active_subquery')
 
 export const findByTokenHash = async (
   tokenHash: string,

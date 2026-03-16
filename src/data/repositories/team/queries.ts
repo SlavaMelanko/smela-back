@@ -8,7 +8,7 @@ import type { Team, TeamMemberDetails, TeamSearchParams, TeamSearchResult, TeamW
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, usersTable } from '../../schema'
 import { buildPagination, calcOffset } from '../pagination'
-import { lastActiveAtSubquery } from '../refresh-token/queries'
+import { lastActiveSubquery } from '../refresh-token/queries'
 
 const buildWhereConditions = ({ search }: TeamSearchParams) => {
   const conditions = []
@@ -82,7 +82,7 @@ export const findTeamMembers = async (
     whereConditions.push(eq(teamMembersTable.userId, userId))
   }
 
-  const lastActive = lastActiveAtSubquery(executor)
+  const lastActiveSq = lastActiveSubquery(executor)
 
   const rows = await executor
     .select({
@@ -93,7 +93,7 @@ export const findTeamMembers = async (
       status: usersTable.status,
       createdAt: usersTable.createdAt,
       updatedAt: usersTable.updatedAt,
-      lastActiveAt: lastActive.lastActiveAt,
+      lastActive: lastActiveSq.lastActive,
       position: teamMembersTable.position,
       joinedAt: teamMembersTable.joinedAt,
       inviter: {
@@ -105,7 +105,7 @@ export const findTeamMembers = async (
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(teamMembersTable.userId, usersTable.id))
     .leftJoin(invitersTable, eq(teamMembersTable.invitedBy, invitersTable.id))
-    .leftJoin(lastActive, eq(teamMembersTable.userId, lastActive.userId))
+    .leftJoin(lastActiveSq, eq(teamMembersTable.userId, lastActiveSq.userId))
     .where(and(...whereConditions))
     .orderBy(desc(teamMembersTable.joinedAt))
 
