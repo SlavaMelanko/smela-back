@@ -18,7 +18,7 @@ export interface TeamInfo {
 // Public-facing / API-return type
 export type User = UserRecord & {
   role: Role
-  lastActiveAt?: Date | null
+  lastActive?: Date | null
   team?: TeamInfo
 }
 
