@@ -1,4 +1,4 @@
-import { and, count, eq, gt, isNull, max } from 'drizzle-orm'
+import { eq, max } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { RefreshToken } from './types'
@@ -6,6 +6,16 @@ import type { RefreshToken } from './types'
 import { db } from '../../clients'
 import { refreshTokensTable } from '../../schema'
 
+/**
+ * Returns a grouped subquery with the last activity timestamp per user,
+ * derived from the most recent refresh token creation.
+ *
+ * @example
+ * const lastActive = lastActiveAtSubquery(executor)
+ * executor.select({ lastActiveAt: lastActive.lastActiveAt })
+ *   .from(usersTable)
+ *   .leftJoin(lastActive, eq(usersTable.id, lastActive.userId))
+ */
 export const lastActiveAtSubquery = (executor: Database) =>
   executor
     .select({
@@ -28,42 +38,4 @@ export const findByTokenHash = async (
     .where(eq(refreshTokensTable.tokenHash, tokenHash))
 
   return foundToken
-}
-
-export const findActiveByUserId = async (
-  userId: string,
-  tx?: Database,
-): Promise<RefreshToken[]> => {
-  const executor = tx || db
-
-  return executor
-    .select()
-    .from(refreshTokensTable)
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        isNull(refreshTokensTable.revokedAt),
-        gt(refreshTokensTable.expiresAt, new Date()),
-      ),
-    )
-}
-
-export const countActiveByUserId = async (
-  userId: string,
-  tx?: Database,
-): Promise<number> => {
-  const executor = tx || db
-
-  const [result] = await executor
-    .select({ count: count() })
-    .from(refreshTokensTable)
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        isNull(refreshTokensTable.revokedAt),
-        gt(refreshTokensTable.expiresAt, new Date()),
-      ),
-    )
-
-  return result?.count || 0
 }
