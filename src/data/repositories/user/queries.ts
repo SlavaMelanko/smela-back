@@ -9,6 +9,7 @@ import type { SearchParams, SearchResult, User } from './types'
 import { db } from '../../clients'
 import { teamMembersTable, teamsTable, userRoleTable, usersTable } from '../../schema'
 import { buildPagination, calcOffset } from '../pagination'
+import { lastActiveAtSubquery } from '../refresh-token/queries'
 
 const selectUserWithRole = (executor: Database) =>
   executor
@@ -25,8 +26,10 @@ const selectUserWithRole = (executor: Database) =>
     .from(usersTable)
     .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
 
-const selectUserWithRoleAndTeam = (executor: Database) =>
-  executor
+const selectUserWithRoleAndTeam = (executor: Database) => {
+  const lastActive = lastActiveAtSubquery(executor)
+
+  return executor
     .select({
       id: usersTable.id,
       firstName: usersTable.firstName,
@@ -35,6 +38,7 @@ const selectUserWithRoleAndTeam = (executor: Database) =>
       status: usersTable.status,
       createdAt: usersTable.createdAt,
       updatedAt: usersTable.updatedAt,
+      lastActiveAt: lastActive.lastActiveAt,
       role: sql<Role>`COALESCE(${userRoleTable.role}, ${Role.User})`,
       team: {
         id: teamsTable.id,
@@ -45,6 +49,8 @@ const selectUserWithRoleAndTeam = (executor: Database) =>
     .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
     .leftJoin(teamMembersTable, eq(usersTable.id, teamMembersTable.userId))
     .leftJoin(teamsTable, eq(teamMembersTable.teamId, teamsTable.id))
+    .leftJoin(lastActive, eq(usersTable.id, lastActive.userId))
+}
 
 const findUserBy = async (
   condition: ReturnType<typeof eq>,

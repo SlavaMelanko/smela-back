@@ -40,23 +40,7 @@ export const revokeByHash = async (
   return result.length > 0
 }
 
-export const revokeAllUserTokens = async (
-  userId: string,
-  tx?: Database,
-): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .update(refreshTokensTable)
-    .set({ revokedAt: new Date() })
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        isNull(refreshTokensTable.revokedAt),
-      ),
-    )
-}
-
+// Scheduled cleanup job — see https://github.com/SlavaMelanko/smela-back/issues/118
 export const cleanupExpiredTokens = async (
   tx?: Database,
 ): Promise<number> => {
