@@ -28,5 +28,4 @@ export const tokensTable = pgTable('tokens', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => [
   index('tokens_user_id_type_index').on(table.userId, table.type),
-  index('tokens_status_expires_index').on(table.status, table.expiresAt),
 ])
