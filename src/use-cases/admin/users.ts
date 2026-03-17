@@ -31,7 +31,7 @@ export const searchUsers = async (params: SearchParams, pagination: PaginationPa
 }
 
 export const getUser = async (userId: string) => {
-  const user = await userRepo.findByIdWithTeam(userId)
+  const user = await userRepo.findByIdExtended(userId)
 
   if (!user || !isUser(user.role)) {
     throw new AppError(ErrorCode.NotFound, 'User not found')

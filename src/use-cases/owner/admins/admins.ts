@@ -28,7 +28,7 @@ export const getAdmins = async (params: SearchParams, pagination: PaginationPara
 }
 
 export const getAdmin = async (adminId: string) => {
-  const admin = await userRepo.findById(adminId)
+  const admin = await userRepo.findByIdExtended(adminId)
 
   if (!admin || admin.role !== Role.Admin) {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')

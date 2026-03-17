@@ -101,7 +101,7 @@ describe('getAdmin', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockAdmin: User
-  let mockFindById: any
+  let mockFindByIdExtended: any
   let mockFindInvites: any
 
   beforeEach(async () => {
@@ -116,11 +116,11 @@ describe('getAdmin', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockFindById = mock(async () => mockAdmin)
+    mockFindByIdExtended = mock(async () => mockAdmin)
     mockFindInvites = mock(async () => new Map())
 
     await moduleMocker.mock('@/data', () => ({
-      userRepo: { findById: mockFindById },
+      userRepo: { findByIdExtended: mockFindByIdExtended },
       rbacRepo: { findInviters: mockFindInvites },
     }))
   })
@@ -132,7 +132,7 @@ describe('getAdmin', () => {
   it('should return admin when found', async () => {
     const result = await getAdmin(testUuids.ADMIN_1)
 
-    expect(mockFindById).toHaveBeenCalledWith(testUuids.ADMIN_1)
+    expect(mockFindByIdExtended).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(result).toEqual({ admin: { ...mockAdmin, inviter: undefined } })
   })
 
@@ -153,7 +153,7 @@ describe('getAdmin', () => {
   })
 
   it('should throw NotFound error when admin does not exist', async () => {
-    mockFindById.mockImplementation(async () => undefined)
+    mockFindByIdExtended.mockImplementation(async () => undefined)
 
     expect(getAdmin(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
     expect(getAdmin(testUuids.NON_EXISTENT)).rejects.toMatchObject({
@@ -163,7 +163,7 @@ describe('getAdmin', () => {
   })
 
   it('should throw NotFound error when user is not an Admin role', async () => {
-    mockFindById.mockImplementation(async () => ({
+    mockFindByIdExtended.mockImplementation(async () => ({
       ...mockAdmin,
       role: Role.User,
     }))
@@ -176,7 +176,7 @@ describe('getAdmin', () => {
   })
 
   it('should throw NotFound error when user is Owner role', async () => {
-    mockFindById.mockImplementation(async () => ({
+    mockFindByIdExtended.mockImplementation(async () => ({
       ...mockAdmin,
       role: Role.Owner,
     }))

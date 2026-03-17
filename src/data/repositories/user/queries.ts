@@ -11,7 +11,7 @@ import { teamMembersTable, teamsTable, userRoleTable, usersTable } from '../../s
 import { buildPagination, calcOffset } from '../pagination'
 import { lastActiveSubquery } from '../refresh-token/queries'
 
-const selectUserWithRole = (executor: Database) =>
+const selectUserBase = (executor: Database) =>
   executor
     .select({
       id: usersTable.id,
@@ -26,7 +26,7 @@ const selectUserWithRole = (executor: Database) =>
     .from(usersTable)
     .leftJoin(userRoleTable, eq(usersTable.id, userRoleTable.userId))
 
-const selectUserWithRoleAndTeam = (executor: Database) => {
+const selectUserExtended = (executor: Database) => {
   const lastActiveSq = lastActiveSubquery(executor)
 
   return executor
@@ -58,7 +58,7 @@ const findUserBy = async (
 ): Promise<User | undefined> => {
   const executor = tx || db
 
-  const [row] = await selectUserWithRole(executor).where(condition)
+  const [row] = await selectUserBase(executor).where(condition)
 
   return row
 }
@@ -66,13 +66,13 @@ const findUserBy = async (
 export const findUserById = async (userId: string, tx?: Database) =>
   findUserBy(eq(usersTable.id, userId), tx)
 
-export const findUserByIdWithTeam = async (
+export const findUserByIdExtended = async (
   userId: string,
   tx?: Database,
 ): Promise<User | undefined> => {
   const executor = tx || db
 
-  const [row] = await selectUserWithRoleAndTeam(executor).where(eq(usersTable.id, userId))
+  const [row] = await selectUserExtended(executor).where(eq(usersTable.id, userId))
 
   if (!row) {
     return undefined
@@ -130,7 +130,7 @@ export const search = async (
 ): Promise<SearchResult> => {
   const executor = tx || db
 
-  const searchQuery = selectUserWithRoleAndTeam(executor)
+  const searchQuery = selectUserExtended(executor)
 
   const countQuery = executor
     .select({ value: count() })
