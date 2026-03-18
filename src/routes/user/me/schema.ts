@@ -13,7 +13,7 @@ export type UpdateProfileBody = z.infer<typeof updateProfileSchema>
 export type UpdateProfileCtx = ValidatedJsonCtx<UpdateProfileBody>
 
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1),
+  currentPassword: rules.data.password,
   newPassword: rules.data.password,
 }).strict()
 
