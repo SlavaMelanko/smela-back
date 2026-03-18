@@ -1,7 +1,7 @@
-import { getUser, updateUser } from '@/use-cases/user/me'
+import { changePassword, getUser, updateUser } from '@/use-cases/user/me'
 
 import type { AppCtx } from '../../@shared'
-import type { UpdateProfileCtx } from './schema'
+import type { ChangePasswordCtx, UpdateProfileCtx } from './schema'
 
 export const getMeHandler = async (c: AppCtx) => {
   const user = c.get('user')
@@ -18,4 +18,13 @@ export const updateMeHandler = async (c: UpdateProfileCtx) => {
   const result = await updateUser(user.id, body)
 
   return c.json(result)
+}
+
+export const changePasswordHandler = async (c: ChangePasswordCtx) => {
+  const user = c.get('user')
+  const { currentPassword, newPassword } = c.req.valid('json')
+
+  await changePassword(user.id, currentPassword, newPassword)
+
+  return c.body(null, 204)
 }

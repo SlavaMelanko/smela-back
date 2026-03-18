@@ -1,7 +1,8 @@
 import type { UpdateUserInput } from '@/data'
 
-import { teamRepo, userRepo } from '@/data'
+import { authRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
+import { comparePasswordHashes, hashPassword } from '@/security/password'
 
 import { resolvePermissionList } from '../resolve-permissions'
 
@@ -25,6 +26,28 @@ export const getUser = async (userId: string) => {
   }
 
   return { user, team, permissions }
+}
+
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+) => {
+  const auth = await authRepo.findById(userId)
+
+  if (!auth || !auth.passwordHash) {
+    throw new AppError(ErrorCode.InvalidCredentials)
+  }
+
+  const isValid = await comparePasswordHashes(currentPassword, auth.passwordHash)
+
+  if (!isValid) {
+    throw new AppError(ErrorCode.InvalidCredentials)
+  }
+
+  const passwordHash = await hashPassword(newPassword)
+
+  await authRepo.update(userId, { passwordHash })
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
