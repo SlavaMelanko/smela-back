@@ -7,6 +7,7 @@ const httpStatusMap: Record<ErrorCode, HttpStatus> = {
   [ErrorCode.EmailAlreadyInUse]: HttpStatus.CONFLICT,
   [ErrorCode.Forbidden]: HttpStatus.FORBIDDEN,
   [ErrorCode.InvalidCredentials]: HttpStatus.UNAUTHORIZED,
+  [ErrorCode.InvalidPassword]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.Unauthorized]: HttpStatus.UNAUTHORIZED,
 
   // Token errors

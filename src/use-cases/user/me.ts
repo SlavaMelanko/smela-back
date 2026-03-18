@@ -44,7 +44,7 @@ export const changePassword = async (
   const isValid = await comparePasswordHashes(currentPassword, auth.passwordHash)
 
   if (!isValid) {
-    throw new AppError(ErrorCode.InvalidCredentials)
+    throw new AppError(ErrorCode.InvalidPassword)
   }
 
   const passwordHash = await hashPassword(newPassword)

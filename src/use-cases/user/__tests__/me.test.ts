@@ -172,11 +172,11 @@ describe('User Me Use Cases', () => {
       })
     })
 
-    it('should throw InvalidCredentials when current password does not match', async () => {
+    it('should throw InvalidPassword when current password does not match', async () => {
       mockComparePasswordHashes.mockImplementation(async () => false)
 
       expect(changePassword(testUuids.USER_1, 'WrongPass1!', 'NewPass1!')).rejects.toMatchObject({
-        code: ErrorCode.InvalidCredentials,
+        code: ErrorCode.InvalidPassword,
       })
     })
   })
