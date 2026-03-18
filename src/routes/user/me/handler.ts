@@ -1,3 +1,4 @@
+import { getRefreshCookie } from '@/net/http/cookie/refresh-token'
 import { changePassword, getUser, updateUser } from '@/use-cases/user/me'
 
 import type { AppCtx } from '../../@shared'
@@ -23,8 +24,9 @@ export const updateMeHandler = async (c: UpdateProfileCtx) => {
 export const changePasswordHandler = async (c: ChangePasswordCtx) => {
   const user = c.get('user')
   const { currentPassword, newPassword } = c.req.valid('json')
+  const refreshToken = getRefreshCookie(c)
 
-  await changePassword(user.id, currentPassword, newPassword)
+  const result = await changePassword(user.id, currentPassword, newPassword, refreshToken)
 
-  return c.body(null, 204)
+  return c.json(result)
 }

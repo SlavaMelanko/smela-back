@@ -123,6 +123,7 @@ describe('changePasswordHandler', () => {
   let mockContext: any
   let mockBody: any
   let mockChangePassword: any
+  let mockGetRefreshCookie: any
 
   beforeEach(async () => {
     mockBody = { currentPassword: 'OldPass1!', newPassword: 'NewPass1!' }
@@ -130,13 +131,18 @@ describe('changePasswordHandler', () => {
     mockContext = {
       get: mock(() => ({ id: testUuids.USER_1 })),
       req: { valid: mock((): typeof mockBody => mockBody) },
-      body: mock(() => null),
+      json: mock((data: any) => ({ data })),
     }
 
-    mockChangePassword = mock(async () => undefined)
+    mockChangePassword = mock(async () => ({ success: true }))
+    mockGetRefreshCookie = mock(() => 'raw-refresh-token')
 
     await moduleMocker.mock('@/use-cases/user/me', () => ({
       changePassword: mockChangePassword,
+    }))
+
+    await moduleMocker.mock('@/net/http/cookie/refresh-token', () => ({
+      getRefreshCookie: mockGetRefreshCookie,
     }))
   })
 
@@ -144,20 +150,22 @@ describe('changePasswordHandler', () => {
     await moduleMocker.clear()
   })
 
-  it('should call changePassword with user id and passwords from body', async () => {
+  it('should call changePassword with user id, passwords, and refresh token', async () => {
     await changePasswordHandler(mockContext)
 
+    expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
     expect(mockChangePassword).toHaveBeenCalledWith(
       testUuids.USER_1,
       'OldPass1!',
       'NewPass1!',
+      'raw-refresh-token',
     )
   })
 
-  it('should return 204 No Content on success', async () => {
+  it('should return success response', async () => {
     await changePasswordHandler(mockContext)
 
-    expect(mockContext.body).toHaveBeenCalledWith(null, 204)
+    expect(mockContext.json).toHaveBeenCalledWith({ success: true })
   })
 
   it('should propagate InvalidCredentials error', async () => {

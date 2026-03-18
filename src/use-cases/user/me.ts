@@ -1,8 +1,9 @@
 import type { UpdateUserInput } from '@/data'
 
-import { authRepo, teamRepo, userRepo } from '@/data'
+import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { comparePasswordHashes, hashPassword } from '@/security/password'
+import { hashToken } from '@/security/token'
 
 import { resolvePermissionList } from '../resolve-permissions'
 
@@ -32,6 +33,7 @@ export const changePassword = async (
   userId: string,
   currentPassword: string,
   newPassword: string,
+  refreshToken?: string,
 ) => {
   const auth = await authRepo.findById(userId)
 
@@ -46,8 +48,12 @@ export const changePassword = async (
   }
 
   const passwordHash = await hashPassword(newPassword)
-
   await authRepo.update(userId, { passwordHash })
+
+  const excludeHash = refreshToken ? await hashToken(refreshToken) : undefined
+  await refreshTokenRepo.revokeByUserId(userId, excludeHash)
+
+  return { success: true }
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
