@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
-import { getUser, updateUser } from '../me'
+import { changePassword, getUser, updateUser } from '../me'
 
 describe('User Me Use Cases', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -85,6 +85,98 @@ describe('User Me Use Cases', () => {
       expect(getUser(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
       expect(getUser(testUuids.NON_EXISTENT)).rejects.toMatchObject({
         code: ErrorCode.InternalError,
+      })
+    })
+  })
+
+  describe('changePassword', () => {
+    let mockAuthRepo: any
+    let mockRefreshTokenRepo: any
+    let mockComparePasswordHashes: any
+    let mockHashPassword: any
+    let mockHashToken: any
+
+    beforeEach(async () => {
+      mockAuthRepo = {
+        findById: mock(async () => ({ passwordHash: 'hashed' })),
+        update: mock(async () => undefined),
+      }
+      mockRefreshTokenRepo = {
+        revokeByUserId: mock(async () => undefined),
+      }
+      mockComparePasswordHashes = mock(async () => true)
+      mockHashPassword = mock(async () => 'new-hashed')
+      mockHashToken = mock(async () => 'hashed-token')
+
+      await moduleMocker.mock('@/data', () => ({
+        authRepo: mockAuthRepo,
+        refreshTokenRepo: mockRefreshTokenRepo,
+        userRepo: mockUserRepo,
+        teamRepo: mockTeamRepo,
+        db: {
+          transaction: mock(async (callback: any) => callback({}) as Promise<void>),
+        },
+      }))
+
+      await moduleMocker.mock('@/security/password', () => ({
+        comparePasswordHashes: mockComparePasswordHashes,
+        hashPassword: mockHashPassword,
+      }))
+
+      await moduleMocker.mock('@/security/token', () => ({
+        hashToken: mockHashToken,
+      }))
+    })
+
+    it('should update passwordHash and return success when current password is valid', async () => {
+      const result = await changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!')
+
+      expect(result).toEqual({ success: true })
+      expect(mockAuthRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
+      expect(mockComparePasswordHashes).toHaveBeenCalledWith('OldPass1!', 'hashed')
+      expect(mockHashPassword).toHaveBeenCalledWith('NewPass1!')
+      expect(mockAuthRepo.update).toHaveBeenCalledWith(testUuids.USER_1, { passwordHash: 'new-hashed' }, {})
+    })
+
+    it('should revoke other sessions excluding current refresh token', async () => {
+      await changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!', 'raw-token')
+
+      expect(mockHashToken).toHaveBeenCalledWith('raw-token')
+      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(testUuids.USER_1, 'hashed-token', {})
+    })
+
+    it('should revoke all sessions when no refresh token provided', async () => {
+      await changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!')
+
+      expect(mockHashToken).not.toHaveBeenCalled()
+      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(
+        testUuids.USER_1,
+        undefined,
+        {},
+      )
+    })
+
+    it('should throw InvalidCredentials when auth record is not found', async () => {
+      mockAuthRepo.findById.mockImplementation(async () => null)
+
+      expect(changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!')).rejects.toMatchObject({
+        code: ErrorCode.InvalidCredentials,
+      })
+    })
+
+    it('should throw InvalidCredentials when auth has no passwordHash', async () => {
+      mockAuthRepo.findById.mockImplementation(async () => ({ passwordHash: null }))
+
+      expect(changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!')).rejects.toMatchObject({
+        code: ErrorCode.InvalidCredentials,
+      })
+    })
+
+    it('should throw InvalidCredentials when current password does not match', async () => {
+      mockComparePasswordHashes.mockImplementation(async () => false)
+
+      expect(changePassword(testUuids.USER_1, 'WrongPass1!', 'NewPass1!')).rejects.toMatchObject({
+        code: ErrorCode.InvalidCredentials,
       })
     })
   })

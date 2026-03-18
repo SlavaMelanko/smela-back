@@ -4,11 +4,13 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
-import { getMeHandler, updateMeHandler } from './handler'
-import updateProfileSchema from './schema'
+import { changePasswordHandler, getMeHandler, updateMeHandler } from './handler'
+import { changePasswordSchema, updateProfileSchema } from './schema'
 
 export const meRoute = new Hono<AppContext>()
 
 meRoute.get('/me', getMeHandler)
 
 meRoute.patch('/me', requestValidator('json', updateProfileSchema), updateMeHandler)
+
+meRoute.patch('/me/password', requestValidator('json', changePasswordSchema), changePasswordHandler)

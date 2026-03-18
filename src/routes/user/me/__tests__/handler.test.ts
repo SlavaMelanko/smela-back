@@ -3,9 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { User } from '@/data'
 
 import { ModuleMocker, testUuids } from '@/__tests__'
+import { AppError, ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
-import { getMeHandler, updateMeHandler } from '../handler'
+import { changePasswordHandler, getMeHandler, updateMeHandler } from '../handler'
 
 const mockUser: User = {
   id: testUuids.USER_1,
@@ -113,5 +114,67 @@ describe('updateMeHandler', () => {
     })
 
     expect(updateMeHandler(mockContext)).rejects.toThrow('Update failed')
+  })
+})
+
+describe('changePasswordHandler', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockContext: any
+  let mockBody: any
+  let mockChangePassword: any
+  let mockGetRefreshCookie: any
+
+  beforeEach(async () => {
+    mockBody = { currentPassword: 'OldPass1!', newPassword: 'NewPass1!' }
+
+    mockContext = {
+      get: mock(() => ({ id: testUuids.USER_1 })),
+      req: { valid: mock((): typeof mockBody => mockBody) },
+      json: mock((data: any) => ({ data })),
+    }
+
+    mockChangePassword = mock(async () => ({ success: true }))
+    mockGetRefreshCookie = mock(() => 'raw-refresh-token')
+
+    await moduleMocker.mock('@/use-cases/user/me', () => ({
+      changePassword: mockChangePassword,
+    }))
+
+    await moduleMocker.mock('@/net/http/cookie/refresh-token', () => ({
+      getRefreshCookie: mockGetRefreshCookie,
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should call changePassword with user id, passwords, and refresh token', async () => {
+    await changePasswordHandler(mockContext)
+
+    expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
+    expect(mockChangePassword).toHaveBeenCalledWith(
+      testUuids.USER_1,
+      'OldPass1!',
+      'NewPass1!',
+      'raw-refresh-token',
+    )
+  })
+
+  it('should return success response', async () => {
+    await changePasswordHandler(mockContext)
+
+    expect(mockContext.json).toHaveBeenCalledWith({ success: true })
+  })
+
+  it('should propagate InvalidCredentials error', async () => {
+    mockChangePassword.mockImplementation(async () => {
+      throw new AppError(ErrorCode.InvalidCredentials)
+    })
+
+    expect(changePasswordHandler(mockContext)).rejects.toMatchObject({
+      code: ErrorCode.InvalidCredentials,
+    })
   })
 })
