@@ -113,6 +113,9 @@ describe('User Me Use Cases', () => {
         refreshTokenRepo: mockRefreshTokenRepo,
         userRepo: mockUserRepo,
         teamRepo: mockTeamRepo,
+        db: {
+          transaction: mock(async (callback: any) => callback({}) as Promise<void>),
+        },
       }))
 
       await moduleMocker.mock('@/security/password', () => ({
@@ -132,21 +135,25 @@ describe('User Me Use Cases', () => {
       expect(mockAuthRepo.findById).toHaveBeenCalledWith(testUuids.USER_1)
       expect(mockComparePasswordHashes).toHaveBeenCalledWith('OldPass1!', 'hashed')
       expect(mockHashPassword).toHaveBeenCalledWith('NewPass1!')
-      expect(mockAuthRepo.update).toHaveBeenCalledWith(testUuids.USER_1, { passwordHash: 'new-hashed' })
+      expect(mockAuthRepo.update).toHaveBeenCalledWith(testUuids.USER_1, { passwordHash: 'new-hashed' }, {})
     })
 
     it('should revoke other sessions excluding current refresh token', async () => {
       await changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!', 'raw-token')
 
       expect(mockHashToken).toHaveBeenCalledWith('raw-token')
-      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(testUuids.USER_1, 'hashed-token')
+      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(testUuids.USER_1, 'hashed-token', {})
     })
 
     it('should revoke all sessions when no refresh token provided', async () => {
       await changePassword(testUuids.USER_1, 'OldPass1!', 'NewPass1!')
 
       expect(mockHashToken).not.toHaveBeenCalled()
-      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(testUuids.USER_1, undefined)
+      expect(mockRefreshTokenRepo.revokeByUserId).toHaveBeenCalledWith(
+        testUuids.USER_1,
+        undefined,
+        {},
+      )
     })
 
     it('should throw InvalidCredentials when auth record is not found', async () => {
