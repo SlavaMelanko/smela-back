@@ -3,6 +3,7 @@ import type { DeviceInfo } from '@/net/http/device'
 import type { Permission } from '@/types'
 
 import { refreshTokenRepo, tokenRepo } from '@/data'
+import env from '@/env'
 import { signJwt } from '@/security/jwt'
 import { generateHashedToken, TokenType, TokenValidator } from '@/security/token'
 
@@ -21,6 +22,7 @@ export const createRefreshToken = async (
 ) => {
   const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
     TokenType.RefreshToken,
+    { expirySeconds: env.COOKIE_REFRESH_TOKEN_EXPIRATION },
   )
 
   await refreshTokenRepo.create({
