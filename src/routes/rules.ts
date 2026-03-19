@@ -37,6 +37,7 @@ export const rules = {
     ),
 
     role: z.enum(Role),
+    status: z.enum(Status),
   },
 
   token: {
