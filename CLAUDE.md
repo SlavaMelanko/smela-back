@@ -163,6 +163,10 @@ For detailed mocking patterns: `.claude/skills/bun-testing/references/mocking-pa
 - CORS with environment-specific origin validation
 - Input validation using Zod schemas
 - CAPTCHA protection: Google reCAPTCHA v2 (invisible) on auth endpoints
+- **Zod schema strictness rule**:
+  - Use `.strict()` on body schemas for: auth routes, payment endpoints, internal APIs (owner/admin)
+  - Use default strip behavior for: public APIs, webhooks, backward-compatible endpoints
+  - Query and param schemas intentionally omit `.strict()`
 
 #### Security Headers
 
