@@ -37,6 +37,7 @@ export const rules = {
     ),
 
     role: z.enum(Role),
+    status: z.enum(Status),
   },
 
   token: {
@@ -65,6 +66,7 @@ export const rules = {
   },
 
   team: {
+    id: z.uuid(),
     name: z.string().trim().min(1).max(255),
     website: z.url().max(255),
     description: z.string().trim().max(2000),

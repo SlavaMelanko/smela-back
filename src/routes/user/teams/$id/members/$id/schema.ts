@@ -5,7 +5,7 @@ import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validate
 import { rules } from '@/routes/rules'
 
 export const memberIdParamsSchema = z.object({
-  teamId: rules.user.id,
+  teamId: rules.team.id,
   memberId: rules.user.id,
 })
 
