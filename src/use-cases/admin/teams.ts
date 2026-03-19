@@ -2,12 +2,6 @@ import type { PaginationParams, TeamSearchParams } from '@/data'
 
 import { teamRepo } from '@/data'
 
-export interface CreateTeamParams {
-  name: string
-  website: string
-  description?: string
-}
-
 export const getTeams = async (
   params: TeamSearchParams,
   pagination: PaginationParams,
@@ -15,8 +9,14 @@ export const getTeams = async (
   return teamRepo.search(params, pagination)
 }
 
-export const createTeam = async (params: CreateTeamParams) => {
-  const team = await teamRepo.create(params)
+export interface CreateTeamInput {
+  name: string
+  website: string
+  description?: string
+}
+
+export const createTeam = async (input: CreateTeamInput) => {
+  const team = await teamRepo.create(input)
 
   return { team }
 }

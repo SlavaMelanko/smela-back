@@ -5,7 +5,7 @@ import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { isUser, Role } from '@/types'
 
-export interface UpdateUserParams {
+export interface UpdateUserInput {
   firstName?: string
   lastName?: string
   status?: Status
@@ -40,14 +40,14 @@ export const getUser = async (userId: string) => {
   return { user }
 }
 
-export const updateUser = async (userId: string, params: UpdateUserParams) => {
+export const updateUser = async (userId: string, updates: UpdateUserInput) => {
   const user = await userRepo.findById(userId)
 
   if (!user || !isUser(user.role)) {
     throw new AppError(ErrorCode.NotFound, 'User not found')
   }
 
-  const updatedUser = await userRepo.update(userId, params)
+  const updatedUser = await userRepo.update(userId, updates)
 
   return { user: updatedUser }
 }

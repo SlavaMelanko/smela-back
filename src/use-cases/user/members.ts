@@ -21,7 +21,7 @@ export const getTeamMember = async (
   return { member }
 }
 
-export interface UpdateTeamMemberParams {
+export interface UpdateTeamMemberInput {
   membership?: {
     position?: string | null
   }
@@ -34,7 +34,7 @@ export interface UpdateTeamMemberParams {
 export const updateTeamMember = async (
   teamId: string,
   memberId: string,
-  params: UpdateTeamMemberParams,
+  input: UpdateTeamMemberInput,
 ) => {
   const existing = await teamRepo.findMember(teamId, memberId)
 
@@ -44,12 +44,12 @@ export const updateTeamMember = async (
 
   const updates: Array<Promise<unknown>> = []
 
-  if (params.membership) {
-    updates.push(teamRepo.updateMember(memberId, teamId, params.membership))
+  if (input.membership) {
+    updates.push(teamRepo.updateMember(memberId, teamId, input.membership))
   }
 
-  if (params.member) {
-    updates.push(userRepo.update(memberId, params.member))
+  if (input.member) {
+    updates.push(userRepo.update(memberId, input.member))
   }
 
   await Promise.all(updates)
