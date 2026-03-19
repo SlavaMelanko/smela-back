@@ -1,5 +1,5 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
-import signUpWithEmail from '@/use-cases/auth/signup'
+import { signUpWithEmail } from '@/use-cases/auth/signup'
 
 import type { SignupCtx } from './schema'
 

@@ -5,7 +5,7 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { loginHandler } from './handler'
-import schema from './schema'
+import { loginSchema as schema } from './schema'
 
 export const loginRoute = new Hono<AppContext>()
 

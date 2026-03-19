@@ -8,7 +8,7 @@ import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Role } from '@/types'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import checkInvite from '../check-invite'
+import { checkInvite } from '../check-invite'
 
 describe('Check Invite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

@@ -6,7 +6,7 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { Status } from '@/types'
 
-export interface ResendVerificationEmailParams {
+export interface ResendVerificationEmailInput {
   email: string
 }
 
@@ -20,8 +20,8 @@ const createEmailVerificationToken = async (userId: string) => {
   return token
 }
 
-const resendVerificationEmail = async (
-  { email }: ResendVerificationEmailParams,
+export const resendVerificationEmail = async (
+  { email }: ResendVerificationEmailInput,
   preferences?: UserPreferences,
 ) => {
   const user = await userRepo.findByEmail(email)
@@ -43,5 +43,3 @@ const resendVerificationEmail = async (
 
   return { success: true }
 }
-
-export default resendVerificationEmail

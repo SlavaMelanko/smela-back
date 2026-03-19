@@ -1,21 +1,20 @@
 import { z } from 'zod'
 
+import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validated-ctx'
+
+import { rules } from '@/routes/rules'
 import { Status } from '@/types'
 
-import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '../../../@shared'
-
-import { requestValidationRules as rules } from '../../../@shared'
-
 export const adminIdParamsSchema = z.object({
-  adminId: rules.data.id,
+  adminId: rules.user.id,
 })
 
 export type GetAdminParams = z.infer<typeof adminIdParamsSchema>
 export type GetAdminCtx = ValidatedParamCtx<GetAdminParams>
 
 export const updateAdminBodySchema = z.object({
-  firstName: rules.data.firstName.optional(),
-  lastName: rules.data.lastName.optional(),
+  firstName: rules.user.firstName.optional(),
+  lastName: rules.user.lastName.optional(),
   status: z.enum(Status).optional(),
 }).strict()
 

@@ -1,13 +1,13 @@
+import type { AppCtx } from '@/routes/validated-ctx'
+
 import { getDeviceInfo, getRefreshCookie, HttpStatus, setRefreshCookie } from '@/net/http'
 import { refreshAuthTokens } from '@/use-cases/auth'
-
-import type { AppCtx } from '../../@shared'
 
 export const refreshTokenHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
   const deviceInfo = getDeviceInfo(c)
 
-  const result = await refreshAuthTokens(refreshToken, deviceInfo)
+  const result = await refreshAuthTokens({ refreshToken }, deviceInfo)
 
   setRefreshCookie(c, result.refreshToken)
 

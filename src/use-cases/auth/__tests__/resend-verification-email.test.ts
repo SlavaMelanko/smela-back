@@ -7,7 +7,7 @@ import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
 import { hours, nowPlus } from '@/utils/chrono'
 
-import resendVerificationEmail from '../resend-verification-email'
+import { resendVerificationEmail } from '../resend-verification-email'
 
 describe('Resend Verification Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

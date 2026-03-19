@@ -5,7 +5,7 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { signupHandler } from './handler'
-import schema from './schema'
+import { signupSchema as schema } from './schema'
 
 export const signupRoute = new Hono<AppContext>()
 

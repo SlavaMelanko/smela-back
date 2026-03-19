@@ -8,13 +8,13 @@ import Status from '@/types/status'
 import { resolvePermissionList } from '../resolve-permissions'
 import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
-export interface AcceptInviteParams {
+export interface AcceptInviteInput {
   token: string
   password: string
 }
 
-const acceptInvite = async (
-  { token, password }: AcceptInviteParams,
+export const acceptInvite = async (
+  { token, password }: AcceptInviteInput,
   deviceInfo: DeviceInfo,
 ) => {
   const validatedToken = await validateOneTimeToken(token, TokenType.UserInvite)
@@ -46,5 +46,3 @@ const acceptInvite = async (
     refreshToken,
   }
 }
-
-export default acceptInvite

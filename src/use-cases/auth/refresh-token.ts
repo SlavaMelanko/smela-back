@@ -50,8 +50,12 @@ const validateDevice = (
   }
 }
 
-const refreshAuthTokens = async (
-  refreshToken: string | undefined,
+export interface RefreshAuthTokensInput {
+  refreshToken: string | undefined
+}
+
+export const refreshAuthTokens = async (
+  { refreshToken }: RefreshAuthTokensInput,
   deviceInfo: DeviceInfo,
 ) => {
   const { storedToken, hashedToken } = await validateToken(refreshToken)
@@ -86,5 +90,3 @@ const refreshAuthTokens = async (
     refreshToken: newRefreshToken,
   }
 }
-
-export default refreshAuthTokens

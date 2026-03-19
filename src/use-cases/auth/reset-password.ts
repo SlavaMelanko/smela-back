@@ -8,13 +8,13 @@ import { TokenStatus, TokenType } from '@/security/token'
 import { resolvePermissionList } from '../resolve-permissions'
 import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
-export interface ResetPasswordParams {
+export interface ResetPasswordInput {
   token: string
   password: string
 }
 
-const resetPassword = async (
-  { token, password }: ResetPasswordParams,
+export const resetPassword = async (
+  { token, password }: ResetPasswordInput,
   deviceInfo: DeviceInfo,
 ) => {
   const validatedToken = await validateOneTimeToken(token, TokenType.PasswordReset)
@@ -49,5 +49,3 @@ const resetPassword = async (
     refreshToken,
   }
 }
-
-export default resetPassword

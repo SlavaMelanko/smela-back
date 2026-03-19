@@ -20,7 +20,7 @@ describe('Request Password Reset Endpoint', () => {
     mockRequestPasswordReset = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/request-password-reset', () => ({
-      default: mockRequestPasswordReset,
+      requestPasswordReset: mockRequestPasswordReset,
     }))
 
     await mockCaptchaSuccess()

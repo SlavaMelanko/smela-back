@@ -1,7 +1,8 @@
+import type { AppCtx } from '@/routes/validated-ctx'
+
 import { getRefreshCookie } from '@/net/http/cookie/refresh-token'
 import { changePassword, getUser, updateUser } from '@/use-cases/user/me'
 
-import type { AppCtx } from '../../@shared'
 import type { ChangePasswordCtx, UpdateProfileCtx } from './schema'
 
 export const getMeHandler = async (c: AppCtx) => {

@@ -7,7 +7,7 @@ import { TokenType } from '@/security/token'
 import { Role, Status } from '@/types'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import requestPasswordReset from '../request-password-reset'
+import { requestPasswordReset } from '../request-password-reset'
 
 describe('Request Password Reset', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

@@ -1,5 +1,5 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
-import acceptInvite from '@/use-cases/auth/accept-invite'
+import { acceptInvite } from '@/use-cases/auth/accept-invite'
 
 import type { AcceptInviteCtx } from './schema'
 

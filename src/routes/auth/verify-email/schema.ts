@@ -1,14 +1,12 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
-const verifyEmailSchema = z.object({
-  token: rules.data.securityToken,
+export const verifyEmailSchema = z.object({
+  token: rules.token.oneTime,
 }).strict()
 
 export type VerifyEmailBody = z.infer<typeof verifyEmailSchema>
 export type VerifyEmailCtx = ValidatedJsonCtx<VerifyEmailBody>
-
-export default verifyEmailSchema

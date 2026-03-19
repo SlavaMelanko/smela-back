@@ -35,7 +35,7 @@ describe('Verify Email Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
-      default: mockVerifyEmail,
+      verifyEmail: mockVerifyEmail,
     }))
 
     app = createTestApp('/api/v1/auth', verifyEmailRoute)

@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/@shared'
+import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '@/routes/@shared'
+import { rules } from '@/routes/rules'
 
 export const memberIdParamsSchema = z.object({
-  teamId: rules.data.id,
-  memberId: rules.data.id,
+  teamId: rules.user.id,
+  memberId: rules.user.id,
 })
 
 export type MemberIdParams = z.infer<typeof memberIdParamsSchema>
@@ -17,8 +17,8 @@ export const updateTeamMemberBodySchema = z.object({
     position: rules.team.position.nullish(),
   }).optional(),
   member: z.object({
-    firstName: rules.data.firstName.optional(),
-    lastName: rules.data.lastName.optional(),
+    firstName: rules.user.firstName.optional(),
+    lastName: rules.user.lastName.optional(),
   }).optional(),
 })
 

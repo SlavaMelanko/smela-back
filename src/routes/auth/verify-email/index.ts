@@ -5,7 +5,7 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { verifyEmailHandler } from './handler'
-import schema from './schema'
+import { verifyEmailSchema as schema } from './schema'
 
 export const verifyEmailRoute = new Hono<AppContext>()
 
