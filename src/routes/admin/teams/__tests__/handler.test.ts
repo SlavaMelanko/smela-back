@@ -31,77 +31,44 @@ describe('getTeamsHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
-        valid: mock(() => ({
-          search: undefined,
-          page: 1,
-          limit: DEFAULT_LIMIT,
-        })),
+        valid: mock(() => ({ search: undefined, page: 1, limit: DEFAULT_LIMIT })),
       },
       json: mockJson,
     }
-
     mockGetTeams = mock(async () => ({
       teams: mockTeams,
-      pagination: {
-        page: 1,
-        limit: DEFAULT_LIMIT,
-        total: 1,
-        totalPages: 1,
-      },
+      pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
     }))
 
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      getTeams: mockGetTeams,
-    }))
+    await moduleMocker.mock('@/use-cases/admin', () => ({ getTeams: mockGetTeams }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getTeams with correct parameters', async () => {
-    await getTeamsHandler(mockContext)
+  it('should call getTeams and return teams with pagination and OK status', async () => {
+    const result = await getTeamsHandler(mockContext)
 
     expect(mockGetTeams).toHaveBeenCalledWith(
       { search: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
-  })
-
-  it('should return teams and pagination with OK status', async () => {
-    const result = await getTeamsHandler(mockContext)
-
     expect(mockJson).toHaveBeenCalledWith(
-      {
-        teams: mockTeams,
-        pagination: {
-          page: 1,
-          limit: DEFAULT_LIMIT,
-          total: 1,
-          totalPages: 1,
-        },
-      },
+      { teams: mockTeams, pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 } },
       HttpStatus.OK,
     )
     expect(result.status).toBe(HttpStatus.OK)
   })
 
   it('should pass search filter when provided', async () => {
-    mockContext.req.valid = mock(() => ({
-      search: 'acme',
-      page: 1,
-      limit: DEFAULT_LIMIT,
-    }))
+    mockContext.req.valid = mock(() => ({ search: 'acme', page: 1, limit: DEFAULT_LIMIT }))
 
     await getTeamsHandler(mockContext)
 
-    expect(mockGetTeams).toHaveBeenCalledWith(
-      { search: 'acme' },
-      { page: 1, limit: DEFAULT_LIMIT },
-    )
+    expect(mockGetTeams).toHaveBeenCalledWith({ search: 'acme' }, { page: 1, limit: DEFAULT_LIMIT })
   })
 
   it('should propagate error when getTeams throws', async () => {
@@ -131,7 +98,6 @@ describe('createTeamHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock(() => ({
@@ -142,31 +108,19 @@ describe('createTeamHandler', () => {
       },
       json: mockJson,
     }
-
     mockCreateTeam = mock(async () => ({ team: mockTeam }))
 
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      createTeam: mockCreateTeam,
-    }))
+    await moduleMocker.mock('@/use-cases/admin', () => ({ createTeam: mockCreateTeam }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call createTeam with correct body', async () => {
-    await createTeamHandler(mockContext)
-
-    expect(mockCreateTeam).toHaveBeenCalledWith({
-      name: 'New Team',
-      website: 'https://newteam.com',
-      description: 'A new team',
-    })
-  })
-
-  it('should return created team with CREATED status', async () => {
+  it('should call createTeam and return created team with CREATED status', async () => {
     const result = await createTeamHandler(mockContext)
 
+    expect(mockCreateTeam).toHaveBeenCalledWith({ name: 'New Team', website: 'https://newteam.com', description: 'A new team' })
     expect(mockJson).toHaveBeenCalledWith({ team: mockTeam }, HttpStatus.CREATED)
     expect(result.status).toBe(HttpStatus.CREATED)
   })

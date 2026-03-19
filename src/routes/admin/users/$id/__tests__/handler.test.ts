@@ -28,32 +28,23 @@ describe('getUserHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ id: testUuids.USER_1 })) },
       json: mockJson,
     }
-
     mockGetUser = mock(async () => ({ user: mockUser }))
 
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      getUser: mockGetUser,
-    }))
+    await moduleMocker.mock('@/use-cases/admin', () => ({ getUser: mockGetUser }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getUser with correct user id', async () => {
-    await getUserHandler(mockContext)
-
-    expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
-  })
-
-  it('should return user with OK status', async () => {
+  it('should call getUser and return user with OK status', async () => {
     const result = await getUserHandler(mockContext)
 
+    expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
     expect(mockJson).toHaveBeenCalledWith({ user: mockUser }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -88,7 +79,6 @@ describe('updateUserHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock((type: string) =>
@@ -97,27 +87,19 @@ describe('updateUserHandler', () => {
       },
       json: mockJson,
     }
-
     mockUpdateUser = mock(async () => ({ user: updatedUser }))
 
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      updateUser: mockUpdateUser,
-    }))
+    await moduleMocker.mock('@/use-cases/admin', () => ({ updateUser: mockUpdateUser }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call updateUser with correct id and body', async () => {
-    await updateUserHandler(mockContext)
-
-    expect(mockUpdateUser).toHaveBeenCalledWith(testUuids.USER_1, body)
-  })
-
-  it('should return updated user with OK status', async () => {
+  it('should call updateUser and return updated user with OK status', async () => {
     const result = await updateUserHandler(mockContext)
 
+    expect(mockUpdateUser).toHaveBeenCalledWith(testUuids.USER_1, body)
     expect(mockJson).toHaveBeenCalledWith({ user: updatedUser }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })

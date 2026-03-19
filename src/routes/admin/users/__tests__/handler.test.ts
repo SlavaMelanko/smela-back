@@ -34,7 +34,6 @@ describe('getUsersHandler', () => {
     ]
 
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock(() => ({
@@ -46,38 +45,27 @@ describe('getUsersHandler', () => {
       },
       json: mockJson,
     }
-
     mockSearchUsers = mock(async () => ({
       data: { users: mockUsers },
       pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
     }))
 
-    await moduleMocker.mock('@/use-cases/admin', () => ({
-      searchUsers: mockSearchUsers,
-    }))
+    await moduleMocker.mock('@/use-cases/admin', () => ({ searchUsers: mockSearchUsers }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call searchUsers with correct parameters', async () => {
-    await getUsersHandler(mockContext)
+  it('should call searchUsers and return users with pagination and OK status', async () => {
+    const result = await getUsersHandler(mockContext)
 
     expect(mockSearchUsers).toHaveBeenCalledWith(
       { search: undefined, roles: [Role.User], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
-  })
-
-  it('should return users and pagination with OK status', async () => {
-    const result = await getUsersHandler(mockContext)
-
     expect(mockJson).toHaveBeenCalledWith(
-      {
-        users: mockUsers,
-        pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
-      },
+      { users: mockUsers, pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 } },
       HttpStatus.OK,
     )
     expect(result.status).toBe(HttpStatus.OK)

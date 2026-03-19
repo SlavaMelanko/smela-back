@@ -22,32 +22,23 @@ describe('getAdminPermissionsHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ adminId: testUuids.ADMIN_1 })) },
       json: mockJson,
     }
-
     mockGetAdminPermissions = mock(async () => ({ permissions: mockPermissions }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      getAdminPermissions: mockGetAdminPermissions,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ getAdminPermissions: mockGetAdminPermissions }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getAdminPermissions with correct admin id', async () => {
-    await getAdminPermissionsHandler(mockContext)
-
-    expect(mockGetAdminPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1)
-  })
-
-  it('should return permissions with OK status', async () => {
+  it('should call getAdminPermissions and return permissions with OK status', async () => {
     const result = await getAdminPermissionsHandler(mockContext)
 
+    expect(mockGetAdminPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockJson).toHaveBeenCalledWith({ permissions: mockPermissions }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -75,7 +66,6 @@ describe('updateAdminPermissionsHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock((type: string) =>
@@ -86,27 +76,19 @@ describe('updateAdminPermissionsHandler', () => {
       },
       json: mockJson,
     }
-
     mockUpdateAdminPermissions = mock(async () => ({ permissions: updatedPermissions }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      updateAdminPermissions: mockUpdateAdminPermissions,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ updateAdminPermissions: mockUpdateAdminPermissions }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call updateAdminPermissions with correct admin id and body', async () => {
-    await updateAdminPermissionsHandler(mockContext)
-
-    expect(mockUpdateAdminPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1, updatedPermissions)
-  })
-
-  it('should return updated permissions with OK status', async () => {
+  it('should call updateAdminPermissions and return updated permissions with OK status', async () => {
     const result = await updateAdminPermissionsHandler(mockContext)
 
+    expect(mockUpdateAdminPermissions).toHaveBeenCalledWith(testUuids.ADMIN_1, updatedPermissions)
     expect(mockJson).toHaveBeenCalledWith({ permissions: updatedPermissions }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })

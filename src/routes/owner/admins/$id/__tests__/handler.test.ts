@@ -33,32 +33,23 @@ describe('getAdminHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ adminId: testUuids.ADMIN_1 })) },
       json: mockJson,
     }
-
     mockGetAdmin = mock(async () => ({ admin: mockAdmin }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      getAdmin: mockGetAdmin,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ getAdmin: mockGetAdmin }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getAdmin with correct admin id', async () => {
-    await getAdminHandler(mockContext)
-
-    expect(mockGetAdmin).toHaveBeenCalledWith(testUuids.ADMIN_1)
-  })
-
-  it('should return admin with OK status', async () => {
+  it('should call getAdmin and return admin with OK status', async () => {
     const result = await getAdminHandler(mockContext)
 
+    expect(mockGetAdmin).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockJson).toHaveBeenCalledWith({ admin: mockAdmin }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -88,7 +79,6 @@ describe('updateAdminHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock((type: string) =>
@@ -99,30 +89,19 @@ describe('updateAdminHandler', () => {
       },
       json: mockJson,
     }
-
     mockUpdateAdmin = mock(async () => ({ admin: updatedAdmin }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      updateAdmin: mockUpdateAdmin,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ updateAdmin: mockUpdateAdmin }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call updateAdmin with correct params and body', async () => {
-    await updateAdminHandler(mockContext)
-
-    expect(mockUpdateAdmin).toHaveBeenCalledWith(
-      testUuids.ADMIN_1,
-      { firstName: 'Updated', lastName: 'Name' },
-    )
-  })
-
-  it('should return updated admin with OK status', async () => {
+  it('should call updateAdmin and return updated admin with OK status', async () => {
     const result = await updateAdminHandler(mockContext)
 
+    expect(mockUpdateAdmin).toHaveBeenCalledWith(testUuids.ADMIN_1, { firstName: 'Updated', lastName: 'Name' })
     expect(mockJson).toHaveBeenCalledWith({ admin: updatedAdmin }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -145,33 +124,24 @@ describe('resendAdminInviteHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ adminId: testUuids.ADMIN_1 })) },
       get: mock(() => ({ id: testUuids.OWNER_1 })),
       json: mockJson,
     }
-
     mockResendAdminInvite = mock(async () => ({ success: true }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      resendAdminInvite: mockResendAdminInvite,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ resendAdminInvite: mockResendAdminInvite }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call resendAdminInvite with admin id and inviter id', async () => {
-    await resendAdminInviteHandler(mockContext)
-
-    expect(mockResendAdminInvite).toHaveBeenCalledWith(testUuids.ADMIN_1, testUuids.OWNER_1)
-  })
-
-  it('should return result with OK status', async () => {
+  it('should call resendAdminInvite and return result with OK status', async () => {
     const result = await resendAdminInviteHandler(mockContext)
 
+    expect(mockResendAdminInvite).toHaveBeenCalledWith(testUuids.ADMIN_1, testUuids.OWNER_1)
     expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -194,32 +164,23 @@ describe('cancelAdminInviteHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ adminId: testUuids.ADMIN_1 })) },
       json: mockJson,
     }
-
     mockCancelAdminInvite = mock(async () => ({ success: true }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      cancelAdminInvite: mockCancelAdminInvite,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ cancelAdminInvite: mockCancelAdminInvite }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call cancelAdminInvite with correct admin id', async () => {
-    await cancelAdminInviteHandler(mockContext)
-
-    expect(mockCancelAdminInvite).toHaveBeenCalledWith(testUuids.ADMIN_1)
-  })
-
-  it('should return result with OK status', async () => {
+  it('should call cancelAdminInvite and return result with OK status', async () => {
     const result = await cancelAdminInviteHandler(mockContext)
 
+    expect(mockCancelAdminInvite).toHaveBeenCalledWith(testUuids.ADMIN_1)
     expect(mockJson).toHaveBeenCalledWith({ success: true }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })

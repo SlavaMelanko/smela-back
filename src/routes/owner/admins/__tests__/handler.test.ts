@@ -62,49 +62,33 @@ describe('getAdminsHandler', () => {
     ]
 
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
-        valid: mock(() => ({
-          statuses: undefined,
-          page: 1,
-          limit: DEFAULT_LIMIT,
-        })),
+        valid: mock(() => ({ statuses: undefined, page: 1, limit: DEFAULT_LIMIT })),
       },
       json: mockJson,
     }
-
     mockGetAdmins = mock(async () => ({
       data: { users: mockAdmins },
       pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
     }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      getAdmins: mockGetAdmins,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ getAdmins: mockGetAdmins }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getAdmins with correct parameters', async () => {
-    await getAdminsHandler(mockContext)
+  it('should call getAdmins and return admins with pagination and OK status', async () => {
+    const result = await getAdminsHandler(mockContext)
 
     expect(mockGetAdmins).toHaveBeenCalledWith(
       { search: undefined, roles: [], statuses: undefined },
       { page: 1, limit: DEFAULT_LIMIT },
     )
-  })
-
-  it('should return admins and pagination with OK status', async () => {
-    const result = await getAdminsHandler(mockContext)
-
     expect(mockJson).toHaveBeenCalledWith(
-      {
-        users: mockAdmins,
-        pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 },
-      },
+      { users: mockAdmins, pagination: { page: 1, limit: DEFAULT_LIMIT, total: 1, totalPages: 1 } },
       HttpStatus.OK,
     )
     expect(result.status).toBe(HttpStatus.OK)
@@ -135,33 +119,24 @@ describe('createAdminHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => body) },
       get: mock(() => ({ id: testUuids.OWNER_1 })),
       json: mockJson,
     }
-
     mockInviteAdmin = mock(async () => ({ admin: { id: testUuids.ADMIN_1, ...body } }))
 
-    await moduleMocker.mock('@/use-cases/owner', () => ({
-      inviteAdmin: mockInviteAdmin,
-    }))
+    await moduleMocker.mock('@/use-cases/owner', () => ({ inviteAdmin: mockInviteAdmin }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call inviteAdmin with body and inviter id', async () => {
-    await createAdminHandler(mockContext)
-
-    expect(mockInviteAdmin).toHaveBeenCalledWith(body, testUuids.OWNER_1)
-  })
-
-  it('should return created admin with CREATED status', async () => {
+  it('should call inviteAdmin and return created admin with CREATED status', async () => {
     const result = await createAdminHandler(mockContext)
 
+    expect(mockInviteAdmin).toHaveBeenCalledWith(body, testUuids.OWNER_1)
     expect(mockJson).toHaveBeenCalledWith(
       { admin: { id: testUuids.ADMIN_1, ...body } },
       HttpStatus.CREATED,
