@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedParamJsonCtx, ValidatedQueryCtx } from './handler'
+import type { ValidatedJsonCtx, ValidatedParamCtx, ValidatedParamJsonCtx, ValidatedQueryCtx } from '../validated-ctx'
 
 import { dataRules } from './data-rules'
 import { paginationRules } from './pagination-rules'

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 

@@ -7,8 +7,6 @@ import { preferencesRules } from './preferences-rules'
 import { teamRules } from './team-rules'
 import { userFilterRules } from './user-filter-rules'
 
-export type { AppCtx, ValidatedJsonCtx, ValidatedParamCtx, ValidatedParamJsonCtx, ValidatedQueryCtx } from './handler'
-
 export {
   type InviteMemberBody,
   inviteMemberBodySchema,

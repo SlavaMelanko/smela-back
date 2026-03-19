@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedParamJsonCtx } from './handler'
+import type { ValidatedParamJsonCtx } from '../validated-ctx'
 
 import { dataRules } from './data-rules'
 import { permissionsSchema } from './permissions-schema'

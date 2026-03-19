@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx, ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedJsonCtx, ValidatedQueryCtx } from '@/routes/validated-ctx'
 
 import { requestValidationRules as rules } from '../../@shared'
 import { permissionsSchema } from '../../@shared/permissions-schema'

@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import { Status } from '@/types'
+import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validated-ctx'
 
-import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '../../../@shared'
+import { Status } from '@/types'
 
 import { requestValidationRules as rules } from '../../../@shared'
 

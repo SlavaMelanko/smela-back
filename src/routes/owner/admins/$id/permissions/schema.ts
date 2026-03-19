@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import { permissionsSchema } from '@/routes/@shared/permissions-schema'
+import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validated-ctx'
 
-import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '../../../../@shared'
+import { permissionsSchema } from '@/routes/@shared/permissions-schema'
 
 import { requestValidationRules as rules } from '../../../../@shared'
 
