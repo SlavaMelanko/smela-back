@@ -21,32 +21,23 @@ describe('getTeamHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ teamId: testUuids.TEAM_1 })) },
       json: mockJson,
     }
-
     mockGetTeam = mock(async () => ({ team: mockTeam }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      getTeam: mockGetTeam,
-    }))
+    await moduleMocker.mock('@/use-cases/user', () => ({ getTeam: mockGetTeam }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getTeam with correct team id', async () => {
-    await getTeamHandler(mockContext)
-
-    expect(mockGetTeam).toHaveBeenCalledWith(testUuids.TEAM_1)
-  })
-
-  it('should return team with OK status', async () => {
+  it('should call getTeam and return team with OK status', async () => {
     const result = await getTeamHandler(mockContext)
 
+    expect(mockGetTeam).toHaveBeenCalledWith(testUuids.TEAM_1)
     expect(mockJson).toHaveBeenCalledWith({ team: mockTeam }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -72,7 +63,6 @@ describe('updateTeamHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock((type: string) =>
@@ -81,27 +71,19 @@ describe('updateTeamHandler', () => {
       },
       json: mockJson,
     }
-
     mockUpdateTeam = mock(async () => ({ team: updatedTeam }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      updateTeam: mockUpdateTeam,
-    }))
+    await moduleMocker.mock('@/use-cases/user', () => ({ updateTeam: mockUpdateTeam }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call updateTeam with correct team id and body', async () => {
-    await updateTeamHandler(mockContext)
-
-    expect(mockUpdateTeam).toHaveBeenCalledWith(testUuids.TEAM_1, body)
-  })
-
-  it('should return updated team with OK status', async () => {
+  it('should call updateTeam and return updated team with OK status', async () => {
     const result = await updateTeamHandler(mockContext)
 
+    expect(mockUpdateTeam).toHaveBeenCalledWith(testUuids.TEAM_1, body)
     expect(mockJson).toHaveBeenCalledWith({ team: updatedTeam }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })

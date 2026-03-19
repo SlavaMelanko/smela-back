@@ -28,32 +28,23 @@ describe('getMeHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any) => ({ data }))
-
     mockContext = {
       get: mock(() => ({ id: testUuids.USER_1 })),
       json: mockJson,
     }
-
     mockGetUser = mock(async () => ({ user: mockUser }))
 
-    await moduleMocker.mock('@/use-cases/user/me', () => ({
-      getUser: mockGetUser,
-    }))
+    await moduleMocker.mock('@/use-cases/user/me', () => ({ getUser: mockGetUser }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getUser with current user id', async () => {
+  it('should call getUser and return user data', async () => {
     await getMeHandler(mockContext)
 
     expect(mockGetUser).toHaveBeenCalledWith(testUuids.USER_1)
-  })
-
-  it('should return user data', async () => {
-    await getMeHandler(mockContext)
-
     expect(mockJson).toHaveBeenCalledWith({ user: mockUser })
   })
 
@@ -78,33 +69,24 @@ describe('updateMeHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any) => ({ data }))
-
     mockContext = {
       get: mock(() => ({ id: testUuids.USER_1 })),
       req: { valid: mock(() => body) },
       json: mockJson,
     }
-
     mockUpdateUser = mock(async () => ({ user: updatedUser }))
 
-    await moduleMocker.mock('@/use-cases/user/me', () => ({
-      updateUser: mockUpdateUser,
-    }))
+    await moduleMocker.mock('@/use-cases/user/me', () => ({ updateUser: mockUpdateUser }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call updateUser with current user id and body', async () => {
+  it('should call updateUser and return updated user data', async () => {
     await updateMeHandler(mockContext)
 
     expect(mockUpdateUser).toHaveBeenCalledWith(testUuids.USER_1, body)
-  })
-
-  it('should return updated user data', async () => {
-    await updateMeHandler(mockContext)
-
     expect(mockJson).toHaveBeenCalledWith({ user: updatedUser })
   })
 
@@ -121,29 +103,20 @@ describe('changePasswordHandler', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockContext: any
-  let mockBody: any
   let mockChangePassword: any
   let mockGetRefreshCookie: any
 
   beforeEach(async () => {
-    mockBody = { currentPassword: 'OldPass1!', newPassword: 'NewPass1!' }
-
     mockContext = {
       get: mock(() => ({ id: testUuids.USER_1 })),
-      req: { valid: mock((): typeof mockBody => mockBody) },
+      req: { valid: mock(() => ({ currentPassword: 'OldPass1!', newPassword: 'NewPass1!' })) },
       json: mock((data: any) => ({ data })),
     }
-
     mockChangePassword = mock(async () => ({ success: true }))
     mockGetRefreshCookie = mock(() => 'raw-refresh-token')
 
-    await moduleMocker.mock('@/use-cases/user/me', () => ({
-      changePassword: mockChangePassword,
-    }))
-
-    await moduleMocker.mock('@/net/http/cookie/refresh-token', () => ({
-      getRefreshCookie: mockGetRefreshCookie,
-    }))
+    await moduleMocker.mock('@/use-cases/user/me', () => ({ changePassword: mockChangePassword }))
+    await moduleMocker.mock('@/net/http/cookie/refresh-token', () => ({ getRefreshCookie: mockGetRefreshCookie }))
   })
 
   afterEach(async () => {
@@ -160,11 +133,6 @@ describe('changePasswordHandler', () => {
       'NewPass1!',
       'raw-refresh-token',
     )
-  })
-
-  it('should return success response', async () => {
-    await changePasswordHandler(mockContext)
-
     expect(mockContext.json).toHaveBeenCalledWith({ success: true })
   })
 

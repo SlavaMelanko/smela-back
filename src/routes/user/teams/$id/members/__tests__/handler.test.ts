@@ -45,32 +45,23 @@ describe('getTeamMembersHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: { valid: mock(() => ({ teamId: testUuids.TEAM_1 })) },
       json: mockJson,
     }
-
     mockGetTeamMembers = mock(async () => ({ members: mockMembers }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      getTeamMembers: mockGetTeamMembers,
-    }))
+    await moduleMocker.mock('@/use-cases/user', () => ({ getTeamMembers: mockGetTeamMembers }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call getTeamMembers with correct team id', async () => {
-    await getTeamMembersHandler(mockContext)
-
-    expect(mockGetTeamMembers).toHaveBeenCalledWith(testUuids.TEAM_1)
-  })
-
-  it('should return members with OK status', async () => {
+  it('should call getTeamMembers and return members with OK status', async () => {
     const result = await getTeamMembersHandler(mockContext)
 
+    expect(mockGetTeamMembers).toHaveBeenCalledWith(testUuids.TEAM_1)
     expect(mockJson).toHaveBeenCalledWith({ members: mockMembers }, HttpStatus.OK)
     expect(result.status).toBe(HttpStatus.OK)
   })
@@ -99,7 +90,6 @@ describe('createMemberHandler', () => {
 
   beforeEach(async () => {
     mockJson = mock((data: any, status: number) => ({ data, status }))
-
     mockContext = {
       req: {
         valid: mock((type: string) =>
@@ -109,27 +99,19 @@ describe('createMemberHandler', () => {
       get: mock(() => ({ id: testUuids.USER_1 })),
       json: mockJson,
     }
-
     mockInviteMember = mock(async () => ({ member: { id: testUuids.USER_2, ...body } }))
 
-    await moduleMocker.mock('@/use-cases/user', () => ({
-      inviteMember: mockInviteMember,
-    }))
+    await moduleMocker.mock('@/use-cases/user', () => ({ inviteMember: mockInviteMember }))
   })
 
   afterEach(async () => {
     await moduleMocker.clear()
   })
 
-  it('should call inviteMember with team id, body, and inviter id', async () => {
-    await createMemberHandler(mockContext)
-
-    expect(mockInviteMember).toHaveBeenCalledWith(testUuids.TEAM_1, body, testUuids.USER_1)
-  })
-
-  it('should return created member with CREATED status', async () => {
+  it('should call inviteMember and return created member with CREATED status', async () => {
     const result = await createMemberHandler(mockContext)
 
+    expect(mockInviteMember).toHaveBeenCalledWith(testUuids.TEAM_1, body, testUuids.USER_1)
     expect(mockJson).toHaveBeenCalledWith(
       { member: { id: testUuids.USER_2, ...body } },
       HttpStatus.CREATED,
