@@ -13,7 +13,7 @@ export type GetTeamsQuery = z.infer<typeof getTeamsQuerySchema>
 export type GetTeamsCtx = ValidatedQueryCtx<GetTeamsQuery>
 
 export const teamParamsSchema = z.object({
-  teamId: rules.user.id,
+  teamId: rules.team.id,
 })
 
 export type TeamParams = z.infer<typeof teamParamsSchema>
@@ -36,3 +36,14 @@ export const updateTeamBodySchema = z.object({
 
 export type UpdateTeamBody = z.infer<typeof updateTeamBodySchema>
 export type UpdateTeamCtx = ValidatedParamJsonCtx<TeamParams, UpdateTeamBody>
+
+export const inviteMemberBodySchema = z.object({
+  firstName: rules.user.firstName,
+  lastName: rules.user.lastName.optional(),
+  email: rules.user.email,
+  position: rules.team.position.optional(),
+  permissions: rules.permissions,
+})
+
+export type InviteMemberBody = z.infer<typeof inviteMemberBodySchema>
+export type InviteMemberCtx = ValidatedParamJsonCtx<TeamParams, InviteMemberBody>
