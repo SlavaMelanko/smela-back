@@ -5,12 +5,12 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { checkInviteHandler } from './handler'
-import { checkInviteSchema as schema } from './schema'
+import { checkInviteQuerySchema } from './schema'
 
 export const checkInviteRoute = new Hono<AppContext>()
 
 checkInviteRoute.get(
   '/check-invite',
-  requestValidator('query', schema),
+  requestValidator('query', checkInviteQuerySchema),
   checkInviteHandler,
 )
