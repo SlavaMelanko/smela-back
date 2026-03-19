@@ -11,13 +11,6 @@ import { AuthProvider, Status } from '@/types'
 
 import { createAuthTokens } from '../tokens'
 
-export interface SignupInput {
-  firstName: string
-  lastName?: string
-  email: string
-  password: string
-}
-
 const createNewUser = async (
   firstName: string,
   lastName: string | undefined,
@@ -54,6 +47,13 @@ const createNewUser = async (
   })
 
   return { newUser, verificationToken }
+}
+
+export interface SignupInput {
+  firstName: string
+  lastName?: string
+  email: string
+  password: string
 }
 
 export const signUpWithEmail = async (
