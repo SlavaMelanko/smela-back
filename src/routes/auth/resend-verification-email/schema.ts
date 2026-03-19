@@ -12,7 +12,7 @@ export const resendVerificationEmailSchema = z.object({
   preferences: z.object({
     locale: rules.preferences.locale,
     theme: rules.preferences.theme,
-  }).optional(),
+  }).strict().optional(),
 }).strict()
 
 export type ResendVerificationEmailBody = z.infer<typeof resendVerificationEmailSchema>

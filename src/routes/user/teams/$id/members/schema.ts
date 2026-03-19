@@ -17,7 +17,7 @@ export const inviteMemberBodySchema = z.object({
   email: rules.user.email,
   position: rules.team.position.optional(),
   permissions: rules.permissions,
-})
+}).strict()
 
 export type InviteMemberBody = z.infer<typeof inviteMemberBodySchema>
 export type InviteMemberCtx = ValidatedParamJsonCtx<TeamIdParams, InviteMemberBody>

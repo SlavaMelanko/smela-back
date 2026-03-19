@@ -16,7 +16,7 @@ export const createTeamBodySchema = z.object({
   name: rules.team.name,
   website: rules.team.website,
   description: rules.team.description.optional(),
-})
+}).strict()
 
 export type CreateTeamBody = z.infer<typeof createTeamBodySchema>
 export type CreateTeamCtx = ValidatedJsonCtx<CreateTeamBody>

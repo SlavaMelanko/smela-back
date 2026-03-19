@@ -15,7 +15,7 @@ export const updateTeamBodySchema = z.object({
   name: rules.team.name.optional(),
   website: rules.team.website.optional(),
   description: rules.team.description.nullish(),
-})
+}).strict()
 
 export type UpdateTeamBody = z.infer<typeof updateTeamBodySchema>
 export type UpdateTeamCtx = ValidatedParamJsonCtx<TeamIdParams, UpdateTeamBody>
