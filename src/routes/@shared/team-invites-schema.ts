@@ -2,19 +2,18 @@ import { z } from 'zod'
 
 import type { ValidatedParamJsonCtx } from '../validated-ctx'
 
-import { dataRules } from './data-rules'
+import { rules } from '../rules'
 import { permissionsSchema } from './permissions-schema'
-import { teamRules } from './team-rules'
 
 export const teamParamsSchema = z.object({
-  teamId: dataRules.id,
+  teamId: rules.user.id,
 })
 
 export const inviteMemberBodySchema = z.object({
-  firstName: dataRules.firstName,
-  lastName: dataRules.lastName.optional(),
-  email: dataRules.email,
-  position: teamRules.position.optional(),
+  firstName: rules.user.firstName,
+  lastName: rules.user.lastName.optional(),
+  email: rules.user.email,
+  position: rules.team.position.optional(),
   permissions: permissionsSchema,
 })
 

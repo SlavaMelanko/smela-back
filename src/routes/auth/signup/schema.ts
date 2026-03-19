@@ -2,15 +2,20 @@ import { z } from 'zod'
 
 import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
-import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
 export const signupSchema = z.object({
-  firstName: rules.data.firstName,
-  lastName: rules.data.lastName.optional(),
-  email: rules.data.email,
-  password: rules.data.password,
-  captcha: nested.captcha.strict(),
-  preferences: nested.preferences.optional(),
+  firstName: rules.user.firstName,
+  lastName: rules.user.lastName.optional(),
+  email: rules.user.email,
+  password: rules.user.password,
+  captcha: z.object({
+    token: rules.captcha.token,
+  }).strict(),
+  preferences: z.object({
+    locale: rules.preferences.locale,
+    theme: rules.preferences.theme,
+  }).optional(),
 }).strict()
 
 export type SignupBody = z.infer<typeof signupSchema>

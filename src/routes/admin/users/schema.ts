@@ -2,9 +2,8 @@ import { z } from 'zod'
 
 import type { ValidatedQueryCtx } from '@/routes/validated-ctx'
 
+import { rules } from '@/routes/rules'
 import { Role } from '@/types'
-
-import { requestValidationRules as rules } from '../../@shared'
 
 export const getUsersQuerySchema = z.object({
   search: rules.userFilter.search.optional(),

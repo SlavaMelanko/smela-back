@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 import type { ValidatedJsonCtx, ValidatedQueryCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
+
 import { permissionsSchema } from '../../@shared/permissions-schema'
 
 export const getAdminsQuerySchema = z.object({
@@ -15,9 +16,9 @@ export type GetAdminsQuery = z.infer<typeof getAdminsQuerySchema>
 export type GetAdminsCtx = ValidatedQueryCtx<GetAdminsQuery>
 
 export const createAdminBodySchema = z.object({
-  firstName: rules.data.firstName,
-  lastName: rules.data.lastName.optional(),
-  email: rules.data.email,
+  firstName: rules.user.firstName,
+  lastName: rules.user.lastName.optional(),
+  email: rules.user.email,
   permissions: permissionsSchema,
 })
 

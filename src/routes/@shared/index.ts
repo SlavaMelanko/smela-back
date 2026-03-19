@@ -1,11 +1,4 @@
-import { z } from 'zod'
-
-import { captchaRules } from './captcha-rules'
-import { dataRules } from './data-rules'
-import { paginationRules } from './pagination-rules'
-import { preferencesRules } from './preferences-rules'
-import { teamRules } from './team-rules'
-import { userFilterRules } from './user-filter-rules'
+export { rules } from '../rules'
 
 export {
   type InviteMemberBody,
@@ -29,22 +22,3 @@ export {
   updateTeamBodySchema,
   type UpdateTeamCtx,
 } from './team-schema'
-
-export const requestValidationRules = {
-  captcha: captchaRules,
-  team: teamRules,
-  data: dataRules,
-  pagination: paginationRules,
-  preferences: preferencesRules,
-  userFilter: userFilterRules,
-}
-
-export const nestedSchemas = {
-  captcha: z.object({
-    token: captchaRules.token,
-  }),
-  preferences: z.object({
-    locale: preferencesRules.locale,
-    theme: preferencesRules.theme,
-  }),
-}
