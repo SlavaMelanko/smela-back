@@ -18,7 +18,7 @@ export const createAdminBodySchema = z.object({
   lastName: rules.user.lastName.optional(),
   email: rules.user.email,
   permissions: rules.permissions,
-})
+}).strict()
 
 export type CreateAdminBody = z.infer<typeof createAdminBodySchema>
 export type CreateAdminCtx = ValidatedJsonCtx<CreateAdminBody>

@@ -20,7 +20,7 @@ export const updateTeamMemberBodySchema = z.object({
     firstName: rules.user.firstName.optional(),
     lastName: rules.user.lastName.optional(),
   }).optional(),
-})
+}).strict()
 
 export type UpdateTeamMemberBody = z.infer<typeof updateTeamMemberBodySchema>
 export type UpdateTeamMemberCtx = ValidatedParamJsonCtx<MemberIdParams, UpdateTeamMemberBody>
