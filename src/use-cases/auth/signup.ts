@@ -56,7 +56,7 @@ const createNewUser = async (
   return { newUser, verificationToken }
 }
 
-const signUpWithEmail = async (
+export const signUpWithEmail = async (
   { firstName, lastName, email, password }: SignupInput,
   deviceInfo: DeviceInfo,
   preferences?: UserPreferences,
@@ -93,5 +93,3 @@ const signUpWithEmail = async (
     refreshToken,
   }
 }
-
-export default signUpWithEmail

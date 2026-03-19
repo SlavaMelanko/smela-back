@@ -12,7 +12,7 @@ export interface LoginInput {
   password: string
 }
 
-const logInWithEmail = async (
+export const logInWithEmail = async (
   { email, password }: LoginInput,
   deviceInfo: DeviceInfo,
 ) => {
@@ -46,5 +46,3 @@ const logInWithEmail = async (
     refreshToken,
   }
 }
-
-export default logInWithEmail

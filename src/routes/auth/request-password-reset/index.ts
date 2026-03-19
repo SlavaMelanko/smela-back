@@ -5,7 +5,7 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { requestPasswordResetHandler } from './handler'
-import schema from './schema'
+import { requestPasswordResetSchema as schema } from './schema'
 
 export const requestPasswordResetRoute = new Hono<AppContext>()
 

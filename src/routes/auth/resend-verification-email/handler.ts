@@ -1,5 +1,5 @@
 import { HttpStatus } from '@/net/http'
-import resendVerificationEmail from '@/use-cases/auth/resend-verification-email'
+import { resendVerificationEmail } from '@/use-cases/auth/resend-verification-email'
 
 import type { ResendVerificationEmailCtx } from './schema'
 

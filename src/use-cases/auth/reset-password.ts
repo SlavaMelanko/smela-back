@@ -13,7 +13,7 @@ export interface ResetPasswordInput {
   password: string
 }
 
-const resetPassword = async (
+export const resetPassword = async (
   { token, password }: ResetPasswordInput,
   deviceInfo: DeviceInfo,
 ) => {
@@ -49,5 +49,3 @@ const resetPassword = async (
     refreshToken,
   }
 }
-
-export default resetPassword

@@ -20,7 +20,7 @@ const createEmailVerificationToken = async (userId: string) => {
   return token
 }
 
-const resendVerificationEmail = async (
+export const resendVerificationEmail = async (
   { email }: ResendVerificationEmailInput,
   preferences?: UserPreferences,
 ) => {
@@ -43,5 +43,3 @@ const resendVerificationEmail = async (
 
   return { success: true }
 }
-
-export default resendVerificationEmail

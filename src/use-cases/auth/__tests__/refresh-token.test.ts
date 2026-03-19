@@ -6,7 +6,7 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { ErrorCode } from '@/errors'
 import { Role, Status } from '@/types'
 
-import refreshAuthTokens from '../refresh-token'
+import { refreshAuthTokens } from '../refresh-token'
 
 describe('Refresh Auth Tokens', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

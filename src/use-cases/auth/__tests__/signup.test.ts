@@ -10,7 +10,7 @@ import { days, hours, nowPlus } from '@/utils/chrono'
 
 import type { SignupInput } from '../signup'
 
-import signUpWithEmail from '../signup'
+import { signUpWithEmail } from '../signup'
 
 describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

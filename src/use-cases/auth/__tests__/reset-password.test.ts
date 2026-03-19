@@ -10,7 +10,7 @@ import Role from '@/types/role'
 import Status from '@/types/status'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import resetPassword from '../reset-password'
+import { resetPassword } from '../reset-password'
 
 describe('Reset Password', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

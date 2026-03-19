@@ -4,7 +4,7 @@ import type { ValidatedJsonCtx } from '../../@shared'
 
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
-const signupSchema = z.object({
+export const signupSchema = z.object({
   firstName: rules.data.firstName,
   lastName: rules.data.lastName.optional(),
   email: rules.data.email,
@@ -15,5 +15,3 @@ const signupSchema = z.object({
 
 export type SignupBody = z.infer<typeof signupSchema>
 export type SignupCtx = ValidatedJsonCtx<SignupBody>
-
-export default signupSchema

@@ -54,7 +54,7 @@ export interface RefreshAuthTokensInput {
   refreshToken: string | undefined
 }
 
-const refreshAuthTokens = async (
+export const refreshAuthTokens = async (
   { refreshToken }: RefreshAuthTokensInput,
   deviceInfo: DeviceInfo,
 ) => {
@@ -90,5 +90,3 @@ const refreshAuthTokens = async (
     refreshToken: newRefreshToken,
   }
 }
-
-export default refreshAuthTokens

@@ -5,7 +5,7 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { resendVerificationEmailHandler } from './handler'
-import schema from './schema'
+import { resendVerificationEmailSchema as schema } from './schema'
 
 export const resendVerificationEmailRoute = new Hono<AppContext>()
 

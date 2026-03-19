@@ -10,7 +10,7 @@ import Role from '@/types/role'
 import Status from '@/types/status'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import acceptInvite from '../accept-invite'
+import { acceptInvite } from '../accept-invite'
 
 describe('Accept Invite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

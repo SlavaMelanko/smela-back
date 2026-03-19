@@ -38,7 +38,7 @@ describe('Signup Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/signup', () => ({
-      default: mockSignUpWithEmail,
+      signUpWithEmail: mockSignUpWithEmail,
     }))
 
     mockSetRefreshCookie = mock(() => {})

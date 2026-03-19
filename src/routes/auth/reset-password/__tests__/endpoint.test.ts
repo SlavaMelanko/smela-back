@@ -23,7 +23,7 @@ describe('Reset Password Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/reset-password', () => ({
-      default: mockResetPassword,
+      resetPassword: mockResetPassword,
     }))
 
     app = createTestApp('/api/v1/auth', resetPasswordRoute)

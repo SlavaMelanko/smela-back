@@ -8,7 +8,7 @@ import { AuthProvider, Role, Status } from '@/types'
 
 import type { LoginInput } from '../login'
 
-import logInWithEmail from '../login'
+import { logInWithEmail } from '../login'
 
 describe('Login with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

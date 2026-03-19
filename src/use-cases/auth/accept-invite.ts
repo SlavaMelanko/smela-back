@@ -13,7 +13,7 @@ export interface AcceptInviteInput {
   password: string
 }
 
-const acceptInvite = async (
+export const acceptInvite = async (
   { token, password }: AcceptInviteInput,
   deviceInfo: DeviceInfo,
 ) => {
@@ -46,5 +46,3 @@ const acceptInvite = async (
     refreshToken,
   }
 }
-
-export default acceptInvite

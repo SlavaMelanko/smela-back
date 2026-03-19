@@ -25,7 +25,7 @@ describe('Check Invite Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/check-invite', () => ({
-      default: mockCheckInvite,
+      checkInvite: mockCheckInvite,
     }))
 
     app = createTestApp('/api/v1/auth', checkInviteRoute)

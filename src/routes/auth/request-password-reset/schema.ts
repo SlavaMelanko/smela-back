@@ -4,7 +4,7 @@ import type { ValidatedJsonCtx } from '../../@shared'
 
 import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
 
-const requestPasswordResetSchema = z.object({
+export const requestPasswordResetSchema = z.object({
   email: rules.data.email,
   captcha: nested.captcha.strict(),
   preferences: nested.preferences.optional(),
@@ -12,5 +12,3 @@ const requestPasswordResetSchema = z.object({
 
 export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetSchema>
 export type RequestPasswordResetCtx = ValidatedJsonCtx<RequestPasswordResetBody>
-
-export default requestPasswordResetSchema

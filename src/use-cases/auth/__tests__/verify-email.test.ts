@@ -9,7 +9,7 @@ import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Status } from '@/types'
 import { days, hour, hours, nowMinus, nowPlus } from '@/utils/chrono'
 
-import verifyEmail from '../verify-email'
+import { verifyEmail } from '../verify-email'
 
 describe('Verify Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

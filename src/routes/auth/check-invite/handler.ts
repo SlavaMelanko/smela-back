@@ -1,5 +1,5 @@
 import { HttpStatus } from '@/net/http'
-import checkInvite from '@/use-cases/auth/check-invite'
+import { checkInvite } from '@/use-cases/auth/check-invite'
 
 import type { CheckInviteCtx } from './schema'
 

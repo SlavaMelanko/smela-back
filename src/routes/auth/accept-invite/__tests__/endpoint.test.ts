@@ -23,7 +23,7 @@ describe('Accept Invite Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/accept-invite', () => ({
-      default: mockAcceptInvite,
+      acceptInvite: mockAcceptInvite,
     }))
 
     app = createTestApp('/api/v1/auth', acceptInviteRoute)

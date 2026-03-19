@@ -20,7 +20,7 @@ describe('Resend Verification Email Endpoint', () => {
     mockResendVerificationEmail = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/resend-verification-email', () => ({
-      default: mockResendVerificationEmail,
+      resendVerificationEmail: mockResendVerificationEmail,
     }))
 
     await mockCaptchaSuccess()

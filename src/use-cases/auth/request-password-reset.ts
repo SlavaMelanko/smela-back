@@ -20,7 +20,7 @@ const createPasswordResetToken = async (userId: string) => {
   return token
 }
 
-const requestPasswordReset = async (
+export const requestPasswordReset = async (
   { email }: RequestPasswordResetInput,
   preferences?: UserPreferences,
 ) => {
@@ -43,5 +43,3 @@ const requestPasswordReset = async (
 
   return { success: true }
 }
-
-export default requestPasswordReset
