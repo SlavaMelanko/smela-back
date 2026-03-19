@@ -5,12 +5,6 @@ import { userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
 import { isUser, Role } from '@/types'
 
-export interface UpdateUserInput {
-  firstName?: string
-  lastName?: string
-  status?: Status
-}
-
 const normalizeRoles = (params: SearchParams): SearchParams => {
   const filteredRoles = params.roles.filter(isUser)
   const validRoles = filteredRoles.length > 0 ? filteredRoles : [Role.User]
@@ -38,6 +32,12 @@ export const getUser = async (userId: string) => {
   }
 
   return { user }
+}
+
+export interface UpdateUserInput {
+  firstName?: string
+  lastName?: string
+  status?: Status
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
