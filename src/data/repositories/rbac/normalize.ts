@@ -1,4 +1,4 @@
-import type { Permissions } from '@/routes/@shared/permissions-schema'
+import type { PermissionsInput } from '@/types'
 
 import Action from '@/types/action'
 import Resource from '@/types/resource'
@@ -8,7 +8,7 @@ import type { ActivePermissionRow } from './types'
 export type NormalizedPermissions = Partial<Record<Resource, { view?: boolean, manage: boolean }>>
 
 // Before writing: collapse view + manage → manage only
-export const collapsePermissions = (permissions: Permissions): NormalizedPermissions => {
+export const collapsePermissions = (permissions: PermissionsInput): NormalizedPermissions => {
   const result: NormalizedPermissions = { ...permissions }
 
   for (const resource of Object.values(Resource)) {

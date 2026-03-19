@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import type { ValidatedParamCtx, ValidatedParamJsonCtx } from '@/routes/validated-ctx'
 
-import { permissionsSchema } from '@/routes/@shared/permissions-schema'
 import { rules } from '@/routes/rules'
 
 const adminIdParamsSchema = z.object({
@@ -12,7 +11,7 @@ const adminIdParamsSchema = z.object({
 export type GetAdminPermissionsParams = z.infer<typeof adminIdParamsSchema>
 export type GetAdminPermissionsCtx = ValidatedParamCtx<GetAdminPermissionsParams>
 
-export const updateAdminPermissionsBodySchema = z.object({ permissions: permissionsSchema })
+export const updateAdminPermissionsBodySchema = z.object({ permissions: rules.permissions })
 
 export type UpdateAdminPermissionsParams = z.infer<typeof adminIdParamsSchema>
 export type UpdateAdminPermissionsBody = z.infer<typeof updateAdminPermissionsBodySchema>

@@ -3,7 +3,6 @@ import { z } from 'zod'
 import type { ValidatedParamJsonCtx } from '../validated-ctx'
 
 import { rules } from '../rules'
-import { permissionsSchema } from './permissions-schema'
 
 export const teamParamsSchema = z.object({
   teamId: rules.user.id,
@@ -14,7 +13,7 @@ export const inviteMemberBodySchema = z.object({
   lastName: rules.user.lastName.optional(),
   email: rules.user.email,
   position: rules.team.position.optional(),
-  permissions: permissionsSchema,
+  permissions: rules.permissions,
 })
 
 export type TeamParams = z.infer<typeof teamParamsSchema>

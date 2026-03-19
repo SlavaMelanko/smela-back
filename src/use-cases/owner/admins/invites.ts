@@ -1,4 +1,4 @@
-import type { Permissions } from '@/routes/@shared/permissions-schema'
+import type { PermissionsInput } from '@/types'
 
 import { authRepo, db, rbacRepo, tokenRepo, userRepo } from '@/data'
 import env from '@/env'
@@ -12,7 +12,7 @@ export interface AdminInvitationParams {
   firstName: string
   lastName?: string
   email: string
-  permissions: Permissions
+  permissions: PermissionsInput
 }
 
 export const inviteAdmin = async (params: AdminInvitationParams, inviterId: string) => {
