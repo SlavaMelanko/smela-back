@@ -5,13 +5,13 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { requestPasswordResetHandler } from './handler'
-import { requestPasswordResetSchema as schema } from './schema'
+import { requestPasswordResetBodySchema } from './schema'
 
 export const requestPasswordResetRoute = new Hono<AppContext>()
 
 requestPasswordResetRoute.post(
   '/request-password-reset',
-  requestValidator('json', schema),
+  requestValidator('json', requestPasswordResetBodySchema),
   captchaMiddleware(),
   requestPasswordResetHandler,
 )

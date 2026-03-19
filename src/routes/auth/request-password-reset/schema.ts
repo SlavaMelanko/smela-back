@@ -4,7 +4,7 @@ import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
 import { rules } from '@/routes/rules'
 
-export const requestPasswordResetSchema = z.object({
+export const requestPasswordResetBodySchema = z.object({
   email: rules.user.email,
   captcha: z.object({
     token: rules.captcha.token,
@@ -15,5 +15,5 @@ export const requestPasswordResetSchema = z.object({
   }).strict().optional(),
 }).strict()
 
-export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetSchema>
+export type RequestPasswordResetBody = z.infer<typeof requestPasswordResetBodySchema>
 export type RequestPasswordResetCtx = ValidatedJsonCtx<RequestPasswordResetBody>

@@ -4,7 +4,7 @@ import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
 import { rules } from '@/routes/rules'
 
-export const signupSchema = z.object({
+export const signupBodySchema = z.object({
   firstName: rules.user.firstName,
   lastName: rules.user.lastName.optional(),
   email: rules.user.email,
@@ -18,5 +18,5 @@ export const signupSchema = z.object({
   }).strict().optional(),
 }).strict()
 
-export type SignupBody = z.infer<typeof signupSchema>
+export type SignupBody = z.infer<typeof signupBodySchema>
 export type SignupCtx = ValidatedJsonCtx<SignupBody>

@@ -5,13 +5,13 @@ import type { AppContext } from '@/context'
 import { captchaMiddleware, requestValidator } from '@/middleware'
 
 import { signupHandler } from './handler'
-import { signupSchema as schema } from './schema'
+import { signupBodySchema } from './schema'
 
 export const signupRoute = new Hono<AppContext>()
 
 signupRoute.post(
   '/signup',
-  requestValidator('json', schema),
+  requestValidator('json', signupBodySchema),
   captchaMiddleware(),
   signupHandler,
 )

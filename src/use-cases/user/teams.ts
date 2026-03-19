@@ -11,7 +11,7 @@ export const getTeam = async (teamId: string) => {
   return { team }
 }
 
-export interface UpdateTeamParams {
+export interface UpdateTeamInput {
   name?: string
   website?: string
   description?: string | null
@@ -19,7 +19,7 @@ export interface UpdateTeamParams {
 
 export const updateTeam = async (
   teamId: string,
-  params: UpdateTeamParams,
+  updates: UpdateTeamInput,
 ) => {
   const existing = await teamRepo.findById(teamId)
 
@@ -27,7 +27,7 @@ export const updateTeam = async (
     throw new AppError(ErrorCode.NotFound, 'Team not found')
   }
 
-  const team = await teamRepo.update(teamId, params)
+  const team = await teamRepo.update(teamId, updates)
 
   return { team }
 }

@@ -1,5 +1,5 @@
 export { getAdmin, getAdmins, updateAdmin } from './admins'
-export type { UpdateAdminParams } from './admins'
+export type { UpdateAdminInput } from './admins'
 export { cancelAdminInvite, inviteAdmin, resendAdminInvite } from './invites'
-export type { AdminInvitationParams } from './invites'
+export type { InviteAdminInput } from './invites'
 export { getAdminPermissions, updateAdminPermissions } from './permissions'

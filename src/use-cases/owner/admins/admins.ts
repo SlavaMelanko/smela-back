@@ -44,20 +44,20 @@ export const getAdmin = async (adminId: string) => {
   }
 }
 
-export interface UpdateAdminParams {
+export interface UpdateAdminInput {
   firstName?: string
   lastName?: string
   status?: Status
 }
 
-export const updateAdmin = async (adminId: string, params: UpdateAdminParams) => {
+export const updateAdmin = async (adminId: string, updates: UpdateAdminInput) => {
   const admin = await userRepo.findById(adminId)
 
   if (!admin || admin.role !== Role.Admin) {
     throw new AppError(ErrorCode.NotFound, 'Admin not found')
   }
 
-  const updatedAdmin = await userRepo.update(adminId, params)
+  const updatedAdmin = await userRepo.update(adminId, updates)
 
   return { admin: updatedAdmin }
 }

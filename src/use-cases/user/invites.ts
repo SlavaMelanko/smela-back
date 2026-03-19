@@ -7,7 +7,7 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Status } from '@/types'
 
-export interface InviteMemberParams {
+export interface InviteMemberInput {
   firstName: string
   lastName?: string
   email: string
@@ -17,7 +17,7 @@ export interface InviteMemberParams {
 
 export const inviteMember = async (
   teamId: string,
-  member: InviteMemberParams,
+  member: InviteMemberInput,
   inviterId: string,
 ) => {
   const [inviter, team, existingUser] = await Promise.all([

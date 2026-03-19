@@ -8,16 +8,16 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services/email'
 import { AuthProvider, Role, Status } from '@/types'
 
-export interface AdminInvitationParams {
+export interface InviteAdminInput {
   firstName: string
   lastName?: string
   email: string
   permissions: PermissionsInput
 }
 
-export const inviteAdmin = async (params: AdminInvitationParams, inviterId: string) => {
+export const inviteAdmin = async (admin: InviteAdminInput, inviterId: string) => {
   const [existingUser, inviter] = await Promise.all([
-    userRepo.findByEmail(params.email),
+    userRepo.findByEmail(admin.email),
     userRepo.findById(inviterId),
   ])
 
@@ -31,11 +31,11 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
 
   const role = Role.Admin
 
-  const { admin, token } = await db.transaction(async (tx) => {
+  const { admin: newAdmin, token } = await db.transaction(async (tx) => {
     const newAdmin = await userRepo.create({
-      firstName: params.firstName,
-      lastName: params.lastName,
-      email: params.email,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      email: admin.email,
       status: Status.Pending,
     }, tx)
 
@@ -45,7 +45,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
     await authRepo.create({
       userId: newAdmin.id,
       provider: AuthProvider.Local,
-      identifier: params.email,
+      identifier: admin.email,
       passwordHash,
     }, tx)
 
@@ -55,7 +55,7 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
       invitedBy: inviterId,
     }, tx)
 
-    await rbacRepo.setUserPermissions(newAdmin.id, params.permissions, tx)
+    await rbacRepo.setUserPermissions(newAdmin.id, admin.permissions, tx)
 
     const { type, token, expiresAt } = generateToken(TokenType.UserInvite)
 
@@ -70,14 +70,14 @@ export const inviteAdmin = async (params: AdminInvitationParams, inviterId: stri
   })
 
   await emailAgent.sendUserInvitationEmail(
-    admin.firstName,
-    admin.email,
+    newAdmin.firstName,
+    newAdmin.email,
     token,
     inviter.firstName,
     env.COMPANY_NAME,
   )
 
-  return { admin }
+  return { admin: newAdmin }
 }
 
 export const resendAdminInvite = async (adminId: string, inviterId: string) => {

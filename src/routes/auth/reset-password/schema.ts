@@ -4,10 +4,10 @@ import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
 import { rules } from '@/routes/rules'
 
-export const resetPasswordSchema = z.object({
+export const resetPasswordBodySchema = z.object({
   token: rules.token.oneTime,
   password: rules.user.password,
 }).strict()
 
-export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>
+export type ResetPasswordBody = z.infer<typeof resetPasswordBodySchema>
 export type ResetPasswordCtx = ValidatedJsonCtx<ResetPasswordBody>
