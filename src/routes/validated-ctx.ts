@@ -31,34 +31,6 @@ import type { Context } from 'hono'
 
 import type { AppContext } from '@/context'
 
-interface JsonInput<Body> {
-  in: { json: Body }
-  out: { json: Body }
-}
-
-/**
- * Context for routes with JSON body validation (POST, PUT, PATCH).
- * @example
- * const signupHandler = async (c: ValidatedJsonCtx<SignupBody>) => {
- *   const payload = c.req.valid('json') // typed as SignupBody
- * }
- */
-export type ValidatedJsonCtx<Body> = Context<AppContext, string, JsonInput<Body>>
-
-interface QueryInput<Query> {
-  in: { query: Query }
-  out: { query: Query }
-}
-
-/**
- * Context for routes with query parameter validation (GET).
- * @example
- * const listHandler = async (c: ValidatedQueryCtx<ListQuery>) => {
- *   const query = c.req.valid('query') // typed as ListQuery
- * }
- */
-export type ValidatedQueryCtx<Query> = Context<AppContext, string, QueryInput<Query>>
-
 /**
  * Context for routes without body validation (GET, DELETE).
  * @example
@@ -79,6 +51,34 @@ interface ParamInput<Param> {
  * }
  */
 export type ValidatedParamCtx<Param> = Context<AppContext, string, ParamInput<Param>>
+
+interface QueryInput<Query> {
+  in: { query: Query }
+  out: { query: Query }
+}
+
+/**
+ * Context for routes with query parameter validation (GET).
+ * @example
+ * const listHandler = async (c: ValidatedQueryCtx<ListQuery>) => {
+ *   const query = c.req.valid('query') // typed as ListQuery
+ * }
+ */
+export type ValidatedQueryCtx<Query> = Context<AppContext, string, QueryInput<Query>>
+
+interface JsonInput<Body> {
+  in: { json: Body }
+  out: { json: Body }
+}
+
+/**
+ * Context for routes with JSON body validation (POST, PUT, PATCH).
+ * @example
+ * const signupHandler = async (c: ValidatedJsonCtx<SignupBody>) => {
+ *   const payload = c.req.valid('json') // typed as SignupBody
+ * }
+ */
+export type ValidatedJsonCtx<Body> = Context<AppContext, string, JsonInput<Body>>
 
 interface ParamJsonInput<Param, Body> {
   in: { param: Param, json: Body }
