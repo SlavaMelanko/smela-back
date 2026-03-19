@@ -1,6 +1,10 @@
 import Action from './action'
 import Resource from './resource'
 
+/** Parsed API input shape for permission assignments. Actions are fixed to `view`/`manage`. */
+export type PermissionsInput = Partial<Record<Resource, { view: boolean, manage: boolean }>>
+
+/** Internal domain representation. Actions are typed by the `Action` enum, each optional. */
 export type PermissionMap = Partial<Record<Resource, Partial<Record<Action, boolean>>>>
 export type AdminPermissionMap = Omit<Record<Resource, Record<Action, boolean>>, Resource.Admins>
 

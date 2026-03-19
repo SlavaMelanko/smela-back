@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 
-import type { Permissions } from '@/routes/@shared/permissions-schema'
+import type { PermissionsInput } from '@/types'
 
 import type { Database } from '../../clients'
 import type { CreateUserRoleInput, UserRoleRecord } from './types'
@@ -26,7 +26,7 @@ export const assignRole = async (
 
 export const setUserPermissions = async (
   userId: string,
-  permissions: Permissions,
+  permissions: PermissionsInput,
   tx?: Database,
 ): Promise<void> => {
   const executor = tx || db

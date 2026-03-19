@@ -1,4 +1,4 @@
-import type { Permissions } from '@/routes/@shared/permissions-schema'
+import type { PermissionsInput } from '@/types'
 
 import { rbacRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
@@ -18,7 +18,7 @@ export const getAdminPermissions = async (adminId: string) => {
   return { permissions }
 }
 
-export const updateAdminPermissions = async (adminId: string, permissions: Permissions) => {
+export const updateAdminPermissions = async (adminId: string, permissions: PermissionsInput) => {
   const admin = await userRepo.findById(adminId)
 
   if (!admin || admin.role !== Role.Admin) {

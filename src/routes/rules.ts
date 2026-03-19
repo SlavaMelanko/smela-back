@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { PASSWORD_REGEX } from '@/security/password'
 import { TOKEN_LENGTH } from '@/security/token'
 import { Role, Status } from '@/types'
+import Resource from '@/types/resource'
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
@@ -84,4 +85,26 @@ export const rules = {
       .transform(val => val.split(','))
       .pipe(z.array(z.enum(Role))),
   },
+
+  permissions: (() => {
+    const resourcePermissions = z
+      .object({
+        view: z.boolean().nullish().transform(v => v ?? false),
+        manage: z.boolean().nullish().transform(v => v ?? false),
+      })
+      .optional()
+
+    type ResourcePermissions = typeof resourcePermissions
+
+    return z
+      .object(
+        Object.fromEntries(
+          Object.values(Resource).map(r => [r, resourcePermissions]),
+        ) as Record<Resource, ResourcePermissions>,
+      )
+      .refine(
+        data => Object.values(data).some(v => v !== undefined),
+        { message: 'At least one resource must be specified' },
+      )
+  })(),
 }
