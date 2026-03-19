@@ -89,7 +89,7 @@ describe('Refresh Token Endpoint', () => {
 
       expect(mockRefreshAuthTokens).toHaveBeenCalledTimes(1)
       expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
-        'refresh_token_123',
+        { refreshToken: 'refresh_token_123' },
         { ipAddress: null, userAgent: null },
       )
     })

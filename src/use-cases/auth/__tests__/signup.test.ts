@@ -8,14 +8,14 @@ import { TokenType } from '@/security/token'
 import { AuthProvider, Role, Status } from '@/types'
 import { days, hours, nowPlus } from '@/utils/chrono'
 
-import type { SignupParams } from '../signup'
+import type { SignupInput } from '../signup'
 
 import signUpWithEmail from '../signup'
 
 describe('Signup with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockSignupParams: SignupParams
+  let mockSignupParams: SignupInput
   let mockDeviceInfo: { ipAddress: string, userAgent: string }
 
   let mockNewUser: User

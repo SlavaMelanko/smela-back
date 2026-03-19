@@ -6,7 +6,7 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { isActive } from '@/types'
 
-export interface RequestPasswordResetParams {
+export interface RequestPasswordResetInput {
   email: string
 }
 
@@ -21,7 +21,7 @@ const createPasswordResetToken = async (userId: string) => {
 }
 
 const requestPasswordReset = async (
-  { email }: RequestPasswordResetParams,
+  { email }: RequestPasswordResetInput,
   preferences?: UserPreferences,
 ) => {
   const user = await userRepo.findByEmail(email)

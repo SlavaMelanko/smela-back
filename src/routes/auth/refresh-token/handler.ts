@@ -7,7 +7,7 @@ export const refreshTokenHandler = async (c: AppCtx) => {
   const refreshToken = getRefreshCookie(c)
   const deviceInfo = getDeviceInfo(c)
 
-  const result = await refreshAuthTokens(refreshToken, deviceInfo)
+  const result = await refreshAuthTokens({ refreshToken }, deviceInfo)
 
   setRefreshCookie(c, result.refreshToken)
 

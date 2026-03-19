@@ -6,11 +6,11 @@ import { Status } from '@/types'
 
 import { createAuthTokens, validateOneTimeToken } from '../tokens'
 
-export interface VerifyEmailParams {
+export interface VerifyEmailInput {
   token: string
 }
 
-const verifyEmail = async ({ token }: VerifyEmailParams, deviceInfo: DeviceInfo) => {
+const verifyEmail = async ({ token }: VerifyEmailInput, deviceInfo: DeviceInfo) => {
   const validatedToken = await validateOneTimeToken(token, TokenType.EmailVerification)
 
   const updatedUser = await db.transaction(async (tx) => {

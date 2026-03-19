@@ -78,7 +78,7 @@ describe('Refresh Token Handler', () => {
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
       expect(mockGetDeviceInfo).toHaveBeenCalledWith(mockContext)
       expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
-        mockRefreshToken,
+        { refreshToken: mockRefreshToken },
         { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
       )
       expect(mockSetRefreshCookie).toHaveBeenCalledWith(mockContext, 'new_refresh_token_456')
@@ -107,7 +107,7 @@ describe('Refresh Token Handler', () => {
       const result = await refreshTokenHandler(mockContext)
 
       expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
-        mockRefreshToken,
+        { refreshToken: mockRefreshToken },
         { ipAddress: null, userAgent: null },
       )
       expect(result.status).toBe(HttpStatus.OK)
@@ -125,7 +125,7 @@ describe('Refresh Token Handler', () => {
 
       expect(mockGetRefreshCookie).toHaveBeenCalledWith(mockContext)
       expect(mockRefreshAuthTokens).toHaveBeenCalledWith(
-        undefined,
+        { refreshToken: undefined },
         { ipAddress: '192.168.1.1', userAgent: 'Mozilla/5.0 (Test)' },
       )
       expect(mockSetRefreshCookie).not.toHaveBeenCalled()

@@ -7,13 +7,13 @@ import { comparePasswordHashes } from '@/security/password'
 import { resolvePermissionList } from '../resolve-permissions'
 import { createAuthTokens } from '../tokens'
 
-export interface LoginParams {
+export interface LoginInput {
   email: string
   password: string
 }
 
 const logInWithEmail = async (
-  { email, password }: LoginParams,
+  { email, password }: LoginInput,
   deviceInfo: DeviceInfo,
 ) => {
   const user = await userRepo.findByEmail(email)

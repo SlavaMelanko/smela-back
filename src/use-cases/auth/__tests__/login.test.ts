@@ -6,14 +6,14 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { AuthProvider, Role, Status } from '@/types'
 
-import type { LoginParams } from '../login'
+import type { LoginInput } from '../login'
 
 import logInWithEmail from '../login'
 
 describe('Login with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockLoginParams: LoginParams
+  let mockLoginParams: LoginInput
   let mockDeviceInfo: { ipAddress: string, userAgent: string }
 
   let mockUser: User
