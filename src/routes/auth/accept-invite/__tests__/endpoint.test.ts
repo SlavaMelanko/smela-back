@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
-import acceptInviteRoute from '../index'
+import { acceptInviteRoute } from '../index'
 
 describe('Accept Invite Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -23,7 +23,7 @@ describe('Accept Invite Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/accept-invite', () => ({
-      default: mockAcceptInvite,
+      acceptInvite: mockAcceptInvite,
     }))
 
     app = createTestApp('/api/v1/auth', acceptInviteRoute)

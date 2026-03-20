@@ -6,6 +6,7 @@ enum ErrorCode {
   EmailAlreadyInUse = 'auth/email-already-in-use',
   Forbidden = 'auth/forbidden',
   InvalidCredentials = 'auth/invalid-credentials',
+  InvalidPassword = 'auth/invalid-password',
   Unauthorized = 'auth/unauthorized',
 
   TokenAlreadyUsed = 'token/already-used',

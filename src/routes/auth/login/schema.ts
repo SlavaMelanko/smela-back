@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
-import { nestedSchemas as nested, requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
-const loginSchema = z.object({
-  email: rules.data.email,
-  password: rules.data.password,
-  captcha: nested.captcha.strict(),
+export const loginBodySchema = z.object({
+  email: rules.user.email,
+  password: rules.user.password,
+  captcha: z.object({
+    token: rules.captcha.token,
+  }).strict(),
 }).strict()
 
-export type LoginBody = z.infer<typeof loginSchema>
+export type LoginBody = z.infer<typeof loginBodySchema>
 export type LoginCtx = ValidatedJsonCtx<LoginBody>
-
-export default loginSchema

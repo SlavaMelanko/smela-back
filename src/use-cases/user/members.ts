@@ -1,13 +1,8 @@
-import { teamRepo } from '@/data'
+import { db, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
+import { Status } from '@/types'
 
-export const getTeamMembers = async (teamId: string, userId: string) => {
-  const membership = await teamRepo.findMember(userId, teamId)
-
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
-
+export const getTeamMembers = async (teamId: string) => {
   const members = await teamRepo.findMembers(teamId)
 
   return { members }
@@ -16,15 +11,8 @@ export const getTeamMembers = async (teamId: string, userId: string) => {
 export const getTeamMember = async (
   teamId: string,
   memberId: string,
-  userId: string,
 ) => {
-  const membership = await teamRepo.findMember(userId, teamId)
-
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
-
-  const member = await teamRepo.findMember(memberId, teamId)
+  const member = await teamRepo.findMember(teamId, memberId)
 
   if (!member) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
@@ -33,29 +21,55 @@ export const getTeamMember = async (
   return { member }
 }
 
-export interface UpdateTeamMemberParams {
-  position?: string | null
+export interface UpdateTeamMemberInput {
+  membership?: {
+    position?: string | null
+  }
+  member?: {
+    firstName?: string
+    lastName?: string | null
+  }
 }
 
 export const updateTeamMember = async (
   teamId: string,
   memberId: string,
-  params: UpdateTeamMemberParams,
-  userId: string,
+  input: UpdateTeamMemberInput,
 ) => {
-  const membership = await teamRepo.findMember(userId, teamId)
-
-  if (!membership) {
-    throw new AppError(ErrorCode.Forbidden, 'Not authorized to access this team')
-  }
-
-  const existing = await teamRepo.findMember(memberId, teamId)
+  const existing = await teamRepo.findMember(teamId, memberId)
 
   if (!existing) {
     throw new AppError(ErrorCode.NotFound, 'Member not found')
   }
 
-  const member = await teamRepo.updateMember(memberId, teamId, params)
+  const updates: Array<Promise<unknown>> = []
+
+  if (input.membership) {
+    updates.push(teamRepo.updateMember(memberId, teamId, input.membership))
+  }
+
+  if (input.member) {
+    updates.push(userRepo.update(memberId, input.member))
+  }
+
+  await Promise.all(updates)
+
+  const member = await teamRepo.findMember(teamId, memberId)
 
   return { member }
+}
+
+export const removeTeamMember = async (teamId: string, memberId: string) => {
+  const existing = await teamRepo.findMember(teamId, memberId)
+
+  if (!existing) {
+    throw new AppError(ErrorCode.NotFound, 'Member not found')
+  }
+
+  await db.transaction(async (tx) => {
+    await teamRepo.deleteMember(memberId, teamId, tx)
+    await userRepo.update(memberId, { status: Status.Archived }, tx)
+  })
+
+  return { success: true }
 }

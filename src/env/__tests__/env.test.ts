@@ -45,8 +45,8 @@ describe('Environment Configuration', () => {
     expect(testEnv.LOG_LEVEL).toBe('info')
 
     // Database defaults
-    expect(devEnv.POSTGRES_MAX_CONNECTIONS).toBe(2)
-    expect(testEnv.POSTGRES_MAX_CONNECTIONS).toBe(2)
+    expect(devEnv.POSTGRES_MAX_CONNECTIONS).toBe(4)
+    expect(testEnv.POSTGRES_MAX_CONNECTIONS).toBe(4)
 
     // Network defaults
     expect(devEnv.JWT_EXPIRATION).toBe(900)

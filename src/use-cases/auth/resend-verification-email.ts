@@ -6,10 +6,6 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { Status } from '@/types'
 
-export interface ResendVerificationEmailParams {
-  email: string
-}
-
 const createEmailVerificationToken = async (userId: string) => {
   const { type, token, expiresAt } = generateToken(TokenType.EmailVerification)
 
@@ -20,8 +16,12 @@ const createEmailVerificationToken = async (userId: string) => {
   return token
 }
 
-const resendVerificationEmail = async (
-  { email }: ResendVerificationEmailParams,
+export interface ResendVerificationEmailInput {
+  email: string
+}
+
+export const resendVerificationEmail = async (
+  { email }: ResendVerificationEmailInput,
   preferences?: UserPreferences,
 ) => {
   const user = await userRepo.findByEmail(email)
@@ -43,5 +43,3 @@ const resendVerificationEmail = async (
 
   return { success: true }
 }
-
-export default resendVerificationEmail

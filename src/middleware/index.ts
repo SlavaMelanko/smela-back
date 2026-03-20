@@ -4,19 +4,28 @@ export {
   userRelaxedAuthMiddleware,
   userStrictAuthMiddleware,
 } from './auth'
-export { default as captchaMiddleware } from './captcha/captcha'
-export { default as corsMiddleware } from './cors'
-export { default as loggerMiddleware } from './logger'
+
+export { captchaMiddleware } from './captcha/captcha'
+
+export { corsMiddleware } from './cors'
+
+export { loggerMiddleware } from './logger'
+
 export {
   authRateLimiter,
+  createRateLimiter,
   generalRateLimiter,
-  default as rateLimiterMiddleware,
 } from './rate-limiter'
+
 export { requestValidator } from './request-validator'
-export { default as secureHeadersMiddleware } from './secure-headers'
+
+export { secureHeadersMiddleware } from './secure-headers'
+
 export {
   authRequestSizeLimiter,
   createRequestSizeLimiter,
   fileUploadSizeLimiter,
   generalRequestSizeLimiter,
 } from './size-limiter'
+
+export { teamAccessMiddleware } from './team-access'

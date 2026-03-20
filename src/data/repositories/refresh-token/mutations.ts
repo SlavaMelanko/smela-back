@@ -1,4 +1,4 @@
-import { and, eq, isNull, lt } from 'drizzle-orm'
+import { and, eq, isNull, lt, ne } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { CreateRefreshTokenInput } from './types'
@@ -28,10 +28,7 @@ export const revokeByHash = async (
 
   const result = await executor
     .update(refreshTokensTable)
-    .set({
-      revokedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set({ revokedAt: new Date() })
     .where(
       and(
         eq(refreshTokensTable.tokenHash, hash),
@@ -43,26 +40,32 @@ export const revokeByHash = async (
   return result.length > 0
 }
 
-export const revokeAllUserTokens = async (
+/**
+ * @param userId - the user whose tokens to revoke
+ * @param excludeHash - token hash to exclude from revocation,
+ *   used to preserve the current session on updating password
+ * @param tx - optional transaction
+ */
+export const revokeByUserId = async (
   userId: string,
+  excludeHash?: string,
   tx?: Database,
 ): Promise<void> => {
   const executor = tx || db
 
   await executor
     .update(refreshTokensTable)
-    .set({
-      revokedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set({ revokedAt: new Date() })
     .where(
       and(
         eq(refreshTokensTable.userId, userId),
         isNull(refreshTokensTable.revokedAt),
+        ...(excludeHash ? [ne(refreshTokensTable.tokenHash, excludeHash)] : []),
       ),
     )
 }
 
+// Scheduled cleanup job — see https://github.com/SlavaMelanko/smela-back/issues/118
 export const cleanupExpiredTokens = async (
   tx?: Database,
 ): Promise<number> => {

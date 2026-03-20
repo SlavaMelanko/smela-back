@@ -1,5 +1,5 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
-import logInWithEmail from '@/use-cases/auth/login'
+import { logInWithEmail } from '@/use-cases/auth/login'
 
 import type { LoginCtx } from './schema'
 

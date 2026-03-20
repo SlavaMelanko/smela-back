@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 
-import requestPasswordResetRoute from '../index'
+import { requestPasswordResetRoute } from '../index'
 
 describe('Request Password Reset Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -20,7 +20,7 @@ describe('Request Password Reset Endpoint', () => {
     mockRequestPasswordReset = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/request-password-reset', () => ({
-      default: mockRequestPasswordReset,
+      requestPasswordReset: mockRequestPasswordReset,
     }))
 
     await mockCaptchaSuccess()

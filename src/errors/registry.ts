@@ -18,6 +18,9 @@ const ErrorRegistry: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.InvalidCredentials]: {
     error: 'Invalid email or password.',
   },
+  [ErrorCode.InvalidPassword]: {
+    error: 'Current password is incorrect.',
+  },
   [ErrorCode.Unauthorized]: {
     error: 'Unauthorized access.',
   },

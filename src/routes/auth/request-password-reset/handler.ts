@@ -1,5 +1,5 @@
 import { HttpStatus } from '@/net/http'
-import requestPasswordReset from '@/use-cases/auth/request-password-reset'
+import { requestPasswordReset } from '@/use-cases/auth/request-password-reset'
 
 import type { RequestPasswordResetCtx } from './schema'
 

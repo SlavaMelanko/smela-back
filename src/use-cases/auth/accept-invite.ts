@@ -1,59 +1,25 @@
-import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, db, refreshTokenRepo, teamRepo, tokenRepo, userRepo } from '@/data'
-import { AppError, ErrorCode } from '@/errors'
-import { signJwt } from '@/security/jwt'
+import { authRepo, db, teamRepo, tokenRepo, userRepo } from '@/data'
 import { hashPassword } from '@/security/password'
-import {
-  generateHashedToken,
-  TokenStatus,
-  TokenType,
-  TokenValidator,
-} from '@/security/token'
+import { TokenStatus, TokenType } from '@/security/token'
 import Status from '@/types/status'
 
-export interface AcceptInviteParams {
+import { resolvePermissionList } from '../resolve-permissions'
+import { createAuthTokens, validateOneTimeToken } from '../tokens'
+
+export interface AcceptInviteInput {
   token: string
   password: string
 }
 
-const validateToken = async (token: string) => {
-  const tokenRecord = await tokenRepo.findByToken(token)
-
-  return TokenValidator.validate(tokenRecord, TokenType.UserInvite)
-}
-
-const createAccessToken = async (user: User) => signJwt({
-  id: user.id,
-  email: user.email,
-  role: user.role,
-  status: user.status,
-})
-
-const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  })
-
-  return raw
-}
-
-const acceptInvite = async (
-  { token, password }: AcceptInviteParams,
+export const acceptInvite = async (
+  { token, password }: AcceptInviteInput,
   deviceInfo: DeviceInfo,
 ) => {
-  const validatedToken = await validateToken(token)
+  const validatedToken = await validateOneTimeToken(token, TokenType.UserInvite)
 
-  await db.transaction(async (tx) => {
+  const user = await db.transaction(async (tx) => {
     // Mark token as used
     await tokenRepo.update(validatedToken.id, {
       status: TokenStatus.Used,
@@ -65,25 +31,18 @@ const acceptInvite = async (
     await authRepo.update(validatedToken.userId, { passwordHash }, tx)
 
     // Activate user
-    await userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
+    return userRepo.update(validatedToken.userId, { status: Status.Active }, tx)
   })
 
-  const user = await userRepo.findById(validatedToken.userId)
-
-  if (!user) {
-    throw new AppError(ErrorCode.InternalError, 'User not found after accepting invite')
-  }
-
-  const [accessToken, refreshToken, team] = await Promise.all([
-    createAccessToken(user),
-    createRefreshToken(user.id, deviceInfo),
+  const [team, permissions] = await Promise.all([
     teamRepo.findUserTeam(user.id),
+    resolvePermissionList(user.id),
   ])
 
+  const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
+
   return {
-    data: { user, team: team ?? null, accessToken },
+    data: { user, team, permissions, accessToken },
     refreshToken,
   }
 }
-
-export default acceptInvite

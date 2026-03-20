@@ -10,7 +10,7 @@ export const companyEnvVars = {
     try {
       const parsed = JSON.parse(str) as unknown
 
-      return z.record(z.string(), z.string().url()).parse(parsed)
+      return z.record(z.string(), z.url()).parse(parsed)
     } catch {
       return {}
     }

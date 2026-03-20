@@ -1,15 +1,13 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
-const resetPasswordSchema = z.object({
-  token: rules.data.securityToken,
-  password: rules.data.password,
+export const resetPasswordBodySchema = z.object({
+  token: rules.token.oneTime,
+  password: rules.user.password,
 }).strict()
 
-export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>
+export type ResetPasswordBody = z.infer<typeof resetPasswordBodySchema>
 export type ResetPasswordCtx = ValidatedJsonCtx<ResetPasswordBody>
-
-export default resetPasswordSchema

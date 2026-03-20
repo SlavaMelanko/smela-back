@@ -1,23 +1,17 @@
 import {
   cleanupExpiredTokens,
   createRefreshToken,
-  revokeAllUserTokens,
   revokeByHash,
+  revokeByUserId,
 } from './mutations'
-import {
-  countActiveByUserId,
-  findActiveByUserId,
-  findByTokenHash,
-} from './queries'
+import { findByTokenHash } from './queries'
 
 export * from './types'
 
 export const refreshTokenRepo = {
   create: createRefreshToken,
   revokeByHash,
-  revokeAllUserTokens,
+  revokeByUserId,
   cleanupExpired: cleanupExpiredTokens,
   findByHash: findByTokenHash,
-  findActiveByUserId,
-  countActiveByUserId,
 }

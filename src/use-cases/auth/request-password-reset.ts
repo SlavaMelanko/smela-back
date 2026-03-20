@@ -6,10 +6,6 @@ import { generateToken, TokenType } from '@/security/token'
 import { emailAgent } from '@/services'
 import { isActive } from '@/types'
 
-export interface RequestPasswordResetParams {
-  email: string
-}
-
 const createPasswordResetToken = async (userId: string) => {
   const { type, token, expiresAt } = generateToken(TokenType.PasswordReset)
 
@@ -20,8 +16,12 @@ const createPasswordResetToken = async (userId: string) => {
   return token
 }
 
-const requestPasswordReset = async (
-  { email }: RequestPasswordResetParams,
+export interface RequestPasswordResetInput {
+  email: string
+}
+
+export const requestPasswordReset = async (
+  { email }: RequestPasswordResetInput,
   preferences?: UserPreferences,
 ) => {
   const user = await userRepo.findByEmail(email)
@@ -43,5 +43,3 @@ const requestPasswordReset = async (
 
   return { success: true }
 }
-
-export default requestPasswordReset

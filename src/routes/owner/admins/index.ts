@@ -4,20 +4,15 @@ import type { AppContext } from '@/context'
 
 import { requestValidator } from '@/middleware'
 
+import { ownerAdminByIdRoute } from './$id'
 import {
   createAdminHandler,
-  getAdminHandler,
+  getAdminDefaultPermissionsHandler,
   getAdminsHandler,
-  resendAdminInviteHandler,
 } from './handler'
-import {
-  createAdminBodySchema,
-  getAdminParamsSchema,
-  getAdminsQuerySchema,
-  resendAdminInviteParamsSchema,
-} from './schema'
+import { createAdminBodySchema, getAdminsQuerySchema } from './schema'
 
-const ownerAdminsRoute = new Hono<AppContext>()
+export const ownerAdminsRoute = new Hono<AppContext>()
 
 ownerAdminsRoute.get(
   '/admins',
@@ -32,15 +27,8 @@ ownerAdminsRoute.post(
 )
 
 ownerAdminsRoute.get(
-  '/admins/:adminId',
-  requestValidator('param', getAdminParamsSchema),
-  getAdminHandler,
+  '/admins/default-permissions',
+  getAdminDefaultPermissionsHandler,
 )
 
-ownerAdminsRoute.post(
-  '/admins/:adminId/resend-invite',
-  requestValidator('param', resendAdminInviteParamsSchema),
-  resendAdminInviteHandler,
-)
-
-export default ownerAdminsRoute
+ownerAdminsRoute.route('/admins/:adminId', ownerAdminByIdRoute)

@@ -2,27 +2,8 @@ import { Hono } from 'hono'
 
 import type { AppContext } from '@/context'
 
-import { requestValidator } from '@/middleware'
+import { teamByIdRoute } from './$id'
 
-import { getTeamHandler, updateTeamHandler } from './handler'
-import teamsMembersRoute from './members'
-import { teamParamsSchema, updateTeamBodySchema } from './schema'
+export const teamsRoute = new Hono<AppContext>()
 
-const teamsRoute = new Hono<AppContext>()
-
-teamsRoute.get(
-  '/teams/:teamId',
-  requestValidator('param', teamParamsSchema),
-  getTeamHandler,
-)
-
-teamsRoute.patch(
-  '/teams/:teamId',
-  requestValidator('param', teamParamsSchema),
-  requestValidator('json', updateTeamBodySchema),
-  updateTeamHandler,
-)
-
-teamsRoute.route('/teams/:teamId/members', teamsMembersRoute)
-
-export default teamsRoute
+teamsRoute.route('/teams/:teamId', teamByIdRoute)

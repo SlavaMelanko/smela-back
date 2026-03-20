@@ -8,7 +8,7 @@ import { TOKEN_LENGTH, TokenStatus, TokenType } from '@/security/token'
 import { Role } from '@/types'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import checkInvite from '../check-invite'
+import { checkInvite } from '../check-invite'
 
 describe('Check Invite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -18,7 +18,7 @@ describe('Check Invite', () => {
   let mockTokenRecord: TokenRecord
   let mockTokenRepo: any
   let mockTeamRepo: any
-  let mockUserRoleRepo: any
+  let mockRbacRepo: any
 
   let mockTokenValidator: any
 
@@ -58,14 +58,14 @@ describe('Check Invite', () => {
     mockTeamRepo = {
       findUserTeam: mock(async () => mockTeam),
     }
-    mockUserRoleRepo = {
-      findByUserId: mock(async () => mockAdminRole),
+    mockRbacRepo = {
+      findRole: mock(async () => mockAdminRole),
     }
 
     await moduleMocker.mock('@/data', () => ({
       tokenRepo: mockTokenRepo,
       teamRepo: mockTeamRepo,
-      userRoleRepo: mockUserRoleRepo,
+      rbacRepo: mockRbacRepo,
     }))
 
     await moduleMocker.mock('@/env', () => ({
@@ -102,7 +102,7 @@ describe('Check Invite', () => {
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledTimes(1)
 
-      expect(mockUserRoleRepo.findByUserId).not.toHaveBeenCalled()
+      expect(mockRbacRepo.findRole).not.toHaveBeenCalled()
 
       expect(result).toEqual({ type: 'member', teamName: 'Acme Corp' })
     })
@@ -117,8 +117,8 @@ describe('Check Invite', () => {
       const result = await checkInvite(mockTokenString)
 
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
-      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
-      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledTimes(1)
+      expect(mockRbacRepo.findRole).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockRbacRepo.findRole).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({ type: 'admin', teamName: MOCK_COMPANY_NAME })
     })
@@ -217,7 +217,7 @@ describe('Check Invite', () => {
   describe('when user has no team membership and no admin role', () => {
     it('should throw InternalError', async () => {
       mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
-      mockUserRoleRepo.findByUserId.mockResolvedValue(undefined)
+      mockRbacRepo.findRole.mockResolvedValue(undefined)
 
       try {
         await checkInvite(mockTokenString)
@@ -229,14 +229,14 @@ describe('Check Invite', () => {
       }
 
       expect(mockTeamRepo.findUserTeam).toHaveBeenCalledWith(mockTokenRecord.userId)
-      expect(mockUserRoleRepo.findByUserId).toHaveBeenCalledWith(mockTokenRecord.userId)
+      expect(mockRbacRepo.findRole).toHaveBeenCalledWith(mockTokenRecord.userId)
     })
   })
 
   describe('when user has non-admin role', () => {
     it('should throw InternalError', async () => {
       mockTeamRepo.findUserTeam.mockResolvedValue(undefined)
-      mockUserRoleRepo.findByUserId.mockResolvedValue({
+      mockRbacRepo.findRole.mockResolvedValue({
         ...mockAdminRole,
         role: Role.User,
       })

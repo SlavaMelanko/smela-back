@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post } from '@/__tests__'
 import { mockCaptchaSuccess, VALID_CAPTCHA_TOKEN } from '@/middleware/captcha/__tests__'
 import { HttpStatus } from '@/net/http'
 
-import resendVerificationEmailRoute from '../index'
+import { resendVerificationEmailRoute } from '../index'
 
 describe('Resend Verification Email Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -20,7 +20,7 @@ describe('Resend Verification Email Endpoint', () => {
     mockResendVerificationEmail = mock(async () => ({ success: true }))
 
     await moduleMocker.mock('@/use-cases/auth/resend-verification-email', () => ({
-      default: mockResendVerificationEmail,
+      resendVerificationEmail: mockResendVerificationEmail,
     }))
 
     await mockCaptchaSuccess()

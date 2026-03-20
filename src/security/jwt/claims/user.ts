@@ -3,10 +3,11 @@ import { z } from 'zod'
 import { Role, Status } from '@/types'
 
 export const userClaimsSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  role: z.nativeEnum(Role),
-  status: z.nativeEnum(Status),
+  id: z.uuid(),
+  email: z.email(),
+  role: z.enum(Role),
+  status: z.enum(Status),
+  permissions: z.array(z.string()).optional(),
 })
 
 export type UserClaims = z.infer<typeof userClaimsSchema>

@@ -1,7 +1,11 @@
 import type { UpdateUserInput } from '@/data'
 
-import { teamRepo, userRepo } from '@/data'
+import { authRepo, db, refreshTokenRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
+import { comparePasswordHashes, hashPassword } from '@/security/password'
+import { hashToken } from '@/security/token'
+
+import { resolvePermissionList } from '../resolve-permissions'
 
 const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
   return Object.fromEntries(
@@ -10,9 +14,10 @@ const prepareValidUpdates = (updates: UpdateUserInput): UpdateUserInput => {
 }
 
 export const getUser = async (userId: string) => {
-  const [user, team] = await Promise.all([
+  const [user, team, permissions] = await Promise.all([
     userRepo.findById(userId),
     teamRepo.findUserTeam(userId),
+    resolvePermissionList(userId),
   ])
 
   if (!user) {
@@ -21,7 +26,36 @@ export const getUser = async (userId: string) => {
     throw new AppError(ErrorCode.InternalError)
   }
 
-  return { user, team: team ?? null }
+  return { user, team, permissions }
+}
+
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+  refreshToken?: string,
+) => {
+  const auth = await authRepo.findById(userId)
+
+  if (!auth || !auth.passwordHash) {
+    throw new AppError(ErrorCode.InvalidCredentials)
+  }
+
+  const isValid = await comparePasswordHashes(currentPassword, auth.passwordHash)
+
+  if (!isValid) {
+    throw new AppError(ErrorCode.InvalidPassword)
+  }
+
+  const passwordHash = await hashPassword(newPassword)
+  const excludeHash = refreshToken ? await hashToken(refreshToken) : undefined
+
+  await db.transaction(async (tx) => {
+    await authRepo.update(userId, { passwordHash }, tx)
+    await refreshTokenRepo.revokeByUserId(userId, excludeHash, tx)
+  })
+
+  return { success: true }
 }
 
 export const updateUser = async (userId: string, updates: UpdateUserInput) => {
@@ -31,13 +65,14 @@ export const updateUser = async (userId: string, updates: UpdateUserInput) => {
     return getUser(userId)
   }
 
-  const [updatedUser, team] = await Promise.all([
+  const [user, team, permissions] = await Promise.all([
     userRepo.update(userId, {
       ...validUpdates,
       updatedAt: new Date(),
     }),
     teamRepo.findUserTeam(userId),
+    resolvePermissionList(userId),
   ])
 
-  return { user: updatedUser, team: team ?? null }
+  return { user, team, permissions }
 }

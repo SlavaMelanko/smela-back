@@ -11,7 +11,7 @@ import {
   MAX_AGE_TEN_MINUTES,
 } from '../constants'
 
-const devCors = (): MiddlewareHandler => {
+export const devCors = (): MiddlewareHandler => {
   return cors({
     origin: (origin: string) => {
       if (!origin) {
@@ -33,5 +33,3 @@ const devCors = (): MiddlewareHandler => {
     credentials: true,
   })
 }
-
-export default devCors

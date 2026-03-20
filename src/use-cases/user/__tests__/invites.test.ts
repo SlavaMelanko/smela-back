@@ -7,7 +7,7 @@ import AppError from '@/errors/app-error'
 import ErrorCode from '@/errors/codes'
 import { Role, Status } from '@/types'
 
-import { inviteMember, resendMemberInvite } from '../invites'
+import { cancelMemberInvite, inviteMember, resendMemberInvite } from '../invites'
 
 const { TEAM_1, USER_1, USER_2 } = testUuids
 
@@ -23,6 +23,7 @@ describe('inviteMember', () => {
   let mockAuthRepoCreate: any
   let mockTeamRepoCreateMember: any
   let mockTokenRepoIssue: any
+  let mockRbacSet: any
   let mockTransaction: any
   let mockEmailAgent: any
 
@@ -31,6 +32,11 @@ describe('inviteMember', () => {
     lastName: 'Doe',
     email: 'john@example.com',
     position: 'Developer',
+    permissions: {
+      users: { view: true, manage: false },
+      admins: { view: false, manage: false },
+      teams: { view: true, manage: true },
+    },
   }
 
   beforeEach(async () => {
@@ -69,6 +75,7 @@ describe('inviteMember', () => {
     mockAuthRepoCreate = mock(async () => {})
     mockTeamRepoCreateMember = mock(async () => {})
     mockTokenRepoIssue = mock(async () => {})
+    mockRbacSet = mock(async () => {})
     mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
       return callback({})
     })
@@ -88,6 +95,7 @@ describe('inviteMember', () => {
       },
       authRepo: { create: mockAuthRepoCreate },
       tokenRepo: { issue: mockTokenRepoIssue },
+      rbacRepo: { setUserPermissions: mockRbacSet },
       db: { transaction: mockTransaction },
     }))
 
@@ -175,16 +183,18 @@ describe('inviteMember', () => {
     )
   })
 
-  it('should return user data with role', async () => {
+  it('should return member data with team details', async () => {
     const result = await inviteMember(TEAM_1, inviteParams, USER_2)
 
-    expect(result.user).toEqual({
+    expect(result.member).toEqual({
       id: USER_1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
       status: Status.Pending,
-      role: Role.User,
+      position: 'Developer',
+      invitedBy: USER_2,
+      joinedAt: expect.any(Date),
     })
   })
 })
@@ -393,6 +403,106 @@ describe('resendMemberInvite', () => {
   it('should return success true', async () => {
     const result = await resendMemberInvite(TEAM_1, USER_1, USER_2)
 
+    expect(result).toEqual({ success: true })
+  })
+})
+
+describe('cancelMemberInvite', () => {
+  const moduleMocker = new ModuleMocker(import.meta.url)
+
+  let mockMember: User
+  let mockMembership: TeamMember
+  let mockUserRepoFindById: any
+  let mockTeamRepoFindMember: any
+  let mockTokenDeprecate: any
+  let mockUserUpdate: any
+  let mockTransaction: any
+
+  beforeEach(async () => {
+    mockMember = {
+      id: USER_1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      status: Status.Pending,
+      role: Role.User,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    }
+
+    mockMembership = {
+      id: 1,
+      userId: USER_1,
+      teamId: TEAM_1,
+      position: 'Developer',
+      invitedBy: USER_2,
+      joinedAt: new Date('2024-01-01'),
+    }
+
+    mockUserRepoFindById = mock(async () => mockMember)
+    mockTeamRepoFindMember = mock(async () => mockMembership)
+    mockTokenDeprecate = mock(async () => {})
+    mockUserUpdate = mock(async () => ({ ...mockMember, status: Status.Archived }))
+
+    mockTransaction = mock(async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
+      return callback({})
+    })
+
+    await moduleMocker.mock('@/data', () => ({
+      userRepo: { findById: mockUserRepoFindById, update: mockUserUpdate },
+      teamRepo: { findMember: mockTeamRepoFindMember },
+      tokenRepo: { deprecate: mockTokenDeprecate },
+      db: { transaction: mockTransaction },
+    }))
+
+    await moduleMocker.mock('@/security/token', () => ({
+      TokenType: { UserInvite: 'user_invite' },
+    }))
+  })
+
+  afterEach(async () => {
+    await moduleMocker.clear()
+  })
+
+  it('should throw NotFound when member does not exist', async () => {
+    mockUserRepoFindById.mockImplementation(async () => undefined)
+
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toThrow(AppError)
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Member not found',
+    })
+  })
+
+  it('should throw NotFound when member is not in team', async () => {
+    mockTeamRepoFindMember.mockImplementation(async () => undefined)
+
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toThrow(AppError)
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toMatchObject({
+      code: ErrorCode.NotFound,
+      message: 'Member not found',
+    })
+  })
+
+  it('should throw BadRequest when member has already accepted invitation', async () => {
+    mockUserRepoFindById.mockImplementation(async () => ({ ...mockMember, status: Status.Active }))
+
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toThrow(AppError)
+    expect(cancelMemberInvite(TEAM_1, USER_1)).rejects.toMatchObject({
+      code: ErrorCode.BadRequest,
+      message: 'Member has already accepted invitation',
+    })
+  })
+
+  it('should deprecate token and archive user in a transaction', async () => {
+    const result = await cancelMemberInvite(TEAM_1, USER_1)
+
+    expect(mockTokenDeprecate).toHaveBeenCalledWith(USER_1, 'user_invite', expect.anything())
+    expect(mockUserUpdate).toHaveBeenCalledWith(
+      USER_1,
+      { status: Status.Archived },
+      expect.anything(),
+    )
     expect(result).toEqual({ success: true })
   })
 })

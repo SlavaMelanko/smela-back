@@ -6,8 +6,8 @@
     "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
     "reinstall": "bun clean && bun install",
     "dev": "bun --watch src/app.ts",
-    "start": "NODE_ENV=production bun src/app.ts",
-    "staging": "NODE_ENV=staging bun src/app.ts",
+    "build": "NODE_ENV=production bun build src/app.ts --outdir dist --target bun --minify",
+    "build:staging": "NODE_ENV=staging bun build src/app.ts --outdir dist --target bun --sourcemap=external",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:custom": "bun src/data/migrations/custom/run.ts",
@@ -22,14 +22,15 @@
     "lint": "bunx eslint --cache src",
     "lint:fix": "bunx eslint --cache --fix src",
     "tsc": "bunx tsc --noEmit",
-    "check": "bun run lint && bun run tsc && bun run test",
+    "check": "bun run lint:fix && bun run tsc && bun run test",
     "emails": "email dev --dir src/emails --port 3001",
-    "docker:build": "docker build -t smela-back .",
-    "docker:test": "docker run --rm -it smela-back"
+    "docker:build": "docker build -t smela-back --target production .",
+    "docker:build:staging": "docker build -t smela-back-staging --target staging .",
+    "docker:test": "docker build -t smela-back-test --target test . && docker run --rm smela-back-test"
   },
   "dependencies": {
-    "@hono/zod-validator": "0.7.5",
-    "@react-email/components": "^0.5.6",
+    "@hono/zod-validator": "^0.7.6",
+    "@react-email/components": "^1.0.8",
     "@sentry/bun": "^10.30.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
@@ -45,19 +46,21 @@
     "resend": "^6.5.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.2.0",
+    "@antfu/eslint-config": "^7.4.3",
     "@faker-js/faker": "^10.1.0",
-    "@react-email/preview-server": "4.3.2",
+    "@react-email/preview-server": "^5.2.8",
     "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest",
-    "@types/nodemailer": "^7.0.4",
+    "@types/nodemailer": "^7.0.10",
     "@types/pg": "^8.15.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "drizzle-kit": "^0.31.7",
-    "eslint": "^9.39.1",
-    "eslint-plugin-format": "^1.0.2",
+    "eslint": "^10.0.0",
+    "eslint-plugin-format": "^1.4.0",
     "husky": "^9.1.7",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^8.0.1",
     "pino-pretty": "^13.1.2",
-    "react-email": "^4.3.0"
+    "react-email": "^5.2.8"
   }
 }

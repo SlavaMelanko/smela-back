@@ -1,10 +1,30 @@
-import { and, count, eq, gt, isNull } from 'drizzle-orm'
+import { eq, max } from 'drizzle-orm'
 
 import type { Database } from '../../clients'
 import type { RefreshToken } from './types'
 
 import { db } from '../../clients'
 import { refreshTokensTable } from '../../schema'
+
+/**
+ * Returns a grouped subquery with the last activity timestamp per user,
+ * derived from the most recent refresh token creation.
+ *
+ * @example
+ * const lastActiveSq = lastActiveSubquery(executor)
+ * executor.select({ lastActive: lastActiveSq.lastActive })
+ *   .from(usersTable)
+ *   .leftJoin(lastActiveSq, eq(usersTable.id, lastActiveSq.userId))
+ */
+export const lastActiveSubquery = (executor: Database) =>
+  executor
+    .select({
+      userId: refreshTokensTable.userId,
+      lastActive: max(refreshTokensTable.createdAt).as('last_active'),
+    })
+    .from(refreshTokensTable)
+    .groupBy(refreshTokensTable.userId)
+    .as('last_active_subquery')
 
 export const findByTokenHash = async (
   tokenHash: string,
@@ -18,42 +38,4 @@ export const findByTokenHash = async (
     .where(eq(refreshTokensTable.tokenHash, tokenHash))
 
   return foundToken
-}
-
-export const findActiveByUserId = async (
-  userId: string,
-  tx?: Database,
-): Promise<RefreshToken[]> => {
-  const executor = tx || db
-
-  return executor
-    .select()
-    .from(refreshTokensTable)
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        isNull(refreshTokensTable.revokedAt),
-        gt(refreshTokensTable.expiresAt, new Date()),
-      ),
-    )
-}
-
-export const countActiveByUserId = async (
-  userId: string,
-  tx?: Database,
-): Promise<number> => {
-  const executor = tx || db
-
-  const [result] = await executor
-    .select({ count: count() })
-    .from(refreshTokensTable)
-    .where(
-      and(
-        eq(refreshTokensTable.userId, userId),
-        isNull(refreshTokensTable.revokedAt),
-        gt(refreshTokensTable.expiresAt, new Date()),
-      ),
-    )
-
-  return result?.count || 0
 }

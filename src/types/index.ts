@@ -1,7 +1,7 @@
 export { default as Action } from './action'
-
 export { default as AuthProvider } from './auth-providers'
-
+export { getAdminBasePermissions, getAdminDefaultPermissions, getMemberDefaultPermissions, default as Permission } from './permission'
+export type { AdminPermissionMap, PermissionMap, PermissionsInput } from './permission'
 export { default as Resource } from './resource'
 export { isAdmin, isOwner, isUser, isUserOrAdmin, default as Role } from './role'
 export { isActive, isActiveOnly, isNewOrActive, default as Status } from './status'

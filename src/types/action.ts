@@ -1,8 +1,6 @@
 enum Action {
   View = 'view',
-  Create = 'create',
-  Edit = 'edit',
-  Delete = 'delete',
+  Manage = 'manage',
 }
 
 export default Action

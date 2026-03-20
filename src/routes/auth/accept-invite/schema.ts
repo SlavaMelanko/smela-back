@@ -1,15 +1,13 @@
 import { z } from 'zod'
 
-import type { ValidatedJsonCtx } from '../../@shared'
+import type { ValidatedJsonCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
-const acceptInviteSchema = z.object({
-  token: rules.data.securityToken,
-  password: rules.data.password,
+export const acceptInviteBodySchema = z.object({
+  token: rules.token.oneTime,
+  password: rules.user.password,
 }).strict()
 
-export type AcceptInviteBody = z.infer<typeof acceptInviteSchema>
+export type AcceptInviteBody = z.infer<typeof acceptInviteBodySchema>
 export type AcceptInviteCtx = ValidatedJsonCtx<AcceptInviteBody>
-
-export default acceptInviteSchema

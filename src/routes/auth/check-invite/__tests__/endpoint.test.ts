@@ -6,7 +6,7 @@ import { createTestApp, get, ModuleMocker } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
-import checkInviteRoute from '../index'
+import { checkInviteRoute } from '../index'
 
 describe('Check Invite Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -25,7 +25,7 @@ describe('Check Invite Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/check-invite', () => ({
-      default: mockCheckInvite,
+      checkInvite: mockCheckInvite,
     }))
 
     app = createTestApp('/api/v1/auth', checkInviteRoute)

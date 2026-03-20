@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import verifyEmailRoute from '../index'
+import { verifyEmailRoute } from '../index'
 
 describe('Verify Email Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -35,7 +35,7 @@ describe('Verify Email Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/verify-email', () => ({
-      default: mockVerifyEmail,
+      verifyEmail: mockVerifyEmail,
     }))
 
     app = createTestApp('/api/v1/auth', verifyEmailRoute)

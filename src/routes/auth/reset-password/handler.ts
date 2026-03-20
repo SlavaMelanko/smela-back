@@ -1,5 +1,5 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
-import resetPassword from '@/use-cases/auth/reset-password'
+import { resetPassword } from '@/use-cases/auth/reset-password'
 
 import type { ResetPasswordCtx } from './schema'
 

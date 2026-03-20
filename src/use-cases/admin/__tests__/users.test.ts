@@ -89,7 +89,7 @@ describe('getUser', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
   let mockUser: User
-  let mockFindById: any
+  let mockFindByIdExtended: any
 
   beforeEach(async () => {
     mockUser = {
@@ -103,10 +103,10 @@ describe('getUser', () => {
       updatedAt: new Date('2024-01-01'),
     }
 
-    mockFindById = mock(async () => mockUser)
+    mockFindByIdExtended = mock(async () => mockUser)
 
     await moduleMocker.mock('@/data', () => ({
-      userRepo: { findById: mockFindById },
+      userRepo: { findByIdExtended: mockFindByIdExtended },
     }))
   })
 
@@ -117,12 +117,12 @@ describe('getUser', () => {
   it('should return user when found', async () => {
     const result = await getUser(testUuids.USER_1)
 
-    expect(mockFindById).toHaveBeenCalledWith(testUuids.USER_1)
+    expect(mockFindByIdExtended).toHaveBeenCalledWith(testUuids.USER_1)
     expect(result).toEqual({ user: mockUser })
   })
 
   it('should throw NotFound error when user does not exist', async () => {
-    mockFindById.mockImplementation(async () => undefined)
+    mockFindByIdExtended.mockImplementation(async () => undefined)
 
     expect(getUser(testUuids.NON_EXISTENT)).rejects.toThrow(AppError)
     expect(getUser(testUuids.NON_EXISTENT)).rejects.toMatchObject({

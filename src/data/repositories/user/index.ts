@@ -1,18 +1,13 @@
-import { createUser, deleteUser, updateUser } from './mutations'
-import { findUserByEmail, findUserById, search } from './queries'
-
-export type {
-  SearchParams,
-  SearchResult,
-} from './queries'
+import { createUser, updateUser } from './mutations'
+import { findUserByEmail, findUserById, findUserByIdExtended, search } from './queries'
 
 export * from './types'
 
 export const userRepo = {
   create: createUser,
-  delete: deleteUser,
   findByEmail: findUserByEmail,
   findById: findUserById,
+  findByIdExtended: findUserByIdExtended,
   search,
   update: updateUser,
 }

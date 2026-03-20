@@ -6,14 +6,14 @@ import { ModuleMocker, testUuids } from '@/__tests__'
 import { AppError, ErrorCode } from '@/errors'
 import { AuthProvider, Role, Status } from '@/types'
 
-import type { LoginParams } from '../login'
+import type { LoginInput } from '../login'
 
-import logInWithEmail from '../login'
+import { logInWithEmail } from '../login'
 
 describe('Login with Email', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
 
-  let mockLoginParams: LoginParams
+  let mockLoginParams: LoginInput
   let mockDeviceInfo: { ipAddress: string, userAgent: string }
 
   let mockUser: User
@@ -30,6 +30,7 @@ describe('Login with Email', () => {
   let mockCreateJwt: any
 
   let mockGenerateHashedToken: any
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockLoginParams = {
@@ -55,7 +56,6 @@ describe('Login with Email', () => {
       findByEmail: mock(async () => mockUser),
     }
     mockAuthRecord = {
-      id: 1,
       userId: testUuids.USER_1,
       provider: AuthProvider.Local,
       identifier: 'test@example.com',
@@ -104,6 +104,12 @@ describe('Login with Email', () => {
       generateHashedToken: mockGenerateHashedToken,
       TokenType: { RefreshToken: 'refresh_token' },
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissionList: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -111,13 +117,14 @@ describe('Login with Email', () => {
   })
 
   describe('successful login', () => {
-    it('should return user, team, and token for valid credentials', async () => {
+    it('should return user, team, permissions, and token for valid credentials', async () => {
       const result = await logInWithEmail(mockLoginParams, mockDeviceInfo)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('refreshToken')
       expect(result.data.accessToken).toBe(mockJwtToken)
-      expect(result.data.team).toBeNull()
+      expect(result.data.team).toBeUndefined()
+      expect(result.data.permissions).toBeUndefined()
       expect(result.refreshToken).toBe('refresh_token_123')
       expect(result.data.user).not.toHaveProperty('tokenVersion')
       expect(result.data.user.email).toBe(mockLoginParams.email)

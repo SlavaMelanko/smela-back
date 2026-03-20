@@ -5,14 +5,12 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { resetPasswordHandler } from './handler'
-import schema from './schema'
+import { resetPasswordBodySchema } from './schema'
 
-const resetPasswordRoute = new Hono<AppContext>()
+export const resetPasswordRoute = new Hono<AppContext>()
 
 resetPasswordRoute.post(
   '/reset-password',
-  requestValidator('json', schema),
+  requestValidator('json', resetPasswordBodySchema),
   resetPasswordHandler,
 )
-
-export default resetPasswordRoute

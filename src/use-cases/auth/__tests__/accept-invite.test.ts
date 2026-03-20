@@ -10,7 +10,7 @@ import Role from '@/types/role'
 import Status from '@/types/status'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import acceptInvite from '../accept-invite'
+import { acceptInvite } from '../accept-invite'
 
 describe('Accept Invite', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -38,6 +38,7 @@ describe('Accept Invite', () => {
   let mockAccessToken: string
   let mockRefreshToken: string
   let mockSignJwt: any
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockPassword = 'NewSecure@123'
@@ -83,14 +84,13 @@ describe('Accept Invite', () => {
       update: mock(async () => {}),
     }
     mockUserRepo = {
-      findById: mock(async () => mockActivatedUser),
-      update: mock(async () => {}),
+      update: mock(async () => mockActivatedUser),
     }
     mockRefreshTokenRepo = {
       create: mock(async () => {}),
     }
     mockTeamRepo = {
-      findUserTeam: mock(async () => null),
+      findUserTeam: mock(async () => undefined),
     }
     mockTransaction = {
       transaction: mock(async (callback: any) => callback({}) as Promise<void>),
@@ -130,6 +130,12 @@ describe('Accept Invite', () => {
     await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockSignJwt,
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissionList: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -167,12 +173,16 @@ describe('Accept Invite', () => {
       }, {})
       expect(mockUserRepo.update).toHaveBeenCalledTimes(1)
 
-      expect(mockUserRepo.findById).toHaveBeenCalledWith(mockTokenRecord.userId)
       expect(mockSignJwt).toHaveBeenCalledTimes(1)
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockActivatedUser,
+          team: undefined,
+          permissions: undefined,
+          accessToken: mockAccessToken,
+        },
         refreshToken: mockRefreshToken,
       })
     })
@@ -389,12 +399,28 @@ describe('Accept Invite', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockActivatedUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockActivatedUser,
+          team: undefined,
+          permissions: undefined,
+          accessToken: mockAccessToken,
+        },
         refreshToken: mockRefreshToken,
       })
 
       expect(mockHashPassword).toHaveBeenCalledWith(longPassword)
       expect(mockHashPassword).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('permissions in response', () => {
+    it('should omit permissions from data when user has no permissions', async () => {
+      const result = await acceptInvite(
+        { token: mockTokenString, password: mockPassword },
+        mockDeviceInfo,
+      )
+
+      expect(result.data.permissions).toBeUndefined()
     })
   })
 })

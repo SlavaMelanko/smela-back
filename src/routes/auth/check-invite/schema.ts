@@ -1,14 +1,12 @@
 import { z } from 'zod'
 
-import type { ValidatedQueryCtx } from '../../@shared'
+import type { ValidatedQueryCtx } from '@/routes/validated-ctx'
 
-import { requestValidationRules as rules } from '../../@shared'
+import { rules } from '@/routes/rules'
 
-const checkInviteSchema = z.object({
-  token: rules.data.securityToken,
+export const checkInviteQuerySchema = z.object({
+  token: rules.token.oneTime,
 })
 
-export type CheckInviteQuery = z.infer<typeof checkInviteSchema>
+export type CheckInviteQuery = z.infer<typeof checkInviteQuerySchema>
 export type CheckInviteCtx = ValidatedQueryCtx<CheckInviteQuery>
-
-export default checkInviteSchema

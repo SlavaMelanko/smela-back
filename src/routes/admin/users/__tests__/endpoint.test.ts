@@ -9,7 +9,7 @@ import { createTestApp, ModuleMocker, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { Role, Status } from '@/types'
 
-import adminUsersRoute from '../index'
+import { adminUsersRoute } from '../index'
 
 describe('Admin Users Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)

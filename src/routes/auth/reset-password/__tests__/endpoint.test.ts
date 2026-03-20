@@ -6,7 +6,7 @@ import { createTestApp, ModuleMocker, post, testUuids } from '@/__tests__'
 import { HttpStatus } from '@/net/http'
 import { TOKEN_LENGTH } from '@/security/token'
 
-import resetPasswordRoute from '../index'
+import { resetPasswordRoute } from '../index'
 
 describe('Reset Password Endpoint', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -23,7 +23,7 @@ describe('Reset Password Endpoint', () => {
     }))
 
     await moduleMocker.mock('@/use-cases/auth/reset-password', () => ({
-      default: mockResetPassword,
+      resetPassword: mockResetPassword,
     }))
 
     app = createTestApp('/api/v1/auth', resetPasswordRoute)

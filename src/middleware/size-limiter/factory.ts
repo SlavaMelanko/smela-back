@@ -46,6 +46,6 @@ export const createRequestSizeLimiter = (
       throw new AppError(ErrorCode.ValidationError, 'Failed to validate request size')
     }
 
-    await next()
+    return next()
   })
 }

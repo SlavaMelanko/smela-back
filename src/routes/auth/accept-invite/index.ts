@@ -5,14 +5,12 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { acceptInviteHandler } from './handler'
-import schema from './schema'
+import { acceptInviteBodySchema } from './schema'
 
-const acceptInviteRoute = new Hono<AppContext>()
+export const acceptInviteRoute = new Hono<AppContext>()
 
 acceptInviteRoute.post(
   '/accept-invite',
-  requestValidator('json', schema),
+  requestValidator('json', acceptInviteBodySchema),
   acceptInviteHandler,
 )
-
-export default acceptInviteRoute

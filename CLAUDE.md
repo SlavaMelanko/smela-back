@@ -22,10 +22,11 @@ TypeScript backend API built with Bun runtime and Hono framework. It provides au
 
 All available commands are defined in [package.json](package.json). Key commands include:
 
-- **Development**: `bun run dev` (hot reload on port 3000), `bun run start` (production), `bun run staging`
-- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`, `bun run test:with-db` (start test DB and run tests)
+- **Development**: `bun run dev` (hot reload on port 3000)
+- **Build**: `bun run build` (production, minified), `bun run build:staging` (staging, with source maps)
+- **Testing**: `bun test` (all tests), `bun test [file]` (specific test file), `bun run coverage`
 - **Database Dev**: `bun run db:dev:up` (start dev DB), `bun run db:dev:down` (stop dev DB), `bun run db:dev:reset` (reset dev DB), `bun run db:init` (generate + migrate + seed), `bun run db:ui` (Drizzle Studio)
-- **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + test)
+- **Code Quality**: `bun run lint`, `bun run lint:fix`, `bun run check` (lint + tsc + test)
 - **Email Dev**: `bun run emails` (React Email dev server on port 3001)
 
 ## Architecture Overview
@@ -162,6 +163,10 @@ For detailed mocking patterns: `.claude/skills/bun-testing/references/mocking-pa
 - CORS with environment-specific origin validation
 - Input validation using Zod schemas
 - CAPTCHA protection: Google reCAPTCHA v2 (invisible) on auth endpoints
+- **Zod schema strictness rule**:
+  - Use `.strict()` on body schemas for: auth routes, payment endpoints, internal APIs (owner/admin)
+  - Use default strip behavior for: public APIs, webhooks, backward-compatible endpoints
+  - Query and param schemas intentionally omit `.strict()`
 
 #### Security Headers
 

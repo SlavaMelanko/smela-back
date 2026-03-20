@@ -5,14 +5,12 @@ import type { AppContext } from '@/context'
 import { requestValidator } from '@/middleware'
 
 import { verifyEmailHandler } from './handler'
-import schema from './schema'
+import { verifyEmailBodySchema } from './schema'
 
-const verifyEmailRoute = new Hono<AppContext>()
+export const verifyEmailRoute = new Hono<AppContext>()
 
 verifyEmailRoute.post(
   '/verify-email',
-  requestValidator('json', schema),
+  requestValidator('json', verifyEmailBodySchema),
   verifyEmailHandler,
 )
-
-export default verifyEmailRoute

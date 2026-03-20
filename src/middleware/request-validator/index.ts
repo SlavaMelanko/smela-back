@@ -1,1 +1,1 @@
-export { default as requestValidator } from './request-validator'
+export { requestValidator } from './request-validator'

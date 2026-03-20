@@ -10,7 +10,7 @@ import Role from '@/types/role'
 import Status from '@/types/status'
 import { hour, nowPlus } from '@/utils/chrono'
 
-import resetPassword from '../reset-password'
+import { resetPassword } from '../reset-password'
 
 describe('Reset Password', () => {
   const moduleMocker = new ModuleMocker(import.meta.url)
@@ -38,6 +38,7 @@ describe('Reset Password', () => {
   let mockAccessToken: string
   let mockRefreshToken: string
   let mockSignJwt: any
+  let mockResolvePermissions: any
 
   beforeEach(async () => {
     mockPassword = 'NewSecure@123'
@@ -125,6 +126,12 @@ describe('Reset Password', () => {
     await moduleMocker.mock('@/security/jwt', () => ({
       signJwt: mockSignJwt,
     }))
+
+    mockResolvePermissions = mock(async () => undefined)
+
+    await moduleMocker.mock('../../resolve-permissions', () => ({
+      resolvePermissionList: mockResolvePermissions,
+    }))
   })
 
   afterEach(async () => {
@@ -162,7 +169,12 @@ describe('Reset Password', () => {
       expect(mockRefreshTokenRepo.create).toHaveBeenCalledTimes(1)
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockUser,
+          team: undefined,
+          permissions: undefined,
+          accessToken: mockAccessToken,
+        },
         refreshToken: mockRefreshToken,
       })
     })
@@ -366,12 +378,28 @@ describe('Reset Password', () => {
       )
 
       expect(result).toEqual({
-        data: { user: mockUser, team: null, accessToken: mockAccessToken },
+        data: {
+          user: mockUser,
+          team: undefined,
+          permissions: undefined,
+          accessToken: mockAccessToken,
+        },
         refreshToken: mockRefreshToken,
       })
 
       expect(mockHashPassword).toHaveBeenCalledWith(longPassword)
       expect(mockHashPassword).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('permissions in response', () => {
+    it('should omit permissions from data when user has no permissions', async () => {
+      const result = await resetPassword(
+        { token: mockTokenString, password: mockPassword },
+        mockDeviceInfo,
+      )
+
+      expect(result.data.permissions).toBeUndefined()
     })
   })
 })

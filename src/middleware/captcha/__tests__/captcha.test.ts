@@ -8,7 +8,7 @@ import { AppError, ErrorCode } from '@/errors'
 import { onError } from '@/handlers'
 import { HttpStatus } from '@/net/http'
 
-import captchaMiddleware from '../captcha'
+import { captchaMiddleware } from '../captcha'
 import { invalidCaptchaTokens } from './captcha.mock'
 
 // Simple schema for test validation (mirrors what requestValidator would validate)

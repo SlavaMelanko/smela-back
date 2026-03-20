@@ -19,14 +19,14 @@ export const networkEnvVars = (nodeEnv?: string) => {
     ALLOWED_ORIGINS: z.string().optional().superRefine((val, ctx) => {
       if ((nodeEnv === 'staging' || nodeEnv === 'production') && (!val || val.trim() === '')) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'ALLOWED_ORIGINS is required for staging/production environments',
         })
       }
     }),
 
     // Base URLs
-    BE_BASE_URL: z.string().url().default('http://localhost:3000'),
-    FE_BASE_URL: z.string().url().default('http://localhost:5173'),
+    BE_BASE_URL: z.url().default('http://localhost:3000'),
+    FE_BASE_URL: z.url().default('http://localhost:5173'),
   }
 }

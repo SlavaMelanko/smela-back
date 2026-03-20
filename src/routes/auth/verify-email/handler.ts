@@ -1,5 +1,5 @@
 import { getDeviceInfo, HttpStatus, setRefreshCookie } from '@/net/http'
-import verifyEmail from '@/use-cases/auth/verify-email'
+import { verifyEmail } from '@/use-cases/auth/verify-email'
 
 import type { VerifyEmailCtx } from './schema'
 

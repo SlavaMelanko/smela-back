@@ -125,7 +125,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Books For You\",\n    \"website\": \"https://b4u.com\"\n}",
+              "raw": "{\n    \"name\": \"Caddy\",\n    \"website\": \"https://caddy.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -139,128 +139,6 @@
               ],
               "path": [
                 "teams"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
-              "host": [
-                "{{admin_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "{{last_team_id}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"description\": \"This is the test\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{admin_api_url}}/teams/{{last_team_id}}",
-              "host": [
-                "{{admin_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "{{last_team_id}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id/members",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "const member = res.user;",
-                  "",
-                  "if (member) {",
-                  "    pm.environment.set(\"last_member_id\", member.id);",
-                  "    console.log(\"Saved last_member_id:\", member.id);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members",
-              "host": [
-                "{{admin_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "{{last_team_id}}",
-                "members"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "teams/:id/members/:id/resend-invite",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{admin_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/resend-invite",
-              "host": [
-                "{{admin_api_url}}"
-              ],
-              "path": [
-                "teams",
-                "{{last_team_id}}",
-                "members",
-                "{{last_member_id}}",
-                "resend-invite"
               ]
             }
           },
@@ -439,7 +317,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"6c9ec022ca779a2396c5882b50ddc4c7d99b0c2d6503b12ce9764dac182f475c\"\n}",
+              "raw": "{\n    \"token\": \"2c17d6765a0cba3c7cf4527dc79ea97a345a5c5590b4ddc228d9a423a3692af0\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -535,7 +413,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"a3e3fad5ea11db103203099e3724384eaaccac932fca77539973f978f08582cb\",\n    \"password\": \"{{new_password}}\"\n}\n",
+              "raw": "{\n    \"token\": \"ab090adf95248a5b3cb9ed412c2828ac91babd65db86056a8c597c88e1c13c51\",\n    \"password\": \"{{new_password}}\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -638,13 +516,48 @@
           "response": []
         },
         {
+          "name": "check-invite",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"f6ba2d60ed7efb017b2d535b07a227a1d6d68e57c174a369d30612836fb1e267\",\n    \"password\": \"{{initial_password}}\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{auth_api_url}}/check-invite?token=a5a4ed7a48f6a1a6287dceef7969380f7010c82a6840b0a0166106ceecf0ea12",
+              "host": [
+                "{{auth_api_url}}"
+              ],
+              "path": [
+                "check-invite"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "a5a4ed7a48f6a1a6287dceef7969380f7010c82a6840b0a0166106ceecf0ea12"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "accept-invite",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"f6ba2d60ed7efb017b2d535b07a227a1d6d68e57c174a369d30612836fb1e267\",\n    \"password\": \"{{initial_password}}\"\n}\n",
+              "raw": "{\n    \"token\": \"a5a4ed7a48f6a1a6287dceef7969380f7010c82a6840b0a0166106ceecf0ea12\",\n    \"password\": \"{{initial_password}}\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -780,6 +693,25 @@
         },
         {
           "name": "teams/:id/members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const members = res.members;",
+                  "",
+                  "if (member) {",
+                  "    pm.environment.set(\"last_member_id\", members[0].id);",
+                  "    console.log(\"Saved last_member_id:\", members[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -792,6 +724,26 @@
                 "teams",
                 "{{last_team_id}}",
                 "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/default-permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/default-permissions",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "default-permissions"
               ]
             }
           },
@@ -823,7 +775,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\"\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"users\": {\n            \"view\": true,\n            \"manage\": true\n        },\n        \"teams\": {\n            \"view\": true,\n            \"manage\": true\n        }\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -894,6 +846,35 @@
           "response": []
         },
         {
+          "name": "teams/:id/members/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "teams/:id/members/:id/resend-invite",
           "request": {
             "method": "POST",
@@ -918,6 +899,36 @@
                 "members",
                 "{{last_member_id}}",
                 "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "teams/:id/members/:id/cancel-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{user_verified_only_api_url}}/teams/{{last_team_id}}/members/{{last_member_id}}/cancel-invite",
+              "host": [
+                "{{user_verified_only_api_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{last_team_id}}",
+                "members",
+                "{{last_member_id}}",
+                "cancel-invite"
               ]
             }
           },
@@ -965,6 +976,37 @@
           "response": []
         },
         {
+          "name": "admins/default-permissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/default-permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "default-permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "admins",
           "event": [
             {
@@ -990,7 +1032,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"view\": true,\n        \"create\": true,\n        \"edit\": true,\n        \"delete\": true\n    }\n}",
+              "raw": "{\n    \"firstName\": \"Slava\",\n    \"lastName\": \"Melanko\",\n    \"email\": \"{{user_email}}\",\n    \"permissions\": {\n        \"users\": {\n            \"view\": true,\n            \"manage\": true\n        },\n        \"teams\": {\n            \"view\": true,\n            \"manage\": true\n        }\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1028,6 +1070,53 @@
           "response": []
         },
         {
+          "name": "admins/:id/permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id/permissions",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"permissions\": {\n        \"users\": {\n            \"manage\": false,\n            \"view\": true\n        },\n        \"teams\": {\n            \"manage\": false,\n            \"view\": false\n        }\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/permissions",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "admins/:id/resend-invite",
           "request": {
             "method": "POST",
@@ -1041,6 +1130,25 @@
                 "admins",
                 "{{last_admin_id}}",
                 "resend-invite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admins/:id/cancel-invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{owner_api_url}}/admins/{{last_admin_id}}/cancel-invite",
+              "host": [
+                "{{owner_api_url}}"
+              ],
+              "path": [
+                "admins",
+                "{{last_admin_id}}",
+                "cancel-invite"
               ]
             }
           },

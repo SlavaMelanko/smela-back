@@ -1,4 +1,4 @@
-import { teamRepo, tokenRepo, userRoleRepo } from '@/data'
+import { rbacRepo, teamRepo, tokenRepo } from '@/data'
 import env from '@/env'
 import { AppError, ErrorCode } from '@/errors'
 import { TokenType, TokenValidator } from '@/security/token'
@@ -22,7 +22,7 @@ const checkMemberInvite = async (userId: string): Promise<CheckInviteResult | nu
 }
 
 const checkAdminInvite = async (userId: string): Promise<CheckInviteResult | null> => {
-  const userRole = await userRoleRepo.findByUserId(userId)
+  const userRole = await rbacRepo.findRole(userId)
 
   if (userRole?.role !== Role.Admin) {
     return null
@@ -31,7 +31,7 @@ const checkAdminInvite = async (userId: string): Promise<CheckInviteResult | nul
   return { type: 'admin', teamName: env.COMPANY_NAME }
 }
 
-const checkInvite = async (token: string): Promise<CheckInviteResult> => {
+export const checkInvite = async (token: string): Promise<CheckInviteResult> => {
   const tokenRecord = await tokenRepo.findByToken(token)
   const validatedToken = TokenValidator.validate(tokenRecord, TokenType.UserInvite)
 
@@ -47,5 +47,3 @@ const checkInvite = async (token: string): Promise<CheckInviteResult> => {
 
   throw new AppError(ErrorCode.InternalError, 'Invalid invitation state')
 }
-
-export default checkInvite

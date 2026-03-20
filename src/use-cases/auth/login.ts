@@ -1,44 +1,19 @@
-import type { User } from '@/data'
 import type { DeviceInfo } from '@/net/http/device'
 
-import { authRepo, refreshTokenRepo, teamRepo, userRepo } from '@/data'
+import { authRepo, teamRepo, userRepo } from '@/data'
 import { AppError, ErrorCode } from '@/errors'
-import { signJwt } from '@/security/jwt'
 import { comparePasswordHashes } from '@/security/password'
-import { generateHashedToken, TokenType } from '@/security/token'
 
-export interface LoginParams {
+import { resolvePermissionList } from '../resolve-permissions'
+import { createAuthTokens } from '../tokens'
+
+export interface LoginInput {
   email: string
   password: string
 }
 
-const createAccessToken = async (user: User) => signJwt(
-  {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-  },
-)
-
-const createRefreshToken = async (userId: string, deviceInfo: DeviceInfo) => {
-  const { token: { raw, hashed }, expiresAt } = await generateHashedToken(
-    TokenType.RefreshToken,
-  )
-
-  await refreshTokenRepo.create({
-    userId,
-    tokenHash: hashed,
-    ipAddress: deviceInfo.ipAddress,
-    userAgent: deviceInfo.userAgent,
-    expiresAt,
-  })
-
-  return raw
-}
-
-const logInWithEmail = async (
-  { email, password }: LoginParams,
+export const logInWithEmail = async (
+  { email, password }: LoginInput,
   deviceInfo: DeviceInfo,
 ) => {
   const user = await userRepo.findByEmail(email)
@@ -59,16 +34,15 @@ const logInWithEmail = async (
     throw new AppError(ErrorCode.InvalidCredentials)
   }
 
-  const [accessToken, refreshToken, team] = await Promise.all([
-    createAccessToken(user),
-    createRefreshToken(user.id, deviceInfo),
+  const [team, permissions] = await Promise.all([
     teamRepo.findUserTeam(user.id),
+    resolvePermissionList(user.id),
   ])
 
+  const [accessToken, refreshToken] = await createAuthTokens(user, deviceInfo, permissions)
+
   return {
-    data: { user, team: team ?? null, accessToken },
+    data: { user, team, permissions, accessToken },
     refreshToken,
   }
 }
-
-export default logInWithEmail

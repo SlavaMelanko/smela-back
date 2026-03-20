@@ -5,15 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1770573144545,
-      "tag": "0000_furry_shotgun",
+      "when": 1772698858916,
+      "tag": "0000_premium_thundra",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1770843818659,
-      "tag": "0001_keen_thunderball",
+      "when": 1773664962219,
+      "tag": "0001_flowery_nebula",
       "breakpoints": true
     }
   ]

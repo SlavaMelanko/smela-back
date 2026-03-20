@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 
 import { AppError, ErrorCode } from '@/errors'
 import { Role } from '@/types'
@@ -7,7 +7,7 @@ import type { Database } from '../../clients'
 import type { CreateUserInput, UpdateUserInput, User } from './types'
 
 import { db } from '../../clients'
-import { usersTable } from '../../schema'
+import { userRoleTable, usersTable } from '../../schema'
 
 export const createUser = async (user: CreateUserInput, tx?: Database): Promise<User> => {
   const executor = tx || db
@@ -32,24 +32,32 @@ export const updateUser = async (
 ): Promise<User> => {
   const executor = tx || db
 
+  const updatedCte = executor.$with('updated').as(
+    executor
+      .update(usersTable)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(usersTable.id, userId))
+      .returning(),
+  )
+
   const [updatedUser] = await executor
-    .update(usersTable)
-    .set({ ...updates, updatedAt: new Date() })
-    .where(eq(usersTable.id, userId))
-    .returning()
+    .with(updatedCte)
+    .select({
+      id: updatedCte.id,
+      firstName: updatedCte.firstName,
+      lastName: updatedCte.lastName,
+      email: updatedCte.email,
+      status: updatedCte.status,
+      createdAt: updatedCte.createdAt,
+      updatedAt: updatedCte.updatedAt,
+      role: sql<Role>`COALESCE(${userRoleTable.role}, ${Role.User})`,
+    })
+    .from(updatedCte)
+    .leftJoin(userRoleTable, eq(updatedCte.id, userRoleTable.userId))
 
   if (!updatedUser) {
     throw new AppError(ErrorCode.InternalError, 'Failed to update user')
   }
 
-  // Role is not known here; callers that need it should re-query
-  return { ...updatedUser, role: Role.User }
-}
-
-export const deleteUser = async (email: string, tx?: Database): Promise<void> => {
-  const executor = tx || db
-
-  await executor
-    .delete(usersTable)
-    .where(eq(usersTable.email, email))
+  return updatedUser
 }
