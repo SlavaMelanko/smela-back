@@ -1,6 +1,6 @@
 {
   "name": "smela-back",
-  "version": "2026.02.12",
+  "version": "2026.03.20",
   "scripts": {
     "prepare": "husky",
     "clean": "bun pm cache rm && rm -rf node_modules bun.lock",
